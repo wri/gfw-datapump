@@ -1,0 +1,96 @@
+{
+  "StartAt": "New AOI Processor",
+  "States": {
+    "New AOI Processor": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:new-aoi-processor",
+      "Parameters": {
+        "request_id.$": "$$.Execution.Id"
+      },
+      "Next": "New AOI?"
+    },
+    "New AOI?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.NewAOI",
+          "BooleanEquals": true,
+          "Next": "Wait For EMR"
+        },
+        {
+          "Variable": "$.NewAOI",
+          "BooleanEquals": false,
+          "Next": "Terminate"
+        }
+      ],
+      "Default": "Wait For EMR"
+    },
+    "Wait For EMR": {
+      "Type": "Wait",
+      "Seconds": 300,
+      "Next": "Post EMR Processor"
+    },
+    "Post EMR Processor": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:post-emr-processor",
+      "Parameters": {
+        "request_id.$": "$$.Execution.Id"
+      },
+      "Next": "EMR Status"
+    },
+    "EMR Status": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.EMRStatus",
+          "StringEquals": "PENDING",
+          "Next": "Wait For Dataset Saved"
+        },
+        {
+          "Variable": "$.EMRStatus",
+          "StringEquals": "FAILED",
+          "Next": "Terminate"
+        },
+        {
+          "Variable": "$.EMRComplete",
+          "StringEquals": "SUCCESS",
+          "Next": "Wait For EMR"
+        }
+      ],
+      "Default": "Wait For EMR"
+    },
+    "Wait For Dataset Saved": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Success Status Notifier"
+    },
+    "Success Status Notifier": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:success-status-notifier",
+      "Parameters": {
+        "request_id.$": "$$.Execution.Id"
+      },
+      "Next": "Dataset Status"
+    },
+    "Dataset Status": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DatasetStatus",
+          "StringEquals": "COMPLETE",
+          "Next": "Terminate"
+        },
+        {
+          "Variable": "$.Done",
+          "StringEquals": "PENDING",
+          "Next": "Wait For Dataset Saved"
+        }
+      ],
+      "Default": "Wait For Dataset Saved"
+    },
+    "Terminate": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
