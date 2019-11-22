@@ -1,5 +1,6 @@
 import boto3
 
+
 def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
     client = boto3.client("emr", region_name="us-east-1")
     master_instance_type = instance_type  #"r4.xlarge"

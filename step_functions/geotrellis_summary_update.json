@@ -28,15 +28,15 @@
     "Wait For Job Termination": {
       "Type": "Wait",
       "Seconds": 300,
-      "Next": "Update GeoTrellis Results To Dataset"
+      "Next": "Upload GeoTrellis Results To Dataset"
     },
-    "Update GeoTrellis Results To Dataset": {
+    "Upload GeoTrellis Results To Dataset": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:update-results-to-dataset_geotrellis-summary-update",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:upload-results-to-datasets_geotrellis-summary-update",
       "Parameters": {
         "request_id.$": "$$.Execution.Id"
       },
-      "Next": "Results Saved To Datasets?"
+      "Next": "Job Terminated?"
     },
     "Job Terminated?": {
       "Type": "Choice",
