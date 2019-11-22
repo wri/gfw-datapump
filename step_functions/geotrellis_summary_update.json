@@ -5,6 +5,7 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:563860007740:function:submit-job_geotrellis-summary-update",
       "InputPath": "$",
+      "ResultPath": "$",
       "Next": "Job Submitted?"
     },
     "Job Submitted?": {
@@ -18,22 +19,21 @@
         {
           "Variable": "$.status",
           "StringEquals": "FAILED",
-          "Next": "JobSubmissionFailed"
+          "Next": "Job Submission Failed"
         }
       ],
       "Default": "Wait For Job Termination"
     },
     "Wait For Job Termination": {
       "Type": "Wait",
-      "Seconds": 300,
+      "Seconds": 10,
       "Next": "Upload GeoTrellis Results To Dataset"
     },
     "Upload GeoTrellis Results To Dataset": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:563860007740:function:upload-results-to-datasets_geotrellis-summary-update",
-      "Parameters": {
-        "request_id.$": "$$.Execution.Id"
-      },
+      "InputPath": "$",
+      "ResultPath": "$",
       "Next": "Job Terminated?"
     },
     "Job Terminated?": {
@@ -47,7 +47,7 @@
         {
           "Variable": "$.status",
           "StringEquals": "FAILED",
-          "Next": "GeoTrellisJobFailure"
+          "Next": "GeoTrellis Job Failure"
         },
         {
           "Variable": "$.status",
@@ -59,15 +59,14 @@
     },
     "Wait For Dataset Upload": {
       "Type": "Wait",
-      "Seconds": 60,
+      "Seconds": 10,
       "Next": "Check Datasets Saved"
     },
     "Check Datasets Saved": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:563860007740:function:check-datasets-saved_geotrellis-summary-update",
-      "Parameters": {
-        "request_id.$": "$$.Execution.Id"
-      },
+      "InputPath": "$",
+      "ResultPath": "$",
       "Next": "Datasets Saved?"
     },
     "Datasets Saved?": {
@@ -81,7 +80,7 @@
         {
           "Variable": "$.status",
           "StringEquals": "FAILED",
-          "Next": "DatasetSaveFailed"
+          "Next": "Dataset Save Failed"
         },
         {
           "Variable": "$.Done",
@@ -91,17 +90,17 @@
       ],
       "Default": "Wait For Dataset Upload"
     },
-    "JobSubmissionFailed": {
+    "Job Submission Failed": {
       "Type": "Fail",
       "Cause": "GeoTrellis EMR job submission failed.",
       "Error": "JobSubmissionFailure"
     },
-    "GeoTrellisJobFailure": {
+    "GeoTrellis Job Failure": {
       "Type": "Fail",
       "Cause": "GeoTrellis EMR job execution failed.",
       "Error": "GeoTrellisJobFailure"
     },
-    "DatasetSaveFailed": {
+    "Dataset Save Failed": {
       "Type": "Fail",
       "Cause": "Failed to save results in dataset.",
       "Error": "DatasetSaveFailed"

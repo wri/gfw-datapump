@@ -1,6 +1,6 @@
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.dataset import get_dataset_status
-
+import logging
 
 def handler(event, context):
     name = event["name"]
@@ -15,7 +15,8 @@ def handler(event, context):
 
     pending_statuses = list(filter(lambda status: status == "pending", dataset_statuses.values()))
     if pending_statuses:
-        return {"status": "PENDING"}
+        event.update({"status": "PENDING"})
+        return event
 
     error_statuses = list(filter(lambda id_status: id_status[1] == "failed", dataset_statuses.items()))
     if error_statuses:
@@ -24,6 +25,7 @@ def handler(event, context):
                         "The following datasets returned 'failed' status " \
                         "when trying to update in API: {}".format(name, error_ids)
 
+        logging.info(error_message)
         slack_webhook("ERROR", error_message, env)
         return {"status": "FAILED"}
 
@@ -40,12 +42,12 @@ def handler(event, context):
 
 if __name__ == "__main__":
     print(handler({
-        "env": "staging",
+        "env": "dev",
         "name": "new_area_test",
         "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
         "analyses": {
             "gladalerts": {
-                "daily_alerts": "72af8802-df3c-42ab-a369-5e7f2b34ae2f",
+                "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7",
                 #"weekly_alerts": "Glad Alerts - Weekly - Geostore - User Areas",
                 #"summary": "Glad Alerts - Summary - Geostore - User Areas",
             }

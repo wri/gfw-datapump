@@ -37,7 +37,7 @@ def handler(event, context):
 
         for analysis_name in analysis_names:
             analysis_path = analysis_result_map[analysis_name]
-            sub_analyses = analyses[analysis_name].keys() # get_analysis_result_dirs(analysis_name, analysis_path, feature_type)
+            sub_analyses = analyses[analysis_name].keys()
             analysis_result_urls[analysis_name] = dict()
 
             for sub_analysis in sub_analyses:
@@ -80,9 +80,9 @@ def handler(event, context):
             "analyses": analyses,
             "feature_src": event["feature_src"],
         }
-
     else:
-        return {"status": "PENDING"}
+        event.update({"status": "PENDING"})
+        return event
 
 
 def get_sub_analysis_result_dir(analysis_result_path, sub_analysis_name, feature_type):
@@ -113,18 +113,18 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
 
 if __name__ == "__main__":
     print(handler({
-        "env": "staging",
-        "name": "new_area_test",
+        "status": "SUCCESS",
+        "job_flow_id": "j-ZHC4HI3NDTIP",
+        "env": "dev",
+        "name": "new_area_test2",
+        "analyses": {
+          "gladalerts": {
+            "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7"
+          }
+        },
         "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
         "feature_type": "geostore",
-        "job_flow_id": "j-396AK95T1I3DD",
         "result_bucket": "gfw-pipelines-dev",
-        "result_dir": "geotrellis/results/v20191119/new_area_test",
-        "analyses": {
-            "gladalerts": {
-                "daily_alerts": "72af8802-df3c-42ab-a369-5e7f2b34ae2f",
-                #"weekly_alerts": "Glad Alerts - Weekly - Geostore - User Areas",
-                #"summary": "Glad Alerts - Summary - Geostore - User Areas",
-            }
-        }
+        "result_dir": "geotrellis/results/v20191122/new_area_test2",
+        "upload_type": "concat"
     }, None))

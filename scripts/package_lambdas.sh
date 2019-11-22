@@ -1,4 +1,7 @@
-pushd venvpy/lib/python3.7/site-packages && zip -r9 base_function.zip .
+pip install .
+
+pushd venvpy/lib/python3.7/site-packages
+zip -r9 base_function.zip .
 popd
 
 cp venvpy/lib/python3.7/site-packages/base_function.zip lambdas/submit_job/function.zip
