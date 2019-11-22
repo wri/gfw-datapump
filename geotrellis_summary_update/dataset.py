@@ -10,34 +10,9 @@ def get_dataset_status(dataset_id, env):
     return response_json["data"]["attributes"]["status"]
 
 
-def create_dataset(dataset_id, source_urls, env="production"):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset".format(env)
-    token = get_api_token(env)
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-    }
-
-    payload = {
-        "provider": "tsv",
-        "connectorType": "document",
-        "application": ["gfw"],
-        "name": dataset_id,
-        "sources": source_urls
-    }
-
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
-
-    if r.status_code != 204:
-        raise Exception(
-            "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json)
-        )
-
-
-def concat_dataset(dataset_id, source_urls, env="production"):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}/concat".format(env, dataset_id)
+def upload_dataset(dataset_id, source_urls, upload_type, env="production"):
+    env = map_env(env)
+    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}/{}".format(env, upload_type, dataset_id)
     token = get_api_token(env)
 
     headers = {
@@ -68,3 +43,36 @@ def get_api_token(env):
         SecretId="gfw-api/{}-token".format(env)
     )
     return json.loads(response["SecretString"])["token"]
+
+
+def create_dataset(dataset_id, source_urls, env="production"):
+    url = "https://{}-api.globalforestwatch.org/v1/dataset".format(env)
+    token = get_api_token(env)
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {}".format(token),
+    }
+
+    payload = {
+        "provider": "tsv",
+        "connectorType": "document",
+        "application": ["gfw"],
+        "name": dataset_id,
+        "sources": source_urls
+    }
+
+    r = requests.post(url, data=json.dumps(payload), headers=headers)
+
+    if r.status_code != 204:
+        raise Exception(
+            "Data upload failed - received status code {}: "
+            "Message: {}".format(r.status_code, r.json)
+        )
+
+
+def map_env(env):
+    if env == "dev":
+        return "staging"
+    else:
+        return env

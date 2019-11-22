@@ -1,5 +1,6 @@
 from botocore.exceptions import ClientError
 from geotrellis_summary_update.slack import slack_webhook
+from geotrellis_summary_update.dataset import upload_dataset
 import boto3
 import os
 
@@ -12,6 +13,7 @@ def handler(event, context):
     result_dir = event["result_dir"]
     feature_type = event["feature_type"]
     name = event["name"]
+    upload_type = event["upload_type"]
 
     # checks status of job
     emr_client = boto3.client("emr")
@@ -64,9 +66,10 @@ def handler(event, context):
         # concat to each datastore
         for analysis in analyses.keys():
             for sub_analysis in analyses[analysis].keys():
-                concat_dataset(
+                upload_dataset(
                     analyses[analysis][sub_analysis],
                     analysis_result_urls[analysis][sub_analysis],
+                    upload_type,
                     env
                 )
 
@@ -75,7 +78,7 @@ def handler(event, context):
             "name": name,
             "env": env,
             "analyses": analyses,
-            "feature_src": event["feature_src"]
+            "feature_src": event["feature_src"],
         }
 
     else:
@@ -89,7 +92,6 @@ def get_sub_analysis_result_dir(analysis_result_path, sub_analysis_name, feature
 def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_client):
     """
     Analysis result directories are named as <analysis>_<date>_<time>
-
     This creates a map of each analysis to its directory name so we know where to find
     the results for each analysis.
     """
@@ -107,3 +109,22 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
                 analysis_result_map[analysis] = path
 
     return analysis_result_map
+
+
+if __name__ == "__main__":
+    print(handler({
+        "env": "staging",
+        "name": "new_area_test",
+        "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
+        "feature_type": "geostore",
+        "job_flow_id": "j-396AK95T1I3DD",
+        "result_bucket": "gfw-pipelines-dev",
+        "result_dir": "geotrellis/results/v20191119/new_area_test",
+        "analyses": {
+            "gladalerts": {
+                "daily_alerts": "72af8802-df3c-42ab-a369-5e7f2b34ae2f",
+                #"weekly_alerts": "Glad Alerts - Weekly - Geostore - User Areas",
+                #"summary": "Glad Alerts - Summary - Geostore - User Areas",
+            }
+        }
+    }, None))

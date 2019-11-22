@@ -1,4 +1,5 @@
 from geotrellis_summary_update.slack import slack_webhook
+from geotrellis_summary_update.dataset import get_dataset_status
 
 
 def handler(event, context):
