@@ -1,6 +1,6 @@
 from botocore.exceptions import ClientError
-from summary_analysis_batch.utils import slack_webhook, s3_directory_exists
-from summary_analysis_batch.summary_batch_job import get_summary_analysis_step, submit_summary_batch_job
+from geotrellis_summary_update.slack import slack_webhook
+from geotrellis_summary_update.emr import get_summary_analysis_step, submit_summary_batch_job
 import datetime
 
 RESULT_BUCKET = "gfw-pipelines-dev"
@@ -8,8 +8,6 @@ RESULT_PREFIX = "geotrellis/results/{date_version}/{name}"
 RESULT_PREFIX = "geotrellis/results/{date_version}/{name}"
 RESULT_PATH = "s3://{}/{}"
 
-
-#  s3://gfw-pipelines-dev/geotrellis/results/v20191119/new_area_test/gladalerts/gladAlerts_20191119_2106/geostore/daily_alerts/part-00000-41e4a658-6254-48ba-a35c-46ea3297cc50-c000.csv
 
 def handler(event, context):
     env = event["env"]

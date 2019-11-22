@@ -1,9 +1,6 @@
-from upload_records.aws import get_api_token
 from botocore.exceptions import ClientError
-from summary_analysis_batch.utils import slack_webhook
+from geotrellis_summary_update.slack import slack_webhook
 import boto3
-import requests
-import json
 import os
 
 
@@ -110,49 +107,3 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
                 analysis_result_map[analysis] = path
 
     return analysis_result_map
-
-
-def create_dataset(dataset_id, source_urls, env="production"):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset".format(env)
-    token = get_api_token(env)
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-    }
-
-    payload = {
-        "provider": "tsv",
-        "connectorType": "document",
-        "application": ["gfw"],
-        "name": dataset_id,
-        "sources": source_urls
-    }
-
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
-
-    if r.status_code != 204:
-        raise Exception(
-            "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json)
-        )
-
-
-def concat_dataset(dataset_id, source_urls, env="production"):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}/concat".format(env, dataset_id)
-    token = get_api_token(env)
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-    }
-
-    payload = {"provider": "csv", "sources": source_urls}
-
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
-
-    if r.status_code != 204:
-        raise Exception(
-            "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json)
-        )

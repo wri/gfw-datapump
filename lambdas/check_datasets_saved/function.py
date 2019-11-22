@@ -1,7 +1,5 @@
-from summary_analysis_batch.utils import slack_webhook
+from geotrellis_summary_update.slack import slack_webhook
 
-import requests
-import json
 
 def handler(event, context):
     name = event["name"]
@@ -37,13 +35,6 @@ def handler(event, context):
         "feature_src": event["feature_src"],
         "analyses": analyses
     }
-
-
-def get_dataset_status(dataset_id, env):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}".format(env, dataset_id)
-    response = requests.get(url)
-    response_json = json.loads(response.text)
-    return response_json["data"]["attributes"]["status"]
 
 
 if __name__ == "__main__":

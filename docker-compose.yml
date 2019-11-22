@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  terraform:
+    build:
+      context: .
+    volumes:
+      - ./:/usr/local/src
+      - $HOME/.aws:/root/.aws:ro
+    environment:
+      - AWS_PROFILE
+    working_dir: /usr/local/src
+    entrypoint: bash
