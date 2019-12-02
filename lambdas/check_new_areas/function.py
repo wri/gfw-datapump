@@ -11,6 +11,9 @@ from requests import Response
 from shapely.wkb import dumps
 from shapely.geometry import shape, Polygon
 
+from geotrellis_summary_update.secrets import get_token
+from geotrellis_summary_update.exceptions import EmptyResponseException
+
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
     ENV = os.environ["ENV"]
@@ -18,25 +21,25 @@ else:
     ENV = "dev"
 
 
-class EmptyResponseException(Exception):
-    pass
-
-
-def secret_suffix() -> str:
-    if ENV == "production":
-        suffix: str = "prod"
-    else:
-        suffix = "staging"
-    return suffix
-
-
 S3_CLIENT = boto3.client("s3")
-SM_CLIENT = boto3.client("secretsmanager")
-TOKEN: str = SM_CLIENT.get_secret_value(SecretId=f"gfw-api/{secret_suffix()}-token")
+TOKEN: str = get_token(ENV)
+PENDING_AOI_NAME = "pending_user_areas"
+PENDING_AOI_ANALYSES = {
+    "dev": {
+        "annualupdate_minimal": {
+            "change": "206938be-12d9-47b7-9865-44244bfb64d6",
+            "summary": "0eead72d-1ad7-4c0f-93c4-793a07cd2e3d",
+        },
+        "gladalerts": {
+            "daily_alerts": "722d90b2-e989-48ca-ba27-f7a8e236ea44",
+            "weekly_alerts": "153a2ba7-cff6-4b06-bd76-279271c4ddea",
+            "summary": "28e44bd2-cd13-4587-9259-1ba235a82d28",
+        },
+    }
+}
 
 
 def handler(event, context) -> Optional[Dict[str, Any]]:
-
     now: datetime = datetime.now()
 
     try:
@@ -44,6 +47,7 @@ def handler(event, context) -> Optional[Dict[str, Any]]:
         geostore_ids: List[str] = get_geostore_ids(areas)
         geostore: Dict[str, Any] = get_geostore(geostore_ids)
 
+        geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
         with geostore_to_wkb(geostore) as wkb:
             S3_CLIENT.upload_fileobj(
                 wkb,
@@ -51,7 +55,15 @@ def handler(event, context) -> Optional[Dict[str, Any]]:
                 f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv",
             )
 
-        return {"status": "FOUND_NEW"}.update(event)
+        return {
+            "status": "FOUND_NEW",
+            "feature_src": geostore_path,
+            "feature_type": "geostore",
+            "analyses": PENDING_AOI_ANALYSES[ENV],
+            "env": ENV,
+            "name": PENDING_AOI_NAME,
+        }
+
     except EmptyResponseException:
         # slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return {"status": "NOTHING_TO_DO"}
@@ -71,7 +83,6 @@ def get_pending_areas() -> Dict[str, Any]:
 
 
 def get_geostore_ids(areas: Dict[str, Any]) -> List[str]:
-
     geostore_ids: List[str] = list()
     for area in areas["data"]:
         geostore_ids.append(area["attributes"]["geostore"])
