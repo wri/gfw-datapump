@@ -1,18 +1,25 @@
+import os
+import logging
+
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.dataset import get_dataset_status
-import logging
+
+# environment should be set via environment variable. This can be done when deploying the lambda function.
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
 
 
 def handler(event, context):
     name = event["name"]
-    env = event["env"]
     analyses = event["analyses"]
 
     # check status of dataset requests
     dataset_statuses = dict()
     for sub_analyses in analyses.values():
         for dataset_id in sub_analyses.values():
-            dataset_statuses[dataset_id] = get_dataset_status(dataset_id, env)
+            dataset_statuses[dataset_id] = get_dataset_status(dataset_id)
 
     pending_statuses = list(
         filter(lambda status: status == "pending", dataset_statuses.values())
@@ -33,37 +40,16 @@ def handler(event, context):
         )
 
         logging.info(error_message)
-        slack_webhook("ERROR", error_message, env)
+        slack_webhook("ERROR", error_message, ENV)
         return {"status": "FAILED"}
 
     # send slack info message
     slack_webhook(
-        "INFO", "Successfully ran {} summary dataset update".format(name), env
+        "INFO", "Successfully ran {} summary dataset update".format(name), ENV
     )
     return {
         "status": "SUCCESS",
         "name": name,
-        "env": env,
         "feature_src": event["feature_src"],
         "analyses": analyses,
     }
-
-
-if __name__ == "__main__":
-    print(
-        handler(
-            {
-                "env": "dev",
-                "name": "new_area_test",
-                "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
-                "analyses": {
-                    "gladalerts": {
-                        "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7",
-                        # "weekly_alerts": "Glad Alerts - Weekly - Geostore - User Areas",
-                        # "summary": "Glad Alerts - Summary - Geostore - User Areas",
-                    }
-                },
-            },
-            None,
-        )
-    )

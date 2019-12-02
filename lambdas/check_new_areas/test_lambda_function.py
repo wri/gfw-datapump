@@ -1,7 +1,8 @@
 import os
 
-from .function import (
-    secret_suffix,
+from geotrellis_summary_update.util import secret_suffix
+
+from .lambda_function import (
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,
@@ -18,8 +19,8 @@ AREAS = {
             "attributes": {
                 "name": "testy",
                 "application": "gfw",
-                "geostore": "cfe38f3450bdc9ca8180733443c2a3dd",
-                "userId": "5894720da19f5a00363bb7cf",
+                "geostore": "cfe38f3450bdc9ca8180733443c2a3dd",  # pragma: allowlist secret
+                "userId": "5894720da19f5a00363bb7cf",  # pragma: allowlist secret
                 "createdAt": "2017-06-26T16:47:18.132Z",
                 "image": "https://s3.amazonaws.com/forest-watcher-files/areas-staging/59e73891-371c-4974-bf02-f87837b4f017.png",
                 "datasets": [],
@@ -45,8 +46,8 @@ AREAS = {
             "attributes": {
                 "name": "Brazil Triangle",
                 "application": "gfw",
-                "geostore": "31a00f1d251f291ef82ca963cbc8dcf3",
-                "userId": "58040bb24d98230b004c9617",
+                "geostore": "31a00f1d251f291ef82ca963cbc8dcf3",  # pragma: allowlist secret
+                "userId": "58040bb24d98230b004c9617",  # pragma: allowlist secret
                 "createdAt": "2017-08-22T13:50:11.261Z",
                 "image": "https://s3.amazonaws.com/forest-watcher-files/areas/420625de-760b-46e0-99b6-5815b8864e49.png",
                 "datasets": [],
@@ -68,16 +69,19 @@ AREAS = {
     ]
 }
 
-GEOSTORE_IDS = ["cfe38f3450bdc9ca8180733443c2a3dd", "31a00f1d251f291ef82ca963cbc8dcf3"]
+GEOSTORE_IDS = [
+    "cfe38f3450bdc9ca8180733443c2a3dd",  # pragma: allowlist secret
+    "31a00f1d251f291ef82ca963cbc8dcf3",  # pragma: allowlist secret
+]
 
 GEOSTORE = {
     "data": [
         {
-            "geostoreId": "069b603da1c881cf0fc193c39c3687bb",
+            "geostoreId": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
             "geostore": {
                 "data": {
                     "type": "geoStore",
-                    "id": "069b603da1c881cf0fc193c39c3687bb",
+                    "id": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
                     "attributes": {
                         "geojson": {
                             "features": [
@@ -111,7 +115,7 @@ GEOSTORE = {
                             "crs": {},
                             "type": "FeatureCollection",
                         },
-                        "hash": "069b603da1c881cf0fc193c39c3687bb",
+                        "hash": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
                         "provider": {},
                         "areaHa": 11_186_986.783_767_128,
                         "bbox": [
@@ -127,11 +131,11 @@ GEOSTORE = {
             },
         },
         {
-            "geostoreId": "0883910a878fdda456dbd72ec151126e",
+            "geostoreId": "0883910a878fdda456dbd72ec151126e",  # pragma: allowlist secret
             "geostore": {
                 "data": {
                     "type": "geoStore",
-                    "id": "0883910a878fdda456dbd72ec151126e",
+                    "id": "0883910a878fdda456dbd72ec151126e",  # pragma: allowlist secret
                     "attributes": {
                         "geojson": {
                             "features": [
@@ -499,7 +503,7 @@ GEOSTORE = {
                             "crs": {},
                             "type": "FeatureCollection",
                         },
-                        "hash": "0883910a878fdda456dbd72ec151126e",
+                        "hash": "0883910a878fdda456dbd72ec151126e",  # pragma: allowlist secret
                         "provider": {},
                         "areaHa": 2_922_934.707_296_363,
                         "bbox": [11.4967, -1.9014, 13.5672, 0.2928],

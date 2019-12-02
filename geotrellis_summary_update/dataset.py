@@ -2,23 +2,25 @@ import boto3
 import requests
 import json
 
+from geotrellis_summary_update.secrets import get_token
+from geotrellis_summary_update.util import api_prefix
 
-def get_dataset_status(dataset_id, env):
-    env = map_env(env)
-    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}".format(env, dataset_id)
+
+def get_dataset_status(dataset_id):
+    print(api_prefix())
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}"
     response = requests.get(url)
     response_json = json.loads(response.text)
+    print(response_json)
     return response_json["data"]["attributes"]["status"]
 
 
-def upload_dataset(dataset_id, source_urls, upload_type, env="production"):
-    env = map_env(env)
-    url = "https://{}-api.globalforestwatch.org/v1/dataset/{}/{}".format(env, dataset_id, upload_type)
-    token = get_api_token(env)
+def upload_dataset(dataset_id, source_urls, upload_type):
 
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/{upload_type}"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
+        "Authorization": f"Bearer {get_token()}",
     }
 
     src_param = "sources" if upload_type == "concat" else "data"
@@ -33,27 +35,19 @@ def upload_dataset(dataset_id, source_urls, upload_type, env="production"):
         )
 
 
-def get_api_token(env):
+def get_api_token():
     client = boto3.client("secretsmanager", region_name="us-east-1")
 
-    if env == "production":
-        env = "prod"
-    else:
-        env = "staging"
-
-    response = client.get_secret_value(
-        SecretId="gfw-api/{}-token".format(env)
-    )
+    response = client.get_secret_value(SecretId=f"gfw-api/{get_token()}-token")
     return json.loads(response["SecretString"])["token"]
 
 
-def create_dataset(dataset_id, source_urls, env="production"):
-    url = "https://{}-api.globalforestwatch.org/v1/dataset".format(env)
-    token = get_api_token(env)
+def create_dataset(dataset_id, source_urls):
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset"
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
+        "Authorization": f"Bearer {get_token()}",
     }
 
     payload = {
@@ -61,7 +55,7 @@ def create_dataset(dataset_id, source_urls, env="production"):
         "connectorType": "document",
         "application": ["gfw"],
         "name": dataset_id,
-        "sources": source_urls
+        "sources": source_urls,
     }
 
     r = requests.post(url, data=json.dumps(payload), headers=headers)
@@ -71,10 +65,3 @@ def create_dataset(dataset_id, source_urls, env="production"):
             "Data upload failed - received status code {}: "
             "Message: {}".format(r.status_code, r.json)
         )
-
-
-def map_env(env):
-    if env == "dev":
-        return "staging"
-    else:
-        return env
