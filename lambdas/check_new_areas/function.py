@@ -3,7 +3,7 @@ import json
 import os
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import boto3
 import requests
@@ -19,6 +19,17 @@ if "ENV" in os.environ:
     ENV = os.environ["ENV"]
 else:
     ENV = "dev"
+
+
+def secret_suffix() -> str:
+    """
+    Get environment suffix for secret token
+    """
+    if ENV == "production":
+        suffix: str = "prod"
+    else:
+        suffix = "staging"
+    return suffix
 
 
 S3_CLIENT = boto3.client("s3")
@@ -39,7 +50,13 @@ PENDING_AOI_ANALYSES = {
 }
 
 
-def handler(event, context) -> Optional[Dict[str, Any]]:
+def handler(
+    event: [Dict[str, Any]], context: [Dict[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    """
+    Main Lambda function
+    """
+
     now: datetime = datetime.now()
 
     try:
@@ -72,6 +89,9 @@ def handler(event, context) -> Optional[Dict[str, Any]]:
 
 
 def get_pending_areas() -> Dict[str, Any]:
+    """
+    Request to GFW API to get list of user areas which were recently submitted and need to be added to nightly updates
+    """
     headers: Dict[str, str] = {"Authorization": f"Bearer {TOKEN}"}
     url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true"
     r: Response = requests.get(url, headers=headers)
@@ -83,6 +103,10 @@ def get_pending_areas() -> Dict[str, Any]:
 
 
 def get_geostore_ids(areas: Dict[str, Any]) -> List[str]:
+    """
+    Extract Geostore ID from user area
+    """
+
     geostore_ids: List[str] = list()
     for area in areas["data"]:
         geostore_ids.append(area["attributes"]["geostore"])
@@ -90,6 +114,9 @@ def get_geostore_ids(areas: Dict[str, Any]) -> List[str]:
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
+    """
+    Get Geostore Geometry using list of geostore IDs
+    """
     headers: Dict[str, str] = {"Authorization": f"Bearer {TOKEN}"}
     url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v1/geostore/find-by-ids"
     r: Response = requests.post(url, data=json.dumps(geostore_ids), headers=headers)
@@ -98,38 +125,61 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
 
 @contextmanager
 def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
-    glad_tiles: List[Polygon] = _get_glad_extent()
+    """
+    Convert Geojson to WKB. Slice geometries into 1x1 degree tiles
+    """
+    extent_1x1: List[Tuple[Polygon, bool, bool]] = _get_extent_1x1()
     wkb = io.StringIO()
-    for g in geostore["data"]:
-        geom: Polygon = shape(
-            g["geostore"]["data"]["attributes"]["geojson"]["features"][0]["geometry"]
-        )
-        for tile in glad_tiles:
-            intersection = geom.intersection(tile)
-            if intersection.area:
 
-                wkb.write(f"{g['geostoreId']}\t{dumps(intersection, hex=True)}\n")
-    yield wkb
+    # Column Header
+    wkb.write(f"geostore_id\tgeom\ttcd\tglad\n")
+
+    # Body
+    try:
+        for g in geostore["data"]:
+            geom: Polygon = shape(
+                g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
+                    "geometry"
+                ]
+            )
+            for tile in extent_1x1:
+                if geom.intersects(tile[0]):
+                    intersection = geom.intersection(tile[0])
+                    wkb.write(
+                        f"{g['geostoreId']}\t{dumps(intersection, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                    )
+        yield wkb
+
+    finally:
+        wkb.close()
 
 
-def _get_glad_extent() -> List[Polygon]:
+def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
+    """
+    Fetch 1x1 degree extent file
+    """
     response: Dict[str, Any] = S3_CLIENT.get_object(
         Bucket=f"gfw-data-lake{bucket_suffix()}",
-        Key="umd_glad_alerts/latest/vector/umd_glad_alerts__extent_1x1.geojson",
+        Key="analysis_extent/latest/vector/extent_1x1.geojson",
     )
 
     glad_tiles: Dict[str, Any] = json.load(response["Body"])
 
-    glad_extent: List[Polygon] = list()
+    extent_1x1: List[Tuple[Polygon, bool, bool]] = list()
 
     for feature in glad_tiles["features"]:
         geom: Polygon = shape(feature["geometry"])
-        glad_extent.append(geom)
+        extent_1x1.append(
+            (geom, feature["properties"]["tcl"], feature["properties"]["glad"])
+        )
 
-    return glad_extent
+    return extent_1x1
 
 
 def bucket_suffix() -> str:
+    """
+    Get environment suffix for bucket
+    """
     if ENV is None:
         suffix: str = "-dev"
     elif ENV == "production":
@@ -141,6 +191,9 @@ def bucket_suffix() -> str:
 
 
 def api_prefix() -> str:
+    """
+    Get environment prefix for API
+    """
     if ENV == "production":
         suffix: str = "production"
     else:
