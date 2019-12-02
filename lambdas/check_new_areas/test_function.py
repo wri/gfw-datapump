@@ -551,4 +551,4 @@ def test_get_geostore(requests_mock):
 
 def test_geostore_to_wkb():
     with geostore_to_wkb(GEOSTORE) as wkb:
-        assert len(wkb.getvalue().split("\n")) == 32
+        assert len(wkb.getvalue().split("\n")) == 33
