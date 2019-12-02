@@ -1,2 +1,10 @@
-requests==2.20.1
-boto3
+boto3~=1.10.7
+detect-secrets~=0.13.0
+pre-commit~=1.20.0
+pytest~=5.2.2
+pytest-cov~=2.8.1
+requests~=2.22.0
+shapely~=1.6.4.post2
+
+
+
