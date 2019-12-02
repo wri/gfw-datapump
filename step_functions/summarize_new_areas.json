@@ -1,0 +1,60 @@
+{
+  "StartAt": "Check For New Areas",
+  "States": {
+    "Check For New Areas": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:check_new_areas_geotrellis-summary-update",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "Are There New Areas?"
+    },
+    "Are There New Areas?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "NEW_AREAS_FOUND",
+          "Next": "Run GeoTrellis Summary Update"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "NO_NEW_AREAS_FOUND",
+          "Next": "No New Areas Found"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "ERROR",
+          "Next": "Error Checking New Areas"
+        }
+      ]
+    },
+    "Run GeoTrellis Summary Update": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-east-1:123456789012:stateMachine:geotrellis-summary-update"
+      },
+      "Next": "Update New Area Statuses"
+    },
+    "Update New Area Statuses": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:update-new-area-status_geotrellis-summary-update",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "Successfully Updated"
+    },
+    "Successfully Updated": {
+      "Type": "Succeed"
+    },
+    "No New Areas Found": {
+      "Type": "Succeed"
+    },
+    "Error Checking New Areas": {
+      "Type": "Fail",
+      "Cause": "Error checking new areas.",
+      "Error": "Error Checking New Areas"
+    }
+  }
+}
