@@ -13,6 +13,8 @@ from shapely.geometry import shape, Polygon
 
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.exceptions import EmptyResponseException
+from geotrellis_summary_update.util import bucket_suffix, api_prefix
+
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
@@ -21,19 +23,8 @@ else:
     ENV = "dev"
 
 
-def secret_suffix() -> str:
-    """
-    Get environment suffix for secret token
-    """
-    if ENV == "production":
-        suffix: str = "prod"
-    else:
-        suffix = "staging"
-    return suffix
-
-
 S3_CLIENT = boto3.client("s3")
-TOKEN: str = get_token(ENV)
+TOKEN: str = get_token()
 PENDING_AOI_NAME = "pending_user_areas"
 PENDING_AOI_ANALYSES = {
     "dev": {
@@ -174,29 +165,3 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
         )
 
     return extent_1x1
-
-
-def bucket_suffix() -> str:
-    """
-    Get environment suffix for bucket
-    """
-    if ENV is None:
-        suffix: str = "-dev"
-    elif ENV == "production":
-        suffix = ""
-    else:
-        suffix = f"-{ENV}"
-
-    return suffix
-
-
-def api_prefix() -> str:
-    """
-    Get environment prefix for API
-    """
-    if ENV == "production":
-        suffix: str = "production"
-    else:
-        suffix = f"staging"
-
-    return suffix
