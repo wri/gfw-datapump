@@ -6,7 +6,6 @@ terraform {
   }
 }
 
-
 resource "aws_iam_policy" "geotrellis_summary_update" {
   name = "geotrellis_summary_update"
   path = "/"
@@ -138,9 +137,59 @@ resource "aws_lambda_function" "check_datasets_saved" {
   publish          = true
 }
 
+resource "aws_lambda_function" "check_new_areas" {
+  function_name    = "check-new-areas_geotrellis-summary-update"
+  filename         = "../lambdas/check_new_areas/function.zip"
+  source_code_hash = "${filebase64sha256("../lambdas/check_new_areas/function.zip")}"
+  role             = "${aws_iam_role.geotrellis_summary_update_lambda.arn}"
+  runtime          = "python3.7"
+  handler          = "function.handler"
+  memory_size      = 128
+  timeout          = 5
+  publish          = true
+}
+
+resource "aws_lambda_function" "update_new_area_statuses" {
+  function_name    = "update-new-area-statuses_geotrellis-summary-update"
+  filename         = "../lambdas/update_new_area_statuses/function.zip"
+  source_code_hash = "${filebase64sha256("../lambdas/update_new_area_statuses/function.zip")}"
+  role             = "${aws_iam_role.geotrellis_summary_update_lambda.arn}"
+  runtime          = "python3.7"
+  handler          = "function.handler"
+  memory_size      = 128
+  timeout          = 5
+  publish          = true
+}
+
 resource "aws_sfn_state_machine" "geotrellis_summary_update" {
   name     = "geotrellis-summary-update"
   role_arn = "${aws_iam_role.geotrellis_summary_update_states.arn}"
 
   definition = "${file("../step_functions/geotrellis_summary_update.json")}"
+}
+
+resource "aws_sfn_state_machine" "summarize_new_areas" {
+  name     = "geotrellis-summary-update"
+  role_arn = "${aws_iam_role.geotrellis_summary_update_states.arn}"
+  definition = "${file("../step_functions/summarize_new_areas.json")}"
+}
+
+resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
+    name = "everyday-11-pm-est"
+    description = "Fires every five minutes"
+    schedule_expression = "cron(0 4 ? * * *)"
+}
+
+resource "aws_cloudwatch_event_target" "nightly-new-area-check" {
+    rule = "${aws_cloudwatch_event_rule.everyday-11-pm-est.name}"
+    target_id = "summarize_new_areas"
+    arn = "${aws_sfn_state_machine.summarize_new_areas.arn}"
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = "${aws_lambda_function.check_foo.function_name}"
+    principal = "events.amazonaws.com"
+    source_arn = "${aws_cloudwatch_event_rule.every_five_minutes.arn}"
 }
