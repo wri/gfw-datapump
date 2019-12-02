@@ -21,17 +21,6 @@ else:
     ENV = "dev"
 
 
-def secret_suffix() -> str:
-    """
-    Get environment suffix for secret token
-    """
-    if ENV == "production":
-        suffix: str = "prod"
-    else:
-        suffix = "staging"
-    return suffix
-
-
 S3_CLIENT = boto3.client("s3")
 TOKEN: str = get_token(ENV)
 PENDING_AOI_NAME = "pending_user_areas"

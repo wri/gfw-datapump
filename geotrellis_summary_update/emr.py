@@ -3,9 +3,9 @@ import boto3
 
 def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
     client = boto3.client("emr", region_name="us-east-1")
-    master_instance_type = instance_type  #"r4.xlarge"
-    worker_instance_type = instance_type  #"r4.xlarge"
-    worker_instance_count = worker_count  #1
+    master_instance_type = instance_type  # "r4.xlarge"
+    worker_instance_type = instance_type  # "r4.xlarge"
+    worker_instance_count = worker_count  # 1
 
     instances = {
         "InstanceGroups": [
@@ -55,15 +55,19 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
         "Ec2SubnetIds": ["subnet-44dbbd7a"],
         "EmrManagedMasterSecurityGroup": "sg-02bec2e5e2a393046",
         "EmrManagedSlaveSecurityGroup": "sg-0fe3f65c2f2e57681",
-        #"AdditionalMasterSecurityGroups": [
+        # "AdditionalMasterSecurityGroups": [
         #    "sg-d7a0d8ad",
         #    "sg-001e5f904c9cb7cc4",
         #    "sg-6c6a5911",
-        #],
-        #"AdditionalSlaveSecurityGroups": ["sg-d7a0d8ad", "sg-6c6a5911"],
+        # ],
+        # "AdditionalSlaveSecurityGroups": ["sg-d7a0d8ad", "sg-6c6a5911"],
     }
 
-    applications = [{"Name": "Spark"}, {"Name": "Zeppelin"}, {"Name": "Ganglia"}]  # TODO same?
+    applications = [
+        {"Name": "Spark"},
+        {"Name": "Zeppelin"},
+        {"Name": "Ganglia"},
+    ]  # TODO same?
 
     configurations = [
         {
@@ -121,17 +125,38 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
         VisibleToAllUsers=True,
         JobFlowRole="EMR_EC2_DefaultRole",
         ServiceRole="EMR_DefaultRole",
-        Tags=[
-            {"Key": "Project", "Value": "Test"},
-            {"Key": "Job", "Value": "Test"},
-        ],
+        Tags=[{"Key": "Project", "Value": "Test"}, {"Key": "Job", "Value": "Test"}],
     )
 
     # TODO handle possible error response
-    return response['JobFlowId']
+    return response["JobFlowId"]
 
 
-def get_summary_analysis_step(analysis, feature_url, result_url, feature_type="feature"):
+def get_summary_analysis_step(
+    analysis, feature_url, result_url, feature_type="feature"
+):
+    step_args = [
+        "spark-submit",
+        "--deploy-mode",
+        "cluster",
+        "--class",
+        "org.globalforestwatch.summarystats.SummaryMain",
+        "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
+        "--features",
+        feature_url,
+        "--output",
+        result_url,
+        "--feature_type",
+        feature_type,
+        "--analysis",
+        analysis,
+    ]
+
+    if "annualupdate" in analysis:
+        step_args.append("--tcl")
+    elif analysis == "gladalerts":
+        step_args.append("--glad")
+
     return {
         "Name": analysis,
         "ActionOnFailure": "TERMINATE_CLUSTER",
@@ -148,11 +173,10 @@ def get_summary_analysis_step(analysis, feature_url, result_url, feature_type="f
                 feature_url,
                 "--output",
                 result_url,
-                # TODO output in special place for daily geoms (e.g. user_dashboards/<date>/<analysis type>),
                 "--feature_type",
                 feature_type,
                 "--analysis",
-                analysis
-            ]
+                analysis,
+            ],
         },
     }
