@@ -6,6 +6,12 @@ import requests
 import json
 import boto3
 import csv
+import os
+
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
 
 TOKEN: str = get_token()
 
@@ -20,15 +26,15 @@ def handler(event, context):
 
 def get_aoi_geostore_ids(aoi_src: str, env="production") -> List[str]:
     s3_client = boto3.client("s3")
-    geostore_ids = []
+    geostore_ids = set()
     aoi_bucket, aoi_key = get_s3_path_parts(aoi_src)
 
     tsv = s3_client.get_object(Bucket=aoi_bucket, Key=aoi_key)
     tsv_lines = tsv["Body"].read().decode("utf-8").split()
     for row in csv.DictReader(tsv_lines, delimiter="\t"):
-        geostore_ids.append(row["geostore_id"])
+        geostore_ids.add(row["geostore_id"])
 
-    return geostore_ids
+    return list(geostore_ids)
 
 
 def update_aoi_status(geostore_ids: List[str], env="production") -> None:

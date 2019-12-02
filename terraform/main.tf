@@ -44,7 +44,8 @@ resource "aws_iam_policy" "geotrellis_summary_update" {
               "iam:PassRole",
               "lambda:*",
               "logs:*",
-              "s3:*"
+              "s3:*",
+              "states:StartExecution"
           ],
           "Resource": "*"
       }
@@ -164,12 +165,11 @@ resource "aws_lambda_function" "update_new_area_statuses" {
 resource "aws_sfn_state_machine" "geotrellis_summary_update" {
   name     = "geotrellis-summary-update"
   role_arn = "${aws_iam_role.geotrellis_summary_update_states.arn}"
-
   definition = "${file("../step_functions/geotrellis_summary_update.json")}"
 }
 
 resource "aws_sfn_state_machine" "summarize_new_areas" {
-  name     = "geotrellis-summary-update"
+  name     = "summarize-new-areas"
   role_arn = "${aws_iam_role.geotrellis_summary_update_states.arn}"
   definition = "${file("../step_functions/summarize_new_areas.json")}"
 }
@@ -183,13 +183,6 @@ resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
 resource "aws_cloudwatch_event_target" "nightly-new-area-check" {
     rule = "${aws_cloudwatch_event_rule.everyday-11-pm-est.name}"
     target_id = "summarize_new_areas"
-    arn = "${aws_sfn_state_machine.summarize_new_areas.arn}"
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
-    statement_id = "AllowExecutionFromCloudWatch"
-    action = "lambda:InvokeFunction"
-    function_name = "${aws_lambda_function.check_foo.function_name}"
-    principal = "events.amazonaws.com"
-    source_arn = "${aws_cloudwatch_event_rule.every_five_minutes.arn}"
+    arn = "${aws_sfn_state_machine.summarize_new_areas.id}"
+    role_arn = "${aws_iam_role.geotrellis_summary_update_states.arn}"
 }

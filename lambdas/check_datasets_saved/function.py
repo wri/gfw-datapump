@@ -1,18 +1,23 @@
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.dataset import get_dataset_status
 import logging
+import os
+
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
 
 
 def handler(event, context):
     name = event["name"]
-    env = event["env"]
     analyses = event["analyses"]
 
     # check status of dataset requests
     dataset_statuses = dict()
     for sub_analyses in analyses.values():
         for dataset_id in sub_analyses.values():
-            dataset_statuses[dataset_id] = get_dataset_status(dataset_id, env)
+            dataset_statuses[dataset_id] = get_dataset_status(dataset_id, ENV)
 
     pending_statuses = list(
         filter(lambda status: status == "pending", dataset_statuses.values())
@@ -33,17 +38,16 @@ def handler(event, context):
         )
 
         logging.info(error_message)
-        slack_webhook("ERROR", error_message, env)
+        slack_webhook("ERROR", error_message, ENV)
         return {"status": "FAILED"}
 
     # send slack info message
     slack_webhook(
-        "INFO", "Successfully ran {} summary dataset update".format(name), env
+        "INFO", "Successfully ran {} summary dataset update".format(name), ENV
     )
     return {
         "status": "SUCCESS",
         "name": name,
-        "env": env,
         "feature_src": event["feature_src"],
         "analyses": analyses,
     }

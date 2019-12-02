@@ -1,12 +1,12 @@
 import os
 
 from .function import (
-    secret_suffix,
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,
     get_pending_areas,
 )
+from geotrellis_summary_update.secrets import get_secret_suffix
 
 os.environ["ENV"] = "test"
 
@@ -521,7 +521,7 @@ GEOSTORE = {
 
 
 def test_secret_suffix():
-    assert secret_suffix() == "staging"
+    assert get_secret_suffix() == "staging"
 
 
 def test_get_pending_areas(requests_mock):
