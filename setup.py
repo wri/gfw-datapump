@@ -7,8 +7,5 @@ setup(
     packages=["geotrellis_summary_update"],
     author="Justin Terry",
     license="MIT",
-    install_requires=[
-        "requests==2.20.1",
-        "boto3"
-    ],
+    install_requires=["requests~=2.22.0", "boto3~=1.10.7"],
 )
