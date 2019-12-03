@@ -5,16 +5,12 @@ import traceback
 from botocore.exceptions import ClientError
 
 from geotrellis_summary_update.emr import (
-    get_summary_analysis_step,
+    get_summary_analysis_steps,
     submit_summary_batch_job,
 )
 from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
 from geotrellis_summary_update.slack import slack_webhook
 
-
-RESULT_BUCKET = f"gfw-pipelines-{bucket_suffix()}"
-RESULT_PREFIX = "geotrellis/results/{name}/{date}"
-RESULT_PATH = "s3://{}/{}"
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
@@ -29,23 +25,12 @@ def handler(event, context):
     feature_type = event["feature_type"]
     analyses = event["analyses"]
 
-    result_dir = RESULT_PREFIX.format(date=get_curr_date_dir_name(), name=name)
+    result_dir = f"geotrellis/results/{name}/{get_curr_date_dir_name()}"
 
     try:
-        steps = []
-        for analysis in analyses.keys():
-            result_url = RESULT_PATH.format(RESULT_BUCKET, result_dir)
-            steps.append(
-                get_summary_analysis_step(
-                    analysis, feature_src, result_url, feature_type
-                )
-            )
-            steps.append(
-                get_summary_analysis_step(
-                    analysis, feature_src, result_url, feature_type
-                )
-            )
-
+        steps = get_summary_analysis_steps(
+            analyses, feature_src, feature_type, result_dir
+        )
         job_flow_id = submit_summary_batch_job(name, steps, "r4.xlarge", 1)
 
         return {
@@ -55,13 +40,12 @@ def handler(event, context):
             "analyses": analyses,
             "feature_src": feature_src,
             "feature_type": feature_type,
-            "result_bucket": RESULT_BUCKET,
             "result_dir": result_dir,
             "upload_type": event["upload_type"],
         }
     except ClientError:
         logging.error(traceback.print_exc())
         slack_webhook(
-            "ERROR", "Error submitting job to update {} summary datasets.".format(name)
+            "ERROR", f"Error submitting job to update {ENV} summary datasets.",
         )
         return {"status": "FAILED"}

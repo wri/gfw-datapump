@@ -1,8 +1,9 @@
-import boto3
 import io
 import json
+import os
 from typing import Set
 
+import boto3
 import requests
 
 from geotrellis_summary_update.exceptions import UnexpectedResponseError
@@ -10,6 +11,11 @@ from geotrellis_summary_update.util import api_prefix
 from geotrellis_summary_update.s3 import get_s3_path_parts
 from geotrellis_summary_update.secrets import get_token
 
+
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
 
 TOKEN: str = get_token()
 
