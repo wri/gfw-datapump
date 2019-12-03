@@ -37,8 +37,8 @@ def get_aoi_geostore_ids(aoi_src: str, env="production") -> List[str]:
     return list(geostore_ids)
 
 
-def update_aoi_status(geostore_ids: List[str], env="production") -> None:
-    url = "https://{}-api.globalforestwatch.org/v1/area".format(env)
+def update_aoi_status(geostore_ids: List[str]) -> None:
+    url = "https://{}-api.globalforestwatch.org/v1/area".format(ENV)
 
     headers = {
         "Content-Type": "application/json",
