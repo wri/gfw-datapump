@@ -7,5 +7,5 @@ setup(
     packages=["geotrellis_summary_update", "lambdas"],
     author="Justin Terry",
     license="MIT",
-    install_requires=["requests~=2.22.0", "boto3~=1.10.7"],
+    install_requires=["boto3~=1.10.7", "requests~=2.22.0", "shapely~=1.6.4.post2"],
 )
