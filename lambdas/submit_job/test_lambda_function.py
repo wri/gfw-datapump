@@ -18,7 +18,7 @@ def test_handler():
     upload_type = "data-overwrite"
 
     with mock.patch(
-        "geotrellis_summary_update.lambdas.submit_job.lambda_function.submit_summary_batch_job",
+        "lambdas.submit_job.lambda_function.submit_summary_batch_job",
         return_value=job_flow_id,
     ):
         result = handler(
