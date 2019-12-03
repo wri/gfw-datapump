@@ -1,6 +1,10 @@
 import boto3
 
 from geotrellis_summary_update.util import bucket_suffix
+from geotrellis_summary_update.s3 import get_s3_path
+
+
+RESULT_BUCKET = f"gfw-pipelines-{bucket_suffix()}"
 
 
 def submit_summary_batch_job(name, steps, instance_type, worker_count):
@@ -119,7 +123,7 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
     response = client.run_job_flow(
         Name=name,
         ReleaseLabel="emr-5.24.0",
-        LogUri=f"s3://gfw-pipelines-{bucket_suffix()}/geotrellis/logs",  # TODO should this be param?
+        LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
         Instances=instances,
         Steps=steps,
         Applications=applications,
@@ -146,7 +150,7 @@ def get_summary_analysis_step(
         "cluster",
         "--class",
         "org.globalforestwatch.summarystats.SummaryMain",
-        "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
+        f"s3://{RESULT_BUCKET}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
         "--features",
         feature_url,
         "--output",
@@ -173,7 +177,7 @@ def get_summary_analysis_step(
                 "cluster",
                 "--class",
                 "org.globalforestwatch.summarystats.SummaryMain",
-                f"s3://gfw-pipelines-{bucket_suffix()}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
+                f"s3://{RESULT_BUCKET}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
                 "--features",
                 feature_url,
                 "--output",
@@ -185,3 +189,15 @@ def get_summary_analysis_step(
             ],
         },
     }
+
+
+def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir, env):
+    steps = []
+
+    for analysis in analyses:
+        result_url = get_s3_path(RESULT_BUCKET, result_dir)
+        steps.append(
+            get_summary_analysis_step(
+                analysis["analysis_name"], feature_src, result_url, feature_type
+            )
+        )
