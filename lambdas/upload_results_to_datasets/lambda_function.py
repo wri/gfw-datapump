@@ -1,12 +1,13 @@
+import os
+
+import boto3
 from botocore.exceptions import ClientError
+
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.dataset import upload_dataset
-import boto3
-import os
 
 
 def handler(event, context):
-    env = event["env"]
     job_flow_id = event["job_flow_id"]
     analyses = event["analyses"]
     result_bucket = event["result_bucket"]
@@ -28,7 +29,7 @@ def handler(event, context):
         # only update AOIs atomically, so they don't get into a partially updated state if the
         # next nightly batch happens before we can fix partially updated AOIs
         if status["StateChangeReason"]["Code"] != "ALL_STEPS_COMPLETED":
-            slack_webhook("ERROR", error_message, env)
+            slack_webhook("ERROR", error_message)
             return {"status": "FAILED"}
 
         s3_client = boto3.client("s3")
@@ -78,13 +79,11 @@ def handler(event, context):
                     analyses[analysis][sub_analysis],
                     analysis_result_urls[analysis][sub_analysis],
                     upload_type,
-                    env,
                 )
 
         return {
             "status": "SUCCESS",
             "name": name,
-            "env": env,
             "analyses": analyses,
             "feature_src": event["feature_src"],
         }
@@ -121,27 +120,3 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
                 analysis_result_map[analysis] = path
 
     return analysis_result_map
-
-
-if __name__ == "__main__":
-    print(
-        handler(
-            {
-                "status": "SUCCESS",
-                "job_flow_id": "j-ZHC4HI3NDTIP",
-                "env": "dev",
-                "name": "new_area_test2",
-                "analyses": {
-                    "gladalerts": {
-                        "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7"  # liza_logounova
-                    }
-                },
-                "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
-                "feature_type": "geostore",
-                "result_bucket": "gfw-pipelines-dev",
-                "result_dir": "geotrellis/results/v20191122/new_area_test2",
-                "upload_type": "concat",
-            },
-            None,
-        )
-    )

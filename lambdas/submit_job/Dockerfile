@@ -6,6 +6,7 @@ ENV LAMBDADIR submit_job
 
 # Make the dir and to install all packages into packages/
 COPY geotrellis_summary_update "$WORKDIR/geotrellis_summary_update"
+COPY lambdas "$WORKDIR/lambdas"
 COPY lambdas/$LAMBDADIR/ "$WORKDIR/"
 COPY setup.py "$WORKDIR/setup.py"
 

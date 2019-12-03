@@ -3,7 +3,7 @@ from unittest import mock
 
 from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
 
-from lambdas.submit_job import handler
+from lambdas.submit_job.lambda_function import handler
 
 os.environ["ENV"] = "test"
 job_flow_id = "TESTID"
