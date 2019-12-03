@@ -191,13 +191,11 @@ def get_summary_analysis_step(
     }
 
 
-def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir, env):
+def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir):
     steps = []
 
     for analysis in analyses:
         result_url = get_s3_path(RESULT_BUCKET, result_dir)
         steps.append(
-            get_summary_analysis_step(
-                analysis["analysis_name"], feature_src, result_url, feature_type
-            )
+            get_summary_analysis_step(analysis, feature_src, result_url, feature_type)
         )

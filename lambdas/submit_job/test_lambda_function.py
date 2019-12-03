@@ -13,7 +13,6 @@ def test_handler():
     name = "new_area_test2"
     src = f"s3://gfw-pipelines-{bucket_suffix()}/geotrellis/features/*.tsv"
     feature_type = "geostore"
-    result_bucket = f"gfw-pipelines-{bucket_suffix()}"
     result_dir = f"geotrellis/results/{name}/{get_curr_date_dir_name()}"
     upload_type = "data-overwrite"
 
@@ -42,6 +41,5 @@ def test_handler():
     assert list(result["analyses"].keys()) == ["gladalerts"]
     assert result["feature_src"] == src
     assert result["feature_type"] == feature_type
-    assert result["result_bucket"] == result_bucket
     assert result["result_dir"] == result_dir
     assert result["upload_type"] == upload_type
