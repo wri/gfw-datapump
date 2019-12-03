@@ -1,11 +1,12 @@
 import boto3
+from geotrellis_summary_update.util import bucket_suffix
 
 RESULT_BUCKET = "gfw-pipelines-{}"
 RESULT_PREFIX = "geotrellis/results/{name}/{date}"
 RESULT_PATH = "s3://{}/{}"
 
 
-def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
+def submit_summary_batch_job(name, steps, instance_type, worker_count):
     client = boto3.client("emr", region_name="us-east-1")
     master_instance_type = instance_type  # "r4.xlarge"
     worker_instance_type = instance_type  # "r4.xlarge"
@@ -121,7 +122,7 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
     response = client.run_job_flow(
         Name=name,
         ReleaseLabel="emr-5.24.0",
-        LogUri="s3://gfw-pipelines-dev/geotrellis/logs",  # TODO should this be param?
+        LogUri=f"s3://gfw-pipelines-{bucket_suffix()}/geotrellis/logs",  # TODO should this be param?
         Instances=instances,
         Steps=steps,
         Applications=applications,
@@ -129,7 +130,10 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count, env):
         VisibleToAllUsers=True,
         JobFlowRole="EMR_EC2_DefaultRole",
         ServiceRole="EMR_DefaultRole",
-        Tags=[{"Key": "Project", "Value": "Test"}, {"Key": "Job", "Value": "Test"}],
+        Tags=[
+            {"Key": "Project", "Value": "Test"},
+            {"Key": "Job", "Value": "Test"},
+        ],  # flake8 --ignore
     )
 
     # TODO handle possible error response
@@ -172,7 +176,7 @@ def get_summary_analysis_step(
                 "cluster",
                 "--class",
                 "org.globalforestwatch.summarystats.SummaryMain",
-                "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
+                f"s3://gfw-pipelines-{bucket_suffix()}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
                 "--features",
                 feature_url,
                 "--output",

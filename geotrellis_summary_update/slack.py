@@ -1,10 +1,18 @@
-import requests
 import boto3
 import json
+import os
+import requests
 
 
-def slack_webhook(level, message, env="production"):
-    if env != "dev" and env != "staging":
+# environment should be set via environment variable. This can be done when deploying the lambda function.
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
+
+
+def slack_webhook(level, message):
+    if ENV == "production":
         app = "GFW SYNC - USER AOI BATCH"
 
         if level.upper() == "WARNING":
