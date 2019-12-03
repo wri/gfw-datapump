@@ -2,7 +2,7 @@ import os
 
 from geotrellis_summary_update.util import secret_suffix
 
-from .lambda_function import (
+from lambdas.check_new_areas.lambda_function import (
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,

@@ -20,7 +20,9 @@ def handler(event, context):
     cluster_description = emr_client.describe_cluster(ClusterId=job_flow_id)
     status = cluster_description["Cluster"]["Status"]
 
-    error_message = "Failed to update {} summary datasets. Cluster with ID={} failed to complete analysis.".format(name, job_flow_id)
+    error_message = "Failed to update {} summary datasets. Cluster with ID={} failed to complete analysis.".format(
+        name, job_flow_id
+    )
 
     if status["State"] == "TERMINATED":
         # only update AOIs atomically, so they don't get into a partially updated state if the
@@ -33,7 +35,9 @@ def handler(event, context):
         analysis_result_urls = dict()
 
         analysis_names = analyses.keys()
-        analysis_result_map = get_analysis_result_map(result_bucket, result_dir, analysis_names, s3_client)
+        analysis_result_map = get_analysis_result_map(
+            result_bucket, result_dir, analysis_names, s3_client
+        )
 
         for analysis_name in analysis_names:
             analysis_path = analysis_result_map[analysis_name]
@@ -42,16 +46,20 @@ def handler(event, context):
 
             for sub_analysis in sub_analyses:
                 try:
-                    sub_analysis_result_dir = get_sub_analysis_result_dir(analysis_path, sub_analysis, feature_type)
-
-                    # this will throw exception if success file isn't present
-                    success_file = s3_client.head_object(
-                        Bucket=result_bucket,
-                        Key="{}/_SUCCESS".format(sub_analysis_result_dir)
+                    sub_analysis_result_dir = get_sub_analysis_result_dir(
+                        analysis_path, sub_analysis, feature_type
                     )
 
-                    object_list = s3_client.list_objects(Bucket=result_bucket, Prefix=sub_analysis_result_dir)
-                    keys = [object["Key"] for object in object_list['Contents']]
+                    # this will throw exception if success file isn't present
+                    s3_client.head_object(
+                        Bucket=result_bucket,
+                        Key="{}/_SUCCESS".format(sub_analysis_result_dir),
+                    )
+
+                    object_list = s3_client.list_objects(
+                        Bucket=result_bucket, Prefix=sub_analysis_result_dir
+                    )
+                    keys = [object["Key"] for object in object_list["Contents"]]
                     csv_keys = filter(lambda key: key.endswith(".csv"), keys)
 
                     analysis_result_urls[analysis_name][sub_analysis] = [
@@ -60,7 +68,7 @@ def handler(event, context):
                     ]
                 except ClientError:
                     # send slack message
-                    slack_webhook("ERROR", error_message, env)
+                    slack_webhook("ERROR", error_message)
                     return {"status": "FAILED"}
 
         # concat to each datastore
@@ -70,7 +78,7 @@ def handler(event, context):
                     analyses[analysis][sub_analysis],
                     analysis_result_urls[analysis][sub_analysis],
                     upload_type,
-                    env
+                    env,
                 )
 
         return {
@@ -97,10 +105,14 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
     """
     # adding '/' to result directory and listing with delimiter '/' will make boto list all the subdirectory
     # prefixes instead of all the actual objects
-    response = s3_client.list_objects(Bucket=result_bucket, Prefix=result_directory + '/', Delimiter='/')
+    response = s3_client.list_objects(
+        Bucket=result_bucket, Prefix=result_directory + "/", Delimiter="/"
+    )
 
     # get prefixes from response and remove trailining '/' for consistency
-    analysis_result_paths = [prefix['Prefix'][:-1] for prefix in response['CommonPrefixes']]
+    analysis_result_paths = [
+        prefix["Prefix"][:-1] for prefix in response["CommonPrefixes"]
+    ]
 
     analysis_result_map = dict()
     for path in analysis_result_paths:
@@ -112,19 +124,24 @@ def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_
 
 
 if __name__ == "__main__":
-    print(handler({
-        "status": "SUCCESS",
-        "job_flow_id": "j-ZHC4HI3NDTIP",
-        "env": "dev",
-        "name": "new_area_test2",
-        "analyses": {
-          "gladalerts": {
-            "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7"
-          }
-        },
-        "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
-        "feature_type": "geostore",
-        "result_bucket": "gfw-pipelines-dev",
-        "result_dir": "geotrellis/results/v20191122/new_area_test2",
-        "upload_type": "concat"
-    }, None))
+    print(
+        handler(
+            {
+                "status": "SUCCESS",
+                "job_flow_id": "j-ZHC4HI3NDTIP",
+                "env": "dev",
+                "name": "new_area_test2",
+                "analyses": {
+                    "gladalerts": {
+                        "daily_alerts": "56aaab8b-35de-466b-96aa-616377ed3df7"  # liza_logounova
+                    }
+                },
+                "feature_src": "s3://gfw-pipelines-dev/geotrellis/features/*.tsv",
+                "feature_type": "geostore",
+                "result_bucket": "gfw-pipelines-dev",
+                "result_dir": "geotrellis/results/v20191122/new_area_test2",
+                "upload_type": "concat",
+            },
+            None,
+        )
+    )

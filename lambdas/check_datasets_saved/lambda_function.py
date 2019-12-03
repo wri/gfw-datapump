@@ -40,13 +40,11 @@ def handler(event, context):
         )
 
         logging.info(error_message)
-        slack_webhook("ERROR", error_message, ENV)
+        slack_webhook("ERROR", error_message)
         return {"status": "FAILED"}
 
     # send slack info message
-    slack_webhook(
-        "INFO", "Successfully ran {} summary dataset update".format(name), ENV
-    )
+    slack_webhook("INFO", "Successfully ran {} summary dataset update".format(name))
     return {
         "status": "SUCCESS",
         "name": name,
