@@ -140,6 +140,28 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
 def get_summary_analysis_step(
     analysis, feature_url, result_url, feature_type="feature"
 ):
+    step_args = [
+        "spark-submit",
+        "--deploy-mode",
+        "cluster",
+        "--class",
+        "org.globalforestwatch.summarystats.SummaryMain",
+        "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
+        "--features",
+        feature_url,
+        "--output",
+        result_url,
+        "--feature_type",
+        feature_type,
+        "--analysis",
+        analysis,
+    ]
+
+    if "annualupdate" in analysis:
+        step_args.append("--tcl")
+    elif analysis == "gladalerts":
+        step_args.append("--glad")
+
     return {
         "Name": analysis,
         "ActionOnFailure": "TERMINATE_CLUSTER",
@@ -156,7 +178,6 @@ def get_summary_analysis_step(
                 feature_url,
                 "--output",
                 result_url,
-                # TODO output in special place for daily geoms (e.g. user_dashboards/<date>/<analysis type>),
                 "--feature_type",
                 feature_type,
                 "--analysis",
