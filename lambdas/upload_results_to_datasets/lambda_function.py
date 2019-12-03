@@ -7,6 +7,14 @@ from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.dataset import upload_dataset
 
 
+if "ENV" in os.environ:
+    ENV = os.environ["ENV"]
+else:
+    ENV = "dev"
+
+S3_CLIENT = boto3.client("s3")
+
+
 def handler(event, context):
     job_flow_id = event["job_flow_id"]
     analyses = event["analyses"]
@@ -32,17 +40,17 @@ def handler(event, context):
             slack_webhook("ERROR", error_message)
             return {"status": "FAILED"}
 
-        s3_client = boto3.client("s3")
         analysis_result_urls = dict()
 
-        analysis_names = analyses.keys()
+        analysis_names = [analysis["analysis_name"] for analysis in analyses]
         analysis_result_map = get_analysis_result_map(
-            result_bucket, result_dir, analysis_names, s3_client
+            result_bucket, result_dir, analysis_names
         )
 
-        for analysis_name in analysis_names:
-            analysis_path = analysis_result_map[analysis_name]
-            sub_analyses = analyses[analysis_name].keys()
+        for analysis in analyses:
+            analysis_name = analysis["analysis_name"]
+            analysis_path = analysis_result_map[name]
+            sub_analyses = analysis["dataset_ids"].keys()
             analysis_result_urls[analysis_name] = dict()
 
             for sub_analysis in sub_analyses:
@@ -52,12 +60,12 @@ def handler(event, context):
                     )
 
                     # this will throw exception if success file isn't present
-                    s3_client.head_object(
+                    S3_CLIENT.head_object(
                         Bucket=result_bucket,
                         Key="{}/_SUCCESS".format(sub_analysis_result_dir),
                     )
 
-                    object_list = s3_client.list_objects(
+                    object_list = S3_CLIENT.list_objects(
                         Bucket=result_bucket, Prefix=sub_analysis_result_dir
                     )
                     keys = [object["Key"] for object in object_list["Contents"]]
@@ -73,8 +81,8 @@ def handler(event, context):
                     return {"status": "FAILED"}
 
         # concat to each datastore
-        for analysis in analyses.keys():
-            for sub_analysis in analyses[analysis].keys():
+        for analysis in analyses:
+            for sub_analysis in analysis["dataset_ids"].keys():
                 upload_dataset(
                     analyses[analysis][sub_analysis],
                     analysis_result_urls[analysis][sub_analysis],
@@ -96,15 +104,15 @@ def get_sub_analysis_result_dir(analysis_result_path, sub_analysis_name, feature
     return "{}/{}/{}".format(analysis_result_path, feature_type, sub_analysis_name)
 
 
-def get_analysis_result_map(result_bucket, result_directory, analysis_names, s3_client):
+def get_analysis_result_map(result_bucket, result_directory, analysis_names):
     """
-    Analysis result directories are named as <analysis>_<date>_<time>
-    This creates a map of each analysis to its directory name so we know where to find
-    the results for each analysis.
-    """
+            Analysis result directories are named as <analysis>_<date>_<time>
+            This creates a map of each analysis to its directory name so we know where to find
+            the results for each analysis.
+            """
     # adding '/' to result directory and listing with delimiter '/' will make boto list all the subdirectory
     # prefixes instead of all the actual objects
-    response = s3_client.list_objects(
+    response = S3_CLIENT.list_objects(
         Bucket=result_bucket, Prefix=result_directory + "/", Delimiter="/"
     )
 
