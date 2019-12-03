@@ -18,6 +18,7 @@ else:
     ENV = "dev"
 
 TOKEN: str = get_token()
+AOI_UPDATED_STATUS = "saved"
 
 
 def handler(event, context):
@@ -25,7 +26,9 @@ def handler(event, context):
         aoi_src = event["feature_src"]
 
         geostore_ids = get_aoi_geostore_ids(aoi_src)
-        update_aoi_status(geostore_ids)
+
+        for geostore_id in geostore_ids:
+            update_aoi_status(geostore_id)
 
         return {"status": "SUCCESS"}  # TODO: Still need to work on the return values
     except Exception:
@@ -53,9 +56,8 @@ def get_aoi_geostore_ids(aoi_src: str) -> Set[str]:
     return geostore_ids
 
 
-def update_aoi_status(geostore_ids: Set[str]) -> int:
-
-    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/area"
+def update_aoi_status(geostore_id: str) -> int:
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/area/{geostore_id}"
 
     headers = {
         "Content-Type": "application/json",
@@ -63,14 +65,12 @@ def update_aoi_status(geostore_ids: Set[str]) -> int:
     }
 
     payload = {
-        "application": "gfw",
-        "geostore_ids": list(geostore_ids),
-        "status": "saved",
+        "status": AOI_UPDATED_STATUS,
     }
 
     r = requests.patch(url, data=json.dumps(payload), headers=headers)
 
-    if r.status_code != 204:
+    if r.status_code != 200:
         raise UnexpectedResponseError(
             "Data upload failed - received status code {}: "
             "Message: {}".format(r.status_code, r.json)
