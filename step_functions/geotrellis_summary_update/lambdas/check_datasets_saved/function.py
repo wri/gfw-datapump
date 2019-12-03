@@ -15,8 +15,8 @@ def handler(event, context):
 
     # check status of dataset requests
     dataset_statuses = dict()
-    for sub_analyses in analyses.values():
-        for dataset_id in sub_analyses.values():
+    for analysis in analyses:
+        for dataset_id in analysis["dataset_ids"].values():
             dataset_statuses[dataset_id] = get_dataset_status(dataset_id, ENV)
 
     pending_statuses = list(

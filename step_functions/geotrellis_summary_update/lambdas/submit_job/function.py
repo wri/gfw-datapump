@@ -29,11 +29,11 @@ def handler(event, context):
 
     try:
         steps = []
-        for analysis in analyses.keys():
+        for analysis in analyses:
             result_url = RESULT_PATH.format(RESULT_BUCKET, result_dir)
             steps.append(
                 get_summary_analysis_step(
-                    analysis, feature_src, result_url, feature_type
+                    analysis["analysis_name"], feature_src, result_url, feature_type
                 )
             )
 
