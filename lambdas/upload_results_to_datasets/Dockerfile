@@ -2,7 +2,7 @@ FROM lambci/lambda:build-python3.7
 
 WORKDIR /var/task
 ENV WORKDIR /var/task
-ENV LAMBDADIR update_new_area_statuses
+ENV LAMBDADIR upload_results_to_datasets
 
 # Make the dir and to install all packages into packages/
 COPY geotrellis_summary_update "$WORKDIR/geotrellis_summary_update"
