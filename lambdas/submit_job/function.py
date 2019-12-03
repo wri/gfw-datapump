@@ -1,8 +1,9 @@
 from botocore.exceptions import ClientError
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.emr import (
-    get_summary_analysis_step,
+    get_summary_analysis_steps,
     submit_summary_batch_job,
+    RESULT_PREFIX,
 )
 from geotrellis_summary_update.util import get_curr_date_dir_name
 import logging
@@ -14,10 +15,6 @@ if "ENV" in os.environ:
 else:
     ENV = "dev"
 
-RESULT_BUCKET = "gfw-pipelines-{}".format(ENV)
-RESULT_PREFIX = "geotrellis/results/{name}/{date}"
-RESULT_PATH = "s3://{}/{}"
-
 
 def handler(event, context):
     name = event["name"]
@@ -28,15 +25,9 @@ def handler(event, context):
     result_dir = RESULT_PREFIX.format(date=get_curr_date_dir_name(), name=name)
 
     try:
-        steps = []
-        for analysis in analyses:
-            result_url = RESULT_PATH.format(RESULT_BUCKET, result_dir)
-            steps.append(
-                get_summary_analysis_step(
-                    analysis["analysis_name"], feature_src, result_url, feature_type
-                )
-            )
-
+        steps = get_summary_analysis_steps(
+            analyses, feature_src, feature_type, result_dir, ENV
+        )
         job_flow_id = submit_summary_batch_job(name, steps, "r4.xlarge", 1, ENV)
 
         return {
@@ -46,7 +37,6 @@ def handler(event, context):
             "analyses": analyses,
             "feature_src": feature_src,
             "feature_type": feature_type,
-            "result_bucket": RESULT_BUCKET,
             "result_dir": result_dir,
             "upload_type": event["upload_type"],
         }

@@ -1,6 +1,9 @@
 import boto3
-
 from geotrellis_summary_update.util import bucket_suffix
+
+RESULT_BUCKET = "gfw-pipelines-{}"
+RESULT_PREFIX = "geotrellis/results/{name}/{date}"
+RESULT_PATH = "s3://{}/{}"
 
 
 def submit_summary_batch_job(name, steps, instance_type, worker_count):
@@ -185,3 +188,15 @@ def get_summary_analysis_step(
             ],
         },
     }
+
+
+def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir, env):
+    steps = []
+
+    for analysis in analyses:
+        result_url = RESULT_PATH.format(RESULT_BUCKET.format(env), result_dir)
+        steps.append(
+            get_summary_analysis_step(
+                analysis["analysis_name"], feature_src, result_url, feature_type
+            )
+        )
