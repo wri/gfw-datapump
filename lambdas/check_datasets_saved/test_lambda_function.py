@@ -2,7 +2,7 @@ import os
 
 from geotrellis_summary_update.util import secret_suffix
 
-from .lambda_function import handler
+from lambdas.check_datasets_saved.lambda_function import handler
 
 os.environ["ENV"] = "test"
 
@@ -21,7 +21,7 @@ def test_e2e():
             "feature_src": SRC,
             "analyses": {
                 "gladalerts": {
-                    "daily_alerts": "79014cd2-d5e2-4411-9160-a13b2b352c03",
+                    "daily_alerts": "79014cd2-d5e2-4411-9160-a13b2b352c03",  # pragma: allowlist secret
                     # "weekly_alerts": "Glad Alerts - Weekly - Geostore - User Areas",
                     # "summary": "Glad Alerts - Summary - Geostore - User Areas",
                 }
