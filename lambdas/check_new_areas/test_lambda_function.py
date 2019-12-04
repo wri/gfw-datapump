@@ -546,7 +546,7 @@ def test_get_geostore_ids():
 
 def test_get_geostore(requests_mock):
     requests_mock.post(
-        f"https://staging-api.globalforestwatch.org/v1/geostore/find-by-ids",
+        f"https://staging-api.globalforestwatch.org/v2/geostore/find-by-ids",
         json=GEOSTORE,
     )
     geostore = get_geostore(GEOSTORE_IDS)
