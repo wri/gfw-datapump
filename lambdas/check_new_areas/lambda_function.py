@@ -56,9 +56,12 @@ def handler(event: [Dict[str, Any]], context: [Dict[str, Any]]) -> Dict[str, Any
         geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
 
         with geostore_to_wkb(geostore) as wkb:
-            S3_CLIENT.upload_fileobj(
-                wkb, f"gfw-pipelines{bucket_suffix()}", geostore_path,
+            S3_CLIENT.put_object(
+                Body=str.encode(wkb.getvalue()),
+                Bucket=f"gfw-pipelines{bucket_suffix()}",
+                Key=geostore_path,
             )
+
         LOGGER.info(f"Found {len(geostore['data'])} pending areas")
         return {
             "status": "FOUND_NEW",
