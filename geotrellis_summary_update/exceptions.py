@@ -4,3 +4,7 @@ class EmptyResponseException(Exception):
 
 class UnexpectedResponseError(Exception):
     pass
+
+
+class MaxRetriesHitException(Exception):
+    pass
