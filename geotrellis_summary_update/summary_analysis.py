@@ -1,9 +1,18 @@
 import boto3
-
+import os
+from enum import Enum
 from geotrellis_summary_update.util import bucket_suffix
 from geotrellis_summary_update.s3 import get_s3_path
+from botocore.exceptions import ClientError
 
 RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
+S3_CLIENT = boto3.client("s3")
+
+
+class JobStatus(Enum):
+    SUCCESS = "SUCCESS"
+    PENDING = "PENDING"
+    FAILURE = "FAILURE"
 
 
 def submit_summary_batch_job(name, steps, instance_type, worker_count):
@@ -66,6 +75,91 @@ def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir):
         )
 
     return steps
+
+
+def get_job_status(job_flow_id: str) -> JobStatus:
+    emr_client = boto3.client("emr")
+    cluster_description = emr_client.describe_cluster(ClusterId=job_flow_id)
+    status = cluster_description["Cluster"]["Status"]
+
+    if status["State"] == "TERMINATED":
+        # only update AOIs atomically, so they don't get into a partially updated state if the
+        # next nightly batch happens before we can fix partially updated AOIs
+        if status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED":
+            return JobStatus.SUCCESS
+        else:
+            return JobStatus.FAILURE
+    else:
+        return JobStatus.PENDING
+
+
+def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
+    """
+    Analysis result directories are named as <analysis>_<date>_<time>
+    This creates a map of each analysis to its directory name so we know where to find
+    the results for each analysis.
+    """
+    # adding '/' to result directory and listing with delimiter '/' will make boto list all the subdirectory
+    # prefixes instead of all the actual objects
+    response = S3_CLIENT.list_objects(
+        Bucket=result_bucket, Prefix=result_directory + "/", Delimiter="/"
+    )
+
+    # get prefixes from response and remove trailing '/' for consistency
+    analysis_result_paths = [
+        prefix["Prefix"][:-1] for prefix in response["CommonPrefixes"]
+    ]
+
+    analysis_result_path_map = dict()
+    for path in analysis_result_paths:
+        for analysis in analysis_names:
+            if analysis in os.path.basename(path):
+                analysis_result_path_map[analysis] = path
+
+    return analysis_result_path_map
+
+
+def check_analysis_success(result_dir):
+    try:
+        # this will throw exception if success file isn't present
+        S3_CLIENT.head_object(
+            Bucket=RESULT_BUCKET, Key=f"{result_dir}/_SUCCESS",
+        )
+
+        return True
+    except ClientError:
+        return False
+
+
+def get_dataset_result_path(analysis_result_path, aggregate_name, feature_type):
+    return "{}/{}/{}".format(analysis_result_path, feature_type, aggregate_name)
+
+
+def get_dataset_sources(results_path):
+    object_list = S3_CLIENT.list_objects(Bucket=RESULT_BUCKET, Prefix=results_path)
+
+    keys = [object["Key"] for object in object_list["Contents"]]
+    csv_keys = filter(lambda key: key.endswith(".csv"), keys)
+
+    return [
+        "https://{}.s3.amazonaws.com/{}".format(RESULT_BUCKET, key) for key in csv_keys
+    ]
+
+
+def get_dataset_result_paths(result_dir, analyses, dataset_ids, feature_type):
+    analysis_result_paths = get_analysis_result_paths(
+        RESULT_BUCKET, result_dir, analyses
+    )
+    dataset_result_paths = dict()
+
+    for analysis in dataset_ids.keys():
+        for aggregate in dataset_ids[analysis].keys():
+            dataset_id = dataset_ids[analysis][aggregate]
+            dataset_result_paths[dataset_id] = get_dataset_result_path(
+                analysis_result_paths[analysis], aggregate, feature_type
+            )
+
+    return dataset_result_paths
 
 
 def _run_job_flow(name, instances, steps, applications, configurations):
