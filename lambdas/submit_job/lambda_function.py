@@ -4,7 +4,7 @@ import traceback
 
 from botocore.exceptions import ClientError
 
-from geotrellis_summary_update.emr import (
+from geotrellis_summary_update.summary_analysis import (
     get_summary_analysis_steps,
     submit_summary_batch_job,
 )

@@ -2,6 +2,7 @@ import os
 
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.exceptions import MaxRetriesHitException
+from geotrellis_summary_update.util import error
 from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.dataset import (
     get_dataset,
@@ -111,12 +112,6 @@ def get_task_log_errors(task):
         for task_log in task["logs"]
         if "withErrors" in task_log
     ]
-
-
-def error(msg):
-    LOGGER.error(msg)
-    slack_webhook("ERROR", msg)
-    return {"status": "FAILED"}
 
 
 def retry_upload_dataset(ds, ds_src, task, upload_type, retries):

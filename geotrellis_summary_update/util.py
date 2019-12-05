@@ -1,6 +1,9 @@
 import datetime
 import os
+from geotrellis_summary_update.logger import get_logger
+from geotrellis_summary_update.slack import slack_webhook
 
+LOGGER = get_logger(__name__)
 if "ENV" in os.environ:
     ENV = os.environ["ENV"]
 else:
@@ -47,3 +50,9 @@ def api_prefix() -> str:
         suffix = f"staging"
 
     return suffix
+
+
+def error(msg):
+    LOGGER.error(msg)
+    slack_webhook("ERROR", msg)
+    return {"status": "FAILED"}
