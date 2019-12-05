@@ -3,17 +3,95 @@ import boto3
 from geotrellis_summary_update.util import bucket_suffix
 from geotrellis_summary_update.s3 import get_s3_path
 
-
-RESULT_BUCKET = f"gfw-pipelines-{bucket_suffix()}"
+RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
 
 
 def submit_summary_batch_job(name, steps, instance_type, worker_count):
-    client = boto3.client("emr", region_name="us-east-1")
-    master_instance_type = instance_type  # "r4.xlarge"
-    worker_instance_type = instance_type  # "r4.xlarge"
-    worker_instance_count = worker_count  # 1
+    master_instance_type = instance_type
+    worker_instance_type = instance_type
+    worker_instance_count = worker_count
 
-    instances = {
+    instances = _instances(
+        name, master_instance_type, worker_instance_type, worker_instance_count
+    )
+    applications = _applications()
+    configurations = _configurations(worker_instance_count)
+
+    job_flow_id = _run_job_flow(name, instances, steps, applications, configurations)
+    return job_flow_id
+
+
+def get_summary_analysis_step(
+    analysis, feature_url, result_url, jar, feature_type="feature"
+):
+    step_args = [
+        "spark-submit",
+        "--deploy-mode",
+        "cluster",
+        "--class",
+        "org.globalforestwatch.summarystats.SummaryMain",
+        jar,
+        "--features",
+        feature_url,
+        "--output",
+        result_url,
+        "--feature_type",
+        feature_type,
+        "--analysis",
+        analysis,
+    ]
+
+    if "annualupdate" in analysis:
+        step_args.append("--tcl")
+    elif analysis == "gladalerts":
+        step_args.append("--glad")
+
+    return {
+        "Name": analysis,
+        "ActionOnFailure": "TERMINATE_CLUSTER",
+        "HadoopJarStep": {"Jar": "command-runner.jar", "Args": step_args},
+    }
+
+
+def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir):
+    latest_jar = _get_latest_geotrellis_jar()
+    steps = []
+
+    for analysis in analyses:
+        result_url = get_s3_path(RESULT_BUCKET, result_dir)
+        steps.append(
+            get_summary_analysis_step(
+                analysis, feature_src, result_url, latest_jar, feature_type
+            )
+        )
+
+    return steps
+
+
+def _run_job_flow(name, instances, steps, applications, configurations):
+    client = boto3.client("emr", region_name="us-east-1")
+    response = client.run_job_flow(
+        Name=name,
+        ReleaseLabel="emr-5.24.0",
+        LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
+        Instances=instances,
+        Steps=steps,
+        Applications=applications,
+        Configurations=configurations,
+        VisibleToAllUsers=True,
+        JobFlowRole="EMR_EC2_DefaultRole",
+        ServiceRole="EMR_DefaultRole",
+        Tags=[
+            {"Key": "Project", "Value": "Global Forest Watch"},
+            {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
+        ],  # flake8 --ignore
+    )
+
+    return response["JobFlowId"]
+
+
+def _instances(name, master_instance_type, worker_instance_type, worker_instance_count):
+    return {
         "InstanceGroups": [
             {
                 "Name": "{}-master".format(name),
@@ -69,13 +147,17 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
         # "AdditionalSlaveSecurityGroups": ["sg-d7a0d8ad", "sg-6c6a5911"],
     }
 
-    applications = [
+
+def _applications():
+    return [
         {"Name": "Spark"},
         {"Name": "Zeppelin"},
         {"Name": "Ganglia"},
-    ]  # TODO same?
+    ]
 
-    configurations = [
+
+def _configurations(worker_instance_count):
+    return [
         {
             "Classification": "spark",
             "Properties": {"maximizeResourceAllocation": "true"},
@@ -90,19 +172,13 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
                 "spark.driver.maxResultSize": "3G",
                 "spark.rdd.compress": "true",
                 "spark.executor.cores": "1",
-                "spark.sql.shuffle.partitions": "{}".format(
-                    (70 * worker_instance_count) - 1
-                ),
+                "spark.sql.shuffle.partitions": str((70 * worker_instance_count) - 1),
                 "spark.shuffle.spill.compress": "true",
                 "spark.shuffle.compress": "true",
-                "spark.default.parallelism": "{}".format(
-                    (70 * worker_instance_count) - 1
-                ),
+                "spark.default.parallelism": str((70 * worker_instance_count) - 1),
                 "spark.shuffle.service.enabled": "true",
                 "spark.executor.extraJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
-                "spark.executor.instances": "{}".format(
-                    (7 * worker_instance_count) - 1
-                ),
+                "spark.executor.instances": str((7 * worker_instance_count) - 1),
                 "spark.yarn.executor.memoryOverhead": "1G",
                 "spark.dynamicAllocation.enabled": "false",
                 "spark.driver.extraJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
@@ -120,82 +196,11 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
         },
     ]
 
-    response = client.run_job_flow(
-        Name=name,
-        ReleaseLabel="emr-5.24.0",
-        LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
-        Instances=instances,
-        Steps=steps,
-        Applications=applications,
-        Configurations=configurations,
-        VisibleToAllUsers=True,
-        JobFlowRole="EMR_EC2_DefaultRole",
-        ServiceRole="EMR_DefaultRole",
-        Tags=[
-            {"Key": "Project", "Value": "Test"},
-            {"Key": "Job", "Value": "Test"},
-        ],  # flake8 --ignore
-    )
 
-    # TODO handle possible error response
-    return response["JobFlowId"]
+def _get_latest_geotrellis_jar():
+    s3_client = boto3.client("s3")
 
+    response = s3_client.list_objects(Bucket=RESULT_BUCKET, Prefix="geotrellis/jars")
+    latest_jar = response["Contents"][-1]["Key"]
 
-def get_summary_analysis_step(
-    analysis, feature_url, result_url, feature_type="feature"
-):
-    step_args = [
-        "spark-submit",
-        "--deploy-mode",
-        "cluster",
-        "--class",
-        "org.globalforestwatch.summarystats.SummaryMain",
-        f"s3://{RESULT_BUCKET}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
-        "--features",
-        feature_url,
-        "--output",
-        result_url,
-        "--feature_type",
-        feature_type,
-        "--analysis",
-        analysis,
-    ]
-
-    if "annualupdate" in analysis:
-        step_args.append("--tcl")
-    elif analysis == "gladalerts":
-        step_args.append("--glad")
-
-    return {
-        "Name": analysis,
-        "ActionOnFailure": "TERMINATE_CLUSTER",
-        "HadoopJarStep": {
-            "Jar": "command-runner.jar",
-            "Args": [
-                "spark-submit",
-                "--deploy-mode",
-                "cluster",
-                "--class",
-                "org.globalforestwatch.summarystats.SummaryMain",
-                f"s3://{RESULT_BUCKET}/geotrellis/jars/treecoverloss-assembly-1.0.0-pre.jar",
-                "--features",
-                feature_url,
-                "--output",
-                result_url,
-                "--feature_type",
-                feature_type,
-                "--analysis",
-                analysis,
-            ],
-        },
-    }
-
-
-def get_summary_analysis_steps(analyses, feature_src, feature_type, result_dir):
-    steps = []
-
-    for analysis in analyses:
-        result_url = get_s3_path(RESULT_BUCKET, result_dir)
-        steps.append(
-            get_summary_analysis_step(analysis, feature_src, result_url, feature_type)
-        )
+    return get_s3_path(RESULT_BUCKET, latest_jar)

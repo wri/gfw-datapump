@@ -24,6 +24,8 @@ def handler(event, context):
     feature_src = event["feature_src"]
     feature_type = event["feature_type"]
     analyses = event["analyses"]
+    instance_size = event["instance_size"]
+    instance_count = event["instance_count"]
 
     result_dir = f"geotrellis/results/{name}/{get_curr_date_dir_name()}"
 
@@ -31,7 +33,9 @@ def handler(event, context):
         steps = get_summary_analysis_steps(
             analyses, feature_src, feature_type, result_dir
         )
-        job_flow_id = submit_summary_batch_job(name, steps, "r4.xlarge", 1)
+        job_flow_id = submit_summary_batch_job(
+            name, steps, instance_size, instance_count
+        )
 
         return {
             "status": "SUCCESS",

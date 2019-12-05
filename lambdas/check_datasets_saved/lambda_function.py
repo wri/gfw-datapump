@@ -1,8 +1,8 @@
 import os
-import logging
 
 from geotrellis_summary_update.slack import slack_webhook
 from geotrellis_summary_update.exceptions import MaxRetriesHitException
+from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.dataset import (
     get_dataset,
     get_task,
@@ -20,9 +20,7 @@ else:
     ENV = "dev"
 
 MAX_RETRIES = 2
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+LOGGER = get_logger(__name__)
 
 
 def handler(event, context):
@@ -78,14 +76,14 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
         # look for bug where elasticsearch has jammed writers
         # we can tell this has happened if the # of reads > # of writes
         if task["reads"] < task["writes"]:
-            logger.warning(
+            LOGGER.warning(
                 f"Pending dataset has fewer reads({task['reads']}) than writes({task['write']}), might be stuck.'"
             )
             return True
     # look bug where dataset says it's saved but the task for the write doesn't exist
     # this means the write never actually happened
     elif dataset["status"] == "saved" and task is not None:
-        logger.warning(
+        LOGGER.warning(
             f"Saved dataset's corresponding task doesn't exist, so upload may have not occurred.'"
         )
         return True
@@ -116,7 +114,7 @@ def get_task_log_errors(task):
 
 
 def error(msg):
-    logger.error(msg)
+    LOGGER.error(msg)
     slack_webhook("ERROR", msg)
     return {"status": "FAILED"}
 
@@ -151,7 +149,7 @@ def log_task_log_warnings(datasets, tasks):
     for ds, task in zip(datasets, tasks):
         # check for errors in the task logs and log them as warnings
         for task_log_id, error_details in get_task_log_errors(task):
-            logger.warning(task_log_warning(task, task_log_id, error()))
+            LOGGER.warning(task_log_warning(task, task_log_id, error()))
 
 
 def find_status_mismatches(datasets, tasks):
