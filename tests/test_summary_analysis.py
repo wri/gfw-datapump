@@ -166,6 +166,7 @@ def test_get_dataset_result_paths():
     assert dataset_result_paths["testid_summary_tcl"] == f"{results_tcl}/summary"
 
 
+@mock_s3
 def _mock_s3_setup():
     s3_client = boto3.client("s3")
 
