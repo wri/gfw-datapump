@@ -3,7 +3,7 @@
   "States": {
     "Check For New Areas": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:check_new_areas_geotrellis-summary-update",
+      "Resource": "${lambda_check_new_areas_arn}",
       "InputPath": "$",
       "ResultPath": "$",
       "Next": "Are There New Areas?"
@@ -34,13 +34,13 @@
       "InputPath": "$",
       "ResultPath": "$",
       "Parameters": {
-        "StateMachineArn": "arn:aws:states:us-east-1:123456789012:stateMachine:geotrellis-summary-update"
+        "StateMachineArn": "${state_machine_arn}"
       },
       "Next": "Update New Area Statuses"
     },
     "Update New Area Statuses": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:update-new-area-status_geotrellis-summary-update",
+      "Resource": "${lambda_update_new_area_status_arn}",
       "InputPath": "$",
       "ResultPath": "$",
       "Next": "Successfully Updated"

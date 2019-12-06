@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+
+if [[ -n "${GFW_AWS_CORE_INFRASTRUCTURE_DEBUG}" ]]; then
+  set -x
+fi
+
+if [ -z "${ENV}" ]; then
+  ENV=dev
+  AWS_PROFILE=gfw-dev
+else
+  AWS_PROFILE=gfw-${ENV}
+fi
+
+export AWS_PROFILE
+echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+
+function usage() {
+  echo -n \
+    "Usage: $(basename "$0") COMMAND OPTION[S]
+Execute Terraform subcommands.
+"
+}
+
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  if [ "${1:-}" = "--help" ]; then
+    usage
+  else
+    TERRAFORM_DIR="$(dirname "$0")/../../terraform"
+
+    pushd "${TERRAFORM_DIR}"
+
+    case "${1}" in
+    init)
+      terraform init \
+        -backend-config=backends/${ENV}.tf
+      ;;
+
+    fmt)
+      terraform fmt -recursive .
+      ;;
+
+    plan)
+      # Clear stale modules, then re-initialize
+      rm -rf .terraform
+
+      terraform init \
+        -backend-config=backend-${ENV}.tfvars
+
+      terraform plan \
+        -var-file="core-${ENV}.tfvars" \
+        -out="core.tfplan"
+      ;;
+    apply)
+      terraform apply \
+        "core.tfplan"
+      ;;
+    destroy)
+      terraform destroy \
+        -var-file="core-${ENV}.tfvars" \
+        -auto-approve
+      ;;
+    *)
+      echo "ERROR: I don't have support for that Terraform subcommand!"
+      exit 1
+#      terraform ${1}
+      ;;
+    esac
+
+    popd
+  fi
+fi

@@ -40,7 +40,7 @@ with open(os.path.join(DIRNAME, "analysis_config.yaml"), "r") as config:
     PENDING_AOI_ANALYSES = yaml.safe_load(config)
 
 
-def handler(event: [Dict[str, Any]], context: [Dict[str, Any]]) -> Dict[str, Any]:
+def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
     """
     Main Lambda function
     """
