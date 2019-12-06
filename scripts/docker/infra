@@ -49,16 +49,16 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         -backend-config=backend-${ENV}.tfvars
 
       terraform plan \
-        -var-file="core-${ENV}.tfvars" \
-        -out="core.tfplan"
+        -var-file="user-aoi-batch-${ENV}.tfvars" \
+        -out="user-aoi-batch.tfplan"
       ;;
     apply)
       terraform apply \
-        "core.tfplan"
+        "user-aoi-batch.tfplan"
       ;;
     destroy)
       terraform destroy \
-        -var-file="core-${ENV}.tfvars" \
+        -var-file="user-aoi-batch-${ENV}.tfvars" \
         -auto-approve
       ;;
     *)

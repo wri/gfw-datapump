@@ -33,10 +33,10 @@ variable "lambda_submit_job_memory_size" {
   description = "Memory limit in MB for AWS Lambda function"
 }
 
-variable "lambda_submit_check_new_areas_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
+//variable "lambda_check_new_areas_memory_size" {
+//  type        = number
+//  description = "Memory limit in MB for AWS Lambda function"
+//}
 
 variable "lambda_upload_results_memory_size" {
   type        = number
