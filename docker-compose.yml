@@ -7,6 +7,7 @@ services:
       - ./:/usr/local/src
       - $HOME/.aws:/root/.aws:ro
     environment:
-      - AWS_PROFILE
+      - ENV
+      - GFW_AWS_CORE_INFRASTUCTURE_DEBUG=1
     working_dir: /usr/local/src
-    entrypoint: bash
+    entrypoint: ./scripts/docker/infra
