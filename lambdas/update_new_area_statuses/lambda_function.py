@@ -30,7 +30,7 @@ def handler(event, context):
         for geostore_id in geostore_ids:
             update_aoi_status(geostore_id)
 
-        return {"status": "SUCCESS"}  # TODO: Still need to work on the return values
+        return {"status": "SUCCESS"}
     except Exception:
         return {"status": "FAILED"}
 
