@@ -4,7 +4,7 @@ resource "aws_lambda_function" "submit_job" {
   source_code_hash = filebase64sha256(local.lambda_submit_job_file)
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
   runtime          = var.lambda_submit_job_runtime
-  handler          = "function.handler"
+  handler          = "lambda_function.handler"
   memory_size      = var.lambda_submit_job_memory_size
   timeout          = var.lambda_submit_job_timeout
   publish          = true
@@ -23,7 +23,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
   source_code_hash = filebase64sha256(local.lambda_upload_results_file)
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
   runtime          = var.lambda_upload_results_runtime
-  handler          = "function.handler"
+  handler          = "lambda_function.handler"
   memory_size      = var.lambda_upload_results_memory_size
   timeout          = var.lambda_upload_results_timeout
   publish          = true
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "check_datasets_saved" {
   source_code_hash = filebase64sha256(local.lambda_check_dataset_file)
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
   runtime          = var.lambda_check_datasets_runtime
-  handler          = "function.handler"
+  handler          = "lambda_function.handler"
   memory_size      = var.lambda_check_datasets_memory_size
   timeout          = var.lambda_check_datasets_timeout
   publish          = true
@@ -59,7 +59,7 @@ resource "aws_lambda_function" "check_new_areas" {
   source_code_hash = filebase64sha256(local.lambda_check_new_area_file)
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
   runtime          = var.lambda_check_new_areas_runtime
-  handler          = "function.handler"
+  handler          = "lambda_function.handler"
   memory_size      = var.lambda_check_new_areas_memory_size
   timeout          = var.lambda_check_new_areas_timeout
   publish          = true
@@ -79,7 +79,7 @@ resource "aws_lambda_function" "update_new_area_statuses" {
   source_code_hash = filebase64sha256(local.lambda_update_new_area_statuses_file)
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
   runtime          = var.lambda_update_new_area_statuses_runtime
-  handler          = "function.handler"
+  handler          = "lambda_function.handler"
   memory_size      = var.lambda_update_new_area_statuses_memory_size
   timeout          = var.lambda_update_new_area_statuses_timeout
   publish          = true
