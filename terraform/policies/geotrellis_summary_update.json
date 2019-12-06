@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "secretsmanager:GetRandomPassword",
+              "lambda:InvokeFunction",
+              "secretsmanager:GetResourcePolicy",
+              "secretsmanager:GetSecretValue",
+              "secretsmanager:DescribeSecret",
+              "secretsmanager:ListSecretVersionIds",
+              "elasticmapreduce:RunJobFlow",
+              "elasticmapreduce:DescribeCluster",
+              "cloudformation:DescribeChangeSet",
+              "cloudformation:DescribeStackResources",
+              "cloudformation:DescribeStacks",
+              "cloudformation:GetTemplate",
+              "cloudformation:ListStackResources",
+              "cloudwatch:*",
+              "ec2:DescribeSecurityGroups",
+              "ec2:DescribeSubnets",
+              "ec2:DescribeVpcs",
+              "events:*",
+              "iam:GetPolicy",
+              "iam:GetPolicyVersion",
+              "iam:GetRole",
+              "iam:GetRolePolicy",
+              "iam:ListAttachedRolePolicies",
+              "iam:ListRolePolicies",
+              "iam:ListRoles",
+              "iam:PassRole",
+              "lambda:*",
+              "logs:*",
+              "s3:*",
+              "states:StartExecution"
+          ],
+          "Resource": "*"
+      }
+  ]
+}
