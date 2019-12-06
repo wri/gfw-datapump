@@ -8,3 +8,11 @@ class UnexpectedResponseError(Exception):
 
 class MaxRetriesHitException(Exception):
     pass
+
+
+class FailedDatasetUploadException(Exception):
+    pass
+
+
+class StatusMismatchException(Exception):
+    pass

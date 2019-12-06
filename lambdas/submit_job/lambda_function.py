@@ -46,6 +46,7 @@ def handler(event, context):
             "feature_type": feature_type,
             "result_dir": result_dir,
             "upload_type": event["upload_type"],
+            "dataset_ids": event["dataset_ids"],
         }
     except ClientError:
         logging.error(traceback.print_exc())
