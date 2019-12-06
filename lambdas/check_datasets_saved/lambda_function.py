@@ -78,12 +78,12 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
         # we can tell this has happened if the # of reads > # of writes
         if task["reads"] < task["writes"]:
             LOGGER.warning(
-                f"Pending dataset has fewer reads({task['reads']}) than writes({task['write']}), might be stuck.'"
+                f"Pending dataset has fewer reads({task['reads']}) than writes({task['writes']}), might be stuck.'"
             )
             return True
     # look bug where dataset says it's saved but the task for the write doesn't exist
     # this means the write never actually happened
-    elif dataset["status"] == "saved" and task is not None:
+    elif dataset["status"] == "saved" and task is None:
         LOGGER.warning(
             f"Saved dataset's corresponding task doesn't exist, so upload may have not occurred.'"
         )
@@ -124,9 +124,9 @@ def retry_upload_dataset(ds, ds_src, task, upload_type, retries):
         )
 
     upload_dataset(ds["id"], ds_src, upload_type)
-    ds[
-        "status"
-    ] = "pending"  # change local status to pending instead of querying API again
+
+    # change local status to pending instead of querying API again
+    ds["status"] = "pending"
 
 
 def retry_stuck_datasets(

@@ -1,7 +1,6 @@
 import boto3
 import requests
 import json
-import logging
 
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.util import api_prefix
@@ -46,28 +45,42 @@ def get_task(task_path):
 
 def upload_dataset(dataset_id, source_urls, upload_type):
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/{upload_type}"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {get_token()}",
-    }
 
-    src_param = "sources" if upload_type == "concat" else "data"
-    payload = {"provider": "csv", src_param: source_urls}
-
-    r = requests.post(url, data=json.dumps(payload), headers=headers)
+    payload = _get_upload_dataset_payload(upload_type, source_urls)
+    r = requests.post(url, data=json.dumps(payload), headers=_get_headers())
 
     if r.status_code != 204:
-        raise Exception(
-            "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json())
+        raise UnexpectedResponseError(
+            f"Data upload failed with status code {r.status_code} and message: {r.json()}"
         )
 
 
-def get_api_token():
-    client = boto3.client("secretsmanager", region_name="us-east-1")
+def _get_upload_dataset_payload(upload_type, source_urls):
+    src_param = "sources" if upload_type == "concat" else "data"
+    return {"provider": "csv", src_param: source_urls}
 
-    response = client.get_secret_value(SecretId=f"gfw-api/{get_token()}-token")
-    return json.loads(response["SecretString"])["token"]
+
+def delete_task(task_path):
+    url = f"https://{api_prefix()}-api.globalforestwatch.org{task_path}"
+    response = requests.delete(url, headers=_get_headers())
+
+    if response.status_code != 200:
+        raise UnexpectedResponseError(
+            f"Delete task {task_path} returned status code {response.status_code}."
+        )
+
+
+def recover_dataset(dataset_id):
+    """
+    Resets dataset if stuck on a write.
+    """
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/recover"
+    response = requests.post(url, headers=_get_headers())
+
+    if response.status_code != 200:
+        raise UnexpectedResponseError(
+            f"Recover dataset {dataset_id} returned status code {response.status_code}."
+        )
 
 
 def create_dataset(dataset_id, source_urls):
@@ -95,24 +108,8 @@ def create_dataset(dataset_id, source_urls):
         )
 
 
-def delete_task(task_path):
-    url = f"https://{api_prefix()}-api.globalforestwatch.org{task_path}"
-    response = requests.delete(url)
-
-    if response.status_code != 200:
-        raise UnexpectedResponseError(
-            f"Delete task {task_path} returned status code {response.status_code}."
-        )
-
-
-def recover_dataset(dataset_id):
-    """
-    Resets dataset if stuck on a write.
-    """
-    url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/recover"
-    response = requests.post(url)
-
-    if response.status_code != 200:
-        raise UnexpectedResponseError(
-            f"Recover dataset {dataset_id} returned status code {response.status_code}."
-        )
+def _get_headers():
+    return {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {get_token()}",
+    }

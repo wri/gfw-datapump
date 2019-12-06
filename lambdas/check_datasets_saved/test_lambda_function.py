@@ -1,7 +1,10 @@
 import os
 
 from geotrellis_summary_update.util import secret_suffix
-from lambdas.check_datasets_saved.lambda_function import handler
+from lambdas.check_datasets_saved.lambda_function import (
+    handler,
+    is_dataset_stuck_on_write,
+)
 
 os.environ["ENV"] = "test"
 
@@ -10,13 +13,24 @@ SRC = "s3://gfw-pipelines-dev/geotrellis/features/*.tsv"
 
 
 def test_is_dataset_stuck_on_write():
-    raise NotImplementedError()
+    ds_pending = {"status": "pending"}
+    ds_saved = {"status": "saved"}
+
+    task_correct = {"reads": 10, "writes": 10}
+    task_too_few_reads = {"reads": 9, "writes": 10}
+
+    assert not is_dataset_stuck_on_write(ds_pending, task_correct)
+    assert is_dataset_stuck_on_write(ds_pending, task_too_few_reads)
+
+    assert is_dataset_stuck_on_write(ds_saved, None)
+    assert not is_dataset_stuck_on_write(ds_saved, task_correct)
 
 
 def test_secret_suffix():
     assert secret_suffix() == "staging"
 
 
+""""
 def test_e2e():
     result = handler(
         {
@@ -37,3 +51,4 @@ def test_e2e():
     assert result["name"] == NAME
     assert result["feature_src"] == SRC
     assert list(result["analyses"].keys()) == ["gladalerts"]
+"""
