@@ -7,16 +7,12 @@ from typing import Any, Dict, Iterator, List, Tuple
 
 import boto3
 import requests
-import yaml
 from requests import Response
 from shapely.wkb import dumps
 from shapely.geometry import shape, Polygon
 
 from geotrellis_summary_update.decorators import api_response_checker
-from geotrellis_summary_update.exceptions import (
-    EmptyResponseException,
-    UnexpectedResponseError,
-)
+from geotrellis_summary_update.exceptions import EmptyResponseException
 from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.util import bucket_suffix, api_prefix
@@ -74,22 +70,25 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             )
 
         LOGGER.info(f"Found {len(geostore['data'])} pending areas")
+        analyses = list(PENDING_AOI_ANALYSES[ENV].keys())
         return {
-            "status": "FOUND_NEW",
-            "instance_type": "r4.xlarge",
+            "status": "NEW_AREAS_FOUND",
+            "instance_size": "r4.xlarge",
             "instance_count": 1,
             "feature_src": geostore_path,
             "feature_type": "geostore",
-            "analyses": PENDING_AOI_ANALYSES[ENV].keys(),
+            "analyses": analyses,
             "dataset_ids": PENDING_AOI_ANALYSES[ENV],
             "name": PENDING_AOI_NAME,
+            "upload_type": "concat",
         }
 
     except EmptyResponseException:
         # slack_webhook("INFO", "No new user areas found. Doing nothing.")
-        return {"status": "NOTHING_TO_DO"}
+        return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
-        return {"status": "FAILED", "message": e}
+        LOGGER.error(str(e))
+        return {"status": "ERROR", "message": str(e)}
 
 
 @api_response_checker("pending areas")
