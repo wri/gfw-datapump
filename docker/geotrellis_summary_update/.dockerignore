@@ -33,9 +33,7 @@ node_modules/
 *.tif.aux.xml
 
 lambda.zip
-layer.zip
-.mypy_cache/
-.pytest_cache/
-venv/
+.mypy_cache/*
+.pytest_cache/*
+venv*
 test/test_data/*
-.github/

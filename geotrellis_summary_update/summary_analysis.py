@@ -1,6 +1,8 @@
-import boto3
 import os
 from enum import Enum
+
+import boto3
+
 from geotrellis_summary_update.util import bucket_suffix
 from geotrellis_summary_update.s3 import get_s3_path
 from botocore.exceptions import ClientError
@@ -292,9 +294,11 @@ def _configurations(worker_instance_count):
 
 
 def _get_latest_geotrellis_jar():
-    s3_client = boto3.client("s3")
 
-    response = s3_client.list_objects(Bucket=RESULT_BUCKET, Prefix="geotrellis/jars")
-    latest_jar = response["Contents"][-1]["Key"]
+    # environment should be set via environment variable. This can be done when deploying the lambda function.
+    if "GEOTRELLIS_JAR" in os.environ:
+        jar = os.environ["GEOTRELLIS_JAR"]
+    else:
+        raise ValueError("Environment Variable 'GEOTRELLIS_JAR' is not set")
 
-    return get_s3_path(RESULT_BUCKET, latest_jar)
+    return jar
