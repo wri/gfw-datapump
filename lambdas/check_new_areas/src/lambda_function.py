@@ -7,7 +7,6 @@ from typing import Any, Dict, Iterator, List, Tuple
 
 import boto3
 import requests
-import yaml
 from requests import Response
 from shapely.wkb import dumps
 from shapely.geometry import shape, Polygon
@@ -33,8 +32,19 @@ PENDING_AOI_NAME = "pending_user_areas"
 
 DIRNAME = os.path.dirname(__file__)
 
-with open(os.path.join(DIRNAME, "analysis_config.yaml"), "r") as config:
-    PENDING_AOI_ANALYSES = yaml.safe_load(config)
+PENDING_AOI_ANALYSES = {
+    "dev": {
+        "annualupdate_minimal": {
+            "change": "206938be-12d9-47b7-9865-44244bfb64d6",
+            "summary": "0eead72d-1ad7-4c0f-93c4-793a07cd2e3d",
+        },
+        "gladalerts": {
+            "daily_alerts": "722d90b2-e989-48ca-ba27-f7a8e236ea44",
+            "weekly_alerts": "153a2ba7-cff6-4b06-bd76-279271c4ddea",
+            "summary": "28e44bd2-cd13-4587-9259-1ba235a82d28",
+        },
+    }
+}
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -60,20 +70,25 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             )
 
         LOGGER.info(f"Found {len(geostore['data'])} pending areas")
+        analyses = list(PENDING_AOI_ANALYSES[ENV].keys())
         return {
-            "status": "FOUND_NEW",
+            "status": "NEW_AREAS_FOUND",
+            "instance_size": "r4.xlarge",
+            "instance_count": 1,
             "feature_src": geostore_path,
             "feature_type": "geostore",
-            "analyses": PENDING_AOI_ANALYSES[ENV],
-            "env": ENV,
+            "analyses": analyses,
+            "dataset_ids": PENDING_AOI_ANALYSES[ENV],
             "name": PENDING_AOI_NAME,
+            "upload_type": "concat",
         }
 
     except EmptyResponseException:
         # slack_webhook("INFO", "No new user areas found. Doing nothing.")
-        return {"status": "NOTHING_TO_DO"}
+        return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
-        return {"status": "FAILED", "message": e}
+        LOGGER.error(str(e))
+        return {"status": "ERROR", "message": str(e)}
 
 
 @api_response_checker("pending areas")

@@ -3,7 +3,11 @@ import os
 from typing import Dict
 
 from geotrellis_summary_update.slack import slack_webhook
-from geotrellis_summary_update.exceptions import MaxRetriesHitException
+from geotrellis_summary_update.exceptions import (
+    MaxRetriesHitException,
+    StatusMismatchException,
+    FailedDatasetUploadException,
+)
 from geotrellis_summary_update.util import error
 from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.dataset import (
@@ -39,23 +43,19 @@ def handler(event, context):
     datasets = [get_dataset(id) for id in dataset_ids]
     tasks = [get_task(ds["taskId"]) for ds in datasets]
 
-    # see if any datasets have already failed, and if so immediately exit wait loop and return error
-    failed_datasets = get_datasets_with_status("failed")
-    if failed_datasets:
-        return error(failed_datasets_error(name, failed_datasets))
-
-    status_mismatches = find_status_mismatches(datasets, tasks)
-    if status_mismatches:
-        return error(mismatched_status_error(status_mismatches))
-
-    # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
     try:
-        retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries)
-    except MaxRetriesHitException as e:
-        return error(e)
+        check_for_upload_issues(
+            name, datasets, dataset_sources, tasks, upload_type, retries
+        )
+    except (
+        FailedDatasetUploadException,
+        StatusMismatchException,
+        MaxRetriesHitException,
+    ) as e:
+        return error(str(e))
 
     # if any datasets are still pending, return to wait loop
-    if get_datasets_with_status("pending"):
+    if get_datasets_with_status(datasets, "pending"):
         event.update({"status": "PENDING", "retries": retries})
         return event
 
@@ -68,6 +68,22 @@ def handler(event, context):
         "feature_src": event["feature_src"],
         "analyses": event["analyses"],
     }
+
+
+def check_for_upload_issues(
+    name, datasets, dataset_sources, tasks, upload_type, retries
+):
+    # see if any datasets have already failed, and if so immediately exit wait loop and return error
+    failed_datasets = get_datasets_with_status(datasets, "failed")
+    if failed_datasets:
+        raise FailedDatasetUploadException(failed_datasets_error(name, failed_datasets))
+
+    status_mismatches = find_status_mismatches(datasets, tasks)
+    if status_mismatches:
+        raise StatusMismatchException(mismatched_status_error(status_mismatches))
+
+    # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
+    retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries)
 
 
 def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
@@ -108,7 +124,7 @@ def get_datasets_with_status(datasets, status):
 
 def get_task_log_errors(task):
     return [
-        (task_log["id"], task_log["details"])
+        (task_log["id"], task_log["detail"])
         for task_log in task["logs"]
         if "withErrors" in task_log
     ]
@@ -129,10 +145,10 @@ def retry_upload_dataset(ds, ds_src, task, upload_type, retries):
     ds["status"] = "pending"
 
 
-def retry_stuck_datasets(
-    datasets, dataset_sources, tasks, stuck_on_write_statuses, upload_type, retries
-):
-    stuck_on_write_statuses = [is_dataset_stuck_on_write(ds) for ds in datasets]
+def retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries):
+    stuck_on_write_statuses = [
+        is_dataset_stuck_on_write(ds, task) for ds, task in zip(datasets, tasks)
+    ]
     for ds, ds_src, task, stuck_on_write in zip(
         datasets, dataset_sources, tasks, stuck_on_write_statuses
     ):
@@ -144,7 +160,7 @@ def log_task_log_warnings(datasets, tasks):
     for ds, task in zip(datasets, tasks):
         # check for errors in the task logs and log them as warnings
         for task_log_id, error_details in get_task_log_errors(task):
-            LOGGER.warning(task_log_warning(task, task_log_id, error()))
+            LOGGER.warning(task_log_warning(task, task_log_id, error_details))
 
 
 def find_status_mismatches(datasets, tasks):

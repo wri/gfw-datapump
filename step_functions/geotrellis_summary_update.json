@@ -4,7 +4,7 @@
     "Submit Job": {
       "Type": "Task",
       "Resource": "${lambda_submit_job_arn}",
-      "InputPath": "$",
+      "InputPath": "$.Input",
       "ResultPath": "$",
       "Next": "Job Submitted?"
     },
