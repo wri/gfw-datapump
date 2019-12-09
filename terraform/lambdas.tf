@@ -13,7 +13,7 @@ resource "aws_lambda_layer_version" "shaply_pyyaml" {
 }
 
 resource "aws_lambda_function" "submit_job" {
-  function_name    = "submit-job_geotrellis-summary-update"
+  function_name    = "submit-job_geotrellis-summary-update${local.name_suffix}"
   filename         = data.archive_file.lambda_submit_job.output_path
   source_code_hash = data.archive_file.lambda_submit_job.output_base64sha256
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
@@ -34,7 +34,7 @@ resource "aws_lambda_function" "submit_job" {
 }
 
 resource "aws_lambda_function" "upload_results_to_datasets" {
-  function_name    = "upload-results-to-datasets_geotrellis-summary-update"
+  function_name    = "upload-results-to-datasets_geotrellis-summary-update${local.name_suffix}"
   filename         = data.archive_file.lambda_upload_results_to_datasets.output_path
   source_code_hash = data.archive_file.lambda_upload_results_to_datasets.output_base64sha256
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
@@ -53,7 +53,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
 }
 
 resource "aws_lambda_function" "check_datasets_saved" {
-  function_name    = "check-datasets-saved_geotrellis-summary-update"
+  function_name    = "check-datasets-saved_geotrellis-summary-update${local.name_suffix}"
   filename         = data.archive_file.lambda_check_datasets_saved.output_path
   source_code_hash = data.archive_file.lambda_check_datasets_saved.output_base64sha256
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
@@ -72,7 +72,7 @@ resource "aws_lambda_function" "check_datasets_saved" {
 }
 
 resource "aws_lambda_function" "check_new_areas" {
-  function_name    = "check-new-areas_geotrellis-summary-update"
+  function_name    = "check-new-areas_geotrellis-summary-update${local.name_suffix}"
   filename         = data.archive_file.lambda_check_new_areas.output_path
   source_code_hash = data.archive_file.lambda_check_new_areas.output_base64sha256
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn
@@ -82,7 +82,7 @@ resource "aws_lambda_function" "check_new_areas" {
   timeout          = var.lambda_check_new_areas_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.geotrellis_summary_update.arn, aws_lambda_layer_version.shaply_pyyaml]
+  layers           = [aws_lambda_layer_version.geotrellis_summary_update.arn, aws_lambda_layer_version.shaply_pyyaml.arn]
   environment {
     variables = {
       ENV                = var.environment
@@ -93,7 +93,7 @@ resource "aws_lambda_function" "check_new_areas" {
 }
 
 resource "aws_lambda_function" "update_new_area_statuses" {
-  function_name    = "update-new-area-statuses_geotrellis-summary-update"
+  function_name    = "update-new-area-statuses_geotrellis-summary-update${local.name_suffix}"
   filename         = data.archive_file.lambda_update_new_area_statuses.output_path
   source_code_hash = data.archive_file.lambda_update_new_area_statuses.output_base64sha256
   role             = aws_iam_role.geotrellis_summary_update_lambda.arn

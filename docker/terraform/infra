@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+function usage {
+  echo -n \
+    "Usage: $(basename "$0") COMMAND OPTION[S]
+Execute Terraform subcommands.
+"
+}
+
 set -e
 
 if [[ -n "${GFW_AWS_CORE_INFRASTRUCTURE_DEBUG}" ]]; then
@@ -16,12 +24,8 @@ fi
 export AWS_PROFILE
 echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
 
-function usage() {
-  echo -n \
-    "Usage: $(basename "$0") COMMAND OPTION[S]
-Execute Terraform subcommands.
-"
-}
+## select or create the current workspace
+#./docker/terraform/workspace
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   if [ "${1:-}" = "--help" ]; then
@@ -32,22 +36,16 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     pushd "${TERRAFORM_DIR}"
 
     case "${1}" in
-    init)
-      terraform init \
-        -backend-config=vars/backends/${ENV}.tf
-      ;;
-
     fmt)
       terraform fmt -recursive .
       ;;
-
     plan)
       # Clear stale modules, then re-initialize
       rm -rf .terraform
-
+      # select or create the current workspace
       terraform init \
         -backend-config=vars/backend-${ENV}.tfvars
-
+      ../docker/terraform/workspace
       terraform plan \
         -var-file="vars/user-aoi-batch-${ENV}.tfvars" \
         -out="user-aoi-batch.tfplan"
@@ -64,7 +62,6 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     *)
       echo "ERROR: I don't have support for that Terraform subcommand!"
       exit 1
-#      terraform ${1}
       ;;
     esac
 
