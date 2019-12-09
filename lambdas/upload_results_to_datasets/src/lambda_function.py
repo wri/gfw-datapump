@@ -17,7 +17,6 @@ if "ENV" in os.environ:
 else:
     ENV = "dev"
 
-S3_CLIENT = boto3.client("s3")
 LOGGER = get_logger(__name__)
 
 

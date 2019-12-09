@@ -2,13 +2,13 @@ import os
 from enum import Enum
 
 import boto3
-
-from geotrellis_summary_update.util import bucket_suffix
-from geotrellis_summary_update.s3 import get_s3_path
 from botocore.exceptions import ClientError
 
+from geotrellis_summary_update.util import bucket_suffix
+from geotrellis_summary_update.s3 import get_s3_path, s3_client
+
+
 RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
-S3_CLIENT = boto3.client("s3")
 
 
 class JobStatus(Enum):
@@ -91,6 +91,8 @@ def get_job_status(job_flow_id: str) -> JobStatus:
             return JobStatus.SUCCESS
         else:
             return JobStatus.FAILURE
+    elif status["State"] == "TERMINATED_WITH_ERRORS":
+        return JobStatus.FAILURE
     else:
         return JobStatus.PENDING
 
@@ -103,7 +105,7 @@ def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
     """
     # adding '/' to result directory and listing with delimiter '/' will make boto list all the subdirectory
     # prefixes instead of all the actual objects
-    response = S3_CLIENT.list_objects(
+    response = s3_client().list_objects(
         Bucket=result_bucket, Prefix=result_directory + "/", Delimiter="/"
     )
 
@@ -124,7 +126,7 @@ def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
 def check_analysis_success(result_dir):
     try:
         # this will throw exception if success file isn't present
-        S3_CLIENT.head_object(
+        s3_client().head_object(
             Bucket=RESULT_BUCKET, Key=f"{result_dir}/_SUCCESS",
         )
 
@@ -138,7 +140,7 @@ def get_dataset_result_path(analysis_result_path, aggregate_name, feature_type):
 
 
 def get_dataset_sources(results_path):
-    object_list = S3_CLIENT.list_objects(Bucket=RESULT_BUCKET, Prefix=results_path)
+    object_list = s3_client().list_objects(Bucket=RESULT_BUCKET, Prefix=results_path)
 
     keys = [object["Key"] for object in object_list["Contents"]]
     csv_keys = filter(lambda key: key.endswith(".csv"), keys)

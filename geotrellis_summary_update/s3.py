@@ -1,5 +1,15 @@
 from botocore.exceptions import ClientError
 from urllib.parse import urlparse
+import boto3
+
+S3_CLIENT = None
+
+
+def s3_client():
+    global S3_CLIENT
+    if S3_CLIENT is None:
+        S3_CLIENT = boto3.client("s3")
+    return S3_CLIENT
 
 
 def s3_directory_exists(bucket, prefix, s3_client):

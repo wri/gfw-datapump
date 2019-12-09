@@ -1,7 +1,7 @@
 import os
 
 import boto3
-from moto import mock_emr, mock_s3
+from moto import mock_emr, mock_s3, mock_secretsmanager
 
 from geotrellis_summary_update.util import get_curr_date_dir_name
 from geotrellis_summary_update.summary_analysis import (
@@ -16,13 +16,15 @@ from geotrellis_summary_update.summary_analysis import (
     _applications,
 )
 
+from tests.mock_environment.mock_environment import mock_environment
 
 CURDIR = os.path.dirname(__file__)
 
 
 @mock_s3
+@mock_secretsmanager
 def test_get_analysis_steps():
-    _mock_s3_setup()
+    mock_environment()
     steps = _steps()
 
     annualupdate_step = steps[0]
@@ -46,8 +48,9 @@ def test_get_analysis_steps():
 
 @mock_s3
 @mock_emr
+@mock_secretsmanager
 def test_submit_job_and_get_status():
-    _mock_s3_setup()
+    mock_environment()
 
     name = "testing"
     master_instance_type = "r4.xlarge"
@@ -85,12 +88,13 @@ def test_submit_job_and_get_status():
 
 
 @mock_s3
+@mock_secretsmanager
 def test_get_analysis_result_paths():
-    _mock_s3_setup()
+    mock_environment()
 
     result_paths = get_analysis_result_paths(
         "gfw-pipelines-dev",
-        f"geotrellis/results/{get_curr_date_dir_name()}/test",
+        f"geotrellis/results/test/{get_curr_date_dir_name()}",
         ["gladalerts", "annualupdate_minimal"],
     )
 
@@ -105,20 +109,19 @@ def test_get_analysis_result_paths():
 
 
 @mock_s3
+@mock_secretsmanager
 def test_check_analysis_success():
-    _mock_s3_setup()
+    mock_environment()
 
     assert check_analysis_success(
         f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
-    assert not check_analysis_success(
-        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts"
-    )
 
 
 @mock_s3
+@mock_secretsmanager
 def test_get_dataset_sources():
-    _mock_s3_setup()
+    mock_environment()
 
     https_path = f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     sources = get_dataset_sources(
@@ -130,8 +133,9 @@ def test_get_dataset_sources():
 
 
 @mock_s3
+@mock_secretsmanager
 def test_get_dataset_result_paths():
-    _mock_s3_setup()
+    mock_environment()
 
     analyses = ["gladalerts", "annualupdate_minimal"]
     dataset_ids = {
@@ -146,7 +150,7 @@ def test_get_dataset_result_paths():
         },
     }
 
-    result_dir = f"geotrellis/results/{get_curr_date_dir_name()}/test"
+    result_dir = f"geotrellis/results/test/{get_curr_date_dir_name()}"
     feature_type = "geostore"
 
     dataset_result_paths = get_dataset_result_paths(
@@ -168,109 +172,6 @@ def test_get_dataset_result_paths():
 
     assert dataset_result_paths["testid_change_tcl"] == f"{results_tcl}/change"
     assert dataset_result_paths["testid_summary_tcl"] == f"{results_tcl}/summary"
-
-
-@mock_s3
-def _mock_s3_setup():
-    s3_client = boto3.client("s3")
-
-    pipeline_bucket = "gfw-pipelines-dev"
-    s3_client.create_bucket(Bucket=pipeline_bucket)
-    with open(
-        os.path.join(CURDIR, "mock_environment/mock_files/test1.jar"), "r"
-    ) as test1_jar:
-        s3_client.upload_fileobj(
-            test1_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test1.jar"
-        )
-
-    with open(
-        os.path.join(CURDIR, "mock_environment/mock_files/test2.jar"), "r"
-    ) as test2_jar:
-        s3_client.upload_fileobj(
-            test2_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test2.jar"
-        )
-
-    results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
-    results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
-    results1 = os.path.join(CURDIR, "mock_environment/mock_files/results1.csv")
-    results2 = os.path.join(CURDIR, "mock_environment/mock_files/results1.csv")
-    success = os.path.join(CURDIR, "mock_environment/mock_files/_SUCCESS")
-
-    s3_client.upload_fileobj(
-        open(results1, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/daily_alerts/results1.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results1, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/weekly_alerts/results1.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results1, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/summary/results1.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results1, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_tcl}/change/results1.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results1, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_tcl}/summary/results1.csv",
-    )
-
-    s3_client.upload_fileobj(
-        open(results2, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/daily_alerts/results2.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results2, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/weekly_alerts/results2.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results2, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/summary/results2.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results2, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_tcl}/change/results2.csv",
-    )
-    s3_client.upload_fileobj(
-        open(results2, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_tcl}/summary/results2.csv",
-    )
-
-    s3_client.upload_fileobj(
-        open(success, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/daily_alerts/_SUCCESS",
-    )
-    s3_client.upload_fileobj(
-        open(success, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}weekly_alerts/_SUCCESS",
-    )
-    s3_client.upload_fileobj(
-        open(success, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_glad}/summary/_SUCCESS",
-    )
-    s3_client.upload_fileobj(
-        open(success, "r"), Bucket=pipeline_bucket, Key=f"{results_tcl}/change/_SUCCESS"
-    )
-    s3_client.upload_fileobj(
-        open(success, "r"),
-        Bucket=pipeline_bucket,
-        Key=f"{results_tcl}/summary/_SUCCESS",
-    )
 
 
 def _steps():
