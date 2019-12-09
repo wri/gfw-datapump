@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  terraform:
+    build:
+      context: .
+    volumes:
+      - ../../:/usr/local/src
+      - $HOME/.aws:/root/.aws:ro
+    environment:
+      - ENV
+      - GFW_AWS_CORE_INFRASTUCTURE_DEBUG=1
+    working_dir: /usr/local/src
+    entrypoint: ./docker/terraform/infra

@@ -11,7 +11,7 @@ LOGGER = get_logger(__name__)
 
 
 def api_response_checker(endpoint: str):
-    def inner_function(func):
+    def inner_function(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
             response = func(*args, **kwargs)

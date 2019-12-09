@@ -33,11 +33,6 @@ variable "lambda_submit_job_memory_size" {
   description = "Memory limit in MB for AWS Lambda function"
 }
 
-//variable "lambda_check_new_areas_memory_size" {
-//  type        = number
-//  description = "Memory limit in MB for AWS Lambda function"
-//}
-
 variable "lambda_upload_results_memory_size" {
   type        = number
   description = "Memory limit in MB for AWS Lambda function"
@@ -81,4 +76,9 @@ variable "lambda_check_new_areas_timeout" {
 variable "lambda_update_new_area_statuses_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
+}
+
+variable "geotrellis_jar" {
+  type        = string
+  description = "Fat Jar to use to run Geotrellis Spark Job"
 }
