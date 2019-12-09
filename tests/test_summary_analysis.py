@@ -1,5 +1,8 @@
-from moto import mock_emr, mock_s3
+import os
+
 import boto3
+from moto import mock_emr, mock_s3
+
 from geotrellis_summary_update.util import get_curr_date_dir_name
 from geotrellis_summary_update.summary_analysis import (
     get_summary_analysis_steps,
@@ -12,6 +15,9 @@ from geotrellis_summary_update.summary_analysis import (
     _configurations,
     _applications,
 )
+
+
+CURDIR = os.path.dirname(__file__)
 
 
 @mock_s3
@@ -170,21 +176,25 @@ def _mock_s3_setup():
 
     pipeline_bucket = "gfw-pipelines-dev"
     s3_client.create_bucket(Bucket=pipeline_bucket)
-    with open("mock_environment/mock_files/test1.jar", "r") as test1_jar:
+    with open(
+        os.path.join(CURDIR, "mock_environment/mock_files/test1.jar"), "r"
+    ) as test1_jar:
         s3_client.upload_fileobj(
             test1_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test1.jar"
         )
 
-    with open("mock_environment/mock_files/test2.jar", "r") as test2_jar:
+    with open(
+        os.path.join(CURDIR, "mock_environment/mock_files/test2.jar"), "r"
+    ) as test2_jar:
         s3_client.upload_fileobj(
             test2_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test2.jar"
         )
 
     results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
     results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
-    results1 = "mock_environment/mock_files/results1.csv"
-    results2 = "mock_environment/mock_files/results1.csv"
-    success = "mock_environment/mock_files/_SUCCESS"
+    results1 = os.path.join(CURDIR, "mock_environment/mock_files/results1.csv")
+    results2 = os.path.join(CURDIR, "mock_environment/mock_files/results1.csv")
+    success = os.path.join(CURDIR, "mock_environment/mock_files/_SUCCESS")
 
     s3_client.upload_fileobj(
         open(results1, "r"),
