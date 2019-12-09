@@ -20,7 +20,7 @@ def test_handler():
     upload_type = "data-overwrite"
 
     with mock.patch(
-        "lambdas.submit_job.lambda_function.submit_summary_batch_job",
+        "lambdas.submit_job.src.lambda_function.submit_summary_batch_job",
         return_value=job_flow_id,
     ):
         result = handler(
@@ -32,8 +32,11 @@ def test_handler():
                 "analyses": {
                     "gladalerts": {
                         "daily_alerts": "72af8802-df3c-42ab-a369-5e7f2b34ae2f",  # pragma: allowlist secret
-                    }  # flake8 --ignore
+                    }
                 },
+                "instance_size": "r4.2xlarge",
+                "instance_count": 4,
+                "dataset_ids": [],
             },
             None,
         )

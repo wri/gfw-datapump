@@ -33,7 +33,7 @@ def test_get_aoi_geostore_ids():
 
 
 def test_update_aoi_status(requests_mock):
-    geostore_id = ("069b603da1c881cf0fc193c39c3687bb",)  # pragma: allowlist secret
+    geostore_id = "069b603da1c881cf0fc193c39c3687bb"  # pragma: allowlist secret
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/area/{geostore_id}"
 
     status_code = 200
