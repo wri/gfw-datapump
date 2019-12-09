@@ -7,12 +7,14 @@ WORKDIR $WORKDIR
 RUN mkdir -p python
 
 # Make the dir and to install all packages into packages/
-COPY geotrellis_summary_update/ .
+COPY geotrellis_summary_update/ geotrellis_summary_update/
 COPY setup.py .
 COPY docker/geotrellis_summary_update/.lambdaignore .
 
 # installing dependencies to build package
 RUN pip install . -t python
+
+#RUN mv geotrellis_summary_update/ python/geotrellis_summary_update/
 
 #Precompile all python packages and remove .py files
 RUN python -m compileall .

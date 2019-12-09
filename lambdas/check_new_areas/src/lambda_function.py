@@ -158,7 +158,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
 
     LOGGER.debug("Start writing to virtual TSV file")
     # Column Header
-    wkb.write(f"geostore_id\tgeom\ttcd\tglad\n")
+    wkb.write(f"geostore_id\tgeom\ttcl\tglad\n")
 
     # Body
     try:

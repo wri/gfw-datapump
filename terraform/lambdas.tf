@@ -5,10 +5,10 @@ resource "aws_lambda_layer_version" "geotrellis_summary_update" {
   compatible_runtimes = [var.lambda_submit_job_runtime]
 }
 
-resource "aws_lambda_layer_version" "shaply_pyyaml" {
-  layer_name          = "shaply_pyyaml"
-  filename            = local.lambda_layer_shaply_pyyaml
-  source_code_hash    = filebase64sha256(local.lambda_layer_shaply_pyyaml)
+resource "aws_lambda_layer_version" "shapely_pyyaml" {
+  layer_name          = "shapely_pyyaml"
+  filename            = local.lambda_layer_shapely_pyyaml
+  source_code_hash    = filebase64sha256(local.lambda_layer_shapely_pyyaml)
   compatible_runtimes = [var.lambda_submit_job_runtime]
 }
 
@@ -82,7 +82,7 @@ resource "aws_lambda_function" "check_new_areas" {
   timeout          = var.lambda_check_new_areas_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.geotrellis_summary_update.arn, aws_lambda_layer_version.shaply_pyyaml]
+  layers           = [aws_lambda_layer_version.geotrellis_summary_update.arn, aws_lambda_layer_version.shapely_pyyaml.arn]
   environment {
     variables = {
       ENV                = var.environment
