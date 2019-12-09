@@ -1,3 +1,7 @@
+import pytest
+from moto import mock_secretsmanager
+from requests_mock.exceptions import NoMockAddress
+
 from geotrellis_summary_update.dataset import (
     upload_dataset,
     get_dataset,
@@ -9,11 +13,6 @@ from geotrellis_summary_update.dataset import (
 )
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.exceptions import UnexpectedResponseError
-
-from moto import mock_secretsmanager
-from requests_mock.exceptions import NoMockAddress
-import pytest
-
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,

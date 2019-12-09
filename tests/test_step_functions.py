@@ -1,20 +1,19 @@
-import lambdas.submit_job.lambda_function as submit_job
-import lambdas.upload_results_to_datasets.lambda_function as upload_results_to_datasets
-import lambdas.check_datasets_saved.lambda_function as check_datasets_saved
-
-from geotrellis_summary_update.util import get_curr_date_dir_name
-from geotrellis_summary_update.summary_analysis import JobStatus
+from copy import deepcopy
+from mock import patch
 
 from moto import mock_s3, mock_emr
-from mock import patch
 import requests_mock
 
+import lambdas.submit_job.src.lambda_function as submit_job
+import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
+import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
+from geotrellis_summary_update.util import get_curr_date_dir_name
+from geotrellis_summary_update.summary_analysis import JobStatus
 from tests.mock_environment.mock_environment import _mock_s3_setup
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,
     TEST_TASK_RESPONSE,
 )
-from copy import deepcopy
 
 
 @mock_s3
