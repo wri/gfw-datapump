@@ -33,11 +33,9 @@ node_modules/
 *.tif.aux.xml
 
 lambda.zip
-lambda/
-.mypy_cache/*
-venv*
-package.zip
+.mypy_cache/
+.pytest_cache/
+.terraform/
+venv/
+venvpy/
 test/test_data/*
-*.zip
-terraform/.terraform/*
-*.tfplan

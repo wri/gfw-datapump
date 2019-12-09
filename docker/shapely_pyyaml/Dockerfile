@@ -10,7 +10,7 @@ RUN mkdir -p python
 COPY docker/geotrellis_summary_update/.lambdaignore .
 
 # installing dependencies to build package
-RUN pip install PyYAML~=5.2 shapely~=1.6.4.post2
+RUN pip install PyYAML~=5.2 shapely~=1.6.4.post2 -t python
 
 #Precompile all python packages and remove .py files
 RUN python -m compileall .

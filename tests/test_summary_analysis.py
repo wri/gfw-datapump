@@ -3,7 +3,7 @@ import os
 import boto3
 from moto import mock_emr, mock_s3, mock_secretsmanager
 
-from geotrellis_summary_update.util import get_curr_date_dir_name
+from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
 from geotrellis_summary_update.summary_analysis import (
     get_summary_analysis_steps,
     get_analysis_result_paths,
@@ -33,7 +33,7 @@ def test_get_analysis_steps():
     step_args = " ".join(annualupdate_step["HadoopJarStep"]["Args"])
     assert (
         step_args
-        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines-dev/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines-dev/my/result/dir --feature_type geostore --analysis annualupdate --tcl"
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis annualupdate --tcl"
     )
 
     annualupdate_step = steps[1]
@@ -42,7 +42,7 @@ def test_get_analysis_steps():
     step_args = " ".join(annualupdate_step["HadoopJarStep"]["Args"])
     assert (
         step_args
-        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines-dev/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines-dev/my/result/dir --feature_type geostore --analysis gladalerts --glad"
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis gladalerts --glad"
     )
 
 
@@ -93,7 +93,7 @@ def test_get_analysis_result_paths():
     mock_environment()
 
     result_paths = get_analysis_result_paths(
-        "gfw-pipelines-dev",
+        f"gfw-pipelines{bucket_suffix()}",
         f"geotrellis/results/test/{get_curr_date_dir_name()}",
         ["gladalerts", "annualupdate_minimal"],
     )
@@ -123,7 +123,7 @@ def test_check_analysis_success():
 def test_get_dataset_sources():
     mock_environment()
 
-    https_path = f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
+    https_path = f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     sources = get_dataset_sources(
         f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
@@ -202,7 +202,7 @@ TEST_CLUSTER_DESCRIPTION = {
             "AdditionalMasterSecurityGroups": [],
             "AdditionalSlaveSecurityGroups": [],
         },
-        "LogUri": "s3://gfw-pipelines-dev/geotrellis/logs",
+        "LogUri": f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/logs",
         "ReleaseLabel": "emr-5.24.0",
         "AutoTerminate": True,
         "TerminationProtected": False,

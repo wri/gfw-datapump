@@ -7,7 +7,7 @@ import requests_mock
 import lambdas.submit_job.src.lambda_function as submit_job
 import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
 import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
-from geotrellis_summary_update.util import get_curr_date_dir_name
+from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
 from geotrellis_summary_update.summary_analysis import JobStatus, _instances
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
@@ -198,23 +198,23 @@ DATASET_IDS_FLAT = [
 ]
 DATASET_SOURCES = [
     [
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results1.csv",
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results2.csv",
     ],
     [
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results1.csv",
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results2.csv",
     ],
     [
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results1.csv",
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results2.csv",
     ],
     [
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results1.csv",
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results2.csv",
     ],
     [
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results1.csv",
-        f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results2.csv",
     ],
 ]
