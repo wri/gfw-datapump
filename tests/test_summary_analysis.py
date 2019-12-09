@@ -1,6 +1,6 @@
 from moto import mock_emr, mock_s3
 import boto3
-
+from geotrellis_summary_update.util import get_curr_date_dir_name
 from geotrellis_summary_update.summary_analysis import (
     get_summary_analysis_steps,
     get_analysis_result_paths,
@@ -84,17 +84,17 @@ def test_get_analysis_result_paths():
 
     result_paths = get_analysis_result_paths(
         "gfw-pipelines-dev",
-        "geotrellis/results/v20191119/test",
+        f"geotrellis/results/{get_curr_date_dir_name()}/test",
         ["gladalerts", "annualupdate_minimal"],
     )
 
     assert (
         result_paths["gladalerts"]
-        == "geotrellis/results/v20191119/test/gladalerts_20191119_1245"
+        == f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245"
     )
     assert (
         result_paths["annualupdate_minimal"]
-        == "geotrellis/results/v20191119/test/annualupdate_minimal_20191119_1245"
+        == f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245"
     )
 
 
@@ -103,10 +103,10 @@ def test_check_analysis_success():
     _mock_s3_setup()
 
     assert check_analysis_success(
-        "geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore/daily_alerts"
+        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
     assert not check_analysis_success(
-        "geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore/weekly_alerts"
+        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts"
     )
 
 
@@ -114,9 +114,9 @@ def test_check_analysis_success():
 def test_get_dataset_sources():
     _mock_s3_setup()
 
-    https_path = "https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore/daily_alerts"
+    https_path = f"https://gfw-pipelines-dev.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     sources = get_dataset_sources(
-        "geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore/daily_alerts"
+        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
     assert len(sources) == 2
     assert sources[0] == f"{https_path}/results1.csv"
@@ -140,17 +140,15 @@ def test_get_dataset_result_paths():
         },
     }
 
-    result_dir = "geotrellis/results/v20191119/test"
+    result_dir = f"geotrellis/results/{get_curr_date_dir_name()}/test"
     feature_type = "geostore"
 
     dataset_result_paths = get_dataset_result_paths(
         result_dir, analyses, dataset_ids, feature_type
     )
 
-    results_glad = "geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore"
-    results_tcl = (
-        "geotrellis/results/v20191119/test/annualupdate_minimal_20191119_1245/geostore"
-    )
+    results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
+    results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
 
     assert (
         dataset_result_paths["testid_daily_alerts_glad"]
@@ -172,23 +170,21 @@ def _mock_s3_setup():
 
     pipeline_bucket = "gfw-pipelines-dev"
     s3_client.create_bucket(Bucket=pipeline_bucket)
-    with open("test_files/test1.jar", "r") as test1_jar:
+    with open("mock_environment/mock_files/test1.jar", "r") as test1_jar:
         s3_client.upload_fileobj(
             test1_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test1.jar"
         )
 
-    with open("test_files/test2.jar", "r") as test2_jar:
+    with open("mock_environment/mock_files/test2.jar", "r") as test2_jar:
         s3_client.upload_fileobj(
             test2_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test2.jar"
         )
 
-    results_glad = "geotrellis/results/v20191119/test/gladalerts_20191119_1245/geostore"
-    results_tcl = (
-        "geotrellis/results/v20191119/test/annualupdate_minimal_20191119_1245/geostore"
-    )
-    results1 = "test_files/results1.csv"
-    results2 = "test_files/results1.csv"
-    success = "test_files/_SUCCESS"
+    results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
+    results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
+    results1 = "mock_environment/mock_files/results1.csv"
+    results2 = "mock_environment/mock_files/results1.csv"
+    success = "mock_environment/mock_files/_SUCCESS"
 
     s3_client.upload_fileobj(
         open(results1, "r"),
@@ -247,7 +243,11 @@ def _mock_s3_setup():
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/daily_alerts/_SUCCESS",
     )
-    # s3_client.upload_fileobj(open(success, "r"), Bucket=pipeline_bucket, Key=f"{results_glad}weekly_alerts/_SUCCESS")
+    s3_client.upload_fileobj(
+        open(success, "r"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_glad}weekly_alerts/_SUCCESS",
+    )
     s3_client.upload_fileobj(
         open(success, "r"),
         Bucket=pipeline_bucket,

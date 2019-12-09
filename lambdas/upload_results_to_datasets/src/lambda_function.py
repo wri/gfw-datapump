@@ -36,24 +36,33 @@ def handler(event, context):
             result_dir, analyses, dataset_ids, feature_type
         )
 
-        paths_with_no_success_file = filter(
-            lambda path: not check_analysis_success(path), dataset_result_paths
+        paths_with_no_success_file = list(
+            filter(
+                lambda path: not check_analysis_success(path),
+                dataset_result_paths.values(),
+            )
         )
+
         if paths_with_no_success_file:
             return error(
                 f"Summary Update Failure: success file were not present for these analyses: {str(paths_with_no_success_file)}"
             )
 
+        all_dataset_sources = list()
         for dataset_id, results_path in dataset_result_paths.items():
             dataset_sources = get_dataset_sources(results_path)
             upload_dataset(dataset_id, dataset_sources, upload_type)
+            all_dataset_sources.append(dataset_sources)
 
+        dataset_ids_flattened = list(dataset_result_paths.keys())
         return {
             "status": "SUCCESS",
             "name": name,
             "analyses": analyses,
-            "dataset_ids": dataset_ids,
             "feature_src": event["feature_src"],
+            "upload_type": event["upload_type"],
+            "dataset_ids": dataset_ids_flattened,
+            "dataset_sources": all_dataset_sources,
         }
     elif job_status == JobStatus.PENDING:
         event.update({"status": "PENDING"})
