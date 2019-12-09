@@ -1,5 +1,5 @@
 import pytest
-from moto import mock_secretsmanager
+from moto import mock_secretsmanager, mock_s3
 from requests_mock.exceptions import NoMockAddress
 
 from geotrellis_summary_update.dataset import (
@@ -21,6 +21,7 @@ from tests.mock_environment.mock_responses import (
 )
 
 
+@mock_s3
 @mock_secretsmanager
 def test_get_token():
     mock_environment()
@@ -29,6 +30,7 @@ def test_get_token():
     assert token == "footoken"
 
 
+@mock_s3
 @mock_secretsmanager
 def test_get_headers():
     mock_environment()
@@ -37,6 +39,7 @@ def test_get_headers():
     assert headers == _mock_headers()
 
 
+@mock_s3
 @mock_secretsmanager
 def test_upload_dataset(requests_mock):
     mock_environment()
@@ -112,6 +115,7 @@ def test_get_task(requests_mock):
         get_task(task_id)
 
 
+@mock_s3
 @mock_secretsmanager
 def test_delete_task(requests_mock):
     mock_environment()
@@ -130,6 +134,7 @@ def test_delete_task(requests_mock):
         delete_task(task_id)
 
 
+@mock_s3
 @mock_secretsmanager
 def test_recover_dataset(requests_mock):
     mock_environment()

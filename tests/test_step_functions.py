@@ -1,15 +1,15 @@
 from copy import deepcopy
 from mock import patch
 
-from moto import mock_s3, mock_emr
+from moto import mock_s3, mock_emr, mock_secretsmanager
 import requests_mock
 
 import lambdas.submit_job.src.lambda_function as submit_job
 import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
 import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
 from geotrellis_summary_update.util import get_curr_date_dir_name
-from geotrellis_summary_update.summary_analysis import JobStatus
-from tests.mock_environment.mock_environment import _mock_s3_setup
+from geotrellis_summary_update.summary_analysis import JobStatus, _instances
+from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,
     TEST_TASK_RESPONSE,
@@ -18,8 +18,9 @@ from tests.mock_environment.mock_responses import (
 
 @mock_s3
 @mock_emr
+@mock_secretsmanager
 def test_geotrellis_summary_update():
-    _mock_s3_setup()
+    mock_environment()
 
     input_params = {
         "name": NAME,
@@ -43,7 +44,14 @@ def test_geotrellis_summary_update():
     assert check_datasets_saved_output
 
 
-def _test_submit_job(input_params):
+@patch("geotrellis_summary_update.summary_analysis._instances")
+def _test_submit_job(input_params, mock_instances):
+    # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
+    instances = _instances(NAME, INSTANCE_SIZE, INSTANCE_SIZE, INSTANCE_COUNT)
+    del instances["InstanceGroups"][0]["EbsConfiguration"]
+    del instances["InstanceGroups"][1]["EbsConfiguration"]
+    mock_instances.return_value = instances
+
     result = submit_job.handler(input_params, None)
 
     assert result["status"] == "SUCCESS"
@@ -59,7 +67,7 @@ def _test_submit_job(input_params):
     return result
 
 
-@patch("lambdas.upload_results_to_datasets.lambda_function.get_job_status")
+@patch("lambdas.upload_results_to_datasets.src.lambda_function.get_job_status")
 def _test_upload_results_to_datasets(input_params, mock_get_job_status):
     mock_get_job_status.return_value = JobStatus.SUCCESS
 
