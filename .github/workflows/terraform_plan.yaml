@@ -3,7 +3,7 @@ name: Plan terraform changes
 on: [pull_request]
 
 jobs:
-  build:
+  plan:
     runs-on: ubuntu-latest
 
     steps:
