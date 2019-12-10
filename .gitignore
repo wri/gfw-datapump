@@ -41,3 +41,5 @@ test/test_data/*
 *.zip
 terraform/.terraform/*
 *.tfplan
+.coverage
+coverage.xml
