@@ -35,5 +35,7 @@ node_modules/
 lambda.zip
 .mypy_cache/*
 .pytest_cache/*
-venv*
+.terraform/*
+venv/*
+venvpy/*
 test/test_data/*

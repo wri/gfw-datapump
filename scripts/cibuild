@@ -20,7 +20,7 @@ function build_lambda_layer {
   docker rm -f lambda_layer
 }
 
-lambda_layers=( geotrellis_summary_update shaply_pyyaml )
+lambda_layers=( geotrellis_summary_update shapely_pyyaml )
 
 
 for l in "${lambda_layers[@]}"
