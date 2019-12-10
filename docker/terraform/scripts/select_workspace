@@ -47,7 +47,13 @@ fi
 
 
 # get current git branch and replace / with -
-read -r cur_branch < <(git rev-parse --abbrev-ref HEAD | tr "/" "-")
+if [ -z "${1}" ]; then
+  echo "No target branch set. Using current branch"
+  read -r cur_branch < <(git rev-parse --abbrev-ref HEAD | tr "/" "-")
+else
+  echo "Target branch set to ${1}"
+  cur_branch=$(echo "${1}" | tr -d "/\"-")
+fi
 
 if [ "$cur_branch" == "master" ] || [ "$cur_branch" == "develop" ]
 then
