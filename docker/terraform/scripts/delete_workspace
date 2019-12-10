@@ -19,7 +19,7 @@ else
   echo "Using enviroment ${ENV} and AWS_ACCESS_KEY_ID"
 fi
 
-cur_branch=$(echo "${1}" | tr -d "/\"-")
+cur_branch=$(echo "${1}" | tr "/" "-")
 
 TERRAFORM_DIR="/usr/local/src/terraform"
 pushd "${TERRAFORM_DIR}"

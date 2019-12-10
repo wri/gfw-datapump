@@ -52,7 +52,7 @@ if [ -z "${1}" ]; then
   read -r cur_branch < <(git rev-parse --abbrev-ref HEAD | tr "/" "-")
 else
   echo "Target branch set to ${1}"
-  cur_branch=$(echo "${1}" | tr -d "/\"-")
+  cur_branch=$(echo "${1}" | tr "/" "-")
 fi
 
 if [ "$cur_branch" == "master" ] || [ "$cur_branch" == "develop" ]
