@@ -27,6 +27,25 @@ function select_workspace {
   fi
 }
 
+
+if [ "${ENV}" != "dev" ]
+then
+  echo "Environment not set to 'dev'"
+  exit 1
+fi
+
+if [ -f "/root/.aws/credentials" ]; then
+    export AWS_PROFILE=gfw-${ENV}
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
+    unset AWS_DEFAULT_REGION
+
+    echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+else
+  echo "Using enviroment ${ENV} and AWS_ACCESS_KEY_ID"
+fi
+
+
 # get current git branch and replace / with -
 read -r cur_branch < <(git rev-parse --abbrev-ref HEAD | tr "/" "-")
 

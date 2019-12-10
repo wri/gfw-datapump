@@ -8,9 +8,16 @@ then
   exit 1
 fi
 
-AWS_PROFILE=gfw-dev
-export AWS_PROFILE
-echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+if [ -f "/root/.aws/credentials" ]; then
+    export AWS_PROFILE=gfw-${ENV}
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
+    unset AWS_DEFAULT_REGION
+
+    echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+else
+  echo "Using enviroment ${ENV} and AWS_ACCESS_KEY_ID"
+fi
 
 cur_branch=$(echo "${1}" | tr -d "/\"-")
 
