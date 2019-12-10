@@ -16,13 +16,20 @@ fi
 
 if [ -z "${ENV}" ]; then
   ENV=dev
-  AWS_PROFILE=gfw-dev
-else
-  AWS_PROFILE=gfw-${ENV}
 fi
 
-export AWS_PROFILE
-echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+if [ -f "/root/.aws/credentials" ]; then
+    export AWS_PROFILE=gfw-${ENV}
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
+    unset AWS_DEFAULT_REGION
+
+    echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
+else
+  echo "Using enviroment ${ENV} and AWS_ACCESS_KEY_ID"
+fi
+
+
 
 ## select or create the current workspace
 #./docker/terraform/workspace
