@@ -6,7 +6,7 @@ on:
         - '*'
 
 jobs:
-  test:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -35,14 +35,8 @@ jobs:
         AWS_DEFAULT_REGION: ${{ secrets.aws_region_dev }}
       run: |
         ./scripts/test
-
-  build:
-    runs-on: ubuntu-latest
-    if: success()
-
-    steps:
-    - uses: actions/checkout@v1
     - name: Build Lambda layers
+      if: success()
       run: ./scripts/cibuild
     - name: Deploy production
       if: success() && contains(github.ref, 'master')
