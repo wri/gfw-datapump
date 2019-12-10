@@ -1,11 +1,6 @@
-name: Run tests and apply Terraform changes
+name: Run tests and apply terraform changes for current branch
 
-on:
-  push:
-      branches:
-        - '*'
-      tags-ignore:
-        - '*'
+on: [push]
 
 jobs:
   build:
