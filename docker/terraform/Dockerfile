@@ -8,6 +8,6 @@ RUN \
         zip \
     && pip3 install awscli
 
-COPY infra /usr/local/bin/
-COPY select_workspace /usr/local/bin/
-COPY delete_workspace /usr/local/bin/
+COPY scripts/infra /usr/local/bin/
+COPY scripts/select_workspace /usr/local/bin/
+COPY scripts/delete_workspace /usr/local/bin/

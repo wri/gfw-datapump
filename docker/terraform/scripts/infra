@@ -31,8 +31,8 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   if [ "${1:-}" = "--help" ]; then
     usage
   else
-    TERRAFORM_DIR="$(dirname "$0")/../../terraform"
 
+    TERRAFORM_DIR="/usr/local/src/terraform"
     pushd "${TERRAFORM_DIR}"
 
     case "${1}" in
