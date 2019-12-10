@@ -1,0 +1,18 @@
+name: Destroy state and delete workspace after deleting feature branch
+
+on:
+  delete:
+    branches-ignore:
+      - 'master'
+      - 'develop'
+    tags-ignore:
+      - *
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Destroy state and delete workspace
+      run: |
+        docker-compose -f docker/terraform/docker-compose.yml --entrypoint /bin/bash run --rm delete_workspace github.ref

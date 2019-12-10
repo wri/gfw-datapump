@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function select_feature_workspace {
+function select_workspace {
 
   # get current terraform workspaces
   mapfile -t workspaces < <(terraform workspace list)
@@ -35,7 +35,7 @@ then
   echo "Setting workspace to 'default'"
   terraform workspace select default
 else
-  select_feature_workspace "$cur_branch"
+  select_workspace "$cur_branch"
 fi
 
 

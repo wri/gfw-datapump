@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+if [ "${ENV}" != "dev" ]
+then
+  exit 1
+fi
+
+
+cur_branch=$(echo "${1}" | tr -d "/\"-")
+
+terraform workspace select "${cur_branch}"
+terraform destroy \
+        -var-file="vars/user-aoi-batch-${ENV}.tfvars" \
+        -auto-approve
+terraform workspace select default
+terraform workspace delete "${cur_branch}"
+
+
+
+

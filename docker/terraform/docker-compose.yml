@@ -10,4 +10,4 @@ services:
       - ENV
       - GFW_AWS_CORE_INFRASTUCTURE_DEBUG=1
     working_dir: /usr/local/src
-    entrypoint: ./docker/terraform/infra
+    entrypoint: infra
