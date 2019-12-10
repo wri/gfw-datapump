@@ -16,6 +16,7 @@ from geotrellis_summary_update.exceptions import EmptyResponseException
 from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.util import bucket_suffix, api_prefix
+from geotrellis_summary_update.s3 import get_s3_path, s3_client
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -26,7 +27,6 @@ else:
 
 
 LOGGER = get_logger(__name__)
-S3_CLIENT = boto3.client("s3")
 TOKEN: str = get_token()
 PENDING_AOI_NAME = "pending_user_areas"
 
@@ -61,21 +61,23 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         geostore_ids: List[str] = get_geostore_ids(areas)
         geostore: Dict[str, Any] = get_geostore(geostore_ids)
         geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
+        geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
         with geostore_to_wkb(geostore) as wkb:
-            S3_CLIENT.put_object(
+            s3_client().put_object(
                 Body=str.encode(wkb.getvalue()),
-                Bucket=f"gfw-pipelines{bucket_suffix()}",
+                Bucket=geostore_bucket,
                 Key=geostore_path,
             )
 
         LOGGER.info(f"Found {len(geostore['data'])} pending areas")
         analyses = list(PENDING_AOI_ANALYSES[ENV].keys())
+        geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
         return {
             "status": "NEW_AREAS_FOUND",
             "instance_size": "r4.xlarge",
             "instance_count": 1,
-            "feature_src": geostore_path,
+            "feature_src": geostore_full_path,
             "feature_type": "geostore",
             "analyses": analyses,
             "dataset_ids": PENDING_AOI_ANALYSES[ENV],
@@ -156,7 +158,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
 
     LOGGER.debug("Start writing to virtual TSV file")
     # Column Header
-    wkb.write(f"geostore_id\tgeom\ttcd\tglad\n")
+    wkb.write(f"geostore_id\tgeom\ttcl\tglad\n")
 
     # Body
     try:
@@ -186,7 +188,7 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
     Fetch 1x1 degree extent file
     """
     LOGGER.debug("Fetch Extent File")
-    response: Dict[str, Any] = S3_CLIENT.get_object(
+    response: Dict[str, Any] = s3_client().get_object(
         Bucket=f"gfw-data-lake{bucket_suffix()}",
         Key="analysis_extent/latest/vector/extent_1x1.geojson",
     )
