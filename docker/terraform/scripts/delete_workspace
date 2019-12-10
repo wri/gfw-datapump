@@ -4,11 +4,18 @@ set -e
 
 if [ "${ENV}" != "dev" ]
 then
+  echo "Environment not set to 'dev'"
   exit 1
 fi
 
+AWS_PROFILE=gfw-dev
+export AWS_PROFILE
+echo "Using enviroment ${ENV} and AWS_PROFILE ${AWS_PROFILE}"
 
 cur_branch=$(echo "${1}" | tr -d "/\"-")
+
+TERRAFORM_DIR="/usr/local/src/terraform"
+pushd "${TERRAFORM_DIR}"
 
 terraform workspace select "${cur_branch}"
 terraform destroy \

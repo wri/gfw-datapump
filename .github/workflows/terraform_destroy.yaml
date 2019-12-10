@@ -14,5 +14,4 @@ jobs:
 
     steps:
     - name: Destroy state and delete workspace
-      run: |
-        docker-compose -f docker/terraform/docker-compose.yml --entrypoint /bin/bash run --rm delete_workspace github.ref
+      run: docker-compose -f docker/terraform/docker-compose.yml run --entrypoint delete_workspace --rm  terraform github.ref
