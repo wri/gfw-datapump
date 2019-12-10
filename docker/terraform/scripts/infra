@@ -52,7 +52,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
       # select or create the current workspace
       terraform init \
         -backend-config=vars/backend-${ENV}.tfvars
-      select_workspace
+      select_workspace "${2}"
       terraform plan \
         -var-file="vars/user-aoi-batch-${ENV}.tfvars" \
         -out="user-aoi-batch.tfplan"
