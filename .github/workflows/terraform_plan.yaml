@@ -1,4 +1,4 @@
-name: Plan terraform changes
+name: Plan terraform changes for base branch
 
 on: [pull_request]
 
