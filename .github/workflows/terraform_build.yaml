@@ -42,8 +42,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Build Lambda layers
+      run: ./scripts/cibuild
     - name: Deploy production
-      if: contains(github.ref, 'master')
+      if: success() && contains(github.ref, 'master')
       env:
         ENV: production
         AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_production }}
@@ -53,7 +55,7 @@ jobs:
         ./scripts/infra plan
         ./scripts/infra apply
     - name: Deploy staging
-      if: contains(github.ref, 'develop')
+      if: success() && contains(github.ref, 'develop')
       env:
         ENV: staging
         AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_staging }}
@@ -63,7 +65,7 @@ jobs:
         ./scripts/infra plan
         ./scripts/infra apply
     - name: Deploy dev
-      if: ! contains(github.ref, 'develop') && ! contains(github.ref, 'master')
+      if: success() && (! contains(github.ref, 'develop')) && (! contains(github.ref, 'master'))
       env:
         ENV: dev
         AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_dev }}
