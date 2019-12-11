@@ -45,7 +45,7 @@ def get_task(task_path):
 def upload_dataset(dataset_id, source_urls, upload_type):
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/{upload_type}"
 
-    payload = _get_upload_dataset_payload(upload_type, source_urls)
+    payload = _get_upload_dataset_payload(source_urls)
     r = requests.post(url, data=json.dumps(payload), headers=_get_headers())
 
     if r.status_code != 204:
@@ -54,9 +54,8 @@ def upload_dataset(dataset_id, source_urls, upload_type):
         )
 
 
-def _get_upload_dataset_payload(upload_type, source_urls):
-    src_param = "sources" if upload_type == "concat" else "data"
-    return {"provider": "csv", src_param: source_urls}
+def _get_upload_dataset_payload(source_urls):
+    return {"provider": "csv", "sources": source_urls}
 
 
 def delete_task(task_path):

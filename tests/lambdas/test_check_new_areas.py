@@ -1,4 +1,6 @@
 import os
+import json
+import shapely.wkb
 
 from geotrellis_summary_update.util import secret_suffix
 
@@ -556,3 +558,18 @@ def test_get_geostore(requests_mock):
 def test_geostore_to_wkb():
     with geostore_to_wkb(GEOSTORE) as wkb:
         assert len(wkb.getvalue().split("\n")) == 33
+
+
+def test_intersecting_polygons():
+    with open("complex_geostore.json", "r+") as f:
+        geostore_non_polygon_intersections = json.load(f)
+
+    with geostore_to_wkb(geostore_non_polygon_intersections) as wkb:
+        lines = wkb.getvalue().split("\n")
+        assert len(lines) == 26
+
+        for line in lines[1:-1]:
+            cols = line.split("\t")
+            geom = shapely.wkb.loads(bytes.fromhex(cols[1]))
+
+            assert geom.type == "Polygon" or geom.type == "MultiPolygon"
