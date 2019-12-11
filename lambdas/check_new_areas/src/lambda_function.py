@@ -9,7 +9,7 @@ import boto3
 import requests
 from requests import Response
 from shapely.wkb import dumps
-from shapely.geometry import shape, Polygon
+from shapely.geometry import shape, Polygon, MultiPolygon
 
 from geotrellis_summary_update.decorators import api_response_checker
 from geotrellis_summary_update.exceptions import EmptyResponseException
@@ -17,6 +17,7 @@ from geotrellis_summary_update.logger import get_logger
 from geotrellis_summary_update.secrets import get_token
 from geotrellis_summary_update.util import bucket_suffix, api_prefix
 from geotrellis_summary_update.s3 import get_s3_path, s3_client
+from geotrellis_summary_update.slack import slack_webhook
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -86,7 +87,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     except EmptyResponseException:
-        # slack_webhook("INFO", "No new user areas found. Doing nothing.")
+        slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
         LOGGER.error(str(e))
@@ -173,14 +174,39 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
                     LOGGER.debug(
                         f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
                     )
-                    intersection = geom.intersection(tile[0])
-                    wkb.write(
-                        f"{g['geostoreId']}\t{dumps(intersection, hex=True)}\t{tile[1]}\t{tile[2]}\n"
-                    )
+                    intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
+
+                    if intersecting_polygon:
+                        wkb.write(
+                            f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                        )
         yield wkb
 
     finally:
         wkb.close()
+
+
+def _get_intersecting_polygon(feature_geom, tile_geom):
+    """
+    Get intersection of feature and tile, and ensure the result is either a Polygon or MultiPolygon,
+    or returns None if the intersection contains no polygons.
+    """
+
+    intersection = feature_geom.intersection(tile_geom)
+
+    if intersection.type == "Polygon" or intersection.type == "MultiPolygon":
+        return intersection
+    elif intersection.type == "GeometryCollection":
+        polygons = [geom for geom in intersection.geoms if geom.type == "Polygon"]
+
+        if len(polygons) == 1:
+            return polygons[0]
+        elif len(polygons) > 1:
+            return MultiPolygon(polygons)
+        else:
+            return None
+    else:
+        return None
 
 
 def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
