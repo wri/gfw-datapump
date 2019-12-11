@@ -2,15 +2,15 @@ import os
 
 from typing import Dict
 
-from geotrellis_summary_update.slack import slack_webhook
-from geotrellis_summary_update.exceptions import (
+from datapump_utils.slack import slack_webhook
+from datapump_utils.exceptions import (
     MaxRetriesHitException,
     StatusMismatchException,
     FailedDatasetUploadException,
 )
-from geotrellis_summary_update.util import error
-from geotrellis_summary_update.logger import get_logger
-from geotrellis_summary_update.dataset import (
+from datapump_utils.util import error
+from datapump_utils.logger import get_logger
+from datapump_utils.dataset import (
     get_dataset,
     get_task,
     upload_dataset,

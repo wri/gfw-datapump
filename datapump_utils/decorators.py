@@ -1,11 +1,11 @@
 from functools import wraps
 from typing import Callable
 
-from geotrellis_summary_update.exceptions import (
+from datapump_utils.exceptions import (
     EmptyResponseException,
     UnexpectedResponseError,
 )
-from geotrellis_summary_update.logger import get_logger
+from datapump_utils.logger import get_logger
 
 LOGGER = get_logger(__name__)
 

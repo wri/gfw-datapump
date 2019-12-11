@@ -2,9 +2,9 @@ import os
 import json
 import shapely.wkb
 
-from geotrellis_summary_update.util import secret_suffix
+from datapump_utils.util import secret_suffix
 
-from lambdas.check_new_areas.src.lambda_function import (
+from lambdas.check_new_aoi.src.lambda_function import (
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,

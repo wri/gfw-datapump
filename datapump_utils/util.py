@@ -1,8 +1,8 @@
 import datetime
 import os
 
-from geotrellis_summary_update.logger import get_logger
-from geotrellis_summary_update.slack import slack_webhook
+from datapump_utils.logger import get_logger
+from datapump_utils.slack import slack_webhook
 
 LOGGER = get_logger(__name__)
 if "ENV" in os.environ:
