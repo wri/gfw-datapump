@@ -7,7 +7,7 @@ WORKDIR $WORKDIR
 RUN mkdir -p python
 
 # Make the dir and to install all packages into packages/
-COPY docker/geotrellis_summary_update/.lambdaignore .
+COPY docker/shapely_pyyaml/.lambdaignore .
 
 # installing dependencies to build package
 RUN pip install PyYAML~=5.2 shapely~=1.6.4.post2 -t python
