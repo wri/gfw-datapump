@@ -525,6 +525,8 @@ GEOSTORE = {
     ]
 }
 
+CURDIR = os.path.dirname(__file__)
+
 
 def test_secret_suffix():
     assert secret_suffix() == "staging"
@@ -561,7 +563,7 @@ def test_geostore_to_wkb():
 
 
 def test_intersecting_polygons():
-    with open("complex_geostore.json", "r+") as f:
+    with open(f"{CURDIR}/complex_geostore.json", "r+") as f:
         geostore_non_polygon_intersections = json.load(f)
 
     with geostore_to_wkb(geostore_non_polygon_intersections) as wkb:
