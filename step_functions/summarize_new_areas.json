@@ -45,7 +45,22 @@
       "Resource": "${lambda_update_new_area_status_arn}",
       "InputPath": "$",
       "ResultPath": "$",
-      "Next": "Successfully Updated"
+      "Next": "Statuses Updated?"
+    },
+    "Statuses Updated?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "SUCCESS",
+          "Next": "Successfully Updated"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "FAILED",
+          "Next": "Error Updating New Areas Statuses"
+        }
+      ]
     },
     "Successfully Updated": {
       "Type": "Succeed"
@@ -56,7 +71,12 @@
     "Error Checking New Areas": {
       "Type": "Fail",
       "Cause": "Error checking new areas.",
-      "Error": "Error Checking New Areas"
+      "Error": "ErrorCheckingNewAreas"
+    },
+    "Error Updating New Areas Statuses": {
+      "Type": "Fail",
+      "Cause": "Error Updating New Areas Statuses.",
+      "Error": "ErrorUpdatingNewAreasStatuses"
     }
   }
 }
