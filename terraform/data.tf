@@ -22,9 +22,9 @@ data "template_file" "sfn_geotrellis_summary_update" {
 data "template_file" "sfn_summarize_new_aoi" {
   template = file("../step_functions/new_user_aoi.json")
   vars = {
-    lambda_check_new_aoi_arn        = aws_lambda_function.check_new_aoi.arn,
+    lambda_check_new_aoi_arn         = aws_lambda_function.check_new_aoi.arn,
     lambda_update_new_aoi_status_arn = aws_lambda_function.update_new_aoi_statuses.arn,
-    state_machine_arn                 = aws_sfn_state_machine.geotrellis_dataset.id
+    state_machine_arn                = aws_sfn_state_machine.geotrellis_dataset.id
   }
 }
 

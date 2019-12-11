@@ -13,7 +13,7 @@ resource "aws_lambda_layer_version" "shapely_pyyaml" {
 }
 
 resource "aws_lambda_function" "submit_job" {
-  function_name    = "${local.project}-submit_job${local.name_suffix}"
+  function_name    = substr("${local.project}-submit_job${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_submit_job.output_path
   source_code_hash = data.archive_file.lambda_submit_job.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -34,7 +34,7 @@ resource "aws_lambda_function" "submit_job" {
 }
 
 resource "aws_lambda_function" "upload_results_to_datasets" {
-  function_name    = "${local.project}-upload_results_to_datasets${local.name_suffix}"
+  function_name    = substr("${local.project}-upload_results_to_datasets${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_upload_results_to_datasets.output_path
   source_code_hash = data.archive_file.lambda_upload_results_to_datasets.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -53,7 +53,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
 }
 
 resource "aws_lambda_function" "check_datasets_saved" {
-  function_name    = "${local.project}-check_datasets_saved${local.name_suffix}"
+  function_name    = substr("${local.project}-check_datasets_saved${local.name_suffix}", 0,64)
   filename         = data.archive_file.lambda_check_datasets_saved.output_path
   source_code_hash = data.archive_file.lambda_check_datasets_saved.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -72,7 +72,7 @@ resource "aws_lambda_function" "check_datasets_saved" {
 }
 
 resource "aws_lambda_function" "check_new_aoi" {
-  function_name    = "${local.project}-check_new_aoi${local.name_suffix}"
+  function_name    = substr("${local.project}-check_new_aoi${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_check_new_aoi.output_path
   source_code_hash = data.archive_file.lambda_check_new_aoi.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -93,7 +93,7 @@ resource "aws_lambda_function" "check_new_aoi" {
 }
 
 resource "aws_lambda_function" "update_new_aoi_statuses" {
-  function_name    = "${local.project}-update_new_aoi_statuses${local.name_suffix}"
+  function_name    = substr("${local.project}-update_new_aoi_statuses${local.name_suffix}",0, 64)
   filename         = data.archive_file.lambda_update_new_aoi_statuses.output_path
   source_code_hash = data.archive_file.lambda_update_new_aoi_statuses.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
