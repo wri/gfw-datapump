@@ -83,7 +83,7 @@
           "Next": "Dataset Save Failed"
         },
         {
-          "Variable": "$.Done",
+          "Variable": "$.status",
           "StringEquals": "PENDING",
           "Next": "Wait For Dataset Upload"
         }

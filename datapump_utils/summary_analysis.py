@@ -7,7 +7,6 @@ from botocore.exceptions import ClientError
 from datapump_utils.util import bucket_suffix
 from datapump_utils.s3 import get_s3_path, s3_client
 
-
 RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
 
 
