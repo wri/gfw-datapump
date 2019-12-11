@@ -11,13 +11,13 @@ from requests import Response
 from shapely.wkb import dumps
 from shapely.geometry import shape, Polygon, MultiPolygon
 
-from geotrellis_summary_update.decorators import api_response_checker
-from geotrellis_summary_update.exceptions import EmptyResponseException
-from geotrellis_summary_update.logger import get_logger
-from geotrellis_summary_update.secrets import get_token
-from geotrellis_summary_update.util import bucket_suffix, api_prefix
-from geotrellis_summary_update.s3 import get_s3_path, s3_client
-from geotrellis_summary_update.slack import slack_webhook
+from datapump_utils.decorators import api_response_checker
+from datapump_utils.exceptions import EmptyResponseException
+from datapump_utils.logger import get_logger
+from datapump_utils.secrets import get_token
+from datapump_utils.util import bucket_suffix, api_prefix
+from datapump_utils.s3 import get_s3_path, s3_client
+from datapump_utils.slack import slack_webhook
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.

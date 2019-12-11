@@ -1,6 +1,6 @@
 import boto3
 
-from geotrellis_summary_update.s3 import (
+from datapump_utils.s3 import (
     get_s3_path_parts,
     get_s3_path,
     s3_directory_exists,

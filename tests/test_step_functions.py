@@ -7,8 +7,8 @@ import requests_mock
 import lambdas.submit_job.src.lambda_function as submit_job
 import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
 import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
-from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
-from geotrellis_summary_update.summary_analysis import JobStatus, _instances
+from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.summary_analysis import JobStatus, _instances
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,
@@ -44,7 +44,7 @@ def test_geotrellis_summary_update():
     assert check_datasets_saved_output
 
 
-@patch("geotrellis_summary_update.summary_analysis._instances")
+@patch("datapump_utils.summary_analysis._instances")
 def _test_submit_job(input_params, mock_instances):
     # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
     instances = _instances(NAME, INSTANCE_SIZE, INSTANCE_SIZE, INSTANCE_COUNT)

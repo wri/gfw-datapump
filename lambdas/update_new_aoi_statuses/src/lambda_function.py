@@ -6,10 +6,10 @@ from typing import Set
 import boto3
 import requests
 
-from geotrellis_summary_update.exceptions import UnexpectedResponseError
-from geotrellis_summary_update.util import api_prefix
-from geotrellis_summary_update.s3 import get_s3_path_parts
-from geotrellis_summary_update.secrets import get_token
+from datapump_utils.exceptions import UnexpectedResponseError
+from datapump_utils.util import api_prefix
+from datapump_utils.s3 import get_s3_path_parts
+from datapump_utils.secrets import get_token
 
 
 if "ENV" in os.environ:

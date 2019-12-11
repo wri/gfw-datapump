@@ -2,7 +2,7 @@ import json
 
 import boto3
 
-from geotrellis_summary_update.util import secret_suffix
+from datapump_utils.util import secret_suffix
 
 
 def get_token() -> str:
