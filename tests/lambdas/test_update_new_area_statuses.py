@@ -1,9 +1,9 @@
 import os
 
-from geotrellis_summary_update.exceptions import UnexpectedResponseError
-from geotrellis_summary_update.util import api_prefix
+from datapump_utils.exceptions import UnexpectedResponseError
+from datapump_utils.util import api_prefix
 
-from lambdas.update_new_area_statuses.src.lambda_function import (
+from lambdas.update_new_aoi_statuses.src.lambda_function import (
     handler,
     get_aoi_geostore_ids,
     update_aoi_status,

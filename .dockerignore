@@ -37,5 +37,7 @@ layer.zip
 .mypy_cache/
 .pytest_cache/
 venv/
+pyenv/
 test/test_data/*
 .github/
+terraform/.terraform

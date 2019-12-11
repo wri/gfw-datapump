@@ -2,4 +2,4 @@
 
 set -e
 
-pytest --cov-report term --cov-report xml --cov=lambdas --cov=geotrellis_summary_update tests/
+pytest --cov-report term --cov-report xml --cov=lambdas --cov=datapump_utils tests/

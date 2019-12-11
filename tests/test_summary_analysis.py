@@ -3,8 +3,8 @@ import os
 import boto3
 from moto import mock_emr, mock_s3, mock_secretsmanager
 
-from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
-from geotrellis_summary_update.summary_analysis import (
+from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.summary_analysis import (
     get_summary_analysis_steps,
     get_analysis_result_paths,
     check_analysis_success,
