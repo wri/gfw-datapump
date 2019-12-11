@@ -28,10 +28,8 @@ function select_workspace {
 }
 
 
-if [ "${ENV}" != "dev" ]
-then
-  echo "Environment not set to 'dev'"
-  exit 1
+if [ -z "${ENV}" ]; then
+  ENV=dev
 fi
 
 if [ -f "/root/.aws/credentials" ]; then
