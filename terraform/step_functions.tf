@@ -1,11 +1,11 @@
 resource "aws_sfn_state_machine" "geotrellis_dataset" {
-  name       = "${local.project}-geotrellis_dataset${local.name_suffix}"
+  name       = substr("${local.project}-geotrellis_dataset${local.name_suffix}", 0, 64)
   role_arn   = aws_iam_role.datapump_states.arn
   definition = data.template_file.sfn_geotrellis_summary_update.rendered
 }
 
 resource "aws_sfn_state_machine" "new_user_aoi" {
-  name       = "${local.project}-new_user_aoi${local.name_suffix}"
+  name       = substr("${local.project}-new_user_aoi${local.name_suffix}", 0, 64)
   role_arn   = aws_iam_role.datapump_states.arn
   definition = data.template_file.sfn_summarize_new_aoi.rendered
 }
