@@ -1,14 +1,14 @@
 {
-  "StartAt": "Check For New Areas",
+  "StartAt": "Check For New AOI",
   "States": {
-    "Check For New Areas": {
+    "Check For New AOI": {
       "Type": "Task",
-      "Resource": "${lambda_check_new_areas_arn}",
+      "Resource": "${lambda_check_new_aoi_arn}",
       "InputPath": "$",
       "ResultPath": "$",
-      "Next": "Are There New Areas?"
+      "Next": "Are There New AOI?"
     },
-    "Are There New Areas?": {
+    "Are There New AOI?": {
       "Type": "Choice",
       "Choices": [
         {
@@ -19,12 +19,12 @@
         {
           "Variable": "$.status",
           "StringEquals": "NO_NEW_AREAS_FOUND",
-          "Next": "No New Areas Found"
+          "Next": "No New AOI Found"
         },
         {
           "Variable": "$.status",
           "StringEquals": "ERROR",
-          "Next": "Error Checking New Areas"
+          "Next": "Error Checking New AOI"
         }
       ]
     },
@@ -42,7 +42,7 @@
     },
     "Update New Area Statuses": {
       "Type": "Task",
-      "Resource": "${lambda_update_new_area_status_arn}",
+      "Resource": "${lambda_update_new_aoi_status_arn}",
       "InputPath": "$",
       "ResultPath": "$",
       "Next": "Successfully Updated"
@@ -50,13 +50,13 @@
     "Successfully Updated": {
       "Type": "Succeed"
     },
-    "No New Areas Found": {
+    "No New AOI Found": {
       "Type": "Succeed"
     },
-    "Error Checking New Areas": {
+    "Error Checking New AOI": {
       "Type": "Fail",
-      "Cause": "Error checking new areas.",
-      "Error": "Error Checking New Areas"
+      "Cause": "Error checking new aoi.",
+      "Error": "Error Checking New AOI"
     }
   }
 }

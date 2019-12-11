@@ -1,10 +1,10 @@
 import os
 import boto3
 
-from geotrellis_summary_update.dataset import upload_dataset
-from geotrellis_summary_update.logger import get_logger
-from geotrellis_summary_update.util import error
-from geotrellis_summary_update.summary_analysis import (
+from datapump_utils.dataset import upload_dataset
+from datapump_utils.logger import get_logger
+from datapump_utils.util import error
+from datapump_utils.summary_analysis import (
     JobStatus,
     get_job_status,
     check_analysis_success,

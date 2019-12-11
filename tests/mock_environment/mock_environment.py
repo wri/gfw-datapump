@@ -3,8 +3,8 @@ import os
 
 import boto3
 
-from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
-from geotrellis_summary_update.s3 import s3_client
+from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.s3 import s3_client
 
 CURDIR = os.path.dirname(__file__)
 

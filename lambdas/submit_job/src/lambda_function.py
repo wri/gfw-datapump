@@ -4,12 +4,12 @@ import traceback
 
 from botocore.exceptions import ClientError
 
-from geotrellis_summary_update.summary_analysis import (
+from datapump_utils.summary_analysis import (
     get_summary_analysis_steps,
     submit_summary_batch_job,
 )
-from geotrellis_summary_update.util import get_curr_date_dir_name, bucket_suffix
-from geotrellis_summary_update.slack import slack_webhook
+from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.slack import slack_webhook
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.

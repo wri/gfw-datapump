@@ -18,12 +18,12 @@ variable "lambda_check_datasets_runtime" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_check_new_areas_runtime" {
+variable "lambda_check_new_aoi_runtime" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_update_new_area_statuses_runtime" {
+variable "lambda_update_new_aoi_statuses_runtime" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
@@ -43,12 +43,12 @@ variable "lambda_check_datasets_memory_size" {
   description = "Memory limit in MB for AWS Lambda function"
 }
 
-variable "lambda_check_new_areas_memory_size" {
+variable "lambda_check_new_aoi_memory_size" {
   type        = number
   description = "Memory limit in MB for AWS Lambda function"
 }
 
-variable "lambda_update_new_area_statuses_memory_size" {
+variable "lambda_update_new_aoi_statuses_memory_size" {
   type        = number
   description = "Memory limit in MB for AWS Lambda function"
 }
@@ -68,12 +68,12 @@ variable "lambda_check_datasets_timeout" {
   description = "Timeout in sec for AWS Lambda function"
 }
 
-variable "lambda_check_new_areas_timeout" {
+variable "lambda_check_new_aoi_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
 }
 
-variable "lambda_update_new_area_statuses_timeout" {
+variable "lambda_update_new_aoi_statuses_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
 }

@@ -2,7 +2,7 @@ import pytest
 from moto import mock_secretsmanager, mock_s3
 from requests_mock.exceptions import NoMockAddress
 
-from geotrellis_summary_update.dataset import (
+from datapump_utils.dataset import (
     upload_dataset,
     get_dataset,
     get_task,
@@ -11,8 +11,8 @@ from geotrellis_summary_update.dataset import (
     _get_headers,
     _get_upload_dataset_payload,
 )
-from geotrellis_summary_update.secrets import get_token
-from geotrellis_summary_update.exceptions import UnexpectedResponseError
+from datapump_utils.secrets import get_token
+from datapump_utils.exceptions import UnexpectedResponseError
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,

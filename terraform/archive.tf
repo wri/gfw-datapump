@@ -4,10 +4,10 @@ data "archive_file" "lambda_check_datasets_saved" {
   output_path = "../lambdas/check_datasets_saved/lambda.zip"
 }
 
-data "archive_file" "lambda_check_new_areas" {
+data "archive_file" "lambda_check_new_aoi" {
   type        = "zip"
-  source_dir  = "../lambdas/check_new_areas/src"
-  output_path = "../lambdas/check_new_areas/lambda.zip"
+  source_dir  = "../lambdas/check_new_aoi/src"
+  output_path = "../lambdas/check_new_aoi/lambda.zip"
 }
 
 data "archive_file" "lambda_submit_job" {
@@ -16,10 +16,10 @@ data "archive_file" "lambda_submit_job" {
   output_path = "../lambdas/submit_job/lambda.zip"
 }
 
-data "archive_file" "lambda_update_new_area_statuses" {
+data "archive_file" "lambda_update_new_aoi_statuses" {
   type        = "zip"
-  source_dir  = "../lambdas/update_new_area_statuses/src"
-  output_path = "../lambdas/update_new_area_statuses/lambda.zip"
+  source_dir  = "../lambdas/update_new_aoi_statuses/src"
+  output_path = "../lambdas/update_new_aoi_statuses/lambda.zip"
 }
 
 data "archive_file" "lambda_upload_results_to_datasets" {

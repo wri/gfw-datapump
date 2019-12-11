@@ -1,11 +1,11 @@
-resource "aws_sfn_state_machine" "geotrellis_summary_update" {
-  name       = "geotrellis-summary-update${local.name_suffix}"
-  role_arn   = aws_iam_role.geotrellis_summary_update_states.arn
+resource "aws_sfn_state_machine" "geotrellis_dataset" {
+  name       = "${local.project}-geotrellis_dataset${local.name_suffix}"
+  role_arn   = aws_iam_role.datapump_states.arn
   definition = data.template_file.sfn_geotrellis_summary_update.rendered
 }
 
-resource "aws_sfn_state_machine" "summarize_new_areas" {
-  name       = "summarize-new-areas${local.name_suffix}"
-  role_arn   = aws_iam_role.geotrellis_summary_update_states.arn
-  definition = data.template_file.sfn_summarize_new_areas.rendered
+resource "aws_sfn_state_machine" "new_user_aoi" {
+  name       = "${local.project}-new_user_aoi${local.name_suffix}"
+  role_arn   = aws_iam_role.datapump_states.arn
+  definition = data.template_file.sfn_summarize_new_aoi.rendered
 }
