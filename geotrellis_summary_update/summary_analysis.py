@@ -7,13 +7,7 @@ from botocore.exceptions import ClientError
 from geotrellis_summary_update.util import bucket_suffix
 from geotrellis_summary_update.s3 import get_s3_path, s3_client
 
-
 RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
-
-if "ENV" in os.environ:
-    ENV = os.environ["ENV"]
-else:
-    ENV = "dev"
 
 
 class JobStatus(Enum):
@@ -61,10 +55,6 @@ def get_summary_analysis_step(
         step_args.append("--tcl")
     elif analysis == "gladalerts":
         step_args.append("--glad")
-
-    if ENV == "dev":
-        step_args.append("--limit")
-        step_args.append("50")
 
     return {
         "Name": analysis,
