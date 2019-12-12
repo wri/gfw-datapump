@@ -100,7 +100,7 @@ resource "aws_lambda_function" "update_new_aoi_statuses" {
 }
 
 resource "aws_lambda_function" "check_new_glad_alerts" {
-  function_name    = substr("${local.project}-check_new_glad_alerts{local.name_suffix}",0, 64)
+  function_name    = substr("${local.project}-check_new_glad_alerts${local.name_suffix}",0, 64)
   filename         = data.archive_file.lambda_check_new_glad_alerts.output_path
   source_code_hash = data.archive_file.lambda_check_new_glad_alerts.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
