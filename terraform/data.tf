@@ -28,6 +28,14 @@ data "template_file" "sfn_summarize_new_aoi" {
   }
 }
 
+data "template_file" "sfn_summarize_new_glad_alerts" {
+  template = file("../step_functions/new_glad_alerts.json")
+  vars = {
+    lambda_check_new_glad_alerts_arn  = aws_lambda_function.check_new_glad_alerts.arn,
+    state_machine_arn                 =  aws_sfn_state_machine.new_glad_alerts.id
+  }
+}
+
 data "terraform_remote_state" "core" {
   backend = "s3"
   config = {

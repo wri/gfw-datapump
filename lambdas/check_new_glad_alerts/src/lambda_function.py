@@ -1,0 +1,60 @@
+from datetime import datetime, timedelta
+from copy import deepcopy
+import pytz
+import os
+import json
+
+from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump_utils.util import bucket_suffix
+
+NAME = "glad-alerts-aoi"
+GLAD_ALERTS_PATH = os.environ[
+    "GLAD_ALERTS_PATH"
+]  # "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
+AOI_DATASET_IDS = json.loads(os.environ["AOI_DATASET_IDS"])
+S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
+
+
+def handler(event, context):
+    new_alerts = check_for_new_glad_alerts_in_past_day()
+    if new_alerts:
+        return {
+            "status": "NEW_ALERTS_FOUND",
+            "instance_size": "r4.2xlarge",
+            "instance_count": 3,
+            "feature_src": f"{S3_BUCKET_PIPELINE}/geotrellis/results/geostore/*.tsv",
+            "feature_type": "geostore",
+            "analyses": ["gladalerts"],
+            "dataset_ids": get_daily_glad_dataset_ids(),
+            "name": NAME,
+            "upload_type": "data-overwrite",
+            "get_summary": False,
+        }
+    else:
+        return {"status": "NO_NEW_ALERTS_FOUND"}
+
+
+def check_for_new_glad_alerts_in_past_day():
+    glad_alerts_bucket, glad_alerts_prefix = get_s3_path_parts(GLAD_ALERTS_PATH)
+    response = s3_client().list_objects(
+        Bucket=glad_alerts_bucket, Prefix=glad_alerts_prefix
+    )
+
+    last_modified_datetimes = [obj["LastModified"] for obj in response["Contents"]]
+    one_day_ago = _now() - timedelta(hours=24)
+
+    return all(one_day_ago <= dt <= _now() for dt in last_modified_datetimes)
+
+
+def get_daily_glad_dataset_ids():
+    dataset_ids = dict()
+    dataset_ids["gladalerts"] = deepcopy(
+        AOI_DATASET_IDS["gladalerts"]
+    )  # only want to update glad alerts
+    del dataset_ids["gladalerts"]["summary"]  # don't need to update summary daily
+
+    return dataset_ids
+
+
+def _now():
+    return datetime.now(pytz.utc)

@@ -4,6 +4,16 @@ import boto3
 
 from datapump_utils.util import secret_suffix
 
+TOKEN = None
+
+
+def token() -> str:
+    global TOKEN
+    if TOKEN is None:
+        TOKEN = get_token()
+
+    return TOKEN
+
 
 def get_token() -> str:
     sm_client = boto3.client("secretsmanager")

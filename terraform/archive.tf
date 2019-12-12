@@ -27,3 +27,9 @@ data "archive_file" "lambda_upload_results_to_datasets" {
   source_dir  = "../lambdas/upload_results_to_datasets/src"
   output_path = "../lambdas/upload_results_to_datasets/lambda.zip"
 }
+
+data "archive_file" "lambda_check_new_glad_alerts" {
+  type        = "zip"
+  source_dir  = "../lambdas/check_new_glad_alerts/src"
+  output_path = "../lambdas/check_new_glad_alerts/lambda.zip"
+}

@@ -26,7 +26,6 @@ def handler(event, context):
     dataset_ids = event["dataset_ids"]
     result_dir = event["result_dir"]
     feature_type = event["feature_type"]
-    name = event["name"]
     upload_type = event["upload_type"]
 
     job_status = get_job_status(job_flow_id)
@@ -54,15 +53,14 @@ def handler(event, context):
             all_dataset_sources.append(dataset_sources)
 
         dataset_ids_flattened = list(dataset_result_paths.keys())
-        return {
-            "status": "SUCCESS",
-            "name": name,
-            "analyses": analyses,
-            "feature_src": event["feature_src"],
-            "upload_type": event["upload_type"],
-            "dataset_ids": dataset_ids_flattened,
-            "dataset_sources": all_dataset_sources,
-        }
+        event.update(
+            {
+                "status": "SUCCESS",
+                "dataset_ids": dataset_ids_flattened,
+                "dataset_sources": all_dataset_sources,
+            }
+        )
+        return event
     elif job_status == JobStatus.PENDING:
         event.update({"status": "PENDING"})
         return event

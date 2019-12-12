@@ -62,12 +62,8 @@ def handler(event, context):
     # Success! Log any task log warnings and send slack notification
     log_task_log_warnings(datasets, tasks)
     slack_webhook("INFO", "Successfully ran {} summary dataset update".format(name))
-    return {
-        "status": "SUCCESS",
-        "name": name,
-        "feature_src": event["feature_src"],
-        "analyses": event["analyses"],
-    }
+    event.update({"status": "SUCCESS"})
+    return event
 
 
 def check_for_upload_issues(
