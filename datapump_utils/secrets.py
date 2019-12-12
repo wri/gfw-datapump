@@ -10,12 +10,12 @@ TOKEN = None
 def token() -> str:
     global TOKEN
     if TOKEN is None:
-        TOKEN = get_token()
+        TOKEN = _get_token()
 
     return TOKEN
 
 
-def get_token() -> str:
+def _get_token() -> str:
     sm_client = boto3.client("secretsmanager")
     response = sm_client.get_secret_value(SecretId=f"gfw-api/{secret_suffix()}-token")
 
