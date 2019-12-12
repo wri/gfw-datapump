@@ -23,6 +23,11 @@ variable "lambda_check_new_aoi_runtime" {
   description = "Runtime version for AWS Lambda"
 }
 
+variable "lambda_check_new_glad_alerts_runtime" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
 variable "lambda_update_new_aoi_statuses_runtime" {
   type        = string
   description = "Runtime version for AWS Lambda"
@@ -44,6 +49,11 @@ variable "lambda_check_datasets_memory_size" {
 }
 
 variable "lambda_check_new_aoi_memory_size" {
+  type        = number
+  description = "Memory limit in MB for AWS Lambda function"
+}
+
+variable "lambda_check_new_glad_alerts_memory_size" {
   type        = number
   description = "Memory limit in MB for AWS Lambda function"
 }
@@ -73,6 +83,11 @@ variable "lambda_check_new_aoi_timeout" {
   description = "Timeout in sec for AWS Lambda function"
 }
 
+variable "lambda_check_new_glad_alerts_timeout" {
+  type        = number
+  description = "Timeout in sec for AWS Lambda function"
+}
+
 variable "lambda_update_new_aoi_statuses_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
@@ -81,4 +96,9 @@ variable "lambda_update_new_aoi_statuses_timeout" {
 variable "geotrellis_jar" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
+}
+
+variable "aoi_dataset_ids" {
+  type        = map(map(string))
+  description = "Dataset IDs in Resource Watch API for storing results of different analyses."
 }

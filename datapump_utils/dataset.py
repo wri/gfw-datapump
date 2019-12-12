@@ -1,7 +1,7 @@
 import requests
 import json
 
-from datapump_utils.secrets import get_token
+from datapump_utils.secrets import token
 from datapump_utils.util import api_prefix
 from datapump_utils.exceptions import UnexpectedResponseError
 
@@ -86,7 +86,7 @@ def create_dataset(dataset_id, source_urls):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {get_token()}",
+        "Authorization": f"Bearer {token()}",
     }
 
     payload = {
@@ -109,5 +109,5 @@ def create_dataset(dataset_id, source_urls):
 def _get_headers():
     return {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {get_token()}",
+        "Authorization": f"Bearer {token()}",
     }

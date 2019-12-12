@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Tuple
 
-import boto3
 import requests
 from requests import Response
 from shapely.wkb import dumps
@@ -14,7 +13,7 @@ from shapely.geometry import shape, Polygon, MultiPolygon
 from datapump_utils.decorators import api_response_checker
 from datapump_utils.exceptions import EmptyResponseException
 from datapump_utils.logger import get_logger
-from datapump_utils.secrets import get_token
+from datapump_utils.secrets import token
 from datapump_utils.util import bucket_suffix, api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
 from datapump_utils.slack import slack_webhook
@@ -26,26 +25,14 @@ if "ENV" in os.environ:
 else:
     ENV = "dev"
 
-
 LOGGER = get_logger(__name__)
-TOKEN: str = get_token()
-PENDING_AOI_NAME = "pending_user_areas"
-
+SUMMARIZE_NEW_AOIS_NAME = "summarize-new-aois"
 DIRNAME = os.path.dirname(__file__)
-
-PENDING_AOI_ANALYSES = {
-    "dev": {
-        "annualupdate_minimal": {
-            "change": "206938be-12d9-47b7-9865-44244bfb64d6",
-            "summary": "0eead72d-1ad7-4c0f-93c4-793a07cd2e3d",
-        },
-        "gladalerts": {
-            "daily_alerts": "722d90b2-e989-48ca-ba27-f7a8e236ea44",
-            "weekly_alerts": "153a2ba7-cff6-4b06-bd76-279271c4ddea",
-            "summary": "28e44bd2-cd13-4587-9259-1ba235a82d28",
-        },
-    }
-}
+AOI_DATASET_IDS = (
+    json.loads(os.environ["AOI_DATASET_IDS"])
+    if "AOI_DATASET_IDS" in os.environ
+    else dict()
+)
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -72,7 +59,6 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             )
 
         LOGGER.info(f"Found {len(geostore['data'])} pending areas")
-        analyses = list(PENDING_AOI_ANALYSES[ENV].keys())
         geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
         return {
             "status": "NEW_AREAS_FOUND",
@@ -80,12 +66,12 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             "instance_count": 1,
             "feature_src": geostore_full_path,
             "feature_type": "geostore",
-            "analyses": analyses,
-            "dataset_ids": PENDING_AOI_ANALYSES[ENV],
-            "name": PENDING_AOI_NAME,
+            "analyses": ["gladalerts", "annualupdate_minimal"],
+            "dataset_ids": AOI_DATASET_IDS,
+            "name": SUMMARIZE_NEW_AOIS_NAME,
             "upload_type": "concat",
+            "get_summary": True,
         }
-
     except EmptyResponseException:
         slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return {"status": "NO_NEW_AREAS_FOUND"}
@@ -101,8 +87,8 @@ def get_pending_areas() -> Dict[str, Any]:
     """
 
     LOGGER.debug("Get pending Areas")
-    LOGGER.debug(f"Using token {TOKEN} for {api_prefix()} API")
-    headers: Dict[str, str] = {"Authorization": f"Bearer {TOKEN}"}
+    LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
+    headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
     url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true"
     r: Response = requests.get(url, headers=headers)
 
@@ -138,7 +124,7 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
 
     LOGGER.debug("Get Geostore Geometries by IDs")
 
-    headers: Dict[str, str] = {"Authorization": f"Bearer {TOKEN}"}
+    headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
     payload: Dict[str, List[str]] = {"geostores": geostore_ids}
     url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
     r: Response = requests.post(url, data=payload, headers=headers)

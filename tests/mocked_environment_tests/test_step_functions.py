@@ -31,6 +31,7 @@ def test_geotrellis_summary_update():
         "instance_count": INSTANCE_COUNT,
         "upload_type": UPLOAD_TYPE,
         "dataset_ids": DATASET_IDS,
+        "get_summary": True,
     }
 
     submit_job_output = _test_submit_job(input_params)

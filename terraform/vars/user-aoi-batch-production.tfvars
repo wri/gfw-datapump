@@ -20,4 +20,8 @@ lambda_update_new_aoi_statuses_runtime     = "python3.7"
 lambda_update_new_aoi_statuses_memory_size = 1024
 lambda_update_new_aoi_statuses_timeout     = 300
 
-geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre-e63f58ebf332741f9cde986a2f2e98f63ef8bda3.jar"
+lambda_check_new_glad_alerts_runtime     = "python3.7"
+lambda_check_new_glad_alerts_memory_size = 1024
+lambda_check_new_glad_alerts_timeout     = 300
+
+geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.0.0-pre-f9b5a906a62d4ee09598d862abf418bed88277b1.jar"

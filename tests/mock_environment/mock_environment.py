@@ -4,9 +4,29 @@ import os
 import boto3
 
 from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
-from datapump_utils.s3 import s3_client
+from datapump_utils.s3 import s3_client, get_s3_path_parts
 
 CURDIR = os.path.dirname(__file__)
+GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
+
+os.environ["S3_BUCKET_PIPELINE"] = f"gfw-pipelines{bucket_suffix()}"
+os.environ[
+    "GEOTRELLIS_JAR"
+] = f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar"
+os.environ["GLAD_ALERTS_PATH"] = GLAD_ALERTS_PATH
+os.environ["AOI_DATASET_IDS"] = json.dumps(
+    {
+        "gladalerts": {
+            "daily_alerts": "testid_daily_alerts_glad",
+            "weekly_alerts": "testid_weekly_alerts_glad",
+            "summary": "testid_summary_glad",
+        },
+        "annualupdate_minimal": {
+            "change": "testid_change_tcl",
+            "summary": "testid_summary_tcl",
+        },
+    }
+)
 
 
 def mock_environment():
@@ -14,9 +34,6 @@ def mock_environment():
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"  # pragma: allowlist secret
     os.environ["AWS_SECURITY_TOKEN"] = "testing"
     os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ[
-        "GEOTRELLIS_JAR"
-    ] = f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar"
 
     _mock_s3_setup()
     _mock_secrets()
@@ -115,6 +132,22 @@ def _mock_s3_setup():
         open(success, "r"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/_SUCCESS",
+    )
+
+    glad_alerts_bucket, glad_alerts_prefix = get_s3_path_parts(GLAD_ALERTS_PATH)
+    tile1 = os.path.join(CURDIR, "mock_files/tile1.tif")
+    tile2 = os.path.join(CURDIR, "mock_files/tile2.tif")
+
+    s3_client().create_bucket(Bucket=glad_alerts_bucket)
+    s3_client().upload_fileobj(
+        open(tile1, "r"),
+        Bucket=glad_alerts_bucket,
+        Key=f"{glad_alerts_prefix}/tile1.tif",
+    )
+    s3_client().upload_fileobj(
+        open(tile2, "r"),
+        Bucket=glad_alerts_bucket,
+        Key=f"{glad_alerts_prefix}/tile2.tif",
     )
 
 
