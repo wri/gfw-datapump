@@ -1,17 +1,3 @@
-resource "aws_lambda_layer_version" "datapump_utils" {
-  layer_name          = "datapump_utils"
-  filename            = local.lambda_layer_datapump_utils
-  source_code_hash    = filebase64sha256(local.lambda_layer_datapump_utils)
-  compatible_runtimes = [var.lambda_submit_job_runtime]
-}
-
-resource "aws_lambda_layer_version" "shapely_pyyaml" {
-  layer_name          = "shapely_pyyaml"
-  filename            = local.lambda_layer_shapely_pyyaml
-  source_code_hash    = filebase64sha256(local.lambda_layer_shapely_pyyaml)
-  compatible_runtimes = [var.lambda_submit_job_runtime]
-}
-
 resource "aws_lambda_function" "submit_job" {
   function_name    = substr("${local.project}-submit_job${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_submit_job.output_path
@@ -23,7 +9,7 @@ resource "aws_lambda_function" "submit_job" {
   timeout          = var.lambda_submit_job_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
@@ -44,7 +30,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
   timeout          = var.lambda_upload_results_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV = var.environment
@@ -53,7 +39,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
 }
 
 resource "aws_lambda_function" "check_datasets_saved" {
-  function_name    = substr("${local.project}-check_datasets_saved${local.name_suffix}", 0,64)
+  function_name    = substr("${local.project}-check_datasets_saved${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_check_datasets_saved.output_path
   source_code_hash = data.archive_file.lambda_check_datasets_saved.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -63,7 +49,7 @@ resource "aws_lambda_function" "check_datasets_saved" {
   timeout          = var.lambda_check_datasets_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV = var.environment
@@ -82,7 +68,7 @@ resource "aws_lambda_function" "check_new_aoi" {
   timeout          = var.lambda_check_new_aoi_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn, aws_lambda_layer_version.shapely_pyyaml.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.core.outputs.lambda_layer_shapely_pyyaml_arn]
   environment {
     variables = {
       ENV                = var.environment
@@ -93,7 +79,7 @@ resource "aws_lambda_function" "check_new_aoi" {
 }
 
 resource "aws_lambda_function" "update_new_aoi_statuses" {
-  function_name    = substr("${local.project}-update_new_aoi_statuses${local.name_suffix}",0, 64)
+  function_name    = substr("${local.project}-update_new_aoi_statuses${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_update_new_aoi_statuses.output_path
   source_code_hash = data.archive_file.lambda_update_new_aoi_statuses.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
@@ -103,7 +89,7 @@ resource "aws_lambda_function" "update_new_aoi_statuses" {
   timeout          = var.lambda_update_new_aoi_statuses_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
