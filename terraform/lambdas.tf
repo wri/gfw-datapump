@@ -110,7 +110,7 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   timeout          = var.lambda_check_new_glad_alerts_timeout
   publish          = true
   tags             = local.tags
-  layers           = [aws_lambda_layer_version.datapump_utils.arn]
+  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
