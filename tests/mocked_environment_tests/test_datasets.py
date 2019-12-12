@@ -11,7 +11,7 @@ from datapump_utils.dataset import (
     _get_headers,
     _get_upload_dataset_payload,
 )
-from datapump_utils.secrets import get_token
+from datapump_utils.secrets import token
 from datapump_utils.exceptions import UnexpectedResponseError
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
@@ -26,8 +26,7 @@ from tests.mock_environment.mock_responses import (
 def test_get_token():
     mock_environment()
 
-    token = get_token()
-    assert token == "footoken"
+    assert token() == "footoken"
 
 
 @mock_s3

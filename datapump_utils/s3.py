@@ -12,14 +12,14 @@ def s3_client():
     return S3_CLIENT
 
 
-def s3_directory_exists(bucket, prefix, s3_client):
+def s3_directory_exists(bucket, prefix):
     """
     Checks if an s3 directory exists.
 
     Since s3 doesn't really have directories, just checking if call list objects on a prefix throws an error.
     """
     try:
-        s3_client.list_objects(Bucket=bucket, Prefix=prefix)
+        s3_client().list_objects(Bucket=bucket, Prefix=prefix)
         return True
     except ClientError:
         return False

@@ -1,0 +1,45 @@
+{
+  "StartAt": "Check For New Glad Alerts",
+  "States": {
+    "Check For New AOI": {
+      "Type": "Task",
+      "Resource": "${lambda_check_new_glad_alerts_arn}",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "Are There New Glad Alerts?"
+    },
+    "Are There New AOI?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "NEW_ALERTS_FOUND",
+          "Next": "Run GeoTrellis Summary Update"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "NO_NEW_ALERTS_FOUND",
+          "Next": "No New Alerts Found"
+        }
+      ]
+    },
+    "Run GeoTrellis Summary Update": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync",
+      "ResultPath": "$",
+      "Parameters": {
+        "StateMachineArn": "${state_machine_arn}",
+        "Input": {
+           "Input.$": "$"
+        }
+      },
+      "Next": "Successfully Updated"
+    },
+    "Successfully Updated": {
+      "Type": "Succeed"
+    },
+    "No New Alerts Found": {
+      "Type": "Succeed"
+    }
+  }
+}

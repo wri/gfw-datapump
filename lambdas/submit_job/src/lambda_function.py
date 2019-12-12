@@ -26,28 +26,23 @@ def handler(event, context):
     analyses = event["analyses"]
     instance_size = event["instance_size"]
     instance_count = event["instance_count"]
+    get_summary = event["get_summary"]
 
     result_dir = f"geotrellis/results/{name}/{get_curr_date_dir_name()}"
 
     try:
         steps = get_summary_analysis_steps(
-            analyses, feature_src, feature_type, result_dir
+            analyses, feature_src, feature_type, result_dir, get_summary
         )
         job_flow_id = submit_summary_batch_job(
             name, steps, instance_size, instance_count
         )
 
-        return {
-            "status": "SUCCESS",
-            "job_flow_id": job_flow_id,
-            "name": name,
-            "analyses": analyses,
-            "feature_src": feature_src,
-            "feature_type": feature_type,
-            "result_dir": result_dir,
-            "upload_type": event["upload_type"],
-            "dataset_ids": event["dataset_ids"],
-        }
+        event.update(
+            {"status": "SUCCESS", "job_flow_id": job_flow_id, "result_dir": result_dir}
+        )
+
+        return event
     except ClientError:
         logging.error(traceback.print_exc())
         slack_webhook(

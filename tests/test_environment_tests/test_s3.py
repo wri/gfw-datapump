@@ -1,5 +1,3 @@
-import boto3
-
 from datapump_utils.s3 import (
     get_s3_path_parts,
     get_s3_path,
@@ -12,8 +10,7 @@ KEY = "geotrellis/features/geostore/test_areas.tsv"
 
 
 def test_s3_directory_exists():
-    s3_client = boto3.client("s3")
-    result = s3_directory_exists(BUCKET, KEY, s3_client)
+    result = s3_directory_exists(BUCKET, KEY)
     assert result
 
 

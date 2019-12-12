@@ -180,6 +180,7 @@ def _steps():
         "s3://my/feature/src",
         "geostore",
         "my/result/dir",
+        True,
     )
 
 
