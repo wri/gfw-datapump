@@ -1,7 +1,7 @@
 {
   "StartAt": "Check For New Glad Alerts",
   "States": {
-    "Check For New AOI": {
+    "Check For New Glad Alerts": {
       "Type": "Task",
       "Resource": "${lambda_check_new_glad_alerts_arn}",
       "InputPath": "$",
