@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 
 from tests.mock_environment.mock_environment import mock_environment
+from datapump_utils.util import bucket_suffix
 from lambdas.check_new_glad_alerts.src.lambda_function import (
     check_for_new_glad_alerts_in_past_day,
     get_daily_glad_dataset_ids,
@@ -62,6 +63,10 @@ def test_handler_alerts_found():
             "weekly_alerts": "testid_weekly_alerts_glad",
         },
     }
+    assert (
+        result["feature_src"]
+        == f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/features/geostore/*.tsv"
+    )
 
 
 @mock_s3
