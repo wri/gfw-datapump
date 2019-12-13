@@ -20,7 +20,7 @@ def handler(event, context):
             "status": "NEW_ALERTS_FOUND",
             "instance_size": "r4.2xlarge",
             "instance_count": 3,
-            "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/results/geostore/*.tsv",
+            "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
             "feature_type": "geostore",
             "analyses": ["gladalerts"],
             "dataset_ids": get_daily_glad_dataset_ids(),
