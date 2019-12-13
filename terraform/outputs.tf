@@ -6,6 +6,10 @@ output "sfn_summarize_new_aoi" {
   value = aws_sfn_state_machine.new_user_aoi.id
 }
 
+output "sfn_summarize_new_glad_alerts" {
+  value = aws_sfn_state_machine.new_glad_alerts.id
+}
+
 output "lambda_check_new_dataset_daved" {
   value = aws_lambda_function.check_datasets_saved.id
 }
