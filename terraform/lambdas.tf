@@ -116,6 +116,7 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
       ENV                = var.environment
       S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
       AOI_DATASET_IDS    = jsonencode(var.aoi_dataset_ids)
+      GLAD_ALERTS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
     }
   }
 }
