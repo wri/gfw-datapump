@@ -13,5 +13,5 @@ resource "aws_sfn_state_machine" "new_user_aoi" {
 resource "aws_sfn_state_machine" "new_glad_alerts" {
   name       = substr("${local.project}-new_glad_alerts${local.name_suffix}", 0, 64)
   role_arn   = aws_iam_role.datapump_states.arn
-  definition = data.template_file.sfn_summarize_new_aoi.rendered
+  definition = data.template_file.sfn_summarize_new_glad_alerts.rendered
 }
