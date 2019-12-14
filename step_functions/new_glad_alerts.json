@@ -1,14 +1,14 @@
 {
   "StartAt": "Check For New Glad Alerts",
   "States": {
-    "Check For New AOI": {
+    "Check For New Glad Alerts": {
       "Type": "Task",
       "Resource": "${lambda_check_new_glad_alerts_arn}",
       "InputPath": "$",
       "ResultPath": "$",
       "Next": "Are There New Glad Alerts?"
     },
-    "Are There New AOI?": {
+    "Are There New Glad Alerts?": {
       "Type": "Choice",
       "Choices": [
         {

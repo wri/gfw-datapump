@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from copy import deepcopy
-import pytz
+import dateutil.tz as tz
 import os
 import json
 
@@ -8,9 +8,7 @@ from datapump_utils.s3 import s3_client, get_s3_path_parts
 from datapump_utils.util import bucket_suffix
 
 NAME = "glad-alerts-aoi"
-GLAD_ALERTS_PATH = os.environ[
-    "GLAD_ALERTS_PATH"
-]  # "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
+GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
 AOI_DATASET_IDS = json.loads(os.environ["AOI_DATASET_IDS"])
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
 
@@ -22,7 +20,7 @@ def handler(event, context):
             "status": "NEW_ALERTS_FOUND",
             "instance_size": "r4.2xlarge",
             "instance_count": 3,
-            "feature_src": f"{S3_BUCKET_PIPELINE}/geotrellis/results/geostore/*.tsv",
+            "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
             "feature_type": "geostore",
             "analyses": ["gladalerts"],
             "dataset_ids": get_daily_glad_dataset_ids(),
@@ -57,4 +55,4 @@ def get_daily_glad_dataset_ids():
 
 
 def _now():
-    return datetime.now(pytz.utc)
+    return datetime.now(tz.UTC)
