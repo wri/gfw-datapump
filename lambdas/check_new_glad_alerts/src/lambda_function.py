@@ -19,7 +19,7 @@ def handler(event, context):
         return {
             "status": "NEW_ALERTS_FOUND",
             "instance_size": "r4.2xlarge",
-            "instance_count": 3,
+            "instance_count": 6,
             "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
             "feature_type": "geostore",
             "analyses": ["gladalerts"],
