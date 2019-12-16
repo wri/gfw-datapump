@@ -11,7 +11,7 @@ else:
     ENV = "dev"
 
 
-def get_curr_date_dir_name():
+def get_date_string():
     today = datetime.datetime.today()
     return "{}{}{}".format(today.year, today.month, today.day)
 
