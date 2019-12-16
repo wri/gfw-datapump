@@ -8,7 +8,7 @@ from datapump_utils.summary_analysis import (
     get_summary_analysis_steps,
     submit_summary_batch_job,
 )
-from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.slack import slack_webhook
 
 
@@ -28,7 +28,7 @@ def handler(event, context):
     instance_count = event["instance_count"]
     get_summary = event["get_summary"]
 
-    result_dir = f"geotrellis/results/{name}/{get_curr_date_dir_name()}"
+    result_dir = f"geotrellis/results/{name}/{get_date_string()}"
 
     try:
         steps = get_summary_analysis_steps(

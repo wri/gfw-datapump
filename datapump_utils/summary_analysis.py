@@ -154,16 +154,16 @@ def get_dataset_sources(results_path):
     ]
 
 
-def get_dataset_result_paths(result_dir, analyses, dataset_ids, feature_type):
+def get_dataset_result_paths(result_dir, analyses, datasets, feature_type):
     analysis_result_paths = get_analysis_result_paths(
         RESULT_BUCKET, result_dir, analyses
     )
     dataset_result_paths = dict()
 
-    for analysis in dataset_ids.keys():
-        for aggregate in dataset_ids[analysis].keys():
-            dataset_id = dataset_ids[analysis][aggregate]
-            dataset_result_paths[dataset_id] = get_dataset_result_path(
+    for analysis in datasets.keys():
+        for aggregate in datasets[analysis].keys():
+            dataset = datasets[analysis][aggregate]
+            dataset_result_paths[dataset] = get_dataset_result_path(
                 analysis_result_paths[analysis], aggregate, feature_type
             )
 

@@ -1,5 +1,4 @@
 import os
-import boto3
 
 from datapump_utils.dataset import upload_dataset
 from datapump_utils.logger import get_logger
@@ -23,7 +22,7 @@ LOGGER = get_logger(__name__)
 def handler(event, context):
     job_flow_id = event["job_flow_id"]
     analyses = event["analyses"]
-    dataset_ids = event["dataset_ids"]
+    datasets = event["datasets"]
     result_dir = event["result_dir"]
     feature_type = event["feature_type"]
     upload_type = event["upload_type"]
@@ -31,7 +30,7 @@ def handler(event, context):
     job_status = get_job_status(job_flow_id)
     if job_status == JobStatus.SUCCESS:
         dataset_result_paths = get_dataset_result_paths(
-            result_dir, analyses, dataset_ids, feature_type
+            result_dir, analyses, datasets, feature_type
         )
 
         paths_with_no_success_file = list(
@@ -47,16 +46,16 @@ def handler(event, context):
             )
 
         all_dataset_sources = list()
-        for dataset_id, results_path in dataset_result_paths.items():
+        dataset_ids = dict()
+        for dataset, results_path in dataset_result_paths.items():
             dataset_sources = get_dataset_sources(results_path)
-            upload_dataset(dataset_id, dataset_sources, upload_type)
+            dataset_ids[dataset] = upload_dataset(dataset, dataset_sources, upload_type)
             all_dataset_sources.append(dataset_sources)
 
-        dataset_ids_flattened = list(dataset_result_paths.keys())
         event.update(
             {
                 "status": "SUCCESS",
-                "dataset_ids": dataset_ids_flattened,
+                "dataset_ids": dataset_ids,
                 "dataset_sources": all_dataset_sources,
             }
         )

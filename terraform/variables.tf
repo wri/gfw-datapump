@@ -98,7 +98,7 @@ variable "geotrellis_jar" {
   description = "Fat Jar to use to run Geotrellis Spark Job"
 }
 
-variable "aoi_dataset_ids" {
+variable "aoi_datasets" {
   type        = map(map(string))
   description = "Dataset IDs in Resource Watch API for storing results of different analyses."
 }

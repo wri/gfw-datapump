@@ -57,7 +57,7 @@ def test_handler_alerts_found():
     assert result["upload_type"] == "data-overwrite"
     assert result["get_summary"] is False
     assert result["analyses"] == ["gladalerts"]
-    assert result["dataset_ids"] == {
+    assert result["datasets"] == {
         "gladalerts": {
             "daily_alerts": "testid_daily_alerts_glad",
             "weekly_alerts": "testid_weekly_alerts_glad",

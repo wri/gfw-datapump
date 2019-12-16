@@ -3,7 +3,7 @@ import os
 import boto3
 from moto import mock_emr, mock_s3, mock_secretsmanager
 
-from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.summary_analysis import (
     get_summary_analysis_steps,
     get_analysis_result_paths,
@@ -94,17 +94,17 @@ def test_get_analysis_result_paths():
 
     result_paths = get_analysis_result_paths(
         f"gfw-pipelines{bucket_suffix()}",
-        f"geotrellis/results/test/{get_curr_date_dir_name()}",
+        f"geotrellis/results/test/{get_date_string()}",
         ["gladalerts", "annualupdate_minimal"],
     )
 
     assert (
         result_paths["gladalerts"]
-        == f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245"
+        == f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245"
     )
     assert (
         result_paths["annualupdate_minimal"]
-        == f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245"
+        == f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245"
     )
 
 
@@ -114,7 +114,7 @@ def test_check_analysis_success():
     mock_environment()
 
     assert check_analysis_success(
-        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
+        f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
 
 
@@ -123,9 +123,9 @@ def test_check_analysis_success():
 def test_get_dataset_sources():
     mock_environment()
 
-    https_path = f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
+    https_path = f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/daily_alerts"
     sources = get_dataset_sources(
-        f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts"
+        f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/daily_alerts"
     )
     assert len(sources) == 2
     assert sources[0] == f"{https_path}/results1.csv"
@@ -150,15 +150,17 @@ def test_get_dataset_result_paths():
         },
     }
 
-    result_dir = f"geotrellis/results/test/{get_curr_date_dir_name()}"
+    result_dir = f"geotrellis/results/test/{get_date_string()}"
     feature_type = "geostore"
 
     dataset_result_paths = get_dataset_result_paths(
         result_dir, analyses, dataset_ids, feature_type
     )
 
-    results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
-    results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
+    results_glad = (
+        f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
+    )
+    results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
 
     assert (
         dataset_result_paths["testid_daily_alerts_glad"]
