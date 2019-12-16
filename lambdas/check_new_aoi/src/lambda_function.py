@@ -62,7 +62,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
         return {
             "status": "NEW_AREAS_FOUND",
-            "instance_size": "r4.xlarge",
+            "instance_size": "r4.2xlarge",
             "instance_count": 1,
             "feature_src": geostore_full_path,
             "feature_type": "geostore",
