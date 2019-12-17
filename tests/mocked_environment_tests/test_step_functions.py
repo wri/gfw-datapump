@@ -7,7 +7,7 @@ import requests_mock
 import lambdas.submit_job.src.lambda_function as submit_job
 import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
 import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
-from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.summary_analysis import JobStatus, _instances
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
@@ -29,16 +29,45 @@ def test_geotrellis_summary_update():
         "analyses": ANALYSES,
         "instance_size": INSTANCE_SIZE,
         "instance_count": INSTANCE_COUNT,
-        "upload_type": UPLOAD_TYPE,
-        "dataset_ids": DATASET_IDS,
+        "upload_type": "concat",
+        "datasets": DATASETS,
         "get_summary": True,
     }
 
     submit_job_output = _test_submit_job(input_params)
-    upload_results_to_datasets_output = _test_upload_results_to_datasets(
+    upload_results_to_datasets_output = _test_upload_results_to_datasets_concat(
         submit_job_output
     )
     check_datasets_saved_output = _test_check_datasets_saved(
+        upload_results_to_datasets_output
+    )
+
+    assert check_datasets_saved_output
+
+
+@mock_s3
+@mock_emr
+@mock_secretsmanager
+def test_geotrellis_summary_create():
+    mock_environment()
+
+    input_params = {
+        "name": NAME,
+        "feature_src": FEATURE_SRC,
+        "feature_type": FEATURE_TYPE,
+        "analyses": ANALYSES,
+        "instance_size": INSTANCE_SIZE,
+        "instance_count": INSTANCE_COUNT,
+        "upload_type": "create",
+        "datasets": DATASETS_CREATE,
+        "get_summary": True,
+    }
+
+    submit_job_output = _test_submit_job(input_params)
+    upload_results_to_datasets_output = _test_upload_results_to_datasets_create(
+        submit_job_output
+    )
+    check_datasets_saved_output = _test_check_datasets_saved_create(
         upload_results_to_datasets_output
     )
 
@@ -62,18 +91,17 @@ def _test_submit_job(input_params, mock_instances):
     assert result["feature_src"] == FEATURE_SRC
     assert result["feature_type"] == FEATURE_TYPE
     assert result["result_dir"] == RESULT_DIR
-    assert result["upload_type"] == UPLOAD_TYPE
-    assert result["dataset_ids"] == DATASET_IDS
+    assert result["datasets"] == input_params["datasets"]
 
     return result
 
 
 @patch("lambdas.upload_results_to_datasets.src.lambda_function.get_job_status")
-def _test_upload_results_to_datasets(input_params, mock_get_job_status):
+def _test_upload_results_to_datasets_concat(input_params, mock_get_job_status):
     mock_get_job_status.return_value = JobStatus.SUCCESS
 
     with requests_mock.Mocker() as request_mocker:
-        for dataset_id in DATASET_IDS_FLAT:
+        for dataset_id in DATASET_IDS.values():
             request_mocker.post(
                 f"https://staging-api.globalforestwatch.org/v1/dataset/{dataset_id}/concat",
                 status_code=204,
@@ -85,8 +113,83 @@ def _test_upload_results_to_datasets(input_params, mock_get_job_status):
     assert result["name"] == NAME
     assert result["analyses"] == ANALYSES
     assert result["feature_src"] == FEATURE_SRC
-    assert result["upload_type"] == UPLOAD_TYPE
-    assert result["dataset_ids"] == DATASET_IDS_FLAT
+    assert list(result["dataset_ids"].values()) == list(DATASET_IDS.values())
+    assert result["dataset_sources"] == DATASET_SOURCES
+
+    return result
+
+
+@patch("lambdas.upload_results_to_datasets.src.lambda_function.get_job_status")
+def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
+    mock_get_job_status.return_value = JobStatus.SUCCESS
+
+    with requests_mock.Mocker() as request_mocker:
+        datasets = list(DATASET_IDS.items())
+        resp_body = deepcopy(TEST_DATASET_RESPONSE)
+        resp_body["data"]["id"] = datasets[0][1]
+        resp_body["data"]["attributes"]["name"] = datasets[0][0]
+
+        request_mocker.post(
+            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            status_code=204,
+            json=resp_body,
+            additional_matcher=(lambda rq: rq.json()["name"] == datasets[0][0]),
+        )
+
+        datasets = list(DATASET_IDS.items())
+        resp_body = deepcopy(TEST_DATASET_RESPONSE)
+        resp_body["data"]["id"] = datasets[1][1]
+        resp_body["data"]["attributes"]["name"] = datasets[1][0]
+
+        request_mocker.post(
+            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            status_code=204,
+            json=resp_body,
+            additional_matcher=(lambda rq: rq.json()["name"] == datasets[1][0]),
+        )
+
+        datasets = list(DATASET_IDS.items())
+        resp_body = deepcopy(TEST_DATASET_RESPONSE)
+        resp_body["data"]["id"] = datasets[2][1]
+        resp_body["data"]["attributes"]["name"] = datasets[2][0]
+
+        request_mocker.post(
+            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            status_code=204,
+            json=resp_body,
+            additional_matcher=(lambda rq: rq.json()["name"] == datasets[2][0]),
+        )
+
+        datasets = list(DATASET_IDS.items())
+        resp_body = deepcopy(TEST_DATASET_RESPONSE)
+        resp_body["data"]["id"] = datasets[3][1]
+        resp_body["data"]["attributes"]["name"] = datasets[3][0]
+
+        request_mocker.post(
+            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            status_code=204,
+            json=resp_body,
+            additional_matcher=(lambda rq: rq.json()["name"] == datasets[3][0]),
+        )
+
+        datasets = list(DATASET_IDS.items())
+        resp_body = deepcopy(TEST_DATASET_RESPONSE)
+        resp_body["data"]["id"] = datasets[4][1]
+        resp_body["data"]["attributes"]["name"] = datasets[4][0]
+
+        request_mocker.post(
+            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            status_code=204,
+            json=resp_body,
+            additional_matcher=(lambda rq: rq.json()["name"] == datasets[4][0]),
+        )
+        result = upload_results_to_datasets.handler(input_params, None)
+
+    assert result["status"] == "SUCCESS"
+    assert result["name"] == NAME
+    assert result["analyses"] == ANALYSES
+    assert result["feature_src"] == FEATURE_SRC
+    assert result["dataset_ids"] == DATASET_IDS
     assert result["dataset_sources"] == DATASET_SOURCES
 
     return result
@@ -94,7 +197,7 @@ def _test_upload_results_to_datasets(input_params, mock_get_job_status):
 
 def _test_check_datasets_saved(input_params):
     with requests_mock.Mocker() as request_mocker:
-        for dataset_id in DATASET_IDS_FLAT:
+        for dataset_id in DATASET_IDS.values():
             ds_response = deepcopy(TEST_DATASET_RESPONSE)
             ds_response["data"]["id"] = dataset_id
             ds_response["data"]["attributes"][
@@ -171,15 +274,47 @@ def _test_check_datasets_saved(input_params):
     return result
 
 
+def _test_check_datasets_saved_create(input_params):
+    with requests_mock.Mocker() as request_mocker:
+        for dataset_id in DATASET_IDS.values():
+            ds_response = deepcopy(TEST_DATASET_RESPONSE)
+            ds_response["data"]["id"] = dataset_id
+            ds_response["data"]["attributes"][
+                "taskId"
+            ] = f"/v1/doc-importer/task/{dataset_id}_task"
+
+            task_response = deepcopy(TEST_TASK_RESPONSE)
+            task_response["data"]["id"] = f"{dataset_id}_task"
+
+            request_mocker.get(
+                f"https://staging-api.globalforestwatch.org/v1/dataset/{dataset_id}",
+                status_code=200,
+                json=ds_response,
+            )
+
+            request_mocker.get(
+                f"https://staging-api.globalforestwatch.org/v1/doc-importer/task/{dataset_id}_task",
+                status_code=200,
+                json=task_response,
+            )
+
+        result = check_datasets_saved.handler(input_params, None)
+
+    assert result["status"] == "SUCCESS"
+    assert result["name"] == NAME
+    assert result["feature_src"] == FEATURE_SRC
+
+    return result
+
+
 NAME = "test"
 FEATURE_SRC = "s3://test/src.tsv"
 FEATURE_TYPE = "geostore"
 ANALYSES = ["gladalerts", "annualupdate_minimal"]
 INSTANCE_SIZE = "r4.xlarge"
 INSTANCE_COUNT = 10
-UPLOAD_TYPE = "concat"
-RESULT_DIR = f"geotrellis/results/test/{get_curr_date_dir_name()}"
-DATASET_IDS = {
+RESULT_DIR = f"geotrellis/results/test/{get_date_string()}"
+DATASETS = {
     "gladalerts": {
         "daily_alerts": "testid_daily_alerts_glad",
         "weekly_alerts": "testid_weekly_alerts_glad",
@@ -190,32 +325,40 @@ DATASET_IDS = {
         "summary": "testid_summary_tcl",
     },
 }
-DATASET_IDS_FLAT = [
-    "testid_daily_alerts_glad",
-    "testid_weekly_alerts_glad",
-    "testid_summary_glad",
-    "testid_change_tcl",
-    "testid_summary_tcl",
-]
+DATASETS_CREATE = {
+    "gladalerts": {
+        "daily_alerts": "Daily Alerts GLAD",
+        "weekly_alerts": "Weekly Alerts GLAD",
+        "summary": "Summary GLAD",
+    },
+    "annualupdate_minimal": {"change": "Change TCL", "summary": "Summary TCL"},
+}
+DATASET_IDS = {
+    "Daily Alerts GLAD": "testid_daily_alerts_glad",
+    "Weekly Alerts GLAD": "testid_weekly_alerts_glad",
+    "Summary GLAD": "testid_summary_glad",
+    "Change TCL": "testid_change_tcl",
+    "Summary TCL": "testid_summary_tcl",
+}
 DATASET_SOURCES = [
     [
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results1.csv",
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/daily_alerts/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/daily_alerts/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/daily_alerts/results2.csv",
     ],
     [
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results1.csv",
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/weekly_alerts/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/weekly_alerts/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/weekly_alerts/results2.csv",
     ],
     [
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results1.csv",
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore/summary/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/summary/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore/summary/results2.csv",
     ],
     [
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results1.csv",
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/change/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore/change/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore/change/results2.csv",
     ],
     [
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results1.csv",
-        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore/summary/results2.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore/summary/results1.csv",
+        f"https://gfw-pipelines{bucket_suffix()}.s3.amazonaws.com/geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore/summary/results2.csv",
     ],
 ]

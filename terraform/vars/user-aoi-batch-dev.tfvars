@@ -26,7 +26,7 @@ lambda_check_new_glad_alerts_timeout     = 300
 
 geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.0-pre-f9b5a906a62d4ee09598d862abf418bed88277b1.jar"
 
-aoi_dataset_ids = {
+aoi_datasets = {
   "annualupdate_minimal": {
     "change" = "206938be-12d9-47b7-9865-44244bfb64d6"
     "summary" = "0eead72d-1ad7-4c0f-93c4-793a07cd2e3d"

@@ -40,7 +40,7 @@ def handler(event, context):
     retries = event["retries"] if "retries" in event else dict()
 
     # check status of dataset requests
-    datasets = [get_dataset(id) for id in dataset_ids]
+    datasets = [get_dataset(id) for id in dataset_ids.values()]
     tasks = [get_task(ds["taskId"]) for ds in datasets]
 
     try:

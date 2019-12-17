@@ -3,7 +3,7 @@ import os
 
 import boto3
 
-from datapump_utils.util import get_curr_date_dir_name, bucket_suffix
+from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.s3 import s3_client, get_s3_path_parts
 
 CURDIR = os.path.dirname(__file__)
@@ -14,7 +14,7 @@ os.environ[
     "GEOTRELLIS_JAR"
 ] = f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar"
 os.environ["GLAD_ALERTS_PATH"] = GLAD_ALERTS_PATH
-os.environ["AOI_DATASET_IDS"] = json.dumps(
+os.environ["AOI_DATASETS"] = json.dumps(
     {
         "gladalerts": {
             "daily_alerts": "testid_daily_alerts_glad",
@@ -27,6 +27,10 @@ os.environ["AOI_DATASET_IDS"] = json.dumps(
         },
     }
 )
+os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet_1", "test_subnet_2"])
+os.environ["DEFAULT_SECURITY_GROUP_ID"] = "test_default_sg_id"
+os.environ["EMR_SLAVE_SECURITY_GROUP_ID"] = "test_slave_sg_id"
+os.environ["EC2_KEY_NAME"] = "test_ec2_key_name"
 
 
 def mock_environment():
@@ -52,8 +56,10 @@ def _mock_s3_setup():
             test2_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test2.jar"
         )
 
-    results_glad = f"geotrellis/results/test/{get_curr_date_dir_name()}/gladalerts_20191119_1245/geostore"
-    results_tcl = f"geotrellis/results/test/{get_curr_date_dir_name()}/annualupdate_minimal_20191119_1245/geostore"
+    results_glad = (
+        f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
+    )
+    results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
     results1 = os.path.join(CURDIR, "mock_files/results1.csv")
     results2 = os.path.join(CURDIR, "mock_files/results1.csv")
     success = os.path.join(CURDIR, "mock_files/_SUCCESS")
