@@ -1,3 +1,5 @@
+from tests.mock_environment.mock_environment import mock_environment
+
 import os
 
 import boto3
@@ -15,8 +17,6 @@ from datapump_utils.summary_analysis import (
     _configurations,
     _applications,
 )
-
-from tests.mock_environment.mock_environment import mock_environment
 
 CURDIR = os.path.dirname(__file__)
 
@@ -195,15 +195,15 @@ TEST_CLUSTER_DESCRIPTION = {
             "StateChangeReason": {"Code": "ALL_STEPS_COMPLETED"},
         },
         "Ec2InstanceAttributes": {
-            "Ec2KeyName": "jterry_wri",
+            "Ec2KeyName": "test_ec2_key_name",
             "Ec2SubnetId": "None",
             "Ec2AvailabilityZone": "us-east-1a",
             "IamInstanceProfile": "EMR_EC2_DefaultRole",
-            "EmrManagedMasterSecurityGroup": "sg-02bec2e5e2a393046",
-            "EmrManagedSlaveSecurityGroup": "sg-0fe3f65c2f2e57681",
+            "EmrManagedMasterSecurityGroup": "test_default_sg_id",
+            "EmrManagedSlaveSecurityGroup": "test_slave_sg_id",
             "ServiceAccessSecurityGroup": "None",
-            "AdditionalMasterSecurityGroups": [],
-            "AdditionalSlaveSecurityGroups": [],
+            "AdditionalMasterSecurityGroups": ["test_default_sg_id"],
+            "AdditionalSlaveSecurityGroups": ["test_default_sg_id"],
         },
         "LogUri": f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/logs",
         "ReleaseLabel": "emr-5.24.0",
