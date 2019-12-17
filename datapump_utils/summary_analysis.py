@@ -1,13 +1,17 @@
 import os
+import json
 from enum import Enum
 
 import boto3
 from botocore.exceptions import ClientError
 
-from datapump_utils.util import bucket_suffix
 from datapump_utils.s3 import get_s3_path, s3_client
 
-RESULT_BUCKET = f"gfw-pipelines{bucket_suffix()}"
+RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
+PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
+DEFAULT_SG_ID = os.environ["DEFAULT_SECURITY_GROUP_ID"]
+EMR_SLAVE_SG_ID = os.environ["EMR_SLAVE_SECURITY_GROUP_ID"]
+EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
 
 class JobStatus(Enum):
@@ -154,16 +158,16 @@ def get_dataset_sources(results_path):
     ]
 
 
-def get_dataset_result_paths(result_dir, analyses, dataset_ids, feature_type):
+def get_dataset_result_paths(result_dir, analyses, datasets, feature_type):
     analysis_result_paths = get_analysis_result_paths(
         RESULT_BUCKET, result_dir, analyses
     )
     dataset_result_paths = dict()
 
-    for analysis in dataset_ids.keys():
-        for aggregate in dataset_ids[analysis].keys():
-            dataset_id = dataset_ids[analysis][aggregate]
-            dataset_result_paths[dataset_id] = get_dataset_result_path(
+    for analysis in datasets.keys():
+        for aggregate in datasets[analysis].keys():
+            dataset = datasets[analysis][aggregate]
+            dataset_result_paths[dataset] = get_dataset_result_path(
                 analysis_result_paths[analysis], aggregate, feature_type
             )
 
@@ -235,18 +239,14 @@ def _instances(name, master_instance_type, worker_instance_type, worker_instance
                 },
             },
         ],
-        "Ec2KeyName": "jterry_wri",
+        "Ec2KeyName": EC2_KEY_NAME,
         "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
-        "Ec2SubnetIds": ["subnet-44dbbd7a"],
-        "EmrManagedMasterSecurityGroup": "sg-02bec2e5e2a393046",
-        "EmrManagedSlaveSecurityGroup": "sg-0fe3f65c2f2e57681",
-        # "AdditionalMasterSecurityGroups": [
-        #    "sg-d7a0d8ad",
-        #    "sg-001e5f904c9cb7cc4",
-        #    "sg-6c6a5911",
-        # ],
-        # "AdditionalSlaveSecurityGroups": ["sg-d7a0d8ad", "sg-6c6a5911"],
+        "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
+        "EmrManagedMasterSecurityGroup": DEFAULT_SG_ID,
+        "EmrManagedSlaveSecurityGroup": EMR_SLAVE_SG_ID,
+        "AdditionalMasterSecurityGroups": [DEFAULT_SG_ID],
+        "AdditionalSlaveSecurityGroups": [DEFAULT_SG_ID],
     }
 
 

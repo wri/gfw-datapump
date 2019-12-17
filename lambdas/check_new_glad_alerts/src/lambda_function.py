@@ -9,7 +9,7 @@ from datapump_utils.util import bucket_suffix
 
 NAME = "glad-alerts-aoi"
 GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
-AOI_DATASET_IDS = json.loads(os.environ["AOI_DATASET_IDS"])
+AOI_DATASETS = json.loads(os.environ["AOI_DATASETS"])
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
 
 
@@ -23,7 +23,7 @@ def handler(event, context):
             "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
             "feature_type": "geostore",
             "analyses": ["gladalerts"],
-            "dataset_ids": get_daily_glad_dataset_ids(),
+            "datasets": get_daily_glad_dataset_ids(),
             "name": NAME,
             "upload_type": "data-overwrite",
             "get_summary": False,
@@ -45,13 +45,13 @@ def check_for_new_glad_alerts_in_past_day():
 
 
 def get_daily_glad_dataset_ids():
-    dataset_ids = dict()
-    dataset_ids["gladalerts"] = deepcopy(
-        AOI_DATASET_IDS["gladalerts"]
+    datasets = dict()
+    datasets["gladalerts"] = deepcopy(
+        AOI_DATASETS["gladalerts"]
     )  # only want to update glad alerts
-    del dataset_ids["gladalerts"]["summary"]  # don't need to update summary daily
+    del datasets["gladalerts"]["summary"]  # don't need to update summary daily
 
-    return dataset_ids
+    return datasets
 
 
 def _now():

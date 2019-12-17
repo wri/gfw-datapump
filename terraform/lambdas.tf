@@ -12,9 +12,13 @@ resource "aws_lambda_function" "submit_job" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
-      ENV                = var.environment
-      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
-      GEOTRELLIS_JAR     = var.geotrellis_jar
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      GEOTRELLIS_JAR                 = var.geotrellis_jar
+      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
+      DEFAULT_SECURITY_GROUP_ID      = data.terraform_remote_state.core.outputs.default_security_group_id
+      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EMR_SLAVE_SECURITY_GROUP_ID    = data.terraform_remote_state.core.outputs.emr-worker-security-group_id
     }
   }
 }
@@ -33,7 +37,12 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
-      ENV = var.environment
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
+      DEFAULT_SECURITY_GROUP_ID      = data.terraform_remote_state.core.outputs.default_security_group_id
+      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EMR_SLAVE_SECURITY_GROUP_ID    = data.terraform_remote_state.core.outputs.emr-worker-security-group_id
     }
   }
 }
@@ -74,7 +83,7 @@ resource "aws_lambda_function" "check_new_aoi" {
       ENV                = var.environment
       S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
       S3_BUCKET_DATALAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
-      AOI_DATASET_IDS    = jsonencode(var.aoi_dataset_ids)
+      AOI_DATASETS    = jsonencode(var.aoi_datasets)
     }
   }
 }
@@ -115,7 +124,7 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
     variables = {
       ENV                = var.environment
       S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
-      AOI_DATASET_IDS    = jsonencode(var.aoi_dataset_ids)
+      AOI_DATASETS       = jsonencode(var.aoi_datasets)
       GLAD_ALERTS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
     }
   }
