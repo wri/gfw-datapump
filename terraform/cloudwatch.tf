@@ -1,13 +1,13 @@
 resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
   name                = substr("everyday-11-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 11 pm EST"
-  schedule_expression = "cron(0 16 ? * * *)" // -5 to EST
+  schedule_expression = "cron(45 16 ? * * *)" // -5 to EST
 }
 
 resource "aws_cloudwatch_event_rule" "everyday-3-am-est" {
   name                = substr("everyday-3-am-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 3 am EST"
-  schedule_expression = "cron(0 18 ? * * *)" // -5 to EST
+  schedule_expression = "cron(45 18 ? * * *)" // -5 to EST
 }
 
 //We only want to schedule this event in production
