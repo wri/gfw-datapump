@@ -4,7 +4,8 @@
     {
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "states.us-east-1.amazonaws.com"
+        "Service": "states.us-east-1.amazonaws.com",
+        "events.amazonaws.com"
       },
       "Effect": "Allow",
       "Sid": ""
