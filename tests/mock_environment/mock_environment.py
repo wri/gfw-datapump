@@ -160,6 +160,6 @@ def _mock_s3_setup():
 def _mock_secrets():
     client = boto3.client("secretsmanager", region_name="us-east-1")
     client.create_secret(
-        Name="gfw-api/staging-token",
+        Name="gfw-api/token",
         SecretString=json.dumps({"token": "footoken", "email": "foo@bar.org"}),
     )
