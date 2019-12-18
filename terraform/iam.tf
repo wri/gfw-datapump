@@ -25,6 +25,6 @@ resource "aws_iam_role_policy_attachment" "datapump_states" {
 }
 
 resource "aws_iam_role_policy_attachment" "datapump_lambda_secrets" {
-  role       = aws_iam_role.datapump_states.name
+  role       = aws_iam_role.datapump_lambda.name
   policy_arn = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
 }
