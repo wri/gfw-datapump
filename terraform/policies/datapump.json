@@ -6,10 +6,6 @@
           "Action": [
               "secretsmanager:GetRandomPassword",
               "lambda:InvokeFunction",
-              "secretsmanager:GetResourcePolicy",
-              "secretsmanager:GetSecretValue",
-              "secretsmanager:DescribeSecret",
-              "secretsmanager:ListSecretVersionIds",
               "elasticmapreduce:RunJobFlow",
               "elasticmapreduce:DescribeCluster",
               "cloudformation:DescribeChangeSet",
