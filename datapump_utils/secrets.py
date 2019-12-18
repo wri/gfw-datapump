@@ -17,6 +17,6 @@ def token() -> str:
 
 def _get_token() -> str:
     sm_client = boto3.client("secretsmanager")
-    response = sm_client.get_secret_value(SecretId=f"gfw-api/{secret_suffix()}-token")
+    response = sm_client.get_secret_value(SecretId=f"gfw-api/token")
 
     return json.loads(response["SecretString"])["token"]
