@@ -1,5 +1,6 @@
 import os
 import json
+import random
 from enum import Enum
 
 import boto3
@@ -242,7 +243,7 @@ def _instances(name, master_instance_type, worker_instance_type, worker_instance
         "Ec2KeyName": EC2_KEY_NAME,
         "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
-        "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
+        "Ec2SubnetId": random.choice(PUBLIC_SUBNET_IDS),
         "EmrManagedMasterSecurityGroup": DEFAULT_SG_ID,
         "EmrManagedSlaveSecurityGroup": EMR_SLAVE_SG_ID,
         "AdditionalMasterSecurityGroups": [DEFAULT_SG_ID],
