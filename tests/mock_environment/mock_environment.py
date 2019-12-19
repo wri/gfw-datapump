@@ -27,7 +27,7 @@ os.environ["AOI_DATASETS"] = json.dumps(
         },
     }
 )
-os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet_1", "test_subnet_2"])
+os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet", "test_subnet"])
 os.environ["DEFAULT_SECURITY_GROUP_ID"] = "test_default_sg_id"
 os.environ["EMR_SLAVE_SECURITY_GROUP_ID"] = "test_slave_sg_id"
 os.environ["EC2_KEY_NAME"] = "test_ec2_key_name"
