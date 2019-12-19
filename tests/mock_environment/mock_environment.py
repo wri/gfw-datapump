@@ -32,7 +32,7 @@ os.environ["DEFAULT_SECURITY_GROUP_ID"] = "test_default_sg_id"
 os.environ["EMR_SLAVE_SECURITY_GROUP_ID"] = "test_slave_sg_id"
 os.environ["EC2_KEY_NAME"] = "test_ec2_key_name"
 os.environ["EMR_SERVICE_ROLE"] = "TEST_SERVICE_ROLE"
-os.environ["EMR_PROFILE_ROLE"] = "TEST_PROFILE_ROLE"
+os.environ["EMR_INSTANCE_PROFILE"] = "TEST_EMR_INSTANCE_PROFILE"
 
 
 def mock_environment():
