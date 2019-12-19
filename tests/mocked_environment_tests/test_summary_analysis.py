@@ -75,8 +75,18 @@ def test_submit_job_and_get_status():
     cluster_description = client.describe_cluster(ClusterId=job_flow_id)["Cluster"]
 
     assert (
-        cluster_description["Ec2InstanceAttributes"]
-        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]
+        cluster_description["Ec2InstanceAttributes"]["Ec2KeyName"]
+        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2KeyName"]
+    )
+    assert (
+        cluster_description["Ec2InstanceAttributes"]["Ec2SubnetId"]
+        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]
+    )
+    assert (
+        cluster_description["Ec2InstanceAttributes"]["IamInstanceProfile"]
+        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"][
+            "IamInstanceProfile"
+        ]
     )
     assert (
         cluster_description["LogUri"] == TEST_CLUSTER_DESCRIPTION["Cluster"]["LogUri"]
@@ -199,11 +209,7 @@ TEST_CLUSTER_DESCRIPTION = {
             "Ec2SubnetId": "test_subnet",
             "Ec2AvailabilityZone": "us-east-1a",
             "IamInstanceProfile": "TEST_EMR_INSTANCE_PROFILE",
-            "EmrManagedMasterSecurityGroup": "test_default_sg_id",
-            "EmrManagedSlaveSecurityGroup": "test_slave_sg_id",
             "ServiceAccessSecurityGroup": "None",
-            "AdditionalMasterSecurityGroups": ["test_default_sg_id"],
-            "AdditionalSlaveSecurityGroups": ["test_default_sg_id"],
         },
         "LogUri": f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/logs",
         "ReleaseLabel": "emr-5.24.0",

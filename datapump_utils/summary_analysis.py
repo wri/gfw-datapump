@@ -10,8 +10,6 @@ from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
-DEFAULT_SG_ID = os.environ["DEFAULT_SECURITY_GROUP_ID"]
-EMR_SLAVE_SG_ID = os.environ["EMR_SLAVE_SECURITY_GROUP_ID"]
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
 
@@ -244,10 +242,6 @@ def _instances(name, master_instance_type, worker_instance_type, worker_instance
         "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
         "Ec2SubnetId": random.choice(PUBLIC_SUBNET_IDS),
-        "EmrManagedMasterSecurityGroup": DEFAULT_SG_ID,
-        "EmrManagedSlaveSecurityGroup": EMR_SLAVE_SG_ID,
-        "AdditionalMasterSecurityGroups": [DEFAULT_SG_ID],
-        "AdditionalSlaveSecurityGroups": [DEFAULT_SG_ID],
     }
 
 
