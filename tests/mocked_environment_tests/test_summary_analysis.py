@@ -198,7 +198,7 @@ TEST_CLUSTER_DESCRIPTION = {
             "Ec2KeyName": "test_ec2_key_name",
             "Ec2SubnetId": "None",
             "Ec2AvailabilityZone": "us-east-1a",
-            "IamInstanceProfile": "EMR_EC2_DefaultRole",
+            "IamInstanceProfile": "TEST_PROFILE_ROLE",
             "EmrManagedMasterSecurityGroup": "test_default_sg_id",
             "EmrManagedSlaveSecurityGroup": "test_slave_sg_id",
             "ServiceAccessSecurityGroup": "None",
