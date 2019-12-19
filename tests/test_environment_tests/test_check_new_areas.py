@@ -2,7 +2,7 @@ import os
 import json
 import shapely.wkb
 
-from datapump_utils.util import secret_suffix
+from datapump_utils.util import secret_suffix, bucket_suffix
 
 from lambdas.check_new_aoi.src.lambda_function import (
     geostore_to_wkb,
@@ -11,7 +11,8 @@ from lambdas.check_new_aoi.src.lambda_function import (
     get_pending_areas,
 )
 
-os.environ["ENV"] = "test"
+os.environ["ENV"] = "dev"
+os.environ["S3_BUCKET_PIPELINE"] = f"gfw-pipelines{bucket_suffix()}"
 
 AREAS = {
     "data": [

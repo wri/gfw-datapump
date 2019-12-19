@@ -26,7 +26,7 @@ else:
     ENV = "dev"
 
 LOGGER = get_logger(__name__)
-SUMMARIZE_NEW_AOIS_NAME = "summarize-new-aois"
+SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
 DIRNAME = os.path.dirname(__file__)
 AOI_DATASETS = (
     json.loads(os.environ["AOI_DATASETS"]) if "AOI_DATASETS" in os.environ else dict()
@@ -198,9 +198,9 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
     Fetch 1x1 degree extent file
     """
     LOGGER.debug("Fetch Extent File")
+    result_bucket = os.environ["S3_BUCKET_PIPELINE"]
     response: Dict[str, Any] = s3_client().get_object(
-        Bucket=f"gfw-data-lake{bucket_suffix()}",
-        Key="analysis_extent/latest/vector/extent_1x1.geojson",
+        Bucket=result_bucket, Key="geotrellis/features/extent_1x1.geojson",
     )
 
     glad_tiles: Dict[str, Any] = json.load(response["Body"])
