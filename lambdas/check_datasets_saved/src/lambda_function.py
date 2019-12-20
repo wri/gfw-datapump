@@ -100,6 +100,12 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
             f"Saved dataset's corresponding task doesn't exist, so upload may have not occurred.'"
         )
         return True
+    elif dataset["status"] == "failed":
+        if "Exceeded maximum number of attempts to process message" in task["error"]:
+            LOGGER.warning(
+                f"Task failed because it was stuck. Retrying. Full error: {task['error']}"
+            )
+        return True
     else:
         return False
 
