@@ -83,6 +83,12 @@ def test_submit_job_and_get_status():
         == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]
     )
     assert (
+        cluster_description["Ec2InstanceAttributes"]["IamInstanceProfile"]
+        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"][
+            "IamInstanceProfile"
+        ]
+    )
+    assert (
         cluster_description["LogUri"] == TEST_CLUSTER_DESCRIPTION["Cluster"]["LogUri"]
     )
     assert (

@@ -184,6 +184,8 @@ def _run_job_flow(name, instances, steps, applications, configurations):
         Applications=applications,
         Configurations=configurations,
         VisibleToAllUsers=True,
+        JobFlowRole=os.environ["EMR_INSTANCE_PROFILE"],
+        ServiceRole=os.environ["EMR_SERVICE_ROLE"],
         Tags=[
             {"Key": "Project", "Value": "Global Forest Watch"},
             {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
