@@ -16,9 +16,9 @@ resource "aws_lambda_function" "submit_job" {
       S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
       GEOTRELLIS_JAR                 = var.geotrellis_jar
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      DEFAULT_SECURITY_GROUP_ID      = data.terraform_remote_state.core.outputs.default_security_group_id
       EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
-      EMR_SLAVE_SECURITY_GROUP_ID    = data.terraform_remote_state.core.outputs.emr-worker-security-group_id
+      EMR_SERVICE_ROLE               = data.terraform_remote_state.core.outputs.emr_service_role_name
+      EMR_INSTANCE_PROFILE           = data.terraform_remote_state.core.outputs.emr_instance_profile_name
     }
   }
 }
@@ -40,9 +40,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      DEFAULT_SECURITY_GROUP_ID      = data.terraform_remote_state.core.outputs.default_security_group_id
       EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
-      EMR_SLAVE_SECURITY_GROUP_ID    = data.terraform_remote_state.core.outputs.emr-worker-security-group_id
     }
   }
 }

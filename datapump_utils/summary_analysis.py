@@ -1,5 +1,6 @@
 import os
 import json
+import random
 from enum import Enum
 
 import boto3
@@ -9,8 +10,6 @@ from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
-DEFAULT_SG_ID = os.environ["DEFAULT_SECURITY_GROUP_ID"]
-EMR_SLAVE_SG_ID = os.environ["EMR_SLAVE_SECURITY_GROUP_ID"]
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
 
@@ -185,8 +184,8 @@ def _run_job_flow(name, instances, steps, applications, configurations):
         Applications=applications,
         Configurations=configurations,
         VisibleToAllUsers=True,
-        JobFlowRole="EMR_EC2_DefaultRole",
-        ServiceRole="EMR_DefaultRole",
+        JobFlowRole=os.environ["EMR_INSTANCE_PROFILE"],
+        ServiceRole=os.environ["EMR_SERVICE_ROLE"],
         Tags=[
             {"Key": "Project", "Value": "Global Forest Watch"},
             {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
@@ -242,11 +241,7 @@ def _instances(name, master_instance_type, worker_instance_type, worker_instance
         "Ec2KeyName": EC2_KEY_NAME,
         "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
-        "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
-        "EmrManagedMasterSecurityGroup": DEFAULT_SG_ID,
-        "EmrManagedSlaveSecurityGroup": EMR_SLAVE_SG_ID,
-        "AdditionalMasterSecurityGroups": [DEFAULT_SG_ID],
-        "AdditionalSlaveSecurityGroups": [DEFAULT_SG_ID],
+        "Ec2SubnetId": random.choice(PUBLIC_SUBNET_IDS),
     }
 
 
