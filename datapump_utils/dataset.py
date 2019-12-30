@@ -45,7 +45,11 @@ def get_task(task_path):
 def upload_dataset(dataset, source_urls, upload_type):
     if upload_type == "create":
         return create_dataset(dataset, source_urls)
-    elif upload_type == "concat" or upload_type == "data-overwrite":
+    elif (
+        upload_type == "concat"
+        or upload_type == "data-overwrite"
+        or upload_type == "append"
+    ):
         return update_dataset(dataset, source_urls, upload_type)
     else:
         raise ValueError(f"Unknown upload type: {upload_type}")
