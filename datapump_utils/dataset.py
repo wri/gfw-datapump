@@ -123,7 +123,7 @@ def _get_headers():
 
 
 def _get_upload_dataset_payload(source_urls):
-    return {"provider": "csv", "sources": source_urls}
+    return {"provider": "tsv", "sources": source_urls}
 
 
 def _get_versioned_dataset_name(name):

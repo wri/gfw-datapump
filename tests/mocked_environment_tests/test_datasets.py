@@ -51,7 +51,7 @@ def test_upload_dataset(requests_mock):
     source_urls = ["http://data/source/1.csv", "http://data/source/2.csv"]
 
     data_overwrite_payload = _get_upload_dataset_payload(source_urls)
-    assert data_overwrite_payload == {"provider": "csv", "sources": source_urls}
+    assert data_overwrite_payload == {"provider": "tsv", "sources": source_urls}
 
     try:
         upload_dataset("test_id", source_urls, "data-overwrite")
