@@ -177,7 +177,7 @@ def find_status_mismatches(datasets, tasks):
 
 
 def get_failed_datasets_ids(failed_datasets):
-    ", ".join([ds["id"] for ds in failed_datasets])
+    return ", ".join([ds["id"] for ds in failed_datasets])
 
 
 def failed_datasets_error(name, failed_datasets):
