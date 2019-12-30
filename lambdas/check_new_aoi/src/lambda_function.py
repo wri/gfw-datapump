@@ -67,7 +67,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             "analyses": ["gladalerts", "annualupdate_minimal"],
             "datasets": AOI_DATASETS,
             "name": SUMMARIZE_NEW_AOIS_NAME,
-            "upload_type": "concat",
+            "upload_type": "append",
             "get_summary": True,
         }
     except EmptyResponseException:
