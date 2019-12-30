@@ -50,6 +50,7 @@ def get_daily_glad_dataset_ids():
         AOI_DATASETS["gladalerts"]
     )  # only want to update glad alerts
     del datasets["gladalerts"]["summary"]  # don't need to update summary daily
+    del datasets["gladalerts"]["whitelist"]
 
     return datasets
 

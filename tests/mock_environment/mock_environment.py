@@ -20,10 +20,12 @@ os.environ["AOI_DATASETS"] = json.dumps(
             "daily_alerts": "testid_daily_alerts_glad",
             "weekly_alerts": "testid_weekly_alerts_glad",
             "summary": "testid_summary_glad",
+            "whitelist": "testid_whitelist_glad",
         },
         "annualupdate_minimal": {
             "change": "testid_change_tcl",
             "summary": "testid_summary_tcl",
+            "whitelist": "testid_whitelist_tcl",
         },
     }
 )
