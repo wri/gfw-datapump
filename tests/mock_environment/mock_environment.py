@@ -65,59 +65,65 @@ def _mock_s3_setup():
     )
     results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
     results1 = os.path.join(CURDIR, "mock_files/results1.csv")
-    results2 = os.path.join(CURDIR, "mock_files/results1.csv")
+    results2 = os.path.join(CURDIR, "mock_files/results2.csv")
+    results3 = os.path.join(CURDIR, "mock_files/results3.csv")
     success = os.path.join(CURDIR, "mock_files/_SUCCESS")
 
     s3_client().upload_fileobj(
-        open(results1, "r"),
+        open(results1, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/daily_alerts/results1.csv",
     )
     s3_client().upload_fileobj(
-        open(results1, "r"),
+        open(results1, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/weekly_alerts/results1.csv",
     )
     s3_client().upload_fileobj(
-        open(results1, "r"),
+        open(results1, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/summary/results1.csv",
     )
     s3_client().upload_fileobj(
-        open(results1, "r"),
+        open(results1, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/change/results1.csv",
     )
     s3_client().upload_fileobj(
-        open(results1, "r"),
+        open(results1, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/results1.csv",
     )
 
     s3_client().upload_fileobj(
-        open(results2, "r"),
+        open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/daily_alerts/results2.csv",
     )
     s3_client().upload_fileobj(
-        open(results2, "r"),
+        open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/weekly_alerts/results2.csv",
     )
     s3_client().upload_fileobj(
-        open(results2, "r"),
+        open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_glad}/summary/results2.csv",
     )
     s3_client().upload_fileobj(
-        open(results2, "r"),
+        open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/change/results2.csv",
     )
     s3_client().upload_fileobj(
-        open(results2, "r"),
+        open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/results2.csv",
+    )
+    s3_client().upload_fileobj(
+        open(results3, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_glad}/daily_alerts/results3.csv",
     )
 
     s3_client().upload_fileobj(
