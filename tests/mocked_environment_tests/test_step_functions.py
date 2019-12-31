@@ -4,16 +4,17 @@ from mock import patch
 from moto import mock_s3, mock_emr, mock_secretsmanager
 import requests_mock
 
-import lambdas.submit_job.src.lambda_function as submit_job
-import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
-import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
-from datapump_utils.util import get_date_string, bucket_suffix
-from datapump_utils.summary_analysis import JobStatus, _instances
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,
     TEST_TASK_RESPONSE,
 )
+
+import lambdas.submit_job.src.lambda_function as submit_job
+import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
+import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
+from datapump_utils.util import get_date_string, bucket_suffix
+from datapump_utils.summary_analysis import JobStatus, _instances
 
 
 @mock_s3

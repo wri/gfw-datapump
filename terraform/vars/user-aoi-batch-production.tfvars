@@ -24,4 +24,4 @@ lambda_check_new_glad_alerts_runtime     = "python3.7"
 lambda_check_new_glad_alerts_memory_size = 1024
 lambda_check_new_glad_alerts_timeout     = 300
 
-geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.0.0-pre-f9b5a906a62d4ee09598d862abf418bed88277b1.jar"
+geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.0-pre-8e66cf6cb6a7e7470c95f9b6b813aaad8c132139.jar"
