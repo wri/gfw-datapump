@@ -152,8 +152,17 @@ def get_dataset_sources(results_path):
     keys = [object["Key"] for object in object_list["Contents"]]
     csv_keys = filter(lambda key: key.endswith(".csv"), keys)
 
+    # sometimes Spark creates empty partitions when it shuffles, but the GFW API will throw errors if you try
+    # to upload an empty file, so just remove these from the list
+    nonempty_csv_keys = []
+    for key in csv_keys:
+        meta = s3_client().head_object(Bucket=RESULT_BUCKET, Key=key)
+        if meta["ContentLength"] > 0:
+            nonempty_csv_keys.append(key)
+
     return [
-        "https://{}.s3.amazonaws.com/{}".format(RESULT_BUCKET, key) for key in csv_keys
+        "https://{}.s3.amazonaws.com/{}".format(RESULT_BUCKET, key)
+        for key in nonempty_csv_keys
     ]
 
 
