@@ -45,31 +45,37 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
     try:
         areas: Dict[str, Any] = get_pending_areas()
         geostore_ids: List[str] = get_geostore_ids(areas)
-        geostore: Dict[str, Any] = get_geostore(geostore_ids)
-        geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
-        geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
-
-        with geostore_to_wkb(geostore) as wkb:
-            s3_client().put_object(
-                Body=str.encode(wkb.getvalue()),
-                Bucket=geostore_bucket,
-                Key=geostore_path,
+        if geostore_ids:
+            geostore: Dict[str, Any] = get_geostore(geostore_ids)
+            geostore_path = (
+                f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
             )
+            geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-        LOGGER.info(f"Found {len(geostore['data'])} pending areas")
-        geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
-        return {
-            "status": "NEW_AREAS_FOUND",
-            "instance_size": "r4.2xlarge",
-            "instance_count": 1,
-            "feature_src": geostore_full_path,
-            "feature_type": "geostore",
-            "analyses": ["gladalerts", "annualupdate_minimal"],
-            "datasets": AOI_DATASETS,
-            "name": SUMMARIZE_NEW_AOIS_NAME,
-            "upload_type": "append",
-            "get_summary": True,
-        }
+            with geostore_to_wkb(geostore) as wkb:
+                s3_client().put_object(
+                    Body=str.encode(wkb.getvalue()),
+                    Bucket=geostore_bucket,
+                    Key=geostore_path,
+                )
+
+            LOGGER.info(f"Found {len(geostore['data'])} pending areas")
+            geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
+            return {
+                "status": "NEW_AREAS_FOUND",
+                "instance_size": "r4.2xlarge",
+                "instance_count": 1,
+                "feature_src": geostore_full_path,
+                "feature_type": "geostore",
+                "analyses": ["gladalerts", "annualupdate_minimal"],
+                "datasets": AOI_DATASETS,
+                "name": SUMMARIZE_NEW_AOIS_NAME,
+                "upload_type": "append",
+                "get_summary": True,
+            }
+        else:
+            slack_webhook("INFO", "No new user areas found. Doing nothing.")
+            return {"status": "NO_NEW_AREAS_FOUND"}
     except EmptyResponseException:
         slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return {"status": "NO_NEW_AREAS_FOUND"}
