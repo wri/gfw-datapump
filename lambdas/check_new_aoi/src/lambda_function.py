@@ -131,7 +131,7 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
     payload: Dict[str, List[str]] = {"geostores": geostore_ids}
     url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
-    r: Response = requests.post(url, data=payload, headers=headers)
+    r: Response = requests.post(url, json=payload, headers=headers)
 
     return r.json()
 
