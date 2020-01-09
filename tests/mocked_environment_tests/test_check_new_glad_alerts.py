@@ -65,7 +65,7 @@ def test_handler_alerts_found():
     result = handler({}, None)
     geostore_result = result["geostore"]
 
-    assert geostore_result["status"] == "NEW_ALERTS_FOUND"
+    assert result["status"] == "NEW_ALERTS_FOUND"
     assert geostore_result["upload_type"] == "data-overwrite"
     assert geostore_result["get_summary"] is False
     assert geostore_result["analyses"] == ["gladalerts"]

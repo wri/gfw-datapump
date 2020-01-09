@@ -3,7 +3,7 @@
   "States": {
     "Check For New Glad Alerts": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-check_new_glad_alerts-feature-update_geotrellis_jar",
+      "Resource": "${lambda_check_new_glad_alerts_arn}",
       "InputPath": "$",
       "ResultPath": "$",
       "Next": "Are There New Glad Alerts?"
@@ -36,15 +36,23 @@
               "Resource": "arn:aws:states:::states:startExecution.sync",
               "ResultPath": "$.geostore",
               "Parameters": {
-                "StateMachineArn": "arn:aws:states:us-east-1:563860007740:stateMachine:datapump-geotrellis_dataset-feature-update_geotrellis_jar",
+                "StateMachineArn": "${state_machine_arn}",
                 "Input": {
                    "Input.$": "$.geostore"
                 }
-              }
+              },
+              "Catch": [{
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "Stop Gracefully Geostore"
+              }]
+            },
+            "Stop Gracefully Geostore": {
+              "Type": "Succeed"
             }
           }
         },
-                {
+        {
           "StartAt": "Run Geotrellis Summary Update GADM",
           "States": {
             "Run Geotrellis Summary Update GADM": {
@@ -53,11 +61,19 @@
               "Resource": "arn:aws:states:::states:startExecution.sync",
               "ResultPath": "$.gadm",
               "Parameters": {
-                "StateMachineArn": "arn:aws:states:us-east-1:563860007740:stateMachine:datapump-geotrellis_dataset-feature-update_geotrellis_jar",
+                "StateMachineArn": "${state_machine_arn}",
                 "Input": {
                    "Input.$": "$.gadm"
                 }
-              }
+              },
+              "Catch": [{
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "Stop Gracefully GADM"
+              }]
+            },
+            "Stop Gracefully GADM": {
+              "Type": "Succeed"
             }
           }
         },
@@ -68,13 +84,21 @@
               "Type": "Task",
               "End": true,
               "Resource": "arn:aws:states:::states:startExecution.sync",
-              "ResultPath": "$.wpda",
+              "ResultPath": "$.wdpa",
               "Parameters": {
-                "StateMachineArn": "arn:aws:states:us-east-1:563860007740:stateMachine:datapump-geotrellis_dataset-feature-update_geotrellis_jar",
+                "StateMachineArn": "${state_machine_arn}",
                 "Input": {
-                   "Input.$": "$.wpda"
+                   "Input.$": "$.wdpa"
                 }
-              }
+              },
+              "Catch": [{
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "Stop Gracefully WDPA"
+              }]
+            },
+            "Stop Gracefully WDPA": {
+              "Type": "Succeed"
             }
           }
         }
