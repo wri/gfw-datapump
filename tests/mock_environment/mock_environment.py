@@ -14,20 +14,40 @@ os.environ[
     "GEOTRELLIS_JAR"
 ] = f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar"
 os.environ["GLAD_ALERTS_PATH"] = GLAD_ALERTS_PATH
-os.environ["AOI_DATASETS"] = json.dumps(
+os.environ["DATASETS"] = json.dumps(
     {
-        "gladalerts": {
-            "daily_alerts": "testid_daily_alerts_glad",
-            "weekly_alerts": "testid_weekly_alerts_glad",
-            "summary": "testid_summary_glad",
-            "whitelist": "testid_whitelist_glad",
+        "geostore": {
+            "gladalerts": {
+                "daily_alerts": "testid_daily_alerts_glad",
+                "weekly_alerts": "testid_weekly_alerts_glad",
+                "summary": "testid_summary_glad",
+                "whitelist": "testid_whitelist_glad",
+            },
+            "annualupdate_minimal": {
+                "change": "testid_change_tcl",
+                "summary": "testid_summary_tcl",
+                "whitelist": "testid_whitelist_tcl",
+            },
         },
-        "annualupdate_minimal": {
-            "change": "testid_change_tcl",
-            "summary": "testid_summary_tcl",
-            "whitelist": "testid_whitelist_tcl",
+        "gadm": {
+            "gladalerts": {
+                "iso": {"weekly_alerts": "testid_weekly_alerts_glad_iso",},
+                "adm1": {"weekly_alerts": "testid_weekly_alerts_glad_adm1",},
+                "adm2": {
+                    "daily_alerts": "testid_daily_alerts_glad_adm2",
+                    "weekly_alerts": "testid_weekly_alerts_glad_adm2",
+                },
+            },
         },
-    }
+        "wdpa": {
+            "gladalerts": {
+                "daily_alerts": "testid_daily_alerts_wdpa",
+                "weekly_alerts": "testid_weekly_alerts_wdpa",
+                "summary": "testid_summary_wdpa",
+                "whitelist": "testid_whitelist_wdpa",
+            },
+        },
+    },
 )
 os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet", "test_subnet"])
 os.environ["DEFAULT_SECURITY_GROUP_ID"] = "test_default_sg_id"

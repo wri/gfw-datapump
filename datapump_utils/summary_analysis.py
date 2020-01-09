@@ -172,14 +172,30 @@ def get_dataset_result_paths(result_dir, analyses, datasets, feature_type):
     )
     dataset_result_paths = dict()
 
-    for analysis in datasets.keys():
-        for aggregate in datasets[analysis].keys():
-            dataset = datasets[analysis][aggregate]
-            dataset_result_paths[dataset] = get_dataset_result_path(
-                analysis_result_paths[analysis], aggregate, feature_type
-            )
+    for analysis, ds_ids in datasets.items():
+        ds_keys = get_dataset_result_keys(ds_ids)
+        for key_path, ds_id in ds_keys:
+            dataset_result_paths[
+                ds_id
+            ] = f"{analysis_result_paths[analysis]}/{feature_type}/{key_path}"
 
     return dataset_result_paths
+
+
+def get_dataset_result_keys(ds_ids):
+    results = []
+
+    for dir_name, dir_val in ds_ids.items():
+        # if another dir, go deeper
+        if isinstance(dir_val, dict):
+            dir_keys = get_dataset_result_keys(dir_val)
+            results += [
+                (f"{dir_name}/{dir_path}", dir_id) for dir_path, dir_id in dir_keys
+            ]
+        else:
+            results.append((dir_name, dir_val))
+
+    return results
 
 
 def _run_job_flow(name, instances, steps, applications, configurations):

@@ -5,28 +5,54 @@ import os
 import json
 
 from datapump_utils.s3 import s3_client, get_s3_path_parts
-from datapump_utils.util import bucket_suffix
 
 NAME = "glad-alerts-aoi"
 GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
-AOI_DATASETS = json.loads(os.environ["AOI_DATASETS"])
+DATASETS = json.loads(os.environ["DATASETS"])
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
 
 
 def handler(event, context):
     new_alerts = check_for_new_glad_alerts_in_past_day()
+
     if new_alerts:
         return {
-            "status": "NEW_ALERTS_FOUND",
-            "instance_size": "r4.2xlarge",
-            "instance_count": 6,
-            "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
-            "feature_type": "geostore",
-            "analyses": ["gladalerts"],
-            "datasets": get_daily_glad_dataset_ids(),
-            "name": NAME,
-            "upload_type": "data-overwrite",
-            "get_summary": False,
+            "geostore": {
+                "status": "NEW_ALERTS_FOUND",
+                "instance_size": "r4.2xlarge",
+                "instance_count": 6,
+                "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
+                "feature_type": "geostore",
+                "analyses": ["gladalerts"],
+                "datasets": get_dataset_ids("geostore"),
+                "name": NAME,
+                "upload_type": "data-overwrite",
+                "get_summary": False,
+            },
+            "gadm": {
+                "status": "NEW_ALERTS_FOUND",
+                "instance_size": "r4.2xlarge",
+                "instance_count": 24,
+                "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
+                "feature_type": "gadm",
+                "analyses": ["gladalerts"],
+                "datasets": get_dataset_ids("gadm"),
+                "name": NAME,
+                "upload_type": "data-overwrite",
+                "get_summary": False,
+            },
+            "wdpa": {
+                "status": "NEW_ALERTS_FOUND",
+                "instance_size": "r4.2xlarge",
+                "instance_count": 24,
+                "feature_src": "s3://gfw-files/2018_update/tsv/wdpa_protected_areas_v201909_1_1.tsv",
+                "feature_type": "wdpa",
+                "analyses": ["wdpa"],
+                "datasets": get_dataset_ids("wdpa"),
+                "name": NAME,
+                "upload_type": "data-overwrite",
+                "get_summary": False,
+            },
         }
     else:
         return {"status": "NO_NEW_ALERTS_FOUND"}
@@ -44,15 +70,21 @@ def check_for_new_glad_alerts_in_past_day():
     return all(one_day_ago <= dt <= _now() for dt in last_modified_datetimes)
 
 
-def get_daily_glad_dataset_ids():
-    datasets = dict()
-    datasets["gladalerts"] = deepcopy(
-        AOI_DATASETS["gladalerts"]
-    )  # only want to update glad alerts
-    del datasets["gladalerts"]["summary"]  # don't need to update summary daily
-    del datasets["gladalerts"]["whitelist"]
+def get_dataset_ids(feature_type):
+    dataset_ids = dict()
 
-    return datasets
+    feature_datasets = DATASETS[feature_type]
+    dataset_ids["gladalerts"] = deepcopy(
+        feature_datasets["gladalerts"]
+    )  # only want to update glad alerts
+
+    if "summary" in dataset_ids["gladalerts"]:
+        del dataset_ids["gladalerts"]["summary"]  # don't need to update summary daily
+
+    if "whitelist" in dataset_ids["gladalerts"]:
+        del dataset_ids["gladalerts"]["whitelist"]  # whitelist is based on summary
+
+    return dataset_ids
 
 
 def _now():
