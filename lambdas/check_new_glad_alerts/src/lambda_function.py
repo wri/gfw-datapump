@@ -6,7 +6,6 @@ import json
 
 from datapump_utils.s3 import s3_client, get_s3_path_parts
 
-NAME = "glad-alerts-aoi"
 GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
 DATASETS = json.loads(os.environ["DATASETS"])
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
@@ -17,39 +16,37 @@ def handler(event, context):
 
     if new_alerts:
         return {
+            "status": "NEW_ALERTS_FOUND",
             "geostore": {
-                "status": "NEW_ALERTS_FOUND",
                 "instance_size": "r4.2xlarge",
                 "instance_count": 6,
                 "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
                 "feature_type": "geostore",
                 "analyses": ["gladalerts"],
                 "datasets": get_dataset_ids("geostore"),
-                "name": NAME,
+                "name": "glad-alerts-geostore",
                 "upload_type": "data-overwrite",
                 "get_summary": False,
             },
             "gadm": {
-                "status": "NEW_ALERTS_FOUND",
                 "instance_size": "r4.2xlarge",
                 "instance_count": 24,
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["gladalerts"],
                 "datasets": get_dataset_ids("gadm"),
-                "name": NAME,
+                "name": "glad-alerts-gadm",
                 "upload_type": "data-overwrite",
                 "get_summary": False,
             },
             "wdpa": {
-                "status": "NEW_ALERTS_FOUND",
                 "instance_size": "r4.2xlarge",
                 "instance_count": 24,
                 "feature_src": "s3://gfw-files/2018_update/tsv/wdpa_protected_areas_v201909_1_1.tsv",
                 "feature_type": "wdpa",
-                "analyses": ["wdpa"],
+                "analyses": ["gladalerts"],
                 "datasets": get_dataset_ids("wdpa"),
-                "name": NAME,
+                "name": "glad-alerts-wdpa",
                 "upload_type": "data-overwrite",
                 "get_summary": False,
             },
