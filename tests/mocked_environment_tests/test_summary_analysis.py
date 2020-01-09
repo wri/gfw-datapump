@@ -12,6 +12,7 @@ from datapump_utils.summary_analysis import (
     check_analysis_success,
     get_dataset_result_paths,
     get_dataset_sources,
+    get_dataset_result_keys,
     _run_job_flow,
     _instances,
     _configurations,
@@ -184,6 +185,56 @@ def test_get_dataset_result_paths():
 
     assert dataset_result_paths["testid_change_tcl"] == f"{results_tcl}/change"
     assert dataset_result_paths["testid_summary_tcl"] == f"{results_tcl}/summary"
+
+
+def test_get_dataset_result_keys():
+    dataset_ids_geostore = {
+        "gladalerts": {
+            "daily_alerts": "testid_daily_alerts_glad",
+            "weekly_alerts": "testid_weekly_alerts_glad",
+            "summary": "testid_summary_glad",
+        },
+    }
+
+    dataset_ids_gadm = {
+        "gladalerts": {
+            "iso": {
+                "daily_alerts": "testid_daily_alerts_glad_iso",
+                "weekly_alerts": "testid_weekly_alerts_glad_iso",
+                "summary": "testid_summary_glad_iso",
+            },
+            "adm1": {
+                "daily_alerts": "testid_daily_alerts_glad_adm1",
+                "weekly_alerts": "testid_weekly_alerts_glad_adm1",
+                "summary": "testid_summary_glad_adm1",
+            },
+            "adm2": {
+                "daily_alerts": "testid_daily_alerts_glad_adm2",
+                "weekly_alerts": "testid_weekly_alerts_glad_adm2",
+                "summary": "testid_summary_glad_adm2",
+            },
+        },
+    }
+
+    result_keys_geostore = get_dataset_result_keys(dataset_ids_geostore["gladalerts"])
+    assert result_keys_geostore == [
+        ("daily_alerts", "testid_daily_alerts_glad"),
+        ("weekly_alerts", "testid_weekly_alerts_glad"),
+        ("summary", "testid_summary_glad"),
+    ]
+
+    result_keys_gadm = get_dataset_result_keys(dataset_ids_gadm["gladalerts"])
+    assert result_keys_gadm == [
+        ("iso/daily_alerts", "testid_daily_alerts_glad_iso"),
+        ("iso/weekly_alerts", "testid_weekly_alerts_glad_iso"),
+        ("iso/summary", "testid_summary_glad_iso"),
+        ("adm1/daily_alerts", "testid_daily_alerts_glad_adm1"),
+        ("adm1/weekly_alerts", "testid_weekly_alerts_glad_adm1"),
+        ("adm1/summary", "testid_summary_glad_adm1"),
+        ("adm2/daily_alerts", "testid_daily_alerts_glad_adm2"),
+        ("adm2/weekly_alerts", "testid_weekly_alerts_glad_adm2"),
+        ("adm2/summary", "testid_summary_glad_adm2"),
+    ]
 
 
 def _steps():
