@@ -5,6 +5,7 @@ import shapely.wkb
 from datapump_utils.util import secret_suffix, bucket_suffix
 
 from lambdas.check_new_aoi.src.lambda_function import (
+    handler,
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,
@@ -576,3 +577,7 @@ def test_intersecting_polygons():
             geom = shapely.wkb.loads(bytes.fromhex(cols[1]))
 
             assert geom.type == "Polygon" or geom.type == "MultiPolygon"
+
+
+def test_handler():
+    handler(None, None)

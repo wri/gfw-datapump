@@ -81,7 +81,7 @@ resource "aws_lambda_function" "check_new_aoi" {
       ENV                = var.environment
       S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
       S3_BUCKET_DATALAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
-      AOI_DATASETS    = jsonencode(var.aoi_datasets)
+      DATASETS    = jsonencode(var.datasets)
     }
   }
 }
@@ -122,7 +122,7 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
     variables = {
       ENV                = var.environment
       S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
-      AOI_DATASETS       = jsonencode(var.aoi_datasets)
+      DATASETS       = jsonencode(var.datasets)
       GLAD_ALERTS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
     }
   }

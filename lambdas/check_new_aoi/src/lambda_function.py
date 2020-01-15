@@ -28,9 +28,7 @@ else:
 LOGGER = get_logger(__name__)
 SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
 DIRNAME = os.path.dirname(__file__)
-AOI_DATASETS = (
-    json.loads(os.environ["AOI_DATASETS"]) if "AOI_DATASETS" in os.environ else dict()
-)
+DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -68,7 +66,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                 "feature_src": geostore_full_path,
                 "feature_type": "geostore",
                 "analyses": ["gladalerts", "annualupdate_minimal"],
-                "datasets": AOI_DATASETS,
+                "datasets": DATASETS["geostore"],
                 "name": SUMMARIZE_NEW_AOIS_NAME,
                 "upload_type": "append",
                 "get_summary": True,
