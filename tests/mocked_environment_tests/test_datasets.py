@@ -1,6 +1,7 @@
 import pytest
 from moto import mock_secretsmanager, mock_s3
 from requests_mock.exceptions import NoMockAddress
+from mock import patch
 
 from datapump_utils.dataset import (
     upload_dataset,
@@ -40,8 +41,11 @@ def test_get_headers():
 
 @mock_s3
 @mock_secretsmanager
-def test_upload_dataset(requests_mock):
+@patch("datapump_utils.dataset._get_legend")
+def test_upload_dataset(mock_get_legend, requests_mock):
     mock_environment()
+    mock_get_legend.return_value = {}
+
     requests_mock.post(
         "https://staging-api.globalforestwatch.org/v1/dataset/test_id/data-overwrite",
         status_code=204,

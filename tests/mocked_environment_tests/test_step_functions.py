@@ -49,8 +49,10 @@ def test_geotrellis_summary_update():
 @mock_s3
 @mock_emr
 @mock_secretsmanager
-def test_geotrellis_summary_create():
+@patch("datapump_utils.dataset._get_legend")
+def test_geotrellis_summary_create(mock_get_legend):
     mock_environment()
+    mock_get_legend.return_value = {}
 
     input_params = {
         "name": NAME,
