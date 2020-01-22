@@ -20,6 +20,9 @@ AOI_UPDATED_STATUS = "saved"
 
 
 def handler(event, context):
+    event = json.loads(
+        event["Output"]
+    )  # workaround because nested step functions serialize the output
     try:
         aoi_src = event["feature_src"]
 
