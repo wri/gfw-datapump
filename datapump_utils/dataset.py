@@ -1,5 +1,8 @@
 import requests
 import json
+import urllib.request
+import csv
+import io
 
 from datapump_utils.secrets import token
 from datapump_utils.util import api_prefix, get_date_string
@@ -59,6 +62,11 @@ def update_dataset(dataset_id, source_urls, upload_type):
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/{upload_type}"
 
     payload = _get_upload_dataset_payload(source_urls)
+
+    # data overwrite needs legend parameter since we're overwriting whole schema
+    if upload_type == "data-overwrite":
+        payload["legend"] = _get_legend(source_urls[0])
+
     r = requests.post(url, data=json.dumps(payload), headers=_get_headers())
 
     if r.status_code != 204:
@@ -100,12 +108,14 @@ def create_dataset(name, source_urls):
         "Authorization": f"Bearer {token()}",
     }
 
+    legend = _get_legend(source_urls[0])
     payload = {
         "provider": "tsv",
         "connectorType": "document",
         "application": ["gfw"],
         "name": name,
         "sources": source_urls,
+        "legend": legend,
     }
 
     r = requests.post(url, data=json.dumps(payload), headers=headers)
@@ -117,6 +127,37 @@ def create_dataset(name, source_urls):
             "Data upload failed - received status code {}: "
             "Message: {}".format(r.status_code, r.json)
         )
+
+
+def _get_legend(source_url):
+    src_url_open = urllib.request.urlopen(source_url)
+    src_csv = csv.reader(
+        io.TextIOWrapper(src_url_open, encoding="utf-8"), delimiter="\t"
+    )
+    header_row = next(src_csv)
+
+    legend = dict()
+    for col in header_row:
+        legend_type = get_legend_type(col)
+        if legend_type in legend:
+            legend[legend_type].append(col)
+        else:
+            legend[legend_type] = [col]
+
+    return legend
+
+
+def get_legend_type(field):
+    if field.endswith("__Mg") or field.endswith("__ha"):
+        return "double"
+    elif (
+        field.endswith("__threshold")
+        or field.endswith("__count")
+        or field == "treecover_loss__year"
+    ):
+        return "integer"
+    else:
+        return "keyword"
 
 
 def _get_headers():
