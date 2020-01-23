@@ -120,8 +120,10 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
-      ENV                   = var.environment
-      S3_BUCKET_DATA_LAKE   = data.terraform_remote_state.core.outputs.data-lake_bucket
+      ENV                = var.environment
+      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
+      DATASETS       = jsonencode(var.datasets)
+      GLAD_ALERTS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
     }
   }
 }
@@ -140,10 +142,9 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
-      ENV                = var.environment
-      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
-      DATASETS       = jsonencode(var.datasets)
-      GLAD_ALERTS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/analysis"
+      ENV                 = var.environment
+      S3_BUCKET_PIPELINE  = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_DATA_LAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
     }
   }
 }
