@@ -53,6 +53,7 @@ os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet", "test_subnet"])
 os.environ["EC2_KEY_NAME"] = "test_ec2_key_name"
 os.environ["EMR_INSTANCE_PROFILE"] = "TEST_EMR_INSTANCE_PROFILE"
 os.environ["EMR_SERVICE_ROLE"] = "TEST_SERVICE_ROLE"
+os.environ["S3_BUCKET_DATA_LAKE"] = "test_datalake_bucket"
 
 
 def mock_environment():
@@ -68,6 +69,8 @@ def mock_environment():
 def _mock_s3_setup():
     pipeline_bucket = f"gfw-pipelines{bucket_suffix()}"
     s3_client().create_bucket(Bucket=pipeline_bucket)
+    s3_client().create_bucket(Bucket=os.environ["S3_BUCKET_DATA_LAKE"])
+
     with open(os.path.join(CURDIR, "mock_files/test1.jar"), "r") as test1_jar:
         s3_client().upload_fileobj(
             test1_jar, Bucket=pipeline_bucket, Key="geotrellis/jars/test1.jar"

@@ -111,7 +111,27 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   filename         = data.archive_file.lambda_check_new_glad_alerts.output_path
   source_code_hash = data.archive_file.lambda_check_new_glad_alerts.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
-  runtime          = var.lambda_check_new_glad_alerts_runtime
+  runtime          = var.lambda_get_latest_fire_alerts_runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_get_latest_fire_alerts_memory_size
+  timeout          = var.lambda_get_latest_fire_alerts_timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_utils_arn]
+  environment {
+    variables = {
+      ENV                   = var.environment
+      S3_BUCKET_DATA_LAKE   = data.terraform_remote_state.core.outputs.data-lake_bucket
+    }
+  }
+}
+
+resource "aws_lambda_function" "get_latest_fire_alerts" {
+  function_name    = substr("${local.project}-get_latest_fire_alerts${local.name_suffix}",0, 64)
+  filename         = data.archive_file.lambda_get_latest_fire_alerts.output_path
+  source_code_hash = data.archive_file.lambda_get_latest_fire_alerts.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_get_latest_fire_alerts_runtime
   handler          = "lambda_function.handler"
   memory_size      = var.lambda_check_new_glad_alerts_memory_size
   timeout          = var.lambda_check_new_glad_alerts_timeout

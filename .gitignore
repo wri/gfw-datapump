@@ -43,3 +43,6 @@ terraform/.terraform/*
 *.tfplan
 .coverage
 coverage.xml
+
+*.tsv
+*.geojson
