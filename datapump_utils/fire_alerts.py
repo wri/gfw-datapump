@@ -16,6 +16,12 @@ PIPELINE_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 
 def process_active_fire_alerts(alert_type):
     response = requests.get(ACTIVE_FIRE_ALERTS_24HR_CSV_URLS[alert_type])
+
+    if response.status_code != 200:
+        raise Exception(
+            f"Unable to get active {alert_type} fire alerts, FIRMS returned status code {response.status_code}"
+        )
+
     csv_reader = csv.DictReader(response.text.splitlines(), delimiter=",")
 
     result_name = f"{alert_type}_{get_date_string()}"
