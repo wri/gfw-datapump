@@ -11,6 +11,7 @@ ACTIVE_FIRE_ALERTS_24HR_CSV_URLS = {
     "VIIRS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/viirs/csv/VNP14IMGTDL_NRT_Global_24h.csv",
 }
 DATA_LAKE_BUCKET = os.environ["S3_BUCKET_DATA_LAKE"]
+PIPELINE_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 
 
 def process_active_fire_alerts(alert_type):
@@ -18,7 +19,6 @@ def process_active_fire_alerts(alert_type):
     csv_reader = csv.DictReader(response.text.splitlines(), delimiter=",")
 
     result_name = f"{alert_type}_{get_date_string()}"
-    key = f"{alert_type}_active_fire_alerts/vector/espg-4326/{result_name}"
 
     tsv_file = open(f"{result_name}.tsv", "w", newline="")
     tsv_writer = csv.DictWriter(
@@ -46,11 +46,13 @@ def process_active_fire_alerts(alert_type):
 
     # upload both files to s3
     with open(f"{result_name}.tsv", "rb") as tsv_result:
-        s3_client().upload_fileobj(
-            tsv_result, Bucket=DATA_LAKE_BUCKET, Key=f"{key}.tsv"
-        )
+        pipeline_key = f"features/{alert_type}_active_fire_alerts/{result_name}.tsv"
+        s3_client().upload_fileobj(tsv_result, Bucket=PIPELINE_BUCKET, Key=pipeline_key)
 
     with open(f"{result_name}.geojson", "rb") as geojson_result:
+        data_lake_key = (
+            f"{alert_type}_active_fire_alerts/vector/espg-4326/{result_name}.geojson"
+        )
         s3_client().upload_fileobj(
-            geojson_result, Bucket=DATA_LAKE_BUCKET, Key=f"{key}.geojson"
+            geojson_result, Bucket=DATA_LAKE_BUCKET, Key=data_lake_key
         )

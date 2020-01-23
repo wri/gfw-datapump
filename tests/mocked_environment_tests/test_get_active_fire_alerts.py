@@ -1,6 +1,7 @@
 import csv
 import geojson
 import pytest
+import os
 from moto import mock_s3, mock_secretsmanager
 
 from tests.mock_environment.mock_environment import mock_environment
@@ -48,11 +49,11 @@ def test_get_active_fire_alerts(alert_type, requests_mock):
                 )
 
     assert s3_client().head_object(
-        Bucket="test_datalake_bucket",
-        Key=f"{alert_type}_active_fire_alerts/vector/espg-4326/{result_name}.tsv",
+        Bucket=os.environ["S3_BUCKET_PIPELINE"],
+        Key=f"features/{alert_type}_active_fire_alerts/{result_name}.tsv",
     )
     assert s3_client().head_object(
-        Bucket="test_datalake_bucket",
+        Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
         Key=f"{alert_type}_active_fire_alerts/vector/espg-4326/{result_name}.geojson",
     )
 
