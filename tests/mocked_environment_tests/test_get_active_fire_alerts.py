@@ -28,33 +28,17 @@ def test_get_active_fire_alerts(alert_type, requests_mock):
     process_active_fire_alerts(alert_type)
     result_name = f"{alert_type}_{get_date_string()}"
     with open(f"{result_name}.tsv", "r") as tsv_result_file:
-        with open(f"{result_name}.geojson", "r") as geojson_result_file:
-            tsv_result = csv.DictReader(
-                tsv_result_file.read().splitlines(), delimiter="\t"
-            )
-            expected_result = csv.DictReader(test_response.splitlines(), delimiter=",")
-            geojson_result = geojson.load(geojson_result_file)
+        tsv_result = csv.DictReader(tsv_result_file.read().splitlines(), delimiter="\t")
+        expected_result = csv.DictReader(test_response.splitlines(), delimiter=",")
 
-            for result_row, expected_row, feature in zip(
-                tsv_result, expected_result, geojson_result.features
-            ):
-                assert result_row["latitude"] == expected_row["latitude"]
-                assert result_row["longitude"] == expected_row["longitude"]
-
-                assert feature.geometry.coordinates[0] == float(
-                    expected_row["longitude"]
-                )
-                assert feature.geometry.coordinates[1] == float(
-                    expected_row["latitude"]
-                )
+        for result_row, expected_row in zip(tsv_result, expected_result):
+            assert result_row["latitude"] == expected_row["latitude"]
+            assert result_row["longitude"] == expected_row["longitude"]
+            assert result_row["acq_date"] == expected_row["acq_date"]
 
     assert s3_client().head_object(
         Bucket=os.environ["S3_BUCKET_PIPELINE"],
-        Key=f"features/{alert_type}_active_fire_alerts/{result_name}.tsv",
-    )
-    assert s3_client().head_object(
-        Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"{alert_type}_active_fire_alerts/vector/espg-4326/{result_name}.geojson",
+        Key=f"{alert_type}_active_fire_alerts/vector/espg-4326/tsv/{result_name}.tsv",
     )
 
 
