@@ -187,6 +187,22 @@ def _mock_s3_setup():
         Key=f"{glad_alerts_prefix}/tile2.tif",
     )
 
+    s3_client().upload_fileobj(
+        open(
+            os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
+        ),
+        Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
+        Key=f"nasa_modis_fire_alerts/v6/vector/espg-4326/nrt/2020-01-20-0030_2020-01-20-0040.tsv",
+    )
+
+    s3_client().upload_fileobj(
+        open(
+            os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
+        ),
+        Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
+        Key=f"nasa_modis_fire_alerts/v6/vector/espg-4326/nrt/2020-01-21-0010_2020-01-21-0028.tsv",
+    )
+
 
 def _mock_secrets():
     client = boto3.client("secretsmanager", region_name="us-east-1")

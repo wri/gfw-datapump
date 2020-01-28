@@ -1,16 +1,15 @@
 import csv
-import geojson
 import pytest
 import os
 from moto import mock_s3, mock_secretsmanager
 
 from tests.mock_environment.mock_environment import mock_environment
 
-from datapump_utils.util import get_date_string
 from datapump_utils.s3 import s3_client
 from datapump_utils.fire_alerts import (
     process_active_fire_alerts,
-    ACTIVE_FIRE_ALERTS_24HR_CSV_URLS,
+    ACTIVE_FIRE_ALERTS_48HR_CSV_URLS,
+    VERSIONS,
 )
 
 
@@ -22,25 +21,33 @@ def test_get_active_fire_alerts(alert_type, requests_mock):
 
     test_response = TEST_FIRE_ALERT_RESPONSE[alert_type]
     requests_mock.get(
-        url=ACTIVE_FIRE_ALERTS_24HR_CSV_URLS[alert_type], text=test_response
+        url=ACTIVE_FIRE_ALERTS_48HR_CSV_URLS[alert_type], text=test_response
     )
 
     process_active_fire_alerts(alert_type)
-    result_name = f"{alert_type}_{get_date_string()}"
-    with open(f"{result_name}.tsv", "r") as tsv_result_file:
-        tsv_result = csv.DictReader(tsv_result_file.read().splitlines(), delimiter="\t")
-        expected_result = csv.DictReader(test_response.splitlines(), delimiter=",")
+    with open(f"fire_alerts_{alert_type.lower()}.tsv", "r") as tsv_result_file:
+        tsv_result = csv.DictReader(tsv_result_file, delimiter="\t")
+        first_row = next(tsv_result)
 
-        for result_row, expected_row in zip(tsv_result, expected_result):
-            assert result_row["latitude"] == expected_row["latitude"]
-            assert result_row["longitude"] == expected_row["longitude"]
-            assert result_row["acq_date"] == expected_row["acq_date"]
+        assert first_row["acq_time"] == TEST_FIRST_ROW_RESULTS[alert_type]["acq_time"]
+        assert first_row["latitude"] == TEST_FIRST_ROW_RESULTS[alert_type]["latitude"]
+        assert first_row["longitude"] == TEST_FIRST_ROW_RESULTS[alert_type]["longitude"]
 
     assert s3_client().head_object(
-        Bucket=os.environ["S3_BUCKET_PIPELINE"],
-        Key=f"{alert_type}_active_fire_alerts/vector/espg-4326/tsv/{result_name}.tsv",
+        Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
+        Key=f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/espg-4326/nrt/{TEST_S3_NAMES[alert_type]}.tsv",
     )
 
+
+TEST_FIRST_ROW_RESULTS = {
+    "MODIS": {"acq_time": "0029", "latitude": "-27.095", "longitude": "145.798"},
+    "VIIRS": {"acq_time": "0036", "latitude": "65.76917", "longitude": "24.18936"},
+}
+
+TEST_S3_NAMES = {
+    "MODIS": "2020-01-21-0029_2020-01-21-0030",
+    "VIIRS": "2020-01-22-0036_2020-01-22-0042",
+}
 
 TEST_FIRE_ALERT_RESPONSE = {
     "MODIS": """latitude,longitude,brightness,scan,track,acq_date,acq_time,satellite,confidence,version,bright_t31,frp,daynight
@@ -74,6 +81,7 @@ TEST_FIRE_ALERT_RESPONSE = {
 -25.647,150.53,327.4,1.5,1.2,2020-01-21,0025,T,70,6.0NRT,302.5,21.3,D
 -26.062,147.095,345.1,1,1,2020-01-21,0025,T,88,6.0NRT,317.8,28.9,D
 -26.095,146.798,337.9,1,1,2020-01-21,0025,T,79,6.0NRT,318.2,18.9,D
+-27.095,145.798,337.9,1,1,2020-01-21,0029,T,79,6.0NRT,318.2,18.9,D
 """,
     "VIIRS": """latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,confidence,version,bright_ti5,frp,daynight
 65.76917,24.18936,338.9,0.43,0.38,2020-01-22,0036,N,nominal,1.0NRT,272,6,N
