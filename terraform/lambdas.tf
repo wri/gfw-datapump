@@ -143,7 +143,6 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   environment {
     variables = {
       ENV                 = var.environment
-      S3_BUCKET_PIPELINE  = data.terraform_remote_state.core.outputs.pipelines_bucket
       S3_BUCKET_DATA_LAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
     }
   }
