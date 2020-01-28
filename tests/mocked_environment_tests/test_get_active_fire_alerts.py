@@ -35,7 +35,7 @@ def test_get_active_fire_alerts(alert_type, requests_mock):
 
     assert s3_client().head_object(
         Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/near_real_time/{TEST_S3_NAMES[alert_type]}.tsv",
+        Key=f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time/{TEST_S3_NAMES[alert_type]}.tsv",
     )
 
 

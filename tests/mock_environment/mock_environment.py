@@ -192,7 +192,7 @@ def _mock_s3_setup():
             os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
         ),
         Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/near_real_time/2020-01-20-0030_2020-01-20-0040.tsv",
+        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-20-0030_2020-01-20-0040.tsv",
     )
 
     s3_client().upload_fileobj(
@@ -200,7 +200,7 @@ def _mock_s3_setup():
             os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
         ),
         Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/near_real_time/2020-01-21-0010_2020-01-21-0028.tsv",
+        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-21-0010_2020-01-21-0028.tsv",
     )
 
 

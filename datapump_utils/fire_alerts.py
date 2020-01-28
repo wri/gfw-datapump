@@ -49,7 +49,7 @@ def process_active_fire_alerts(alert_type):
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
     tsv_writer.writeheader()
 
-    nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/near_real_time"
+    nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time"
     last_saved_date, last_saved_min = _get_last_saved_alert_time(nrt_s3_directory)
 
     first_row = None
