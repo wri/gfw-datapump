@@ -33,3 +33,9 @@ data "archive_file" "lambda_check_new_glad_alerts" {
   source_dir  = "../lambdas/check_new_glad_alerts/src"
   output_path = "../lambdas/check_new_glad_alerts/lambda.zip"
 }
+
+data "archive_file" "lambda_get_latest_fire_alerts" {
+  type        = "zip"
+  source_dir  = "../lambdas/get_latest_fire_alerts/src"
+  output_path = "../lambdas/get_latest_fire_alerts/lambda.zip"
+}

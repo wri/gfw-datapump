@@ -43,3 +43,5 @@ terraform/.terraform/*
 *.tfplan
 .coverage
 coverage.xml
+
+tests/mocked_environment_tests/*.tsv

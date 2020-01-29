@@ -9,5 +9,9 @@ setup(
     license="MIT",
     # only list requirements for datapump_utils here
     # place requirements of lambda functions into requirement-dev.txt
-    install_requires=["boto3~=1.10.7", "requests~=2.22.0",],  # noqa: E231
+    install_requires=[
+        "boto3~=1.10.7",
+        "requests~=2.22.0",
+        "geojson~=2.5.0",
+    ],  # noqa: E231
 )

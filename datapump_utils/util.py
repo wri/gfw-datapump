@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 import os
 
 from datapump_utils.logger import get_logger
@@ -12,8 +12,7 @@ else:
 
 
 def get_date_string():
-    today = datetime.datetime.today()
-    return "{}{}{}".format(today.year, today.month, today.day)
+    return date.today().strftime("%Y-%m-%d")
 
 
 def secret_suffix() -> str:
