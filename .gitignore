@@ -44,5 +44,4 @@ terraform/.terraform/*
 .coverage
 coverage.xml
 
-*.tsv
-*.geojson
+tests/mocked_environment_tests/*.tsv
