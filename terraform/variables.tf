@@ -33,6 +33,11 @@ variable "lambda_update_new_aoi_statuses_runtime" {
   description = "Runtime version for AWS Lambda"
 }
 
+variable "lambda_get_latest_fire_alerts_runtime" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
 variable "lambda_submit_job_memory_size" {
   type        = number
   description = "Memory limit in MB for AWS Lambda function"
@@ -63,6 +68,12 @@ variable "lambda_update_new_aoi_statuses_memory_size" {
   description = "Memory limit in MB for AWS Lambda function"
 }
 
+variable "lambda_get_latest_fire_alerts_memory_size" {
+  type        = number
+  description = "Memory limit in MB for AWS Lambda function"
+}
+
+
 variable "lambda_submit_job_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
@@ -89,6 +100,11 @@ variable "lambda_check_new_glad_alerts_timeout" {
 }
 
 variable "lambda_update_new_aoi_statuses_timeout" {
+  type        = number
+  description = "Timeout in sec for AWS Lambda function"
+}
+
+variable "lambda_get_latest_fire_alerts_timeout" {
   type        = number
   description = "Timeout in sec for AWS Lambda function"
 }
