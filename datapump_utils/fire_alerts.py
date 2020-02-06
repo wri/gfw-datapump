@@ -2,7 +2,7 @@ import requests
 import csv
 import os
 
-from datapump_utils.util import get_date_string
+from datapump_utils.s3 import get_s3_path
 from datapump_utils.s3 import s3_client
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
@@ -45,7 +45,7 @@ def process_active_fire_alerts(alert_type):
 
     result_name = f"fire_alerts_{alert_type.lower()}"
 
-    tsv_file = open(f"{result_name}.tsv", "w", newline="")
+    tsv_file = open(f"/tmp/{result_name}.tsv", "w", newline="")
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
     tsv_writer.writeheader()
 
@@ -65,11 +65,13 @@ def process_active_fire_alerts(alert_type):
 
     # upload both files to s3
     file_name = f"{first_row['acq_date']}-{first_row['acq_time']}_{last_row['acq_date']}-{last_row['acq_time']}.tsv"
-    with open(f"{result_name}.tsv", "rb") as tsv_result:
+    with open(f"/tmp/{result_name}.tsv", "rb") as tsv_result:
         pipeline_key = f"{nrt_s3_directory}/{file_name}"
         s3_client().upload_fileobj(
             tsv_result, Bucket=DATA_LAKE_BUCKET, Key=pipeline_key
         )
+
+    return get_s3_path(DATA_LAKE_BUCKET, pipeline_key)
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):
