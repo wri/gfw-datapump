@@ -36,6 +36,14 @@ data "template_file" "sfn_summarize_new_glad_alerts" {
   }
 }
 
+data "template_file" "sfn_summarize_new_fire_alerts" {
+  template = file("../step_functions/new_fire_alerts.json")
+  vars = {
+    lambda_get_latest_fire_alerts_arn  = aws_lambda_function.get_latest_fire_alerts.arn,
+    state_machine_arn                 =  aws_sfn_state_machine.geotrellis_dataset.id
+  }
+}
+
 data "terraform_remote_state" "core" {
   backend = "s3"
   config = {

@@ -35,7 +35,14 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
 
 
 def get_summary_analysis_step(
-    analysis, feature_url, result_url, jar, feature_type="feature", get_summary=True
+    analysis,
+    feature_url,
+    result_url,
+    jar,
+    feature_type="feature",
+    get_summary=True,
+    fire_src=None,
+    fire_type=None,
 ):
     step_args = [
         "spark-submit",
@@ -62,6 +69,10 @@ def get_summary_analysis_step(
     if not get_summary:
         step_args.append("--change_only")
 
+    if fire_src and fire_type:
+        step_args.append("--fire_alerts_type", fire_type)
+        step_args.append("--fire_alerts_src", fire_src)
+
     return {
         "Name": analysis,
         "ActionOnFailure": "TERMINATE_CLUSTER",
@@ -70,7 +81,13 @@ def get_summary_analysis_step(
 
 
 def get_summary_analysis_steps(
-    analyses, feature_src, feature_type, result_dir, get_summary
+    analyses,
+    feature_src,
+    feature_type,
+    result_dir,
+    get_summary=False,
+    fire_src=None,
+    fire_type=None,
 ):
     latest_jar = _get_latest_geotrellis_jar()
     steps = []
@@ -79,7 +96,14 @@ def get_summary_analysis_steps(
         result_url = get_s3_path(RESULT_BUCKET, result_dir)
         steps.append(
             get_summary_analysis_step(
-                analysis, feature_src, result_url, latest_jar, feature_type, get_summary
+                analysis,
+                feature_src,
+                result_url,
+                latest_jar,
+                feature_type,
+                get_summary,
+                fire_src,
+                fire_type,
             )
         )
 
