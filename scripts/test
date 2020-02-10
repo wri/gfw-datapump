@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+pytest --cov-report term --cov-report xml --cov=lambdas --cov=datapump_utils tests/test_environment_tests/
+pytest --cov-report term --cov-report xml --cov=lambdas --cov=datapump_utils tests/mocked_environment_tests/

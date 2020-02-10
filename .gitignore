@@ -1,0 +1,47 @@
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+*.pyc
+node_modules/
+
+# Serverless directories
+.serverless
+
+# pycharm
+.idea/
+.DS_Store
+
+# environment files
+.env
+.envrc
+
+# any calculated raster stats
+*.tif.aux.xml
+
+lambda.zip
+lambda/
+.mypy_cache/*
+venv*
+package.zip
+test/test_data/*
+*.zip
+terraform/.terraform/*
+*.tfplan
+.coverage
+coverage.xml
+
+tests/mocked_environment_tests/*.tsv

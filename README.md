@@ -1,2 +1,3 @@
-# gfw-user-aoi-batch
-Nightly batch process to generate summary statistics for user AOIs 
+# GFW Data Pump
+
+Step and Lambda functions for updating GFW data
