@@ -43,9 +43,9 @@ def process_active_fire_alerts(alert_type):
     fields += BRIGHTNESS_FIELDS[alert_type]
     fields.append("frp")
 
-    result_name = f"fire_alerts_{alert_type.lower()}"
+    result_path = _get_temp_result_path(alert_type)
 
-    tsv_file = open(f"/tmp/{result_name}.tsv", "w", newline="")
+    tsv_file = open(result_path, "w", newline="")
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
     tsv_writer.writeheader()
 
@@ -65,13 +65,17 @@ def process_active_fire_alerts(alert_type):
 
     # upload both files to s3
     file_name = f"{first_row['acq_date']}-{first_row['acq_time']}_{last_row['acq_date']}-{last_row['acq_time']}.tsv"
-    with open(f"/tmp/{result_name}.tsv", "rb") as tsv_result:
+    with open(result_path, "rb") as tsv_result:
         pipeline_key = f"{nrt_s3_directory}/{file_name}"
         s3_client().upload_fileobj(
             tsv_result, Bucket=DATA_LAKE_BUCKET, Key=pipeline_key
         )
 
     return get_s3_path(DATA_LAKE_BUCKET, pipeline_key)
+
+
+def _get_temp_result_path(alert_type):
+    return f"/tmp/fire_alerts_{alert_type.lower()}.tsv"
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):

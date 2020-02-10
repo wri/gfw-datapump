@@ -2,6 +2,7 @@ import csv
 import pytest
 import os
 from moto import mock_s3, mock_secretsmanager
+from mock import patch
 
 from tests.mock_environment.mock_environment import mock_environment
 
@@ -15,9 +16,12 @@ from datapump_utils.fire_alerts import (
 
 @mock_secretsmanager
 @mock_s3
+@patch("datapump_utils.fire_alerts._get_temp_result_path")
 @pytest.mark.parametrize("alert_type", ["MODIS", "VIIRS"])
-def test_get_active_fire_alerts(alert_type, requests_mock):
+def test_get_active_fire_alerts(get_path_mock, alert_type, requests_mock):
     mock_environment()
+    result_path = f"{alert_type}.tsv"
+    get_path_mock.return_value = result_path
 
     test_response = TEST_FIRE_ALERT_RESPONSE[alert_type]
     requests_mock.get(
@@ -25,7 +29,7 @@ def test_get_active_fire_alerts(alert_type, requests_mock):
     )
 
     process_active_fire_alerts(alert_type)
-    with open(f"fire_alerts_{alert_type.lower()}.tsv", "r") as tsv_result_file:
+    with open(result_path, "r") as tsv_result_file:
         tsv_result = csv.DictReader(tsv_result_file, delimiter="\t")
         first_row = next(tsv_result)
 
