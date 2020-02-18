@@ -34,6 +34,8 @@ def handler(event, context):
             result_dir, analyses, datasets, feature_type
         )
 
+        LOGGER.info(f"Dataset result paths: {dataset_result_paths}")
+
         paths_with_no_success_file = list(
             filter(
                 lambda path: not check_analysis_success(path),
@@ -50,6 +52,10 @@ def handler(event, context):
         dataset_ids = dict()
         for dataset, results_path in dataset_result_paths.items():
             dataset_sources = get_dataset_sources(results_path)
+
+            LOGGER.info(
+                f"Dataset sources for result paths {results_path}\n{dataset_sources}"
+            )
             dataset_ids[dataset] = upload_dataset(dataset, dataset_sources, upload_type)
             all_dataset_sources.append(dataset_sources)
 
