@@ -537,7 +537,7 @@ def test_secret_suffix():
 def test_get_pending_areas(requests_mock):
     result = AREAS
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=True",
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true",
         json=result,
     )
     areas = get_pending_areas()

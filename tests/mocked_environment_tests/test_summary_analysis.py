@@ -46,6 +46,21 @@ def test_get_analysis_steps():
         == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis gladalerts --glad"
     )
 
+    steps_with_fire = get_summary_analysis_steps(
+        ["firealerts"],
+        "s3://my/feature/src",
+        "geostore",
+        "my/result/dir",
+        True,
+        fire_src="s3a://path/to/viirs",
+        fire_type="viirs",
+    )
+    step_args_fire = " ".join(steps_with_fire[0]["HadoopJarStep"]["Args"])
+    assert (
+        step_args_fire
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis firealerts --fire_alert_type viirs --fire_alert_source s3a://path/to/viirs"
+    )
+
 
 @mock_s3
 @mock_emr
