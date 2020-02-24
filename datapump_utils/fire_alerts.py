@@ -4,6 +4,7 @@ import os
 
 from datapump_utils.s3 import get_s3_path
 from datapump_utils.s3 import s3_client
+from datapump_utils.logger import get_logger
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
     "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/csv/MODIS_C6_Global_48h.csv",
@@ -16,14 +17,19 @@ BRIGHTNESS_FIELDS = {
 }
 VERSIONS = {"MODIS": "v6", "VIIRS": "v1"}
 
+LOGGER = get_logger(__name__)
+
 
 def process_active_fire_alerts(alert_type):
+    LOGGER.info(f"Retrieving fire alerts for f{alert_type}")
     response = requests.get(ACTIVE_FIRE_ALERTS_48HR_CSV_URLS[alert_type])
 
     if response.status_code != 200:
         raise Exception(
             f"Unable to get active {alert_type} fire alerts, FIRMS returned status code {response.status_code}"
         )
+
+    LOGGER.info(f"Successfully download alerts from NASA")
 
     lines = response.text.splitlines()
     csv_reader = csv.DictReader(lines, delimiter=",")
@@ -43,14 +49,15 @@ def process_active_fire_alerts(alert_type):
     fields += BRIGHTNESS_FIELDS[alert_type]
     fields.append("frp")
 
-    result_name = f"fire_alerts_{alert_type.lower()}"
+    result_path = _get_temp_result_path(alert_type)
 
-    tsv_file = open(f"/tmp/{result_name}.tsv", "w", newline="")
+    tsv_file = open(result_path, "w", newline="")
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
     tsv_writer.writeheader()
 
     nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time"
     last_saved_date, last_saved_min = _get_last_saved_alert_time(nrt_s3_directory)
+    LOGGER.info(f"Lasr saved row datetime: {last_saved_date} {last_saved_min}")
 
     first_row = None
     for row in sorted_rows:
@@ -58,20 +65,31 @@ def process_active_fire_alerts(alert_type):
         if row["acq_date"] >= last_saved_date and row["acq_time"] > last_saved_min:
             if not first_row:
                 first_row = row
+                LOGGER.info(
+                    f"First row datetime: {first_row['acq_date']} {first_row['acq_time']}"
+                )
 
             _write_row(row, fields, tsv_writer)
+
+    LOGGER.info(f"Last row datetime: {last_row['acq_date']} {last_row['acq_time']}")
+    LOGGER.info(f"Successfully wrote TSV")
 
     tsv_file.close()
 
     # upload both files to s3
     file_name = f"{first_row['acq_date']}-{first_row['acq_time']}_{last_row['acq_date']}-{last_row['acq_time']}.tsv"
-    with open(f"/tmp/{result_name}.tsv", "rb") as tsv_result:
+    with open(result_path, "rb") as tsv_result:
         pipeline_key = f"{nrt_s3_directory}/{file_name}"
         s3_client().upload_fileobj(
             tsv_result, Bucket=DATA_LAKE_BUCKET, Key=pipeline_key
         )
 
-    return get_s3_path(DATA_LAKE_BUCKET, pipeline_key)
+    LOGGER.info(f"Successfully uploaded to s3://{DATA_LAKE_BUCKET}/{pipeline_key}")
+    return f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}"
+
+
+def _get_temp_result_path(alert_type):
+    return f"/tmp/fire_alerts_{alert_type.lower()}.tsv"
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):

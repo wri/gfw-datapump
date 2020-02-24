@@ -7,6 +7,9 @@ import io
 from datapump_utils.secrets import token
 from datapump_utils.util import api_prefix, get_date_string
 from datapump_utils.exceptions import UnexpectedResponseError
+from datapump_utils.logger import get_logger
+
+LOGGER = get_logger(__name__)
 
 
 def get_dataset(dataset_id):
@@ -67,6 +70,7 @@ def update_dataset(dataset_id, source_urls, upload_type):
     if upload_type == "data-overwrite":
         payload["legend"] = _get_legend(source_urls[0])
 
+    LOGGER.info(f"Updating at URI {url} with body {payload}")
     r = requests.post(url, data=json.dumps(payload), headers=_get_headers())
 
     if r.status_code != 204:
@@ -118,6 +122,7 @@ def create_dataset(name, source_urls):
         "legend": legend,
     }
 
+    LOGGER.info(f"Creating dataset at URI {url} with body {payload}")
     r = requests.post(url, data=json.dumps(payload), headers=headers)
 
     if r.status_code == 204:

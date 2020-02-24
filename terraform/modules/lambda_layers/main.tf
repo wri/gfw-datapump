@@ -1,4 +1,3 @@
-
 resource "aws_s3_bucket_object" "datapump_utils" {
   bucket = var.s3_bucket
   key    = "lambda_layers/datapump_utils.zip"
