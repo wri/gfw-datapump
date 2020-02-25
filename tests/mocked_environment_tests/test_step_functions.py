@@ -134,7 +134,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
 
         request_mocker.post(
             f"https://staging-api.globalforestwatch.org/v1/dataset",
-            status_code=204,
+            status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[0][0]),
         )
@@ -146,7 +146,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
 
         request_mocker.post(
             f"https://staging-api.globalforestwatch.org/v1/dataset",
-            status_code=204,
+            status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[1][0]),
         )
@@ -158,7 +158,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
 
         request_mocker.post(
             f"https://staging-api.globalforestwatch.org/v1/dataset",
-            status_code=204,
+            status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[2][0]),
         )
@@ -170,7 +170,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
 
         request_mocker.post(
             f"https://staging-api.globalforestwatch.org/v1/dataset",
-            status_code=204,
+            status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[3][0]),
         )
@@ -182,7 +182,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
 
         request_mocker.post(
             f"https://staging-api.globalforestwatch.org/v1/dataset",
-            status_code=204,
+            status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[4][0]),
         )

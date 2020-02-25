@@ -56,8 +56,16 @@ def handler(event, context):
             LOGGER.info(
                 f"Dataset sources for result paths {results_path}\n{dataset_sources}"
             )
-            dataset_ids[dataset] = upload_dataset(dataset, dataset_sources, upload_type)
-            all_dataset_sources.append(dataset_sources)
+
+            if dataset_sources:
+                dataset_ids[dataset] = upload_dataset(
+                    dataset, dataset_sources, upload_type
+                )
+                all_dataset_sources.append(dataset_sources)
+            else:
+                LOGGER.info(
+                    f"Skipping dataset {dataset} because there are no non-empty results."
+                )
 
         event.update(
             {
