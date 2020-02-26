@@ -125,7 +125,7 @@ def create_dataset(name, source_urls):
     LOGGER.info(f"Creating dataset at URI {url} with body {payload}")
     r = requests.post(url, data=json.dumps(payload), headers=headers)
 
-    if r.status_code == 204:
+    if r.status_code == 200:
         return r.json()["data"]["id"]
     else:
         raise Exception(

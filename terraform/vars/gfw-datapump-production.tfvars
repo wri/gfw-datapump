@@ -28,7 +28,7 @@ lambda_get_latest_fire_alerts_runtime     = "python3.7"
 lambda_get_latest_fire_alerts_memory_size = 1024
 lambda_get_latest_fire_alerts_timeout     = 300
 
-geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.0.jar"
+geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.1.jar"
 
 datasets = {
   "geostore": {
@@ -47,21 +47,21 @@ datasets = {
   "gadm": {
     "gladalerts": {
       "iso": {
-        "weekly_alerts" = "8537210d-7c96-45c6-a90d-cbdcd762bc18"
+        "weekly_alerts" = "4f9d3112-22e2-4cb6-be6d-4692f7097719"
       }
       "adm1": {
-        "weekly_alerts" = "47b50ffa-9a82-4ad9-94ea-5eae3e2e8209"
+        "weekly_alerts" = "ebcf3d10-beee-4d50-a517-6b3e8949ef6f"
       }
       "adm2": {
-        "daily_alerts" = "cd5c83e9-d407-491b-a41c-21a72bda9109",
-        "weekly_alerts" = "795f0b0c-5822-47ec-ad08-1eafc005f9a3"
+        "daily_alerts" = "61170ad0-9d6a-4347-8e58-9b551eeb341e",
+        "weekly_alerts" = "2a2dd975-9d3d-4c64-b867-68756b93079f"
       }
     }
   }
   "wdpa": {
     "gladalerts": {
-      "daily_alerts" = "5469f72e-2305-4561-ac9e-9bd6aa92a70b",
-      "weekly_alerts" = "770cc7b1-1a40-47cf-8f12-978fe3ae91a2"
+      "daily_alerts" = "bb2a69f1-c3ca-44e3-bd3c-0d6b9fb30169",
+      "weekly_alerts" = "00732163-e34b-458f-9f5d-8c8857a6a886"
     }
   }
 }
