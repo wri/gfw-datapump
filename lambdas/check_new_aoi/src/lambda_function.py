@@ -26,7 +26,7 @@ else:
     ENV = "dev"
 
 LOGGER = get_logger(__name__)
-SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
+SUMMARIZE_NEW_AOIS_NAME = "new-user-areas"
 DIRNAME = os.path.dirname(__file__)
 DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 
