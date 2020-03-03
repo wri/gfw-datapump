@@ -31,7 +31,7 @@ resource "aws_cloudwatch_event_target" "nightly-new-glad-alerts-check" {
 resource "aws_cloudwatch_event_target" "nightly-fire-alerts" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
   target_id = substr("${local.project}-nightly-fire-alerts${local.name_suffix}", 0, 64)
-  arn       = aws_sfn_state_machine.new_fire_alerts.id
+  arn       = aws_lambda_function.get_latest_fire_alerts.arn
   role_arn  = aws_iam_role.datapump_lambda.arn
-  count     = var.environment == "production" || var.environment == "staging" ? 1 : 0
+  //count     = var.environment == "production" || var.environment == "staging" ? 1 : 0
 }
