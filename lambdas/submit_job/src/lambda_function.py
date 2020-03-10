@@ -10,6 +10,7 @@ from datapump_utils.summary_analysis import (
 )
 from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.slack import slack_webhook
+from datapump_utils.util import error
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -43,9 +44,5 @@ def handler(event, context):
         )
 
         return event
-    except ClientError:
-        logging.error(traceback.print_exc())
-        slack_webhook(
-            "ERROR", f"Error submitting job to update {ENV} summary datasets.",
-        )
-        return {"status": "FAILED"}
+    except Exception as e:
+        return error(f"Exception caught while running {name} update: {e}")
