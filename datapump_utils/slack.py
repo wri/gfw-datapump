@@ -13,7 +13,7 @@ else:
 
 def slack_webhook(level, message):
     if ENV == "production":
-        app = "GFW SYNC - USER AOI BATCH"
+        app = f"GFW SYNC - DATAPUMP - DATASET UPDATE"
 
         if level.upper() == "WARNING":
             color = "#E2AC37"

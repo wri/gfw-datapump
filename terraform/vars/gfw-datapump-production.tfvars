@@ -47,7 +47,7 @@ datasets = {
   "gadm": {
     "gladalerts": {
       "iso": {
-        "weekly_alerts" = "4f9d3112-22e2-4cb6-be6d-4692f7097719"
+        "weekly_alerts" = "06262d5b-9e77-4f69-b979-d8524e4a90ae"
       }
       "adm1": {
         "weekly_alerts" = "ebcf3d10-beee-4d50-a517-6b3e8949ef6f"
