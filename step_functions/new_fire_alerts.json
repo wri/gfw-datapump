@@ -29,17 +29,10 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully Geostore"
-              }]
-            },
-            "Stop Gracefully Geostore": {
-=======
                 "Next": "Stop Gracefully Geostore MODIS"
               }]
             },
             "Stop Gracefully Geostore MODIS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
@@ -61,17 +54,10 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully GADM"
-              }]
-            },
-            "Stop Gracefully GADM": {
-=======
                 "Next": "Stop Gracefully GADM MODIS"
               }]
             },
             "Stop Gracefully GADM MODIS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
@@ -93,17 +79,10 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully WDPA"
-              }]
-            },
-            "Stop Gracefully WDPA": {
-=======
                 "Next": "Stop Gracefully WDPA MODIS"
               }]
             },
             "Stop Gracefully WDPA MODIS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
@@ -125,17 +104,10 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully Geostore"
-              }]
-            },
-            "Stop Gracefully Geostore": {
-=======
                 "Next": "Stop Gracefully Geostore VIIRS"
               }]
             },
             "Stop Gracefully Geostore VIIRS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
@@ -157,31 +129,18 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully GADM"
-              }]
-            },
-            "Stop Gracefully GADM": {
-=======
                 "Next": "Stop Gracefully GADM VIIRS"
               }]
             },
             "Stop Gracefully GADM VIIRS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
         },
         {
-<<<<<<< Updated upstream
-          "StartAt": "Run Geotrellis Summary Update WDPA - MODIS",
-          "States": {
-            "Run Geotrellis Summary Update WDPA - MODIS": {
-=======
           "StartAt": "Run Geotrellis Summary Update WDPA - VIIRS",
           "States": {
             "Run Geotrellis Summary Update WDPA - VIIRS": {
->>>>>>> Stashed changes
               "Type": "Task",
               "End": true,
               "Resource": "arn:aws:states:::states:startExecution.sync",
@@ -195,17 +154,10 @@
               "Catch": [{
                 "ErrorEquals": [ "States.TaskFailed" ],
                 "ResultPath": "$.error",
-<<<<<<< Updated upstream
-                "Next": "Stop Gracefully WDPA"
-              }]
-            },
-            "Stop Gracefully WDPA": {
-=======
                 "Next": "Stop Gracefully WDPA VIIRS"
               }]
             },
             "Stop Gracefully WDPA VIIRS": {
->>>>>>> Stashed changes
               "Type": "Succeed"
             }
           }
@@ -215,12 +167,6 @@
     },
     "Successfully Updated": {
       "Type": "Succeed"
-<<<<<<< Updated upstream
-    },
-    "No New Alerts Found": {
-      "Type": "Succeed"
-=======
->>>>>>> Stashed changes
     }
   }
 }
