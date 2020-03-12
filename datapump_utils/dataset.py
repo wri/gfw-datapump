@@ -74,8 +74,13 @@ def update_dataset(dataset_id, source_urls, upload_type):
     r = requests.post(url, data=json.dumps(payload), headers=_get_headers())
 
     if r.status_code != 204:
+        try:
+            message = r.json()
+        except ValueError:
+            message = r.text
+
         raise UnexpectedResponseError(
-            f"Data upload failed with status code {r.status_code} and message: {r.json()}"
+            f"Data upload failed with status code {r.status_code} and message: {message}"
         )
 
     return dataset_id
