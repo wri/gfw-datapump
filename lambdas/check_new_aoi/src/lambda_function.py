@@ -91,10 +91,16 @@ def get_pending_areas() -> Dict[str, Any]:
     LOGGER.debug("Get pending Areas")
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
-    url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true"
+    url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?all=true"
     r: Response = requests.get(url, headers=headers)
 
-    return r.json()
+    all_areas = r.json()
+    pending_areas = {"data": []}
+    for area in all_areas["data"]:
+        if area["attributes"]["status"] == "pending":
+            pending_areas["data"].append(area)
+
+    return pending_areas
 
 
 def get_geostore_ids(areas: Dict[str, Any]) -> List[str]:
