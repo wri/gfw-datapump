@@ -57,12 +57,14 @@ def process_active_fire_alerts(alert_type):
 
     nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time"
     last_saved_date, last_saved_min = _get_last_saved_alert_time(nrt_s3_directory)
-    LOGGER.info(f"Lasr saved row datetime: {last_saved_date} {last_saved_min}")
+    LOGGER.info(f"Last saved row datetime: {last_saved_date} {last_saved_min}")
 
     first_row = None
     for row in sorted_rows:
         # only start once we confirm we're past the overlap with the last dataset
-        if row["acq_date"] >= last_saved_date and row["acq_time"] > last_saved_min:
+        if row["acq_date"] > last_saved_date or (
+            row["acq_date"] == last_saved_date and row["acq_time"] > last_saved_min
+        ):
             if not first_row:
                 first_row = row
                 LOGGER.info(

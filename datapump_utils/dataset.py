@@ -146,6 +146,8 @@ def _get_legend(source_url):
         legend_type = get_legend_type(col)
         if legend_type in legend:
             legend[legend_type].append(col)
+        elif legend_type == "lat" or legend_type == "long":
+            legend[legend_type] = col
         else:
             legend[legend_type] = [col]
 
@@ -153,14 +155,24 @@ def _get_legend(source_url):
 
 
 def get_legend_type(field):
-    if field.endswith("__Mg") or field.endswith("__ha"):
+    if (
+        field.endswith("__Mg")
+        or field.endswith("__ha")
+        or field.endswith("__K")
+        or field.endswith("__MW")
+    ):
         return "double"
     elif (
         field.endswith("__threshold")
         or field.endswith("__count")
+        or field.endswith("__perc")
         or field == "treecover_loss__year"
     ):
         return "integer"
+    elif field == "latitude":
+        return "lat"
+    elif field == "longitude":
+        return "long"
     else:
         return "keyword"
 

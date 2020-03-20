@@ -72,8 +72,10 @@ def get_summary_analysis_step(
     if fire_src and fire_type:
         step_args.append("--fire_alert_type")
         step_args.append(fire_type)
-        step_args.append("--fire_alert_source")
-        step_args.append(fire_src)
+
+        for src in fire_src:
+            step_args.append("--fire_alert_source")
+            step_args.append(src)
 
     return {
         "Name": analysis,
