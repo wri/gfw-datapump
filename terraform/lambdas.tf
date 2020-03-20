@@ -149,3 +149,11 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
     }
   }
 }
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_latest_fire_alerts.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.everyday-11-pm-est.arn
+}
