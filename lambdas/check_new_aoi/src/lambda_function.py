@@ -4,6 +4,7 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Tuple
+import math
 
 import requests
 from requests import Response
@@ -41,7 +42,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
     now: datetime = datetime.now()
 
     try:
-        areas: Dict[str, Any] = get_pending_areas()
+        areas: List[Any] = get_pending_areas()
         geostore_ids: List[str] = get_geostore_ids(areas)
         if geostore_ids:
             geostore: Dict[str, Any] = get_geostore(geostore_ids)
@@ -59,10 +60,14 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
 
             LOGGER.info(f"Found {len(geostore['data'])} pending areas")
             geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
+
+            # heuristic for how many workers we'll need to process this in Spark/EMR
+            worker_count = math.ceil(len(geostore_ids) / 500)
+
             return {
                 "status": "NEW_AREAS_FOUND",
                 "instance_size": "r4.2xlarge",
-                "instance_count": 1,
+                "instance_count": worker_count,
                 "feature_src": geostore_full_path,
                 "feature_type": "geostore",
                 "analyses": ["gladalerts", "annualupdate_minimal"],
@@ -82,8 +87,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         return {"status": "ERROR", "message": str(e)}
 
 
-@api_response_checker("pending areas")
-def get_pending_areas() -> Dict[str, Any]:
+def get_pending_areas() -> List[Any]:
     """
     Request to GFW API to get list of user areas which were recently submitted and need to be added to nightly updates
     """
@@ -91,26 +95,39 @@ def get_pending_areas() -> Dict[str, Any]:
     LOGGER.debug("Get pending Areas")
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
-    url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?all=true"
-    r: Response = requests.get(url, headers=headers)
+    sync_url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
+    sync_resp = requests.post(sync_url, headers=headers)
 
-    all_areas = r.json()
-    pending_areas = {"data": []}
-    for area in all_areas["data"]:
-        if area["attributes"]["status"] == "pending":
-            pending_areas["data"].append(area)
+    if sync_resp.status_code != 200:
+        raise Exception(
+            f"v2/area/sync API failed with status code {sync_resp.status_code}, can't process areas"
+        )
+
+    pending_areas: List[Any] = []
+    has_next_page = True
+    page_size = 1000
+    page_number = 1
+
+    while has_next_page:
+        url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]={page_number}&page[size]={page_size}"
+        r: Response = requests.get(url, headers=headers)
+        page_areas = r.json()
+
+        page_number += 1
+        pending_areas += page_areas["data"]
+        has_next_page = page_areas["links"]["self"] != page_areas["links"]["last"]
 
     return pending_areas
 
 
-def get_geostore_ids(areas: Dict[str, Any]) -> List[str]:
+def get_geostore_ids(areas: List[Any]) -> List[str]:
     """
     Extract Geostore ID from user area
     """
 
     LOGGER.debug("Get Geostore IDs")
     geostore_ids: List[str] = list()
-    for area in areas["data"]:
+    for area in areas:
         if "attributes" in area.keys() and "geostore" in area["attributes"].keys():
             LOGGER.debug(
                 f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
