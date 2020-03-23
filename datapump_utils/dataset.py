@@ -122,7 +122,7 @@ def create_dataset(name, source_urls):
         "legend": legend,
     }
 
-    LOGGER.info(f"Creating dataset at URI {url} with body {payload}")
+    LOGGER.info(f"Creating dataset at URI {url} with token {token()} body {payload}")
     r = requests.post(url, data=json.dumps(payload), headers=headers)
 
     if r.status_code == 200:
@@ -130,7 +130,7 @@ def create_dataset(name, source_urls):
     else:
         raise Exception(
             "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json)
+            "Message: {}".format(r.status_code, r.json())
         )
 
 
