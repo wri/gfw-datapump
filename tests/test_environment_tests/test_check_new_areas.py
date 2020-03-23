@@ -1,6 +1,7 @@
 import os
 import json
 import shapely.wkb
+from copy import deepcopy
 
 from datapump_utils.util import secret_suffix, bucket_suffix
 
@@ -70,34 +71,12 @@ AREAS = {
                 "language": "en",
             },
         },
-        {
-            "type": "area",
-            "id": "59513a96de7e770010a400f6",
-            "attributes": {
-                "name": "test_saved",
-                "application": "gfw",
-                "geostore": "cfe38f3450bdc9ca8180733443c2a3de",  # pragma: allowlist secret
-                "userId": "5894720da19f5a00363bb7cf",  # pragma: allowlist secret
-                "createdAt": "2017-06-26T16:47:18.132Z",
-                "image": "https://s3.amazonaws.com/forest-watcher-files/areas-staging/59e73891-371c-4974-bf02-f87837b4f017.png",
-                "datasets": [],
-                "use": {"id": None, "name": None},
-                "iso": {"country": None, "region": None},
-                "admin": {},
-                "templateId": None,
-                "tags": [],
-                "status": "saved",
-                "public": True,
-                "fireAlerts": True,
-                "deforestationAlerts": True,
-                "webhookUrl": "",
-                "monthlySummary": True,
-                "subscriptionId": "",
-                "email": "",
-                "language": "en",
-            },
-        },
-    ]
+    ],
+    "links": {
+        "self": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=1000",
+        "last": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+        "next": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+    },
 }
 
 GEOSTORE_IDS = [
@@ -562,18 +541,26 @@ def test_secret_suffix():
 
 
 def test_get_pending_areas(requests_mock):
-    result = AREAS
+    result_1 = deepcopy(AREAS)
+    result_2 = deepcopy(result_1)
+    result_2["links"]["self"] = result_2["links"]["last"]
+
+    requests_mock.post("http://staging-api.globalforestwatch.org/v2/area/sync")
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?all=True", json=result,
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=1000",
+        json=result_1,
+    )
+    requests_mock.get(
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+        json=result_2,
     )
     areas = get_pending_areas()
 
-    result["data"] = result["data"][:-1]
-    assert areas == result
+    assert len(areas) == 4
 
 
 def test_get_geostore_ids():
-    geostore_ids = get_geostore_ids(AREAS)
+    geostore_ids = get_geostore_ids(AREAS["data"])
     assert geostore_ids == GEOSTORE_IDS
 
 
