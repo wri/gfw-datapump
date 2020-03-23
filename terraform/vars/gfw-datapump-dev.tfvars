@@ -28,7 +28,7 @@ lambda_get_latest_fire_alerts_runtime     = "python3.7"
 lambda_get_latest_fire_alerts_memory_size = 1024
 lambda_get_latest_fire_alerts_timeout     = 300
 
-geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.2-ff78e018a1039f9aa81c1f006a17b159e8bf8e61.jar"
+geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.2-d275abdb7451c11d74eea695d2bb524024712be8.jar"
 
 datasets = {
   "geostore": {
@@ -53,21 +53,21 @@ datasets = {
         "weekly_alerts" = "2c192cfd-52d2-440b-85c1-4496b7cf3de7"
       }
       "adm2": {
-        "daily_alerts" = "f328893b-1a53-4d11-b00a-e6f5767db1be",
+        "daily_alerts" = "f328893b-1a53-4d11-b00a-e6f5767db1be"
         "weekly_alerts" = "a6195a49-7d58-4284-af29-24dc7ddd627f"
       }
     },
     "firealerts": {
-      "all" = "dsfdsfdsfs"
+      "all" = "003539d8-b713-4df2-9e31-5eda80353191"
       "iso": {
-        "weekly_alerts" = "f79d86c8-e1f7-4611-8172-5ab029c45c8d"
+        "weekly_alerts" = "3775de0b-eefc-4325-ae4f-27ef7e04a6f1"
       }
       "adm1": {
-        "weekly_alerts" = "2c192cfd-52d2-440b-85c1-4496b7cf3de7"
+        "weekly_alerts" = "0b9ab27d-4003-4a89-87ca-69d34642fc4a"
       }
       "adm2": {
-        "daily_alerts" = "f328893b-1a53-4d11-b00a-e6f5767db1be",
-        "weekly_alerts" = "a6195a49-7d58-4284-af29-24dc7ddd627f"
+        "daily_alerts" = "17388a14-b28e-4b76-bad7-2d174b9f143d"
+        "weekly_alerts" = "6562ac9b-516d-49ce-ab21-191d1e5fec93"
       }
     }
   }
