@@ -117,6 +117,7 @@ def create_dataset(name, source_urls):
         "provider": "tsv",
         "connectorType": "document",
         "application": ["gfw"],
+        "overwrite": True,
         "name": name,
         "sources": source_urls,
         "legend": legend,
