@@ -62,18 +62,23 @@ def update_aoi_statuses(geostore_ids: Set[str]) -> int:
         "Authorization": f"Bearer {token()}",
     }
 
-    r = requests.post(
-        url,
-        data=json.dumps(_update_aoi_statuses_payload(geostore_ids)),
-        headers=headers,
-    )
-
-    if r.status_code != 200:
-        raise UnexpectedResponseError(
-            f"Data upload failed - received status code {r.status_code}, message: {r.json()}"
+    id_list = list(geostore_ids)
+    update_page_size = 500
+    for i in range(0, len(id_list), update_page_size):
+        r = requests.post(
+            url,
+            data=json.dumps(
+                _update_aoi_statuses_payload(id_list[i : i + update_page_size])
+            ),
+            headers=headers,
         )
-    else:
-        return r.status_code
+
+        if r.status_code != 200:
+            raise UnexpectedResponseError(
+                f"Data upload failed on upload block {i} - received status code {r.status_code}, message: {r.json()}"
+            )
+
+    return 200
 
 
 def _update_aoi_statuses_payload(geostore_ids):
