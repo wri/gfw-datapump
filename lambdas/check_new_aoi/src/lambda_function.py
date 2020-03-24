@@ -10,9 +10,7 @@ import requests
 from requests import Response
 from shapely.wkb import dumps
 from shapely.geometry import shape, Polygon, MultiPolygon
-
-from datapump_utils.decorators import api_response_checker
-from datapump_utils.exceptions import EmptyResponseException
+from datapump_utils.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump_utils.logger import get_logger
 from datapump_utils.secrets import token
 from datapump_utils.util import bucket_suffix, api_prefix
@@ -30,6 +28,7 @@ LOGGER = get_logger(__name__)
 SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
 DIRNAME = os.path.dirname(__file__)
 DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
+GEOSTORE_PAGE_SIZE = 1000
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -105,14 +104,19 @@ def get_pending_areas() -> List[Any]:
 
     pending_areas: List[Any] = []
     has_next_page = True
-    page_size = 1000
+    page_size = GEOSTORE_PAGE_SIZE
     page_number = 1
 
     while has_next_page:
         url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]={page_number}&page[size]={page_size}"
         r: Response = requests.get(url, headers=headers)
-        page_areas = r.json()
 
+        if r.status_code != 200:
+            raise UnexpectedResponseError(
+                f"Get areas returned response {r.status_code} on page number {page_number}"
+            )
+
+        page_areas = r.json()
         page_number += 1
         pending_areas += page_areas["data"]
         has_next_page = page_areas["links"]["self"] != page_areas["links"]["last"]
@@ -141,7 +145,6 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     return geostore_ids
 
 
-@api_response_checker(endpoint="geostores")
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     """
     Get Geostore Geometry using list of geostore IDs
@@ -150,11 +153,30 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     LOGGER.debug("Get Geostore Geometries by IDs")
 
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
-    payload: Dict[str, List[str]] = {"geostores": geostore_ids}
     url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
-    r: Response = requests.post(url, json=payload, headers=headers)
+    geostores: Dict[str, Any] = {"data": []}
 
-    return r.json()
+    for i in range(0, len(geostore_ids), GEOSTORE_PAGE_SIZE):
+        payload: Dict[str, List[str]] = {
+            "geostores": geostore_ids[i : i + GEOSTORE_PAGE_SIZE]
+        }
+
+        retries = 0
+        while retries < 2:
+            r: Response = requests.post(url, json=payload, headers=headers)
+
+            if r.status_code != 200:
+                if retries > 1:
+                    raise UnexpectedResponseError(
+                        f"geostore/find-by-ids returned response {r.status_code} on block {i}"
+                    )
+                else:
+                    retries += 1
+            else:
+                geostores["data"] += r.json()["data"]
+                break
+
+    return geostores
 
 
 @contextmanager
