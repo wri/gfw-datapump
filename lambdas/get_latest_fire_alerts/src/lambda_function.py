@@ -21,7 +21,7 @@ def handler(event, context):
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["firealerts"],
-                "datasets": DATASETS["gadm"],
+                "datasets": {"gadm": {"firealerts": DATASETS["gadm"]["firealerts"]}},
                 "name": "fire-alerts-viirs-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
