@@ -142,7 +142,8 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     LOGGER.debug(f"IDS: {geostore_ids}")
 
-    return geostore_ids
+    # Return max 3000 at a time, otherwise the lambda might time out
+    return geostore_ids[:3000]
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
