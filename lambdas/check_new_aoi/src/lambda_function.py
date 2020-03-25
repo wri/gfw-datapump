@@ -202,6 +202,15 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
                     "geometry"
                 ]
             )
+
+            # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
+            if not geom.is_valid:
+                geom = geom.buffer(0)
+                if (
+                    not geom.is_valid
+                ):  # is still invalid, we'll need to look into this, but skip for now
+                    LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
+
             for tile in extent_1x1:
                 if geom.intersects(tile[0]):
                     LOGGER.debug(
