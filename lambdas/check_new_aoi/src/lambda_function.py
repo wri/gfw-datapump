@@ -61,7 +61,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
 
             # heuristic for how many workers we'll need to process this in Spark/EMR
-            worker_count = math.ceil(len(geostore_ids) / 250)
+            worker_count = math.ceil(len(geostore_ids) / 50)
 
             return {
                 "status": "NEW_AREAS_FOUND",
