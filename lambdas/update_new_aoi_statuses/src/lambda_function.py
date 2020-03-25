@@ -83,6 +83,6 @@ def update_aoi_statuses(geostore_ids: Set[str]) -> int:
 
 def _update_aoi_statuses_payload(geostore_ids):
     return {
-        "geostores": list(geostore_ids),
+        "geostores": geostore_ids,
         "update_params": {"status": AOI_UPDATED_STATUS},
     }

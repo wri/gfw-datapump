@@ -28,7 +28,7 @@ LOGGER = get_logger(__name__)
 SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
 DIRNAME = os.path.dirname(__file__)
 DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
-GEOSTORE_PAGE_SIZE = 1000
+GEOSTORE_PAGE_SIZE = 100
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
@@ -203,6 +203,15 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
                     "geometry"
                 ]
             )
+
+            # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
+            if not geom.is_valid:
+                geom = geom.buffer(0)
+                if (
+                    not geom.is_valid
+                ):  # is still invalid, we'll need to look into this, but skip for now
+                    LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
+
             for tile in extent_1x1:
                 if geom.intersects(tile[0]):
                     LOGGER.debug(
