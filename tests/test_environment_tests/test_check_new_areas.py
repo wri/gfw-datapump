@@ -547,11 +547,11 @@ def test_get_pending_areas(requests_mock):
 
     requests_mock.post("http://staging-api.globalforestwatch.org/v2/area/sync")
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=1000",
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=100",
         json=result_1,
     )
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=100",
         json=result_2,
     )
     areas = get_pending_areas()
@@ -591,7 +591,3 @@ def test_intersecting_polygons():
             geom = shapely.wkb.loads(bytes.fromhex(cols[1]))
 
             assert geom.type == "Polygon" or geom.type == "MultiPolygon"
-
-
-def test_handler():
-    handler(None, None)
