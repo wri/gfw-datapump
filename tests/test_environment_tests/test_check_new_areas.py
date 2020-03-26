@@ -561,7 +561,7 @@ def test_get_pending_areas(requests_mock):
 
 def test_get_geostore_ids():
     geostore_ids = get_geostore_ids(AREAS["data"])
-    assert geostore_ids == GEOSTORE_IDS
+    assert set(geostore_ids) == set(GEOSTORE_IDS)
 
 
 def test_get_geostore(requests_mock):

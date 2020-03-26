@@ -143,7 +143,8 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     LOGGER.debug(f"IDS: {geostore_ids}")
 
-    return geostore_ids
+    # only return unique geostore ids
+    return list(set(geostore_ids))
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
@@ -176,6 +177,12 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
             else:
                 geostores["data"] += r.json()["data"]
                 break
+
+    geostores["data"] = [
+        g
+        for g in geostores["data"]
+        if g["geostore"]["data"]["attributes"]["areaHa"] < 100_000_000
+    ]
 
     return geostores
 
