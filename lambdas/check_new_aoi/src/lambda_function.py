@@ -181,7 +181,7 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     geostores["data"] = [
         g
         for g in geostores["data"]
-        if g["geostore"]["data"]["attributes"]["areaHa"] < 100_000_000
+        if g["geostore"]["data"]["attributes"]["areaHa"] < 1_000_000_000
     ]
 
     return geostores
