@@ -57,7 +57,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                     Key=geostore_path,
                 )
 
-                worker_count = math.ceil(geom_count / 50)
+                worker_count = math.ceil(geom_count / 100)
 
             LOGGER.info(f"Found {len(geostore['data'])} pending areas")
             geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
