@@ -32,8 +32,6 @@ LOGGER = get_logger(__name__)
 def handler(event, context):
     name = event["name"]
     dataset_ids = event["dataset_ids"]
-    dataset_sources = event["dataset_sources"]
-    upload_type = event["upload_type"]
 
     # keep track of number of retries to upload each dataset
     # this lambda runs on a wait loop so it'll keep getting passed back in
@@ -44,9 +42,7 @@ def handler(event, context):
     tasks = [get_task(ds["taskId"]) for ds in datasets]
 
     try:
-        check_for_upload_issues(
-            name, datasets, dataset_sources, tasks, upload_type, retries
-        )
+        check_for_upload_issues(name, datasets, tasks)
     except (
         FailedDatasetUploadException,
         StatusMismatchException,
@@ -66,9 +62,7 @@ def handler(event, context):
     return event
 
 
-def check_for_upload_issues(
-    name, datasets, dataset_sources, tasks, upload_type, retries
-):
+def check_for_upload_issues(name, datasets, tasks):
     # see if any datasets have already failed, and if so immediately exit wait loop and return error
     failed_datasets = get_datasets_with_status(datasets, "failed")
     if failed_datasets:
@@ -79,7 +73,7 @@ def check_for_upload_issues(
         raise StatusMismatchException(mismatched_status_error(status_mismatches))
 
     # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
-    retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries)
+    retry_stuck_datasets(datasets, tasks)
 
 
 def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
@@ -147,15 +141,13 @@ def retry_upload_dataset(ds, ds_src, task, upload_type, retries):
     ds["status"] = "pending"
 
 
-def retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries):
+def retry_stuck_datasets(datasets, tasks):
     stuck_on_write_statuses = [
         is_dataset_stuck_on_write(ds, task) for ds, task in zip(datasets, tasks)
     ]
-    for ds, ds_src, task, stuck_on_write in zip(
-        datasets, dataset_sources, tasks, stuck_on_write_statuses
-    ):
+    for ds, task, stuck_on_write in zip(datasets, tasks, stuck_on_write_statuses):
         if stuck_on_write:
-            retry_upload_dataset(ds, ds_src, task, upload_type, retries)
+            reset_stuck_dataset(ds, task)
 
 
 def log_task_log_warnings(datasets, tasks):
