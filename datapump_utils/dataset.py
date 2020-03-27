@@ -8,8 +8,43 @@ from datapump_utils.secrets import token
 from datapump_utils.util import api_prefix, get_date_string
 from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.logger import get_logger
+from datapump_utils.slack import slack_webhook
 
 LOGGER = get_logger(__name__)
+
+
+def update_aoi_statuses(geostore_ids, status):
+    url = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/update"
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token()}",
+    }
+
+    errors = False
+    for gid in geostore_ids:
+        r = requests.post(
+            url, json=_update_aoi_statuses_payload([gid], status), headers=headers,
+        )
+
+        if r.status_code != 200:
+            LOGGER.error(
+                f"Status update failed for geostore {gid} with {r.status_code}"
+            )
+
+    if errors:
+        slack_webhook(
+            "WARNING", "Some user areas could not have statuses updated. See logs."
+        )
+
+    return 200
+
+
+def _update_aoi_statuses_payload(geostore_ids, status):
+    return {
+        "geostores": geostore_ids,
+        "update_params": {"status": status},
+    }
 
 
 def get_dataset(dataset_id):

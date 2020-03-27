@@ -25,5 +25,5 @@ resource "aws_cloudwatch_event_target" "nightly-new-glad-alerts-check" {
   target_id = substr("${local.project}-nightly-new-glad-alerts-check${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.new_glad_alerts.id
   role_arn  = aws_iam_role.datapump_states.arn
-  count     = var.environment == "production" || var.environment == "staging" ? 1 : 0
+  count     = var.environment == "production" || var.environment == "staging"? 1 : 0
 }
