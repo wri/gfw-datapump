@@ -5,12 +5,16 @@ from enum import Enum
 
 import boto3
 from botocore.exceptions import ClientError
+from datapump_utils.logger import get_logger
+from datapump_utils.dataset import upload_dataset
 
 from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
+
+LOGGER = get_logger(__name__)
 
 
 class JobStatus(Enum):
