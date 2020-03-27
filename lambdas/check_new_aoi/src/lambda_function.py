@@ -16,6 +16,7 @@ from datapump_utils.secrets import token
 from datapump_utils.util import bucket_suffix, api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
 from datapump_utils.slack import slack_webhook
+from datapump_utils.dataset import update_aoi_statuses
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -45,23 +46,24 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         geostore_ids: List[str] = get_geostore_ids(areas)
         if geostore_ids:
             geostore: Dict[str, Any] = get_geostore(geostore_ids)
+            geostore = filter_geostores(geostore)
             geostore_path = (
                 f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
             )
             geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-            with geostore_to_wkb(geostore) as wkb:
+            with geostore_to_wkb(geostore) as (wkb, geom_count):
                 s3_client().put_object(
                     Body=str.encode(wkb.getvalue()),
                     Bucket=geostore_bucket,
                     Key=geostore_path,
                 )
 
+                # heuristic for how many workers we'll need to process this in Spark/EMR
+                worker_count = math.ceil(geom_count / 100)
+
             LOGGER.info(f"Found {len(geostore['data'])} pending areas")
             geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
-
-            # heuristic for how many workers we'll need to process this in Spark/EMR
-            worker_count = math.ceil(len(geostore_ids) / 50)
 
             return {
                 "status": "NEW_AREAS_FOUND",
@@ -94,6 +96,7 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug("Get pending Areas")
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
+
     sync_url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
     sync_resp = requests.post(sync_url, headers=headers)
 
@@ -142,8 +145,9 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     LOGGER.debug(f"IDS: {geostore_ids}")
 
+    # only return unique geostore ids
     # Return max 3000 at a time, otherwise the lambda might time out
-    return geostore_ids[:3000]
+    return list(set(geostore_ids))[:3000]
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
@@ -180,8 +184,25 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     return geostores
 
 
+def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
+    geostores_too_big = [
+        g["geostoreId"]
+        for g in geostores["data"]
+        if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
+    ]
+    update_aoi_statuses(geostores_too_big, "error")
+
+    filtered_geostores = [
+        g
+        for g in geostores["data"]
+        if g["geostore"]["data"]["attributes"]["areaHa"] < 1_000_000_000
+    ]
+
+    return {"data": filtered_geostores}
+
+
 @contextmanager
-def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
+def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int]]:
     """
     Convert Geojson to WKB. Slice geometries into 1x1 degree tiles
     """
@@ -189,11 +210,12 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
     LOGGER.debug("Convert Geometries to WKB")
 
     extent_1x1: List[Tuple[Polygon, bool, bool]] = _get_extent_1x1()
-    wkb = io.StringIO()
+    wkb: io.StringIO = io.StringIO()
 
     LOGGER.debug("Start writing to virtual TSV file")
     # Column Header
     wkb.write(f"geostore_id\tgeom\ttcl\tglad\n")
+    count: int = 0
 
     # Body
     try:
@@ -223,7 +245,9 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
                         wkb.write(
                             f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
                         )
-        yield wkb
+                        count += 1
+
+        yield (wkb, count)
 
     finally:
         wkb.close()
