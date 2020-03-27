@@ -16,6 +16,7 @@ from datapump_utils.secrets import token
 from datapump_utils.util import bucket_suffix, api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
 from datapump_utils.slack import slack_webhook
+from datapump_utils.dataset import update_aoi_statuses
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -45,6 +46,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         geostore_ids: List[str] = get_geostore_ids(areas)
         if geostore_ids:
             geostore: Dict[str, Any] = get_geostore(geostore_ids)
+            geostore = filter_geostores(geostore)
             geostore_path = (
                 f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
             )
@@ -179,13 +181,24 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
                 geostores["data"] += r.json()["data"]
                 break
 
-    geostores["data"] = [
+    return geostores
+
+
+def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
+    geostores_too_big = [
+        g["geostoreId"]
+        for g in geostores["data"]
+        if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
+    ]
+    update_aoi_statuses(geostores_too_big, "error")
+
+    filtered_geostores = [
         g
         for g in geostores["data"]
         if g["geostore"]["data"]["attributes"]["areaHa"] < 1_000_000_000
     ]
 
-    return geostores
+    return {"data": filtered_geostores}
 
 
 @contextmanager
