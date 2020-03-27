@@ -50,18 +50,19 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             )
             geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-            with geostore_to_wkb(geostore) as wkb:
+            with geostore_to_wkb(geostore) as (wkb, geom_count):
                 s3_client().put_object(
                     Body=str.encode(wkb.getvalue()),
                     Bucket=geostore_bucket,
                     Key=geostore_path,
                 )
 
+                worker_count = math.ceil(geom_count / 50)
+
             LOGGER.info(f"Found {len(geostore['data'])} pending areas")
             geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
 
             # heuristic for how many workers we'll need to process this in Spark/EMR
-            worker_count = math.ceil(len(geostore_ids) / 50)
 
             return {
                 "status": "NEW_AREAS_FOUND",
@@ -188,7 +189,7 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
 
 
 @contextmanager
-def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
+def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int]]:
     """
     Convert Geojson to WKB. Slice geometries into 1x1 degree tiles
     """
@@ -196,11 +197,12 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
     LOGGER.debug("Convert Geometries to WKB")
 
     extent_1x1: List[Tuple[Polygon, bool, bool]] = _get_extent_1x1()
-    wkb = io.StringIO()
+    wkb: io.StringIO = io.StringIO()
 
     LOGGER.debug("Start writing to virtual TSV file")
     # Column Header
     wkb.write(f"geostore_id\tgeom\ttcl\tglad\n")
+    count: int = 0
 
     # Body
     try:
@@ -230,7 +232,8 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[io.StringIO]:
                         wkb.write(
                             f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
                         )
-        yield wkb
+                        count += 1
+        yield (wkb, count)
 
     finally:
         wkb.close()
