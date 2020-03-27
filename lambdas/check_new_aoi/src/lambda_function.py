@@ -233,6 +233,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                             f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
                         )
                         count += 1
+
         yield (wkb, count)
 
     finally:

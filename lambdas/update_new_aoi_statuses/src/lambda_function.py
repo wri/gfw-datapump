@@ -9,6 +9,8 @@ from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.util import api_prefix, error
 from datapump_utils.secrets import token
 from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump_utils.logger import get_logger
+from datapump_utils.slack import slack_webhook
 
 
 if "ENV" in os.environ:
@@ -17,6 +19,7 @@ else:
     ENV = "dev"
 
 AOI_UPDATED_STATUS = "saved"
+LOGGER = get_logger(__name__)
 
 
 def handler(event, context):
@@ -62,21 +65,21 @@ def update_aoi_statuses(geostore_ids: Set[str]) -> int:
         "Authorization": f"Bearer {token()}",
     }
 
-    id_list = list(geostore_ids)
-    update_page_size = 500
-    for i in range(0, len(id_list), update_page_size):
+    errors = False
+    for gid in geostore_ids:
         r = requests.post(
-            url,
-            data=json.dumps(
-                _update_aoi_statuses_payload(id_list[i : i + update_page_size])
-            ),
-            headers=headers,
+            url, json=_update_aoi_statuses_payload([gid]), headers=headers,
         )
 
         if r.status_code != 200:
-            raise UnexpectedResponseError(
-                f"Data upload failed on upload block {i} - received status code {r.status_code}, message: {r.json()}"
+            LOGGER.error(
+                f"Status update failed for geostore {gid} with {r.status_code}"
             )
+
+    if errors:
+        slack_webhook(
+            "WARNING", "Some user areas could not have statuses updated. See logs."
+        )
 
     return 200
 
