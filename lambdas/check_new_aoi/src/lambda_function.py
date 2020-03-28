@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Tuple
 import math
+import traceback
 
 import requests
 from requests import Response
@@ -84,7 +85,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
-        LOGGER.error(str(e))
+        LOGGER.error(traceback.format_exc())
         return {"status": "ERROR", "message": str(e)}
 
 
