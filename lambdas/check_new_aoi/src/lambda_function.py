@@ -47,37 +47,46 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         if geostore_ids:
             geostore: Dict[str, Any] = get_geostore(geostore_ids)
             geostore = filter_geostores(geostore)
-            geostore_path = (
-                f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
-            )
-            geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-            with geostore_to_wkb(geostore) as (wkb, geom_count):
-                s3_client().put_object(
-                    Body=str.encode(wkb.getvalue()),
-                    Bucket=geostore_bucket,
-                    Key=geostore_path,
+            if geostore:
+                geostore_path = (
+                    f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
                 )
+                geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-                worker_count = math.ceil(geom_count / 100)
+                with geostore_to_wkb(geostore) as (wkb, geom_count):
+                    if geom_count == 0:
+                        slack_webhook("INFO", "No new user areas found. Doing nothing.")
+                        return {"status": "NO_NEW_AREAS_FOUND"}
 
-            LOGGER.info(f"Found {len(geostore['data'])} pending areas")
-            geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
+                    s3_client().put_object(
+                        Body=str.encode(wkb.getvalue()),
+                        Bucket=geostore_bucket,
+                        Key=geostore_path,
+                    )
 
-            # heuristic for how many workers we'll need to process this in Spark/EMR
+                    worker_count = math.ceil(geom_count / 100)
 
-            return {
-                "status": "NEW_AREAS_FOUND",
-                "instance_size": "r4.2xlarge",
-                "instance_count": worker_count,
-                "feature_src": geostore_full_path,
-                "feature_type": "geostore",
-                "analyses": ["gladalerts", "annualupdate_minimal"],
-                "datasets": DATASETS["geostore"],
-                "name": SUMMARIZE_NEW_AOIS_NAME,
-                "upload_type": "append",
-                "get_summary": True,
-            }
+                LOGGER.info(f"Found {len(geostore['data'])} pending areas")
+                geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
+
+                # heuristic for how many workers we'll need to process this in Spark/EMR
+
+                return {
+                    "status": "NEW_AREAS_FOUND",
+                    "instance_size": "r4.2xlarge",
+                    "instance_count": worker_count,
+                    "feature_src": geostore_full_path,
+                    "feature_type": "geostore",
+                    "analyses": ["gladalerts", "annualupdate_minimal"],
+                    "datasets": DATASETS["geostore"],
+                    "name": SUMMARIZE_NEW_AOIS_NAME,
+                    "upload_type": "append",
+                    "get_summary": True,
+                }
+            else:
+                slack_webhook("INFO", "No new user areas found. Doing nothing.")
+                return {"status": "NO_NEW_AREAS_FOUND"}
         else:
             slack_webhook("INFO", "No new user areas found. Doing nothing.")
             return {"status": "NO_NEW_AREAS_FOUND"}
