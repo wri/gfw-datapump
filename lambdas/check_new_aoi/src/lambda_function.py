@@ -3,7 +3,7 @@ import json
 import os
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Tuple, Set
 import math
 
 import requests
@@ -194,20 +194,35 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
 
 
 def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
-    geostores_too_big = [
-        g["geostoreId"]
-        for g in geostores["data"]
-        if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
-    ]
-    update_aoi_statuses(geostores_too_big, "error")
+    filtered_geostores: Set[Any] = set()
 
-    filtered_geostores = [
-        g
-        for g in geostores["data"]
-        if g["geostore"]["data"]["attributes"]["areaHa"] < 1_000_000_000
-    ]
+    filtered_geostores = filtered_geostores.union(
+        set(
+            [
+                g["geostoreId"]
+                for g in geostores["data"]
+                if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
+            ]
+        )
+    )
 
-    return {"data": filtered_geostores}
+    filtered_geostores = filtered_geostores.union(
+        set(
+            [
+                g["geostoreId"]
+                for g in geostores["data"]
+                if not g["geostore"]["data"]["attributes"]["geojson"]["features"]
+            ]
+        )
+    )
+
+    update_aoi_statuses(filtered_geostores, "error")
+
+    all_geostores: Set[Any] = set([g["geostoreId"] for g in geostores["data"]])
+
+    remaining_geostores: List[Any] = list(all_geostores.difference(filtered_geostores))
+
+    return {"data": remaining_geostores}
 
 
 @contextmanager
