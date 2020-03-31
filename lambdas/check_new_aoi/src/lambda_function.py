@@ -3,7 +3,7 @@ import json
 import os
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Tuple, Set
 import math
 import traceback
 
@@ -48,36 +48,45 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         if geostore_ids:
             geostore: Dict[str, Any] = get_geostore(geostore_ids)
             geostore = filter_geostores(geostore)
-            geostore_path = (
-                f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
-            )
-            geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
-            with geostore_to_wkb(geostore) as (wkb, geom_count):
-                s3_client().put_object(
-                    Body=str.encode(wkb.getvalue()),
-                    Bucket=geostore_bucket,
-                    Key=geostore_path,
+            if geostore:
+                geostore_path = (
+                    f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
                 )
+                geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
+
+                with geostore_to_wkb(geostore) as (wkb, geom_count):
+                    if geom_count == 0:
+                        slack_webhook("INFO", "No new user areas found. Doing nothing.")
+                        return {"status": "NO_NEW_AREAS_FOUND"}
+
+                    s3_client().put_object(
+                        Body=str.encode(wkb.getvalue()),
+                        Bucket=geostore_bucket,
+                        Key=geostore_path,
+                    )
+                    worker_count = math.ceil(geom_count / 100)
+
+                LOGGER.info(f"Found {len(geostore['data'])} pending areas")
+                geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
 
                 # heuristic for how many workers we'll need to process this in Spark/EMR
-                worker_count = math.ceil(geom_count / 100)
 
-            LOGGER.info(f"Found {len(geostore['data'])} pending areas")
-            geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
-
-            return {
-                "status": "NEW_AREAS_FOUND",
-                "instance_size": "r4.2xlarge",
-                "instance_count": worker_count,
-                "feature_src": geostore_full_path,
-                "feature_type": "geostore",
-                "analyses": ["gladalerts", "annualupdate_minimal"],
-                "datasets": DATASETS["geostore"],
-                "name": SUMMARIZE_NEW_AOIS_NAME,
-                "upload_type": "append",
-                "get_summary": True,
-            }
+                return {
+                    "status": "NEW_AREAS_FOUND",
+                    "instance_size": "r4.2xlarge",
+                    "instance_count": worker_count,
+                    "feature_src": geostore_full_path,
+                    "feature_type": "geostore",
+                    "analyses": ["gladalerts", "annualupdate_minimal"],
+                    "datasets": DATASETS["geostore"],
+                    "name": SUMMARIZE_NEW_AOIS_NAME,
+                    "upload_type": "append",
+                    "get_summary": True,
+                }
+            else:
+                slack_webhook("INFO", "No new user areas found. Doing nothing.")
+                return {"status": "NO_NEW_AREAS_FOUND"}
         else:
             slack_webhook("INFO", "No new user areas found. Doing nothing.")
             return {"status": "NO_NEW_AREAS_FOUND"}
@@ -186,20 +195,39 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
 
 
 def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
-    geostores_too_big = [
-        g["geostoreId"]
-        for g in geostores["data"]
-        if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
-    ]
-    update_aoi_statuses(geostores_too_big, "error")
+    filtered_geostores: Set[Any] = set()
 
-    filtered_geostores = [
-        g
-        for g in geostores["data"]
-        if g["geostore"]["data"]["attributes"]["areaHa"] < 1_000_000_000
-    ]
+    filtered_geostores = filtered_geostores.union(
+        set(
+            [
+                g["geostoreId"]
+                for g in geostores["data"]
+                if g["geostore"]["data"]["attributes"]["areaHa"] >= 1_000_000_000
+            ]
+        )
+    )
 
-    return {"data": filtered_geostores}
+    filtered_geostores = filtered_geostores.union(
+        set(
+            [
+                g["geostoreId"]
+                for g in geostores["data"]
+                if not g["geostore"]["data"]["attributes"]["geojson"]["features"]
+            ]
+        )
+    )
+
+    update_aoi_statuses(filtered_geostores, "error")
+
+    all_geostore_ids: Set[Any] = set([g["geostoreId"] for g in geostores["data"]])
+    remaining_geostore_ids: List[Any] = list(
+        all_geostore_ids.difference(filtered_geostores)
+    )
+
+    remaining_geostores = [
+        g for g in geostores["data"] if g["geostoreId"] in remaining_geostore_ids
+    ]
+    return {"data": remaining_geostores}
 
 
 @contextmanager
