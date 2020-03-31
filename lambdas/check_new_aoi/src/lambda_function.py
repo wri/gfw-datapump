@@ -219,10 +219,14 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
 
     update_aoi_statuses(filtered_geostores, "error")
 
-    all_geostores: Set[Any] = set([g["geostoreId"] for g in geostores["data"]])
+    all_geostore_ids: Set[Any] = set([g["geostoreId"] for g in geostores["data"]])
+    remaining_geostore_ids: List[Any] = list(
+        all_geostore_ids.difference(filtered_geostores)
+    )
 
-    remaining_geostores: List[Any] = list(all_geostores.difference(filtered_geostores))
-
+    remaining_geostores = [
+        g for g in geostores["data"] if g["geostoreId"] in remaining_geostore_ids
+    ]
     return {"data": remaining_geostores}
 
 
