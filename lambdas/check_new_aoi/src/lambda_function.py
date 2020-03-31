@@ -221,32 +221,36 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
     # Body
     try:
         for g in geostore["data"]:
-            geom: Polygon = shape(
-                g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
-                    "geometry"
-                ]
-            )
+            try:
+                geom: Polygon = shape(
+                    g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
+                        "geometry"
+                    ]
+                )
 
-            # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
-            if not geom.is_valid:
-                geom = geom.buffer(0)
-                if (
-                    not geom.is_valid
-                ):  # is still invalid, we'll need to look into this, but skip for now
-                    LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
+                # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
+                if not geom.is_valid:
+                    geom = geom.buffer(0)
+                    if (
+                        not geom.is_valid
+                    ):  # is still invalid, we'll need to look into this, but skip for now
+                        LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
 
-            for tile in extent_1x1:
-                if geom.intersects(tile[0]):
-                    LOGGER.debug(
-                        f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
-                    )
-                    intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
-
-                    if intersecting_polygon:
-                        wkb.write(
-                            f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                for tile in extent_1x1:
+                    if geom.intersects(tile[0]):
+                        LOGGER.debug(
+                            f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
                         )
-                        count += 1
+                        intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
+
+                        if intersecting_polygon:
+                            wkb.write(
+                                f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                            )
+                            count += 1
+            except Exception as e:
+                LOGGER.error(f"Error processing geostore {g['geostoreId']}")
+                raise e
 
         yield (wkb, count)
 
