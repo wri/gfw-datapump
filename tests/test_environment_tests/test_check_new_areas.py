@@ -6,7 +6,7 @@ from copy import deepcopy
 from datapump_utils.util import secret_suffix, bucket_suffix
 
 from lambdas.check_new_aoi.src.lambda_function import (
-    handler,
+    filter_geostores,
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,
@@ -533,6 +533,38 @@ GEOSTORE = {
     ]
 }
 
+BAD_GEOSTORE = {
+    "data": [
+        {
+            "geostoreId": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+            "geostore": {
+                "data": {
+                    "type": "geoStore",
+                    "id": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+                    "attributes": {
+                        "geojson": {
+                            "features": [],
+                            "crs": {},
+                            "type": "FeatureCollection",
+                        },
+                        "hash": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+                        "provider": {},
+                        "areaHa": 11_186_986.783_767_128,
+                        "bbox": [
+                            8.923_828_125_016_8,
+                            4.849_697_804_134_93,
+                            12.791_015_625_021_4,
+                            9.556_965_798_610_79,
+                        ],
+                        "lock": False,
+                        "info": {"use": {}},
+                    },
+                }
+            },
+        }
+    ]
+}
+
 CURDIR = os.path.dirname(__file__)
 
 
@@ -571,6 +603,19 @@ def test_get_geostore(requests_mock):
     )
     geostore = get_geostore(GEOSTORE_IDS)
     assert geostore == GEOSTORE
+
+
+def test_filter_geostore():
+    geostores = BAD_GEOSTORE
+    geostores["data"].append((GEOSTORE["data"][1]))
+
+    too_big = deepcopy(GEOSTORE["data"][1])
+    too_big["geostoreId"] = "test"
+    too_big["geostore"]["data"]["attributes"]["areaHa"] = 100_000_000_000
+    geostores["data"].append(too_big)
+
+    filtered_geostores = filter_geostores(geostores)
+    assert len(filtered_geostores["data"]) == 1
 
 
 def test_geostore_to_wkb():
