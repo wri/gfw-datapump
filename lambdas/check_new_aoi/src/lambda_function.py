@@ -50,9 +50,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             geostore = filter_geostores(geostore)
 
             if geostore:
-                geostore_path = (
-                    f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
-                )
+                geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d_%H%M')}.tsv"
                 geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
                 with geostore_to_wkb(geostore) as (wkb, geom_count):
