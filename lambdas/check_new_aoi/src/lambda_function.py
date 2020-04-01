@@ -211,6 +211,9 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
                 g["geostoreId"]
                 for g in geostores["data"]
                 if not g["geostore"]["data"]["attributes"]["geojson"]["features"]
+                or not g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
+                    "geometry"
+                ]["coordinates"]
             ]
         )
     )
