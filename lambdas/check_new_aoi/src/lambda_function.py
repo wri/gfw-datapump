@@ -155,7 +155,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out
-    return list(set(geostore_ids))[:2000]
+    return list(set(geostore_ids))[:1500]
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
