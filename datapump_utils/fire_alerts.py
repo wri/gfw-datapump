@@ -71,6 +71,10 @@ def process_active_fire_alerts(alert_type):
                     f"First row datetime: {first_row['acq_date']} {first_row['acq_time']}"
                 )
 
+            # for VIIRS, we only want first letter of confidence category, to make NRT category same as scientific
+            if alert_type == "VIIRS":
+                row["confidence"] = row["confidence"][0]
+
             _write_row(row, fields, tsv_writer)
 
     LOGGER.info(f"Last row datetime: {last_row['acq_date']} {last_row['acq_time']}")
