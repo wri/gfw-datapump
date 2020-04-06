@@ -57,6 +57,34 @@ datasets = {
         "weekly_alerts" = "a6195a49-7d58-4284-af29-24dc7ddd627f"
       }
     }
+    "firealerts": {
+      "viirs": {
+        "all" = "003539d8-b713-4df2-9e31-5eda80353191"
+        "iso": {
+          "weekly_alerts" = "3775de0b-eefc-4325-ae4f-27ef7e04a6f1"
+        }
+        "adm1": {
+          "weekly_alerts" = "0b9ab27d-4003-4a89-87ca-69d34642fc4a"
+        }
+        "adm2": {
+          "daily_alerts" = "17388a14-b28e-4b76-bad7-2d174b9f143d"
+          "weekly_alerts" = "6562ac9b-516d-49ce-ab21-191d1e5fec93"
+        }
+      }
+      "modis": {
+        "all" = "2861d8b5-6abf-4602-81d0-1311cafce0fc"
+        "iso": {
+          "weekly_alerts" = "be3bdf28-a969-4312-a9e3-3ea517908a2a"
+        }
+        "adm1": {
+          "weekly_alerts" = "832df160-13ab-42b8-9409-38cc3128db4c"
+        }
+        "adm2": {
+          "daily_alerts" = "b80c6564-ed47-44b4-8baf-b1831441bcb7"
+          "weekly_alerts" = "ab047d27-1ff1-4a7e-a1f2-1a165d5e0a4b"
+        }
+      }
+    }
   }
   "wdpa": {
     "gladalerts": {

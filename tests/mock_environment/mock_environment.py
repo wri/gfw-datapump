@@ -3,10 +3,11 @@ import os
 
 import boto3
 
+CURDIR = os.path.dirname(__file__)
+
 from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.s3 import s3_client, get_s3_path_parts
 
-CURDIR = os.path.dirname(__file__)
 GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
 
 os.environ["S3_BUCKET_PIPELINE"] = f"gfw-pipelines{bucket_suffix()}"
