@@ -2,12 +2,9 @@ import os
 
 from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.util import api_prefix
+from datapump_utils.dataset import update_aoi_statuses, _update_aoi_statuses_payload
 
-from lambdas.update_new_aoi_statuses.src.lambda_function import (
-    update_aoi_statuses,
-    get_aoi_geostore_ids,
-    _update_aoi_statuses_payload,
-)
+from lambdas.update_new_aoi_statuses.src.lambda_function import get_aoi_geostore_ids
 from tests.mock_environment.mock_responses import TEST_ERROR_RESPONSE
 
 os.environ["ENV"] = "test"
@@ -17,7 +14,7 @@ job_flow_id = "TESTID"
 def test_update_aoi_status(requests_mock):
     geostore_ids = ["test1", "test2"]
 
-    payload = _update_aoi_statuses_payload(geostore_ids)
+    payload = _update_aoi_statuses_payload(geostore_ids, "saved")
     assert payload["geostores"] == geostore_ids
     assert payload["update_params"]["status"] == "saved"
 
@@ -25,13 +22,13 @@ def test_update_aoi_status(requests_mock):
 
     status_code = 200
     requests_mock.post(url, status_code=status_code)
-    result = update_aoi_statuses(geostore_ids)
+    result = update_aoi_statuses(geostore_ids, "saved")
     assert result == status_code
 
     status_code = 500
     try:
         requests_mock.post(url, status_code=status_code, json=TEST_ERROR_RESPONSE)
-        update_aoi_statuses(geostore_ids)
+        update_aoi_statuses(geostore_ids, "saved")
     except Exception as e:
         assert isinstance(e, UnexpectedResponseError)
 
