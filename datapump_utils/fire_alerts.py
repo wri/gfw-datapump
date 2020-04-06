@@ -4,6 +4,7 @@ import os
 
 from datapump_utils.s3 import get_s3_path
 from datapump_utils.s3 import s3_client
+from datapump_utils.logger import get_logger
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
     "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/csv/MODIS_C6_Global_48h.csv",
@@ -16,14 +17,19 @@ BRIGHTNESS_FIELDS = {
 }
 VERSIONS = {"MODIS": "v6", "VIIRS": "v1"}
 
+LOGGER = get_logger(__name__)
+
 
 def process_active_fire_alerts(alert_type):
+    LOGGER.info(f"Retrieving fire alerts for f{alert_type}")
     response = requests.get(ACTIVE_FIRE_ALERTS_48HR_CSV_URLS[alert_type])
 
     if response.status_code != 200:
         raise Exception(
             f"Unable to get active {alert_type} fire alerts, FIRMS returned status code {response.status_code}"
         )
+
+    LOGGER.info(f"Successfully download alerts from NASA")
 
     lines = response.text.splitlines()
     csv_reader = csv.DictReader(lines, delimiter=",")
@@ -51,15 +57,28 @@ def process_active_fire_alerts(alert_type):
 
     nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time"
     last_saved_date, last_saved_min = _get_last_saved_alert_time(nrt_s3_directory)
+    LOGGER.info(f"Last saved row datetime: {last_saved_date} {last_saved_min}")
 
     first_row = None
     for row in sorted_rows:
         # only start once we confirm we're past the overlap with the last dataset
-        if row["acq_date"] >= last_saved_date and row["acq_time"] > last_saved_min:
+        if row["acq_date"] > last_saved_date or (
+            row["acq_date"] == last_saved_date and row["acq_time"] > last_saved_min
+        ):
             if not first_row:
                 first_row = row
+                LOGGER.info(
+                    f"First row datetime: {first_row['acq_date']} {first_row['acq_time']}"
+                )
+
+            # for VIIRS, we only want first letter of confidence category, to make NRT category same as scientific
+            if alert_type == "VIIRS":
+                row["confidence"] = row["confidence"][0]
 
             _write_row(row, fields, tsv_writer)
+
+    LOGGER.info(f"Last row datetime: {last_row['acq_date']} {last_row['acq_time']}")
+    LOGGER.info(f"Successfully wrote TSV")
 
     tsv_file.close()
 
@@ -71,7 +90,8 @@ def process_active_fire_alerts(alert_type):
             tsv_result, Bucket=DATA_LAKE_BUCKET, Key=pipeline_key
         )
 
-    return get_s3_path(DATA_LAKE_BUCKET, pipeline_key)
+    LOGGER.info(f"Successfully uploaded to s3://{DATA_LAKE_BUCKET}/{pipeline_key}")
+    return f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}"
 
 
 def _get_temp_result_path(alert_type):

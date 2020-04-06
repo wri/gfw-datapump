@@ -90,7 +90,7 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
     Check if dataset upload is stuck on writing for various reasons.
     """
     # look for bug where elasticsearch has jammed writers
-    # we can tell this has happened if the # of reads > # of writes
+    # we can tell this has happened if the # of reads < # of writes
     if dataset["status"] == "pending" and task["reads"] < task["writes"]:
         LOGGER.warning(
             f"Pending dataset has fewer reads({task['reads']}) than writes({task['writes']}), might be stuck.'"

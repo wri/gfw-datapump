@@ -157,12 +157,13 @@ def create_dataset(name, source_urls):
         "provider": "tsv",
         "connectorType": "document",
         "application": ["gfw"],
+        "overwrite": True,
         "name": name,
         "sources": source_urls,
         "legend": legend,
     }
 
-    LOGGER.info(f"Creating dataset at URI {url} with body {payload}")
+    LOGGER.info(f"Creating dataset at URI {url} with token {token()} body {payload}")
     r = requests.post(url, data=json.dumps(payload), headers=headers)
 
     if r.status_code == 200:
@@ -170,7 +171,7 @@ def create_dataset(name, source_urls):
     else:
         raise Exception(
             "Data upload failed - received status code {}: "
-            "Message: {}".format(r.status_code, r.json)
+            "Message: {}".format(r.status_code, r.json())
         )
 
 
@@ -186,6 +187,8 @@ def _get_legend(source_url):
         legend_type = get_legend_type(col)
         if legend_type in legend:
             legend[legend_type].append(col)
+        elif legend_type == "lat" or legend_type == "long":
+            legend[legend_type] = col
         else:
             legend[legend_type] = [col]
 
@@ -193,14 +196,24 @@ def _get_legend(source_url):
 
 
 def get_legend_type(field):
-    if field.endswith("__Mg") or field.endswith("__ha"):
+    if (
+        field.endswith("__Mg")
+        or field.endswith("__ha")
+        or field.endswith("__K")
+        or field.endswith("__MW")
+    ):
         return "double"
     elif (
         field.endswith("__threshold")
         or field.endswith("__count")
+        or field.endswith("__perc")
         or field == "treecover_loss__year"
     ):
         return "integer"
+    elif field == "latitude":
+        return "lat"
+    elif field == "longitude":
+        return "long"
     else:
         return "keyword"
 

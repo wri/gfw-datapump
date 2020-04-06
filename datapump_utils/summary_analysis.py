@@ -5,12 +5,16 @@ from enum import Enum
 
 import boto3
 from botocore.exceptions import ClientError
+from datapump_utils.logger import get_logger
+from datapump_utils.dataset import upload_dataset
 
 from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
+
+LOGGER = get_logger(__name__)
 
 
 class JobStatus(Enum):
@@ -35,7 +39,14 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
 
 
 def get_summary_analysis_step(
-    analysis, feature_url, result_url, jar, feature_type="feature", get_summary=True
+    analysis,
+    feature_url,
+    result_url,
+    jar,
+    feature_type="feature",
+    get_summary=True,
+    fire_src=None,
+    fire_type=None,
 ):
     step_args = [
         "spark-submit",
@@ -62,6 +73,14 @@ def get_summary_analysis_step(
     if not get_summary:
         step_args.append("--change_only")
 
+    if fire_src and fire_type:
+        step_args.append("--fire_alert_type")
+        step_args.append(fire_type)
+
+        for src in fire_src:
+            step_args.append("--fire_alert_source")
+            step_args.append(src)
+
     return {
         "Name": analysis,
         "ActionOnFailure": "TERMINATE_CLUSTER",
@@ -70,19 +89,38 @@ def get_summary_analysis_step(
 
 
 def get_summary_analysis_steps(
-    analyses, feature_src, feature_type, result_dir, get_summary
+    analyses, feature_src, feature_type, result_dir, get_summary=False, fire_config=None
 ):
     latest_jar = _get_latest_geotrellis_jar()
     steps = []
 
     for analysis in analyses:
         result_url = get_s3_path(RESULT_BUCKET, result_dir)
-        steps.append(
-            get_summary_analysis_step(
-                analysis, feature_src, result_url, latest_jar, feature_type, get_summary
+        if analysis == "firealerts" and fire_config:
+            for alert_type, alert_sources in fire_config.items():
+                steps.append(
+                    get_summary_analysis_step(
+                        analysis,
+                        feature_src,
+                        result_url,
+                        latest_jar,
+                        feature_type,
+                        get_summary,
+                        alert_sources,
+                        alert_type,
+                    )
+                )
+        else:
+            steps.append(
+                get_summary_analysis_step(
+                    analysis,
+                    feature_src,
+                    result_url,
+                    latest_jar,
+                    feature_type,
+                    get_summary,
+                )
             )
-        )
-
     return steps
 
 
