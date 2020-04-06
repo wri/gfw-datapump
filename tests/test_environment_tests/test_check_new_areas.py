@@ -1,11 +1,12 @@
 import os
 import json
 import shapely.wkb
+from copy import deepcopy
 
 from datapump_utils.util import secret_suffix, bucket_suffix
 
 from lambdas.check_new_aoi.src.lambda_function import (
-    handler,
+    filter_geostores,
     geostore_to_wkb,
     get_geostore,
     get_geostore_ids,
@@ -70,7 +71,12 @@ AREAS = {
                 "language": "en",
             },
         },
-    ]
+    ],
+    "links": {
+        "self": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=1000",
+        "last": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+        "next": "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=1000",
+    },
 }
 
 GEOSTORE_IDS = [
@@ -527,6 +533,38 @@ GEOSTORE = {
     ]
 }
 
+BAD_GEOSTORE = {
+    "data": [
+        {
+            "geostoreId": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+            "geostore": {
+                "data": {
+                    "type": "geoStore",
+                    "id": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+                    "attributes": {
+                        "geojson": {
+                            "features": [],
+                            "crs": {},
+                            "type": "FeatureCollection",
+                        },
+                        "hash": "069b603da1c881cf0fc193c39c3687bb",  # pragma: allowlist secret
+                        "provider": {},
+                        "areaHa": 11_186_986.783_767_128,
+                        "bbox": [
+                            8.923_828_125_016_8,
+                            4.849_697_804_134_93,
+                            12.791_015_625_021_4,
+                            9.556_965_798_610_79,
+                        ],
+                        "lock": False,
+                        "info": {"use": {}},
+                    },
+                }
+            },
+        }
+    ]
+}
+
 CURDIR = os.path.dirname(__file__)
 
 
@@ -535,19 +573,27 @@ def test_secret_suffix():
 
 
 def test_get_pending_areas(requests_mock):
-    result = AREAS
+    result_1 = deepcopy(AREAS)
+    result_2 = deepcopy(result_1)
+    result_2["links"]["self"] = result_2["links"]["last"]
+
+    requests_mock.post("http://staging-api.globalforestwatch.org/v2/area/sync")
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true",
-        json=result,
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=100",
+        json=result_1,
+    )
+    requests_mock.get(
+        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=100",
+        json=result_2,
     )
     areas = get_pending_areas()
 
-    assert areas == result
+    assert len(areas) == 4
 
 
 def test_get_geostore_ids():
-    geostore_ids = get_geostore_ids(AREAS)
-    assert geostore_ids == GEOSTORE_IDS
+    geostore_ids = get_geostore_ids(AREAS["data"])
+    assert set(geostore_ids) == set(GEOSTORE_IDS)
 
 
 def test_get_geostore(requests_mock):
@@ -559,25 +605,34 @@ def test_get_geostore(requests_mock):
     assert geostore == GEOSTORE
 
 
+def test_filter_geostore():
+    geostores = BAD_GEOSTORE
+    geostores["data"].append((GEOSTORE["data"][1]))
+
+    too_big = deepcopy(GEOSTORE["data"][1])
+    too_big["geostoreId"] = "test"
+    too_big["geostore"]["data"]["attributes"]["areaHa"] = 100_000_000_000
+    geostores["data"].append(too_big)
+
+    filtered_geostores = filter_geostores(geostores)
+    assert len(filtered_geostores["data"]) == 1
+
+
 def test_geostore_to_wkb():
-    with geostore_to_wkb(GEOSTORE) as wkb:
-        assert len(wkb.getvalue().split("\n")) == 33
+    with geostore_to_wkb(GEOSTORE) as (wkb, geom_count):
+        assert geom_count == 31
 
 
 def test_intersecting_polygons():
     with open(f"{CURDIR}/complex_geostore.json", "r+") as f:
         geostore_non_polygon_intersections = json.load(f)
 
-    with geostore_to_wkb(geostore_non_polygon_intersections) as wkb:
+    with geostore_to_wkb(geostore_non_polygon_intersections) as (wkb, geom_count):
         lines = wkb.getvalue().split("\n")
-        assert len(lines) == 26
+        assert geom_count == 24
 
         for line in lines[1:-1]:
             cols = line.split("\t")
             geom = shapely.wkb.loads(bytes.fromhex(cols[1]))
 
             assert geom.type == "Polygon" or geom.type == "MultiPolygon"
-
-
-def test_handler():
-    handler(None, None)

@@ -30,40 +30,43 @@ LOGGER = get_logger(__name__)
 
 
 def handler(event, context):
-    name = event["name"]
-    dataset_ids = event["dataset_ids"]
-    dataset_sources = event["dataset_sources"]
-    upload_type = event["upload_type"]
-
-    # keep track of number of retries to upload each dataset
-    # this lambda runs on a wait loop so it'll keep getting passed back in
-    retries = event["retries"] if "retries" in event else dict()
-
-    # check status of dataset requests
-    datasets = [get_dataset(id) for id in dataset_ids.values()]
-    tasks = [get_task(ds["taskId"]) for ds in datasets]
-
     try:
-        check_for_upload_issues(
-            name, datasets, dataset_sources, tasks, upload_type, retries
-        )
-    except (
-        FailedDatasetUploadException,
-        StatusMismatchException,
-        MaxRetriesHitException,
-    ) as e:
-        return error(str(e))
+        name = event["name"]
+        dataset_ids = event["dataset_ids"]
+        dataset_sources = event["dataset_sources"]
+        upload_type = event["upload_type"]
 
-    # if any datasets are still pending, return to wait loop
-    if get_datasets_with_status(datasets, "pending"):
-        event.update({"status": "PENDING", "retries": retries})
+        # keep track of number of retries to upload each dataset
+        # this lambda runs on a wait loop so it'll keep getting passed back in
+        retries = event["retries"] if "retries" in event else dict()
+
+        # check status of dataset requests
+        datasets = [get_dataset(id) for id in dataset_ids.values()]
+        tasks = [get_task(ds["taskId"]) for ds in datasets]
+
+        try:
+            check_for_upload_issues(
+                name, datasets, dataset_sources, tasks, upload_type, retries
+            )
+        except (
+            FailedDatasetUploadException,
+            StatusMismatchException,
+            MaxRetriesHitException,
+        ) as e:
+            return error(f"Error while running {name} update: {e}")
+
+        # if any datasets are still pending, return to wait loop
+        if get_datasets_with_status(datasets, "pending"):
+            event.update({"status": "PENDING", "retries": retries})
+            return event
+
+        # Success! Log any task log warnings and send slack notification
+        log_task_log_warnings(datasets, tasks)
+        slack_webhook("INFO", f"Successfully ran {name} summary dataset update")
+        event.update({"status": "SUCCESS"})
         return event
-
-    # Success! Log any task log warnings and send slack notification
-    log_task_log_warnings(datasets, tasks)
-    slack_webhook("INFO", "Successfully ran {} summary dataset update".format(name))
-    event.update({"status": "SUCCESS"})
-    return event
+    except Exception as e:
+        return error(f"Exception caught while running {name} update: {e}")
 
 
 def check_for_upload_issues(

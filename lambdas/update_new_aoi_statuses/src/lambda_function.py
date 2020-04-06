@@ -3,12 +3,11 @@ import os
 import io
 from typing import Set
 
-import requests
-
 from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.util import api_prefix, error
-from datapump_utils.secrets import token
 from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump_utils.logger import get_logger
+from datapump_utils.dataset import update_aoi_statuses
 
 
 if "ENV" in os.environ:
@@ -17,6 +16,7 @@ else:
     ENV = "dev"
 
 AOI_UPDATED_STATUS = "saved"
+LOGGER = get_logger(__name__)
 
 
 def handler(event, context):
@@ -27,7 +27,7 @@ def handler(event, context):
         aoi_src = event["feature_src"]
 
         geostore_ids = get_aoi_geostore_ids(aoi_src)
-        update_aoi_statuses(geostore_ids)
+        update_aoi_statuses(geostore_ids, "saved")
 
         return {"status": "SUCCESS"}
     except UnexpectedResponseError as e:
@@ -52,32 +52,3 @@ def get_aoi_geostore_ids(aoi_src: str) -> Set[str]:
             geostore_ids.add(geostore_id)
 
     return geostore_ids
-
-
-def update_aoi_statuses(geostore_ids: Set[str]) -> int:
-    url = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/update"
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token()}",
-    }
-
-    r = requests.post(
-        url,
-        data=json.dumps(_update_aoi_statuses_payload(geostore_ids)),
-        headers=headers,
-    )
-
-    if r.status_code != 200:
-        raise UnexpectedResponseError(
-            f"Data upload failed - received status code {r.status_code}, message: {r.json()}"
-        )
-    else:
-        return r.status_code
-
-
-def _update_aoi_statuses_payload(geostore_ids):
-    return {
-        "geostores": list(geostore_ids),
-        "update_params": {"status": AOI_UPDATED_STATUS},
-    }
