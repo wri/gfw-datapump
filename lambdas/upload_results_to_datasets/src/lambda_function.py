@@ -68,7 +68,11 @@ def handler(event, context):
                 )
 
         event.update(
-            {"status": "SUCCESS", "dataset_ids": dataset_ids,}
+            {
+                "status": "SUCCESS",
+                "dataset_ids": dataset_ids,
+                "dataset_sources": all_dataset_sources,
+            }
         )
         return event
     elif job_status == JobStatus.PENDING:
