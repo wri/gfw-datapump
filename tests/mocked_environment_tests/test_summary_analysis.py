@@ -52,8 +52,7 @@ def test_get_analysis_steps():
         "geostore",
         "my/result/dir",
         True,
-        fire_src=["s3a://path/to/viirs"],
-        fire_type="viirs",
+        fire_config={"viirs": ["s3a://path/to/viirs"]},
     )
     step_args_fire = " ".join(steps_with_fire[0]["HadoopJarStep"]["Args"])
     assert (

@@ -89,32 +89,38 @@ def get_summary_analysis_step(
 
 
 def get_summary_analysis_steps(
-    analyses,
-    feature_src,
-    feature_type,
-    result_dir,
-    get_summary=False,
-    fire_src=None,
-    fire_type=None,
+    analyses, feature_src, feature_type, result_dir, get_summary=False, fire_config=None
 ):
     latest_jar = _get_latest_geotrellis_jar()
     steps = []
 
     for analysis in analyses:
         result_url = get_s3_path(RESULT_BUCKET, result_dir)
-        steps.append(
-            get_summary_analysis_step(
-                analysis,
-                feature_src,
-                result_url,
-                latest_jar,
-                feature_type,
-                get_summary,
-                fire_src,
-                fire_type,
+        if analysis == "firealerts" and fire_config:
+            for alert_type, alert_sources in fire_config.items():
+                steps.append(
+                    get_summary_analysis_step(
+                        analysis,
+                        feature_src,
+                        result_url,
+                        latest_jar,
+                        feature_type,
+                        get_summary,
+                        alert_sources,
+                        alert_type,
+                    )
+                )
+        else:
+            steps.append(
+                get_summary_analysis_step(
+                    analysis,
+                    feature_src,
+                    result_url,
+                    latest_jar,
+                    feature_type,
+                    get_summary,
+                )
             )
-        )
-
     return steps
 
 

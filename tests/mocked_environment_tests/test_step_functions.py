@@ -117,7 +117,7 @@ def _test_upload_results_to_datasets_concat(input_params, mock_get_job_status):
     assert result["analyses"] == ANALYSES
     assert result["feature_src"] == FEATURE_SRC
     assert list(result["dataset_ids"].values()) == list(DATASET_IDS.values())
-    # assert result["dataset_sources"] == DATASET_SOURCES
+    assert result["dataset_sources"] == DATASET_SOURCES
 
     return result
 
@@ -193,7 +193,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
     assert result["analyses"] == ANALYSES
     assert result["feature_src"] == FEATURE_SRC
     assert result["dataset_ids"] == DATASET_IDS
-    # assert result["dataset_sources"] == DATASET_SOURCES
+    assert result["dataset_sources"] == DATASET_SOURCES
 
     return result
 
