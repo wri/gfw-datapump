@@ -50,9 +50,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             geostore = filter_geostores(geostore)
 
             if geostore:
-                geostore_path = (
-                    f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d')}.tsv"
-                )
+                geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d_%H%M')}.tsv"
                 geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
 
                 with geostore_to_wkb(geostore) as (wkb, geom_count):
@@ -167,7 +165,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out
-    return list(set(geostore_ids))[:2000]
+    return list(set(geostore_ids))[:1500]
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
@@ -223,6 +221,9 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
                 g["geostoreId"]
                 for g in geostores["data"]
                 if not g["geostore"]["data"]["attributes"]["geojson"]["features"]
+                or not g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
+                    "geometry"
+                ]["coordinates"]
             ]
         )
     )
@@ -259,32 +260,36 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
     # Body
     try:
         for g in geostore["data"]:
-            geom: Polygon = shape(
-                g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
-                    "geometry"
-                ]
-            )
+            try:
+                geom: Polygon = shape(
+                    g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
+                        "geometry"
+                    ]
+                )
 
-            # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
-            if not geom.is_valid:
-                geom = geom.buffer(0)
-                if (
-                    not geom.is_valid
-                ):  # is still invalid, we'll need to look into this, but skip for now
-                    LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
+                # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
+                if not geom.is_valid:
+                    geom = geom.buffer(0)
+                    if (
+                        not geom.is_valid
+                    ):  # is still invalid, we'll need to look into this, but skip for now
+                        LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
 
-            for tile in extent_1x1:
-                if geom.intersects(tile[0]):
-                    LOGGER.debug(
-                        f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
-                    )
-                    intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
-
-                    if intersecting_polygon:
-                        wkb.write(
-                            f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                for tile in extent_1x1:
+                    if geom.intersects(tile[0]):
+                        LOGGER.debug(
+                            f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
                         )
-                        count += 1
+                        intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
+
+                        if intersecting_polygon:
+                            wkb.write(
+                                f"{g['geostoreId']}\t{dumps(intersecting_polygon, hex=True)}\t{tile[1]}\t{tile[2]}\n"
+                            )
+                            count += 1
+            except Exception as e:
+                LOGGER.error(f"Error processing geostore {g['geostoreId']}")
+                raise e
 
         yield (wkb, count)
 
