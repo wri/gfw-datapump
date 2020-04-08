@@ -28,7 +28,7 @@ lambda_get_latest_fire_alerts_runtime     = "python3.7"
 lambda_get_latest_fire_alerts_memory_size = 1024
 lambda_get_latest_fire_alerts_timeout     = 300
 
-geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.3-af95a045016e85cc7bbbe9b3d5a210406bca8202.jar"
+geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.3-ef18f791d6a0a6b18b39fb29b2eb7e2ccf95b66c.jar"
 
 datasets = {
   "geostore": {
@@ -43,19 +43,17 @@ datasets = {
       "summary" = "489a5e5d-067f-4528-9395-a20c86ed329e"
       "whitelist" = "cc0a64f1-a656-42f0-9383-7f1b68b4e46b"
     }
-    "firealerts": {
-      "modis": {
-        "daily_alerts" = "0a25370f-e20e-43b2-bd87-075c38b67d2e"
-        "weekly_alerts" = "1e6bb2c0-61d4-421e-be26-9bd09cb65cdf"
-        "all" = "38a9b724-0e6d-4f9c-8af0-a8ddb91a6d10"
-        "whitelist" = "263cae9b-8471-4f16-8322-c8ae34425378"
-      }
-      "viirs": {
-        "daily_alerts" = "e17593fd-fdcf-40c5-8e6e-c437c9fc15a2"
-        "weekly_alerts" = "c223fd5c-a029-426c-978d-26afcff66921"
-        "all" = "5b026944-b7b0-4f4a-8df1-0cb9144c1d3f"
-        "whitelist" = "099b27b7-0868-4505-a2c2-603b76fae5f8"
-      }
+    "firealerts_modis": {
+      "daily_alerts" = "0a25370f-e20e-43b2-bd87-075c38b67d2e"
+      "weekly_alerts" = "1e6bb2c0-61d4-421e-be26-9bd09cb65cdf"
+      "all" = "38a9b724-0e6d-4f9c-8af0-a8ddb91a6d10"
+      "whitelist" = "263cae9b-8471-4f16-8322-c8ae34425378"
+    }
+    "firealerts_viirs": {
+      "daily_alerts" = "e17593fd-fdcf-40c5-8e6e-c437c9fc15a2"
+      "weekly_alerts" = "c223fd5c-a029-426c-978d-26afcff66921"
+      "all" = "5b026944-b7b0-4f4a-8df1-0cb9144c1d3f"
+      "whitelist" = "099b27b7-0868-4505-a2c2-603b76fae5f8"
     }
   }
   "gadm": {
@@ -71,32 +69,30 @@ datasets = {
         "weekly_alerts" = "a6195a49-7d58-4284-af29-24dc7ddd627f"
       }
     }
-    "firealerts": {
-      "viirs": {
-        "all" = "003539d8-b713-4df2-9e31-5eda80353191"
-        "iso": {
-          "weekly_alerts" = "3775de0b-eefc-4325-ae4f-27ef7e04a6f1"
-        }
-        "adm1": {
-          "weekly_alerts" = "0b9ab27d-4003-4a89-87ca-69d34642fc4a"
-        }
-        "adm2": {
-          "daily_alerts" = "17388a14-b28e-4b76-bad7-2d174b9f143d"
-          "weekly_alerts" = "6562ac9b-516d-49ce-ab21-191d1e5fec93"
-        }
+    "firealerts_viirs": {
+      "all" = "003539d8-b713-4df2-9e31-5eda80353191"
+      "iso": {
+        "weekly_alerts" = "3775de0b-eefc-4325-ae4f-27ef7e04a6f1"
       }
-      "modis": {
-        "all" = "2861d8b5-6abf-4602-81d0-1311cafce0fc"
-        "iso": {
-          "weekly_alerts" = "be3bdf28-a969-4312-a9e3-3ea517908a2a"
-        }
-        "adm1": {
-          "weekly_alerts" = "832df160-13ab-42b8-9409-38cc3128db4c"
-        }
-        "adm2": {
-          "daily_alerts" = "b80c6564-ed47-44b4-8baf-b1831441bcb7"
-          "weekly_alerts" = "ab047d27-1ff1-4a7e-a1f2-1a165d5e0a4b"
-        }
+      "adm1": {
+        "weekly_alerts" = "0b9ab27d-4003-4a89-87ca-69d34642fc4a"
+      }
+      "adm2": {
+        "daily_alerts" = "17388a14-b28e-4b76-bad7-2d174b9f143d"
+        "weekly_alerts" = "6562ac9b-516d-49ce-ab21-191d1e5fec93"
+      }
+    }
+    "firealerts_modis": {
+      "all" = "2861d8b5-6abf-4602-81d0-1311cafce0fc"
+      "iso": {
+        "weekly_alerts" = "be3bdf28-a969-4312-a9e3-3ea517908a2a"
+      }
+      "adm1": {
+        "weekly_alerts" = "832df160-13ab-42b8-9409-38cc3128db4c"
+      }
+      "adm2": {
+        "daily_alerts" = "b80c6564-ed47-44b4-8baf-b1831441bcb7"
+        "weekly_alerts" = "ab047d27-1ff1-4a7e-a1f2-1a165d5e0a4b"
       }
     }
   }

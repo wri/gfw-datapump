@@ -2,6 +2,7 @@ import os
 import json
 import random
 from enum import Enum
+from copy import deepcopy
 
 import boto3
 from botocore.exceptions import ClientError
@@ -142,7 +143,9 @@ def get_job_status(job_flow_id: str) -> JobStatus:
         return JobStatus.PENDING
 
 
-def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
+def get_analysis_result_paths(
+    result_bucket, result_directory, analysis_names, fire_alert_types=[]
+):
     """
     Analysis result directories are named as <analysis>_<date>_<time>
     This creates a map of each analysis to its directory name so we know where to find
@@ -160,8 +163,10 @@ def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
     ]
 
     analysis_result_path_map = dict()
+    analyses = _get_geotrellis_analysis_names(analysis_names, fire_alert_types)
+
     for path in analysis_result_paths:
-        for analysis in analysis_names:
+        for analysis in analyses:
             if analysis in os.path.basename(path):
                 analysis_result_path_map[analysis] = path
 
@@ -204,9 +209,11 @@ def get_dataset_sources(results_path):
     ]
 
 
-def get_dataset_result_paths(result_dir, analyses, datasets, feature_type):
+def get_dataset_result_paths(
+    result_dir, analyses, datasets, feature_type, fire_alert_types=[]
+):
     analysis_result_paths = get_analysis_result_paths(
-        RESULT_BUCKET, result_dir, analyses
+        RESULT_BUCKET, result_dir, analyses, fire_alert_types
     )
     dataset_result_paths = dict()
 
@@ -241,6 +248,16 @@ def get_dataset_result_keys(ds_ids):
             results.append((dir_name, dir_val))
 
     return results
+
+
+def _get_geotrellis_analysis_names(analysis_names, fire_alert_types=[]):
+    analyses = deepcopy(analysis_names)
+    if "firealerts" in analyses:
+        analyses.remove("firealerts")
+        for alert_type in fire_alert_types:
+            analyses.append(f"firealerts_{alert_type.lower()}")
+
+    return analyses
 
 
 def _run_job_flow(name, instances, steps, applications, configurations):

@@ -162,7 +162,7 @@ def test_get_dataset_sources():
 def test_get_dataset_result_paths():
     mock_environment()
 
-    analyses = ["gladalerts", "annualupdate_minimal"]
+    analyses = ["gladalerts", "annualupdate_minimal", "firealerts"]
     dataset_ids = {
         "gladalerts": {
             "daily_alerts": "testid_daily_alerts_glad",
@@ -173,19 +173,25 @@ def test_get_dataset_result_paths():
             "change": "testid_change_tcl",
             "summary": "testid_summary_tcl",
         },
+        "firealerts_viirs": {
+            "change": "testid_change_viirs",
+            "all": "testid_all_viirs",
+        },
     }
 
     result_dir = f"geotrellis/results/test/{get_date_string()}"
     feature_type = "geostore"
+    fire_alert_types = ["viirs"]
 
     dataset_result_paths = get_dataset_result_paths(
-        result_dir, analyses, dataset_ids, feature_type
+        result_dir, analyses, dataset_ids, feature_type, fire_alert_types
     )
 
     results_glad = (
         f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
     )
     results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
+    results_viirs = f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore"
 
     assert (
         dataset_result_paths["testid_daily_alerts_glad"]
@@ -199,6 +205,8 @@ def test_get_dataset_result_paths():
 
     assert dataset_result_paths["testid_change_tcl"] == f"{results_tcl}/change"
     assert dataset_result_paths["testid_summary_tcl"] == f"{results_tcl}/summary"
+    assert dataset_result_paths["testid_change_viirs"] == f"{results_viirs}/change"
+    assert dataset_result_paths["testid_all_viirs"] == f"{results_viirs}/all"
 
 
 def test_get_dataset_result_keys():
