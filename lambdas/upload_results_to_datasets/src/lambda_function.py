@@ -62,7 +62,7 @@ def handler(event, context):
                 {
                     "status": "SUCCESS",
                     "dataset_ids": dataset_ids,
-                    "dataset_sources": all_dataset_sources,
+                    "dataset_sources": [],
                 }
             )
             return event
