@@ -86,6 +86,7 @@ def _mock_s3_setup():
         f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
     )
     results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
+    results_viirs = f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore"
     results1 = os.path.join(CURDIR, "mock_files/results1.csv")
     results2 = os.path.join(CURDIR, "mock_files/results2.csv")
     results3 = os.path.join(CURDIR, "mock_files/results3.csv")
@@ -170,6 +171,24 @@ def _mock_s3_setup():
         open(success, "r"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(success, "r"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/change/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(results1, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/change/results1.csv",
+    )
+    s3_client().upload_fileobj(
+        open(success, "r"), Bucket=pipeline_bucket, Key=f"{results_viirs}/all/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(results1, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/all/results1.csv",
     )
 
     glad_alerts_bucket, glad_alerts_prefix = get_s3_path_parts(GLAD_ALERTS_PATH)

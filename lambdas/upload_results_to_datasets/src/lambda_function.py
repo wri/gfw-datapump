@@ -1,4 +1,5 @@
 import os
+import traceback
 
 from datapump_utils.dataset import upload_dataset
 from datapump_utils.logger import get_logger
@@ -28,11 +29,12 @@ def handler(event, context):
         feature_type = event["feature_type"]
         upload_type = event["upload_type"]
         name = event["name"]
+        fire_config = event.get("fire_config", {})
 
         job_status = get_job_status(job_flow_id)
         if job_status == JobStatus.SUCCESS:
             dataset_result_paths = get_dataset_result_paths(
-                result_dir, analyses, datasets, feature_type
+                result_dir, analyses, datasets, feature_type, fire_config.keys()
             )
 
             LOGGER.info(f"Dataset result paths: {dataset_result_paths}")
@@ -71,5 +73,7 @@ def handler(event, context):
             return error(
                 f"Geotrellis failure while running {name} update: cluster with ID={job_flow_id} failed."
             )
-    except Exception as e:
-        return error(f"Exception caught while running {name} update: {e}")
+    except Exception:
+        return error(
+            f"Exception caught while running {name} update: {traceback.format_exc()}"
+        )
