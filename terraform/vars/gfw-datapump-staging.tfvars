@@ -43,6 +43,20 @@ datasets = {
       "summary" = "489a5e5d-067f-4528-9395-a20c86ed329e"
       "whitelist" = "cc0a64f1-a656-42f0-9383-7f1b68b4e46b"
     }
+    "firealerts": {
+      "modis": {
+        "daily_alerts" = "0a25370f-e20e-43b2-bd87-075c38b67d2e"
+        "weekly_alerts" = "1e6bb2c0-61d4-421e-be26-9bd09cb65cdf"
+        "all" = "38a9b724-0e6d-4f9c-8af0-a8ddb91a6d10"
+        "whitelist" = "263cae9b-8471-4f16-8322-c8ae34425378"
+      }
+      "viirs": {
+        "daily_alerts" = "e17593fd-fdcf-40c5-8e6e-c437c9fc15a2"
+        "weekly_alerts" = "c223fd5c-a029-426c-978d-26afcff66921"
+        "all" = "5b026944-b7b0-4f4a-8df1-0cb9144c1d3f"
+        "whitelist" = "099b27b7-0868-4505-a2c2-603b76fae5f8"
+      }
+    }
   }
   "gadm": {
     "gladalerts": {
