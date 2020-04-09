@@ -1,5 +1,6 @@
 import os
 import json
+import traceback
 
 from datapump_utils.fire_alerts import process_active_fire_alerts
 
@@ -21,7 +22,7 @@ def handler(event, context):
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["firealerts"],
-                "datasets": {"firealerts": DATASETS["gadm"]["firealerts"]["viirs"]},
+                "datasets": {"firealerts_viirs": DATASETS["gadm"]["firealerts_viirs"]},
                 "name": "fire-alerts-viirs-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -33,7 +34,9 @@ def handler(event, context):
                 "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
                 "feature_type": "geostore",
                 "analyses": ["firealerts"],
-                "datasets": {"firealerts": DATASETS["geostore"]["firealerts"]["viirs"]},
+                "datasets": {
+                    "firealerts_viirs": DATASETS["geostore"]["firealerts_viirs"]
+                },
                 "name": "fire-alerts-viirs-geostore",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -47,7 +50,7 @@ def handler(event, context):
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["firealerts"],
-                "datasets": {"firealerts": DATASETS["gadm"]["firealerts"]["modis"]},
+                "datasets": {"firealerts_modis": DATASETS["gadm"]["firealerts_modis"]},
                 "name": "fire-alerts-modis-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -59,7 +62,9 @@ def handler(event, context):
                 "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
                 "feature_type": "geostore",
                 "analyses": ["firealerts"],
-                "datasets": {"firealerts": DATASETS["geostore"]["firealerts"]["modis"]},
+                "datasets": {
+                    "firealerts_modis": DATASETS["geostore"]["firealerts_modis"]
+                },
                 "name": "fire-alerts-modis-geostore",
                 "upload_type": upload_type,
                 "get_summary": False,
