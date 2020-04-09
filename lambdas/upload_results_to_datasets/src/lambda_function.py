@@ -63,7 +63,7 @@ def handler(event, context):
                     "status": "SUCCESS",
                     "dataset_ids": dataset_ids,
                     "dataset_sources": all_dataset_sources
-                    if len(all_dataset_sources) < 200
+                    if len(all_dataset_sources) < 100
                     else [],
                 }
             )
