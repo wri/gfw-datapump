@@ -75,7 +75,7 @@ resource "aws_lambda_function" "check_new_aoi" {
   timeout          = var.lambda_check_new_aoi_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.core.outputs.lambda_layer_shapely_pyyaml_arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_shapely_pyyaml_arn]
   environment {
     variables = {
       ENV                = var.environment
