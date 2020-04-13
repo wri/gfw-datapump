@@ -2,7 +2,6 @@ import requests
 import csv
 import os
 
-from datapump_utils.s3 import get_s3_path
 from datapump_utils.s3 import s3_client
 from datapump_utils.logger import get_logger
 
@@ -49,7 +48,7 @@ def process_active_fire_alerts(alert_type):
     fields += BRIGHTNESS_FIELDS[alert_type]
     fields.append("frp")
 
-    result_path = _get_temp_result_path(alert_type)
+    result_path = get_tmp_result_path(alert_type)
 
     tsv_file = open(result_path, "w", newline="")
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
@@ -94,7 +93,7 @@ def process_active_fire_alerts(alert_type):
     return f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}"
 
 
-def _get_temp_result_path(alert_type):
+def get_tmp_result_path(alert_type):
     return f"/tmp/fire_alerts_{alert_type.lower()}.tsv"
 
 
