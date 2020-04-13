@@ -62,8 +62,7 @@ def pump_data(
             "datasets": get_dataset_names(
                 feature_type, analysis, version, tcl_year, fire_alert_type
             ),
-            "fire_type": fire_alert_type,
-            "fire_src": get_fire_src(fire_alert_type),
+            "fire_config": {fire_alert_type: get_fire_src(fire_alert_type)},
         }
     }
 
@@ -90,7 +89,7 @@ def pump_data(
             "FAILURE: State machine `datapump-geotrellis_dataset` couldn't be found in environment"
         )
     """
-    arn = "arn:aws:states:us-east-1:563860007740:stateMachine:datapump-geotrellis_dataset-feature-FireAlertsSfn"
+    arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
     execution_id = uuid.uuid4().hex
     response = sfn_client.start_execution(
         stateMachineArn=arn, name=execution_id, input=input,
@@ -102,13 +101,13 @@ def pump_data(
 def get_fire_src(fire_alert_type):
     if fire_alert_type == "viirs":
         return [
-            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
-            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
+            "s3://gfw-data-lake-staging/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
+            "s3://gfw-data-lake-staging/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
         ]
     else:
         return [
-            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
-            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
+            "s3://gfw-data-lake-staging/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
+            "s3://gfw-data-lake-staging/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
         ]
 
 
@@ -205,9 +204,9 @@ def get_dataset_names(
         elif analysis == "firealerts":
             return {
                 "firealerts": {
-                    "daily_alerts": f"Fire Alerts Daily Change - WDPA - {version}",
-                    "weekly_alerts": f"Fire Alerts Weekly Change - WDPA - {version}",
-                    "all": f"Fire Alerts - WDPA - {version}",
+                    "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}",
+                    "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}",
+                    "all": f"{fire_alert_type.upper()} Fire Alerts All - WDPA - {version}",
                     "whitelist": f"Fire Alerts Whitelist - WDPA - {version}",
                 },
             }
@@ -228,6 +227,15 @@ def get_dataset_names(
                     "summary": f"Glad Alerts Summary - Geostore - {version}",
                     "whitelist": f"Glad Alerts Whitelist - Geostore - {version}",
                 }
+            }
+        elif analysis == "firealerts":
+            return {
+                "firealerts": {
+                    "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}",
+                    "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}",
+                    "all": f"{fire_alert_type.upper()} Fire Alerts All - Geostore - {version}",
+                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - Geostore - {version}",
+                },
             }
 
 
