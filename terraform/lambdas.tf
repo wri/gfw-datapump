@@ -75,7 +75,7 @@ resource "aws_lambda_function" "check_new_aoi" {
   timeout          = var.lambda_check_new_aoi_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.core.outputs.lambda_layer_shapely_pyyaml_arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_shapely_pyyaml_arn]
   environment {
     variables = {
       ENV                = var.environment
@@ -111,9 +111,9 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   filename         = data.archive_file.lambda_check_new_glad_alerts.output_path
   source_code_hash = data.archive_file.lambda_check_new_glad_alerts.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
-  runtime          = var.lambda_get_latest_fire_alerts_runtime
+  runtime          = var.lambda_check_new_glad_alerts_runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_get_latest_fire_alerts_memory_size
+  memory_size      = var.lambda_check_new_glad_alerts_memory_size
   timeout          = var.lambda_get_latest_fire_alerts_timeout
   publish          = true
   tags             = local.tags
@@ -135,11 +135,11 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   role             = aws_iam_role.datapump_lambda.arn
   runtime          = var.lambda_get_latest_fire_alerts_runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_check_new_glad_alerts_memory_size
-  timeout          = var.lambda_check_new_glad_alerts_timeout
+  memory_size      = var.lambda_get_latest_fire_alerts_memory_size
+  timeout          = var.lambda_get_latest_fire_alerts_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_rasterio_arn]
   environment {
     variables = {
       ENV                 = var.environment
