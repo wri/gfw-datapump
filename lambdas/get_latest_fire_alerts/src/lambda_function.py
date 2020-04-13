@@ -14,11 +14,15 @@ def handler(event, context):
 
     upload_type = "append"
 
-    viirs_datasets = {"firealerts_viirs": DATASETS["gadm"]["firealerts_viirs"]}
-    modis_datasets = {"firealerts_modis": DATASETS["gadm"]["firealerts_modis"]}
+    viirs_datasets_geostore = {
+        "firealerts_viirs": DATASETS["geostore"]["firealerts_viirs"]
+    }
+    modis_datasets_geostore = {
+        "firealerts_modis": DATASETS["geostore"]["firealerts_modis"]
+    }
 
-    del viirs_datasets["firealerts_viirs"]["whitelist"]  # no summary
-    del modis_datasets["firealerts_modis"]["whitelist"]  # no summary
+    del viirs_datasets_geostore["firealerts_viirs"]["whitelist"]  # no summary
+    del modis_datasets_geostore["firealerts_modis"]["whitelist"]  # no summary
 
     return {
         "viirs": {
@@ -28,7 +32,7 @@ def handler(event, context):
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["firealerts"],
-                "datasets": viirs_datasets,
+                "datasets": {"firealerts_viirs": DATASETS["gadm"]["firealerts_viirs"]},
                 "name": "fire-alerts-viirs-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -40,7 +44,7 @@ def handler(event, context):
                 "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
                 "feature_type": "geostore",
                 "analyses": ["firealerts"],
-                "datasets": viirs_datasets,
+                "datasets": {"firealerts_modis": DATASETS["gadm"]["firealerts_modis"]},
                 "name": "fire-alerts-viirs-geostore",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -54,7 +58,7 @@ def handler(event, context):
                 "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
                 "feature_type": "gadm",
                 "analyses": ["firealerts"],
-                "datasets": modis_datasets,
+                "datasets": viirs_datasets_geostore,
                 "name": "fire-alerts-modis-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
@@ -66,7 +70,7 @@ def handler(event, context):
                 "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
                 "feature_type": "geostore",
                 "analyses": ["firealerts"],
-                "datasets": modis_datasets,
+                "datasets": modis_datasets_geostore,
                 "name": "fire-alerts-modis-geostore",
                 "upload_type": upload_type,
                 "get_summary": False,
