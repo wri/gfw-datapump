@@ -24,11 +24,11 @@ lambda_check_new_glad_alerts_runtime     = "python3.7"
 lambda_check_new_glad_alerts_memory_size = 1024
 lambda_check_new_glad_alerts_timeout     = 300
 
-lambda_get_latest_fire_alerts_runtime     = "python3.7"
-lambda_get_latest_fire_alerts_memory_size = 1024
-lambda_get_latest_fire_alerts_timeout     = 300
+lambda_get_latest_fire_alerts_runtime     = "python3.6"
+lambda_get_latest_fire_alerts_memory_size = 3008
+lambda_get_latest_fire_alerts_timeout     = 900
 
-geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.2-c7d635a71e2698af3d5a9caccf2431962bfb4d56.jar"
+geotrellis_jar = "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.0.3-e3fc2ec8aff58f08e305411da63794189177d2b1.jar"
 
 datasets = {
   "geostore": {
