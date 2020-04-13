@@ -16,7 +16,7 @@ from datapump_utils.fire_alerts import (
 
 @mock_secretsmanager
 @mock_s3
-@patch("datapump_utils.fire_alerts._get_temp_result_path")
+@patch("datapump_utils.fire_alerts.get_tmp_result_path")
 @pytest.mark.parametrize("alert_type", ["MODIS", "VIIRS"])
 def test_get_active_fire_alerts(get_path_mock, alert_type, requests_mock):
     mock_environment()
