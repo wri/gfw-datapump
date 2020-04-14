@@ -24,9 +24,9 @@ lambda_check_new_glad_alerts_runtime     = "python3.7"
 lambda_check_new_glad_alerts_memory_size = 1024
 lambda_check_new_glad_alerts_timeout     = 300
 
-lambda_get_latest_fire_alerts_runtime     = "python3.7"
-lambda_get_latest_fire_alerts_memory_size = 1024
-lambda_get_latest_fire_alerts_timeout     = 300
+lambda_get_latest_fire_alerts_runtime     = "python3.6"
+lambda_get_latest_fire_alerts_memory_size = 3008
+lambda_get_latest_fire_alerts_timeout     = 900
 
 geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.3.jar"
 
