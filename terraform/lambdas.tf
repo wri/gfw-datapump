@@ -114,7 +114,7 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   runtime          = var.lambda_check_new_glad_alerts_runtime
   handler          = "lambda_function.handler"
   memory_size      = var.lambda_check_new_glad_alerts_memory_size
-  timeout          = var.lambda_get_latest_fire_alerts_timeout
+  timeout          = var.lambda_check_new_glad_alerts_timeout
   publish          = true
   tags             = local.tags
   layers           = [module.lambda_layers.datapump_utils_arn]
