@@ -56,7 +56,7 @@ def pump_data(
             "feature_src": features,
             "feature_type": feature_type,
             "analyses": [analysis],
-            "name": f"{analysis}_{feature_type}_{date.today()}",
+            "name": f"{analysis}_{feature_type}{'_' + fire_alert_type if fire_alert_type else ''}_{date.today()}",
             "upload_type": "create",
             "get_summary": True,
             "datasets": get_dataset_names(
@@ -166,7 +166,7 @@ def get_dataset_names(
             }
         elif analysis == "firealerts":
             return {
-                "firealerts": {
+                f"firealerts_{fire_alert_type.lower()}": {
                     "all": f"{fire_alert_type.upper()} Fire Alerts - All - {version}",
                     "iso": {
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Iso level - {version}",
@@ -203,7 +203,7 @@ def get_dataset_names(
             }
         elif analysis == "firealerts":
             return {
-                "firealerts": {
+                f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}",
                     "all": f"{fire_alert_type.upper()} Fire Alerts All - WDPA - {version}",
@@ -230,7 +230,7 @@ def get_dataset_names(
             }
         elif analysis == "firealerts":
             return {
-                "firealerts": {
+                f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}",
                     "all": f"{fire_alert_type.upper()} Fire Alerts All - Geostore - {version}",
