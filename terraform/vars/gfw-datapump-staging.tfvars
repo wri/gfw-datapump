@@ -101,5 +101,15 @@ datasets = {
       "daily_alerts" = "99b1e1ea-eea8-4212-9868-ee4b69f1b268",
       "weekly_alerts" = "7e0669c2-e35b-4fa4-9e06-7a3c8e0cd767"
     }
+    "firealerts_modis": {
+      "daily_alerts" = "b2e8b335-0017-445c-b02c-55be4ed96a53"
+      "weekly_alerts" = "8a662dcf-b468-4704-baca-a7f5614b62f3"
+      "all" = "02028c88-c073-468e-bc11-031e0b09c7e3"
+    }
+    "firealerts_viirs": {
+      "daily_alerts" = "93a566c7-4788-4745-afb5-940767627279"
+      "weekly_alerts" = "1182262c-3519-46ed-add4-f30317693373"
+      "all" = "05d5c9ff-6134-4ec0-b7e1-6a5b4f50edab"
+    }
   }
 }

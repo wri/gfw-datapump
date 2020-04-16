@@ -63,6 +63,56 @@
           }
         },
         {
+          "StartAt": "Run Geotrellis Summary Update WDPA - VIIRS",
+          "States": {
+            "Run Geotrellis Summary Update WDPA - VIIRS": {
+              "Type": "Task",
+              "End": true,
+              "Resource": "arn:aws:states:::states:startExecution.sync",
+              "ResultPath": "$.viirs.wdpa",
+              "Parameters": {
+                "StateMachineArn": "${state_machine_arn}",
+                "Input": {
+                   "Input.$": "$.viirs.wpda"
+                }
+              },
+              "Catch": [{
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "Stop Gracefully WDPA VIIRS"
+              }]
+            },
+            "Stop Gracefully WPDA VIIRS": {
+              "Type": "Succeed"
+            }
+          }
+        },
+        {
+          "StartAt": "Run Geotrellis Summary Update WDPA - MODIS",
+          "States": {
+            "Run Geotrellis Summary Update WDPA - MODIS": {
+              "Type": "Task",
+              "End": true,
+              "Resource": "arn:aws:states:::states:startExecution.sync",
+              "ResultPath": "$.modis.wdpa",
+              "Parameters": {
+                "StateMachineArn": "${state_machine_arn}",
+                "Input": {
+                   "Input.$": "$.modis.wdpa"
+                }
+              },
+              "Catch": [{
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "Stop Gracefully WDPA MODIS"
+              }]
+            },
+            "Stop Gracefully WDPA MODIS": {
+              "Type": "Succeed"
+            }
+          }
+        },
+        {
           "StartAt": "Run Geotrellis Summary Update Geostore - VIIRS",
           "States": {
             "Run Geotrellis Summary Update Geostore - VIIRS": {
