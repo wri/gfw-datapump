@@ -5,8 +5,8 @@ import boto3
 
 CURDIR = os.path.dirname(__file__)
 
-from datapump_utils.util import get_date_string, bucket_suffix
-from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump_utils.util import get_date_string, bucket_suffix  # noqa: E402
+from datapump_utils.s3 import s3_client, get_s3_path_parts  # noqa: E402
 
 GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
 
@@ -32,8 +32,12 @@ os.environ["DATASETS"] = json.dumps(
         },
         "gadm": {
             "gladalerts": {
-                "iso": {"weekly_alerts": "testid_weekly_alerts_glad_iso",},
-                "adm1": {"weekly_alerts": "testid_weekly_alerts_glad_adm1",},
+                "iso": {
+                    "weekly_alerts": "testid_weekly_alerts_glad_iso",
+                },  # noqa: E231
+                "adm1": {
+                    "weekly_alerts": "testid_weekly_alerts_glad_adm1",
+                },  # noqa: E231
                 "adm2": {
                     "daily_alerts": "testid_daily_alerts_glad_adm2",
                     "weekly_alerts": "testid_weekly_alerts_glad_adm2",
