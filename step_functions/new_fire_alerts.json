@@ -82,7 +82,7 @@
                 "Next": "Stop Gracefully WDPA VIIRS"
               }]
             },
-            "Stop Gracefully WPDA VIIRS": {
+            "Stop Gracefully WDPA VIIRS": {
               "Type": "Succeed"
             }
           }
