@@ -39,8 +39,8 @@ def handler(event, context):
 
             LOGGER.info(f"Dataset result paths: {dataset_result_paths}")
 
-            all_dataset_sources = list()
             dataset_ids = dict()
+            dataset_paths_final = dict()
             for dataset, results_path in dataset_result_paths.items():
                 dataset_sources = get_dataset_sources(results_path)
 
@@ -49,10 +49,9 @@ def handler(event, context):
                 )
 
                 if dataset_sources:
-                    dataset_ids[dataset] = upload_dataset(
-                        dataset, dataset_sources, upload_type
-                    )
-                    all_dataset_sources.append(dataset_sources)
+                    ds_id = upload_dataset(dataset, dataset_sources, upload_type)
+                    dataset_ids[dataset] = ds_id
+                    dataset_paths_final[ds_id] = results_path
                 else:
                     LOGGER.info(
                         f"Skipping dataset {dataset} because there are no non-empty results."
@@ -62,9 +61,7 @@ def handler(event, context):
                 {
                     "status": "SUCCESS",
                     "dataset_ids": dataset_ids,
-                    "dataset_sources": all_dataset_sources
-                    if len(all_dataset_sources) < 25
-                    else [],
+                    "dataset_result_paths": dataset_paths_final,
                 }
             )
             return event
