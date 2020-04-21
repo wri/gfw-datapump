@@ -19,7 +19,7 @@ from collections import defaultdict
 @click.option(
     "--analysis",
     type=click.Choice(
-        ["annualupdate_minmal", "gladalerts", "firealerts"], case_sensitive=False
+        ["annualupdate_minimal", "gladalerts", "firealerts"], case_sensitive=False
     ),
     help="analysis type",
     required=True,
