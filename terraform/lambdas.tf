@@ -60,6 +60,9 @@ resource "aws_lambda_function" "check_datasets_saved" {
   environment {
     variables = {
       ENV = var.environment
+      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
+      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
     }
   }
 }
