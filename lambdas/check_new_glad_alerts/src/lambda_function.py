@@ -6,13 +6,13 @@ import json
 
 from datapump_utils.s3 import s3_client, get_s3_path_parts
 
-GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
+GLAD_STATUS_PATH = os.environ["GLAD_STATUS_PATH"]
 DATASETS = json.loads(os.environ["DATASETS"])
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
 
 
 def handler(event, context):
-    new_alerts = check_for_new_glad_alerts_in_past_day()
+    new_alerts = event.get("manual", check_for_new_glad_alerts_in_past_day())
 
     if new_alerts:
         return {
@@ -56,15 +56,18 @@ def handler(event, context):
 
 
 def check_for_new_glad_alerts_in_past_day():
-    glad_alerts_bucket, glad_alerts_prefix = get_s3_path_parts(GLAD_ALERTS_PATH)
-    response = s3_client().list_objects(
-        Bucket=glad_alerts_bucket, Prefix=glad_alerts_prefix
-    )
+    glad_alerts_bucket, glad_status = get_s3_path_parts(GLAD_STATUS_PATH)
+    response = s3_client().get_object(Bucket=glad_alerts_bucket, Key=glad_status)
 
-    last_modified_datetimes = [obj["LastModified"] for obj in response["Contents"]]
+    last_modified_datetime = response["LastModified"]
+    status = response["Body"].read().strip().decode("utf-8")
     one_day_ago = _now() - timedelta(hours=24)
 
-    return all(one_day_ago <= dt <= _now() for dt in last_modified_datetimes)
+    if status in ["COMPLETED", "SAVED", "HADOOP RUNNING", "HADOOP FAILED"]:
+        if one_day_ago <= last_modified_datetime <= _now():
+            return True
+
+    return False
 
 
 def get_dataset_ids(feature_type):

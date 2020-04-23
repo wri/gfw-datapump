@@ -105,3 +105,16 @@ def test_handler_no_alerts_found(mock_now):
     result = handler({}, None)
 
     assert result["status"] == "NO_NEW_ALERTS_FOUND"
+
+
+@mock_s3
+@mock_secretsmanager
+@patch("lambdas.check_new_glad_alerts.src.lambda_function._now")
+def test_handler_manual(mock_now):
+    mock_environment()
+
+    # mock datetime.now() as two days from now to make the mocked s3 tifs appear not updated recently
+    mock_now.return_value = datetime.now(pytz.utc) + timedelta(days=2)
+
+    result = handler({"manual": "true"}, None)
+    assert result["status"] == "NEW_ALERTS_FOUND"
