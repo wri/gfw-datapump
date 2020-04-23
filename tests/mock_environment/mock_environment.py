@@ -7,13 +7,13 @@ from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.s3 import s3_client, get_s3_path_parts
 
 CURDIR = os.path.dirname(__file__)
-GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
+GLAD_STATUS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/events/status"
 
 os.environ["S3_BUCKET_PIPELINE"] = f"gfw-pipelines{bucket_suffix()}"
 os.environ[
     "GEOTRELLIS_JAR"
 ] = f"s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar"
-os.environ["GLAD_ALERTS_PATH"] = GLAD_ALERTS_PATH
+os.environ["GLAD_STATUS_PATH"] = GLAD_STATUS_PATH
 os.environ["DATASETS"] = json.dumps(
     {
         "geostore": {
@@ -171,20 +171,12 @@ def _mock_s3_setup():
         Key=f"{results_tcl}/summary/_SUCCESS",
     )
 
-    glad_alerts_bucket, glad_alerts_prefix = get_s3_path_parts(GLAD_ALERTS_PATH)
-    tile1 = os.path.join(CURDIR, "mock_files/tile1.tif")
-    tile2 = os.path.join(CURDIR, "mock_files/tile2.tif")
+    glad_alerts_bucket, glad_status_path = get_s3_path_parts(GLAD_STATUS_PATH)
+    status_file = os.path.join(CURDIR, "mock_files/status")
 
     s3_client().create_bucket(Bucket=glad_alerts_bucket)
     s3_client().upload_fileobj(
-        open(tile1, "r"),
-        Bucket=glad_alerts_bucket,
-        Key=f"{glad_alerts_prefix}/tile1.tif",
-    )
-    s3_client().upload_fileobj(
-        open(tile2, "r"),
-        Bucket=glad_alerts_bucket,
-        Key=f"{glad_alerts_prefix}/tile2.tif",
+        open(status_file, "rb"), Bucket=glad_alerts_bucket, Key=glad_status_path,
     )
 
     s3_client().upload_fileobj(
