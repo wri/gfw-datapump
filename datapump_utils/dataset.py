@@ -207,7 +207,7 @@ def get_legend_type(field):
         field.endswith("__threshold")
         or field.endswith("__count")
         or field.endswith("__perc")
-        or field == "treecover_loss__year"
+        or field.endswith("_year")
     ):
         return "integer"
     elif field == "latitude":
