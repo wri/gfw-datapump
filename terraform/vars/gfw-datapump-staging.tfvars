@@ -28,7 +28,7 @@ lambda_get_latest_fire_alerts_runtime     = "python3.6"
 lambda_get_latest_fire_alerts_memory_size = 3008
 lambda_get_latest_fire_alerts_timeout     = 900
 
-geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.0.3-a34043b85adec43c7f0997f49b820abaebf4ba4c.jar"
+geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.1.0.jar"
 
 datasets = {
   "geostore": {
