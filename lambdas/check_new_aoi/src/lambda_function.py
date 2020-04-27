@@ -275,6 +275,10 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                     ):  # is still invalid, we'll need to look into this, but skip for now
                         LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
 
+                # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
+                # in geotrellis
+                geom = geom.buffer(0.0001).buffer(-0.0001)
+
                 for tile in extent_1x1:
                     if geom.intersects(tile[0]):
                         LOGGER.debug(
