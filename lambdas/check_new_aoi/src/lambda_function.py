@@ -93,6 +93,9 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
         LOGGER.error(traceback.format_exc())
+        slack_webhook(
+            "ERROR", "Error processing new user areas. See logs for more info."
+        )
         return {"status": "ERROR", "message": str(e)}
 
 
@@ -105,7 +108,7 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
-    sync_url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
+    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
