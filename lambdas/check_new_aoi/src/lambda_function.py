@@ -115,7 +115,7 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
-    sync_url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
+    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
@@ -267,6 +267,10 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                     ]
                 )
 
+                # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
+                # in geotrellis
+                geom = geom.buffer(0.0001).buffer(-0.0001)
+
                 # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
                 if not geom.is_valid:
                     geom = geom.buffer(0)
@@ -274,10 +278,6 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                         not geom.is_valid
                     ):  # is still invalid, we'll need to look into this, but skip for now
                         LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
-
-                # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
-                # in geotrellis
-                geom = geom.buffer(0.0001).buffer(-0.0001)
 
                 for tile in extent_1x1:
                     if geom.intersects(tile[0]):
