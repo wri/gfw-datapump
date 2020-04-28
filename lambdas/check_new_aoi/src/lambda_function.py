@@ -58,11 +58,11 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                         slack_webhook("INFO", "No new user areas found. Doing nothing.")
                         return {"status": "NO_NEW_AREAS_FOUND"}
 
-                    s3_client().put_object(
-                        Body=str.encode(wkb.getvalue()),
-                        Bucket=geostore_bucket,
-                        Key=geostore_path,
-                    )
+                    # s3_client().put_object(
+                    #    Body=str.encode(wkb.getvalue()),
+                    #    Bucket=geostore_bucket,
+                    #    Key=geostore_path,
+                    # )
                     worker_count = math.ceil(geom_count / 100)
 
                 LOGGER.info(f"Found {len(geostore['data'])} pending areas")
@@ -260,17 +260,21 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                     ]
                 )
 
+                # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
+                # in geotrellis
+                # https://gis.stackexchange.com/questions/120286/removing-small-polygon-gaps-in-shapely-polygon
+                geom = geom.buffer(0.0001).buffer(-0.0001)
+
                 # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
                 if not geom.is_valid:
                     geom = geom.buffer(0)
                     if (
                         not geom.is_valid
                     ):  # is still invalid, we'll need to look into this, but skip for now
-                        LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
-
-                # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
-                # in geotrellis
-                geom = geom.buffer(0.0001).buffer(-0.0001)
+                        LOGGER.warning(
+                            f"Invalid geometry {g['geostoreId']}: {geom.wkt}"
+                        )
+                        continue
 
                 for tile in extent_1x1:
                     if geom.intersects(tile[0]):
