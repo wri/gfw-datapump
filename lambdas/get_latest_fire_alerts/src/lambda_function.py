@@ -18,7 +18,7 @@ def handler(event, context):
 
     viirs_local_path = get_tmp_result_path("VIIRS")
 
-    # try to update geopackage, but sttill move on if it fails
+    # try to update geopackage, but still move on if it fails
     try:
         update_geopackage(viirs_local_path)
     except Exception:
