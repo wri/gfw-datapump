@@ -9,7 +9,7 @@ import boto3
 
 def get_bucket():
     s3 = boto3.resource("s3")
-    bucket = s3.Bucket(os.environ["S3_BUCKET_DATA_LAKE"])
+    bucket = s3.Bucket(os.environ["S3_BUCKET_PIPELINE"])
 
     return bucket
 
@@ -19,7 +19,9 @@ def download_gpkg():
     # maybe spatial index isn't used when reading from s3?
     bucket = get_bucket()
 
-    gpkg_src = "nasa_viirs_fire_alerts/v1/vector/epsg-4326/gpkg/data.gpkg"
+    gpkg_src = (
+        "fires/data.gpkg"  # "nasa_viirs_fire_alerts/v1/vector/epsg-4326/gpkg/data.gpkg"
+    )
     local_gpkg = "/tmp/data.gpkg"
     bucket.download_file(gpkg_src, local_gpkg)
 

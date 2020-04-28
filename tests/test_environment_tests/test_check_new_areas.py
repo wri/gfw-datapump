@@ -577,7 +577,7 @@ def test_get_pending_areas(requests_mock):
     result_2 = deepcopy(result_1)
     result_2["links"]["self"] = result_2["links"]["last"]
 
-    requests_mock.post("http://staging-api.globalforestwatch.org/v2/area/sync")
+    requests_mock.post("https://staging-api.globalforestwatch.org/v2/area/sync")
     requests_mock.get(
         f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=100",
         json=result_1,
