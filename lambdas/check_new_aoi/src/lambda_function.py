@@ -58,11 +58,11 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                         slack_webhook("INFO", "No new user areas found. Doing nothing.")
                         return {"status": "NO_NEW_AREAS_FOUND"}
 
-                    # s3_client().put_object(
-                    #    Body=str.encode(wkb.getvalue()),
-                    #    Bucket=geostore_bucket,
-                    #    Key=geostore_path,
-                    # )
+                    s3_client().put_object(
+                        Body=str.encode(wkb.getvalue()),
+                        Bucket=geostore_bucket,
+                        Key=geostore_path,
+                    )
                     worker_count = math.ceil(geom_count / 100)
 
                 LOGGER.info(f"Found {len(geostore['data'])} pending areas")
