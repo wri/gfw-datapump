@@ -1,68 +1,79 @@
 {
-  "StartAt": "Submit Job",
+  "StartAt": "Create_Cluster",
   "States": {
-    "Submit Job": {
+    "Create_Cluster": {
       "Type": "Task",
-      "Resource": "${lambda_submit_job_arn}",
-      "InputPath": "$.Input",
-      "ResultPath": "$",
-      "Next": "Job Submitted?"
+      "Resource": "arn:aws:states:::elasticmapreduce:createCluster.sync",
+      "Parameters": {
+        "Name.$": "$.emr.config.Name",
+        "VisibleToAllUsers": true,
+        "ReleaseLabel": "emr-5.24.0",
+        "ServiceRole.$": "$.emr.config.ServiceRole",
+        "JobFlowRole.$": "$.emr.config.JobFlowRole",
+        "LogUri.$": "$.emr.config.LogUri",
+        "Instances.$": "$.emr.config.Instances",
+        "Configurations.$": "$.emr.config.Configurations",
+        "Applications.$": "$.emr.config.Applications",
+        "Tags.$": "$.emr.config.Tags"
+      },
+      "ResultPath": "$.emr.create_cluster.output",
+      "Next": "Run_Steps"
     },
-    "Job Submitted?": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.status",
-          "StringEquals": "SUCCESS",
-          "Next": "Wait For Job Termination"
-        },
-        {
-          "Variable": "$.status",
-          "StringEquals": "FAILED",
-          "Next": "Job Submission Failed"
+    "Run_Steps": {
+      "Type": "Map",
+      "ItemsPath": "$.emr.steps",
+      "MaxConcurrency": 1,
+      "Parameters": {
+        "ClusterId.$": "$.emr.create_cluster.output.ClusterId",
+        "Step.$": "$$.Map.Item.Value"
+      },
+      "Iterator": {
+        "StartAt": "Run_Step",
+        "States": {
+          "Run_Step": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::elasticmapreduce:addStep.sync",
+            "End": true,
+            "Parameters": {
+              "ClusterId.$": "$.ClusterId",
+              "Step.$": "$.Step"
+            }
+          }
         }
-      ],
-      "Default": "Wait For Job Termination"
+      },
+      "Catch": [ {
+        "ErrorEquals": [ "States.ALL" ],
+        "Next": "Terminate_Cluster"
+      } ],
+      "Next": "Terminate_Cluster"
     },
-    "Wait For Job Termination": {
-      "Type": "Wait",
-      "Seconds": 10,
-      "Next": "Upload GeoTrellis Results To Dataset"
+    "Terminate_Cluster": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::elasticmapreduce:terminateCluster.sync",
+      "Parameters": {
+        "ClusterId.$": "$.emr.output.ClusterId"
+      },
+      "Retry": [ {
+         "ErrorEquals": [ "States.ALL" ],
+         "IntervalSeconds": 60,
+         "MaxAttempts": 3,
+         "BackoffRate": 2
+      } ],
+      "Next": "Upload_Results"
     },
-    "Upload GeoTrellis Results To Dataset": {
+    "Upload_Results": {
       "Type": "Task",
       "Resource": "${lambda_upload_results_arn}",
       "InputPath": "$",
       "ResultPath": "$",
-      "Next": "Job Terminated?"
+      "Next": "Wait_For_Upload"
     },
-    "Job Terminated?": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.status",
-          "StringEquals": "PENDING",
-          "Next": "Wait For Job Termination"
-        },
-        {
-          "Variable": "$.status",
-          "StringEquals": "FAILED",
-          "Next": "GeoTrellis Job Failure"
-        },
-        {
-          "Variable": "$.status",
-          "StringEquals": "SUCCESS",
-          "Next": "Wait For Dataset Upload"
-        }
-      ],
-      "Default": "Wait For Dataset Upload"
-    },
-    "Wait For Dataset Upload": {
+    "Wait_For_Upload": {
       "Type": "Wait",
-      "Seconds": 10,
-      "Next": "Check Datasets Saved"
+      "Seconds": 30,
+      "Next": "Check_Upload_Success"
     },
-    "Check Datasets Saved": {
+    "Check_Upload_Success": {
       "Type": "Task",
       "Resource": "${lambda_check_dataset_arn}",
       "InputPath": "$",
@@ -85,20 +96,10 @@
         {
           "Variable": "$.status",
           "StringEquals": "PENDING",
-          "Next": "Wait For Dataset Upload"
+          "Next": "Wait_For_Upload"
         }
       ],
-      "Default": "Wait For Dataset Upload"
-    },
-    "Job Submission Failed": {
-      "Type": "Fail",
-      "Cause": "GeoTrellis EMR job submission failed.",
-      "Error": "JobSubmissionFailure"
-    },
-    "GeoTrellis Job Failure": {
-      "Type": "Fail",
-      "Cause": "GeoTrellis EMR job execution failed.",
-      "Error": "GeoTrellisJobFailure"
+      "Default": "Wait_For_Upload"
     },
     "Dataset Save Failed": {
       "Type": "Fail",

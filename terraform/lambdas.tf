@@ -145,10 +145,14 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_rasterio_arn]
   environment {
     variables = {
-      ENV                 = var.environment
-      S3_BUCKET_DATA_LAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
-      S3_BUCKET_PIPELINE  = data.terraform_remote_state.core.outputs.pipelines_bucket
-      DATASETS            = jsonencode(var.datasets)
+      ENV                            = var.environment
+      S3_BUCKET_DATA_LAKE            = data.terraform_remote_state.core.outputs.data-lake_bucket
+      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      GEOTRELLIS_JAR                 = var.geotrellis_jar
+      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
+      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EMR_SERVICE_ROLE               = data.terraform_remote_state.core.outputs.emr_service_role_name
+      EMR_INSTANCE_PROFILE           = data.terraform_remote_state.core.outputs.emr_instance_profile_name
     }
   }
 }

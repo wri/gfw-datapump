@@ -3,7 +3,7 @@ from moto import mock_secretsmanager, mock_s3
 from requests_mock.exceptions import NoMockAddress
 from mock import patch
 
-from datapump_utils.dataset import (
+from datapump_utils.dataset.dataset import (
     upload_dataset,
     get_dataset,
     get_task,

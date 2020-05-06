@@ -2,7 +2,10 @@ import os
 
 from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.util import api_prefix
-from datapump_utils.dataset import update_aoi_statuses, _update_aoi_statuses_payload
+from datapump_utils.dataset.dataset import (
+    update_aoi_statuses,
+    _update_aoi_statuses_payload,
+)
 
 from lambdas.update_new_aoi_statuses.src.lambda_function import get_aoi_geostore_ids
 from tests.mock_environment.mock_responses import TEST_ERROR_RESPONSE

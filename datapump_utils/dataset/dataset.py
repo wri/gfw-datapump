@@ -175,6 +175,33 @@ def create_dataset(name, source_urls):
         )
 
 
+def generate_dataset_name(dataset_path, version, tcl_year=None):
+    if not version:
+        raise Exception("Must pass version parameter to create new dataset")
+
+    parts = dataset_path.split("/")
+    if parts[0] == "annualupdate_minimal":
+        if not tcl_year:
+            raise Exception(
+                "Must pass tcl_year parameter to create new Tree Cover Loss dataset"
+            )
+
+        if parts[1] == "gadm":
+            return f"Tree Cover Loss {tcl_year} {_get_nice_name(parts[3])} - GADM {parts[2].capitalize()} level - {version}"
+        else:
+            return f"Tree Cover Loss {tcl_year} {_get_nice_name(parts[2])} - {_get_feature_name(parts[1])} - {version}"
+    elif parts[0] == "gladalerts":
+        if parts[1] == "gadm":
+            return f"Glad Alerts {tcl_year} {_get_nice_name(parts[3])} - GADM {parts[2].capitalize()} level - {version}"
+        else:
+            return f"Glad Alerts {tcl_year} {_get_nice_name(parts[2])} - {_get_feature_name(parts[1])} - {version}"
+    elif parts[0] == "firealerts":
+        if parts[2] == "gadm":
+            return f"{parts[1].upper()} Fire Alerts {tcl_year} {_get_nice_name(parts[4])} - GADM {parts[3].capitalize()} level - {version}"
+        else:
+            return f"{parts[1].upper()} Fire Alerts {tcl_year} {_get_nice_name(parts[3])} - {_get_feature_name(parts[2])} - {version}"
+
+
 def _get_legend(source_url):
     src_url_open = urllib.request.urlopen(source_url)
     src_csv = csv.reader(
@@ -216,6 +243,17 @@ def get_legend_type(field):
         return "long"
     else:
         return "keyword"
+
+
+def _get_feature_name(feature_type):
+    if feature_type == "geostore":
+        return "Geostore"
+    else:
+        feature_type.upper()
+
+
+def _get_nice_name(name):
+    return (" ").join([word.capitalize() for word in name.split("_")])
 
 
 def _get_headers():

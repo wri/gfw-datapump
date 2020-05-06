@@ -17,7 +17,16 @@ from datapump_utils.secrets import token
 from datapump_utils.util import bucket_suffix, api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
 from datapump_utils.slack import slack_webhook
-from datapump_utils.dataset import update_aoi_statuses
+from datapump_utils.dataset.dataset import update_aoi_statuses
+from datapump_utils.geotrellis.emr_steps import StepList
+from datapump_utils.geotrellis.constants import (
+    Analysis,
+    FeatureType,
+    FeatureSource,
+    FireType,
+    FireSources,
+)
+from datapump_utils.geotrellis.emr_config import EMRConfig
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -29,7 +38,6 @@ else:
 LOGGER = get_logger(__name__)
 SUMMARIZE_NEW_AOIS_NAME = "new-user-areas"
 DIRNAME = os.path.dirname(__file__)
-DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 GEOSTORE_PAGE_SIZE = 100
 
 
@@ -51,7 +59,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
 
             if geostore:
                 geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d_%H%M')}.tsv"
-                geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
+                geostore_bucket = os.environ["S3_BUCKET_PIPELINE"]
 
                 with geostore_to_wkb(geostore) as (wkb, geom_count):
                     if geom_count == 0:
@@ -70,27 +78,43 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
 
                 # heuristic for how many workers we'll need to process this in Spark/EMR
 
+                steps = StepList()
+
+                steps.add_step(
+                    analysis=Analysis.GLAD_ALERTS,
+                    feature_type=FeatureType.GEOSTORE.value,
+                    feature_sources=FeatureSource.GEOSTORE.value,
+                )
+
+                steps.add_step(
+                    analysis=Analysis.ANNUAL_UPDATE_MINIMAL,
+                    feature_type=FeatureType.GEOSTORE.value,
+                    feature_sources=FeatureSource.GEOSTORE.value,
+                )
+
+                steps.add_step(
+                    analysis=Analysis.FIRE_ALERTS,
+                    feature_type=FeatureType.GEOSTORE.value,
+                    feature_sources=FeatureSource.GEOSTORE.value,
+                    fire_type=FireType.VIIRS,
+                    fire_sources=FireSources.VIIRS,
+                )
+
+                steps.add_step(
+                    analysis=Analysis.FIRE_ALERTS,
+                    feature_type=FeatureType.GEOSTORE.value,
+                    feature_sources=FeatureSource.GEOSTORE.value,
+                    fire_type=FireType.MODIS,
+                    fire_sources=FireSources.MODIS,
+                )
+
+                emr_config = EMRConfig(worker_count=worker_count)
+
                 return {
                     "status": "NEW_AREAS_FOUND",
-                    "instance_size": "r4.2xlarge",
-                    "instance_count": worker_count,
-                    "feature_src": geostore_full_path,
-                    "feature_type": "geostore",
-                    "analyses": ["gladalerts", "annualupdate_minimal", "firealerts"],
-                    "datasets": DATASETS["geostore"],
+                    "emr": {"config": emr_config, "steps": steps,},
                     "name": SUMMARIZE_NEW_AOIS_NAME,
                     "upload_type": "append",
-                    "get_summary": True,
-                    "fire_config": {
-                        "viirs": [
-                            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
-                            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
-                        ],
-                        "modis": [
-                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
-                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
-                        ],
-                    },
                 }
             else:
                 slack_webhook("INFO", "No new user areas found. Doing nothing.")
