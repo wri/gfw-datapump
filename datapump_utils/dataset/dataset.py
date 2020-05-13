@@ -200,6 +200,10 @@ def generate_dataset_name(dataset_path, version, tcl_year=None):
             return f"{parts[1].upper()} Fire Alerts {tcl_year} {_get_nice_name(parts[4])} - GADM {parts[3].capitalize()} level - {version}"
         else:
             return f"{parts[1].upper()} Fire Alerts {tcl_year} {_get_nice_name(parts[3])} - {_get_feature_name(parts[2])} - {version}"
+    else:
+        raise Exception(
+            f"Couldn't generate a name from ds path {dataset_path}, version {version}, and tcl year {tcl_year}"
+        )
 
 
 def _get_legend(source_url):

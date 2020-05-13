@@ -1,12 +1,9 @@
-import os
-import json
 import traceback
 
 from datapump_utils.fire_alerts import process_active_fire_alerts, get_tmp_result_path
 from datapump_utils.gpkg_util import update_geopackage
 from datapump_utils.logger import get_logger
 from datapump_utils.slack import slack_webhook
-from datapump_utils.geotrellis.emr_steps import StepList
 from datapump_utils.geotrellis.emr_config import EMRConfig
 from datapump_utils.geotrellis.constants import (
     Analysis,
@@ -16,6 +13,8 @@ from datapump_utils.geotrellis.constants import (
 )
 
 LOGGER = get_logger(__name__)
+
+NAME = "firealerts-nightly"
 
 
 def handler(event, context):
@@ -33,32 +32,38 @@ def handler(event, context):
             "ERROR", "Error updating fires geopackage. Check logs for more details."
         )
 
-    upload_type = "append"
+    config = _get_fire_emr_config(viirs_path, modis_path)
 
-    steps = StepList()
+    return {
+        "emr": {"config": config.to_serializable()},
+        "upload_type": "append",
+        "name": config.name,
+        "output_url": config.output_url,
+    }
+
+
+def _get_fire_emr_config(viirs_path, modis_path):
+    config = EMRConfig(worker_count=10, name=NAME)
+
     for feature_type in FeatureType:
-        steps.add_step(
-            analysis=Analysis.FIRE_ALERTS,
+        config.add_step(
+            analysis=Analysis.FIRE_ALERTS.value,
             feature_type=feature_type.value,
-            feature_sources=FeatureSource[feature_type.name],
-            fire_type=FireType.VIIRS,
+            feature_sources=FeatureSource[feature_type.name].value,
+            fire_type=FireType.VIIRS.value,
             fire_sources=viirs_path,
             summary=False,
             action_on_failure="CONTINUE",
         )
 
-        steps.add_step(
-            analysis=Analysis.FIRE_ALERTS,
+        config.add_step(
+            analysis=Analysis.FIRE_ALERTS.value,
             feature_type=feature_type.value,
-            feature_sources=FeatureSource[feature_type.name],
-            fire_type=FireType.MODIS,
+            feature_sources=FeatureSource[feature_type.name].value,
+            fire_type=FireType.MODIS.value,
             fire_sources=modis_path,
             summary=False,
             action_on_failure="CONTINUE",
         )
 
-    config = EMRConfig(worker_count=10)
-
-    return {
-        "emr": {"config": config.to_serializable(), "steps": steps.to_serializable(),}
-    }
+    return config

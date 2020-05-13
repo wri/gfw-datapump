@@ -25,16 +25,16 @@ DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else d
 
 def handler(event, context):
     try:
-        result_dir = event["result_dir"]
+        result_dir = event["output_url"]
+        name = event.get("name", "")
         upload_type = event["upload_type"]
-        name = event["name"]
-        version = event.get(event["version"], None)
-        tcl_year = event.get(event["tcl_year"], None)
+        version = event.get("version", None)
+        tcl_year = event.get("tcl_year", None)
 
         updated_datasets = []
-        dataset_result_paths = []
-        for path, ds_id in DATASETS:
-            results_path = f"{result_dir}/{get_date_string()}/{path}"
+        dataset_result_paths = {}
+        for path, ds_id in DATASETS.items():
+            results_path = f"{result_dir}/{path}"
             if success_file_exists(results_path):
                 dataset_sources = get_result_uris(results_path)
 
@@ -44,17 +44,16 @@ def handler(event, context):
 
                 if dataset_sources:
                     if upload_type == "create":
-                        ds_name = generate_dataset_name(results_path, version, tcl_year)
+                        ds_name = generate_dataset_name(path, version, tcl_year)
                         ds_id = create_dataset(ds_name, dataset_sources)
                     else:
                         update_dataset(ds_id, dataset_sources, upload_type)
-                        updated_datasets.append(ds_id)
 
                     updated_datasets.append(ds_id)
                     dataset_result_paths[ds_id] = results_path
             else:
-                LOGGER.warning(
-                    f"Skipping dataset {path} because there are no non-empty results."
+                LOGGER.info(
+                    f"Skipping dataset {path} because there are no results present."
                 )
 
         event.update(

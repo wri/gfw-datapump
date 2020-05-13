@@ -8,7 +8,7 @@ from datapump_utils.exceptions import (
     StatusMismatchException,
     FailedDatasetUploadException,
 )
-from datapump_utils.summary_analysis import get_dataset_sources
+from datapump_utils.geotrellis.results import get_result_uris
 from datapump_utils.util import error
 from datapump_utils.logger import get_logger
 from datapump_utils.dataset.dataset import (
@@ -145,7 +145,7 @@ def retry_upload_dataset(ds, dataset_result_paths, task, upload_type, retries):
             f"Upload of dataset {ds['id']} failed after {MAX_RETRIES} retries."
         )
 
-    ds_src = get_dataset_sources(dataset_result_paths[ds["id"]])
+    ds_src = get_result_uris(dataset_result_paths[ds["id"]])
     upload_dataset(ds["id"], ds_src, upload_type)
 
     # change local status to pending instead of querying API again

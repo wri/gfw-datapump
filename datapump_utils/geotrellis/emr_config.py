@@ -1,76 +1,92 @@
-import random
 import os
+import json
+from .emr_steps import StepList
+from datapump_utils.util import get_date_string
 
-WORKER_INSTANCE_TYPE = "r4.2xlarge"
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge", "m4.2xlarge", "m5.2xlarge"]
+MASTER_INSTANCE_TYPE = "r4.2xlarge"
 
 
 class EMRConfig:
     def __init__(self, worker_count, name):
         self.name = name
+        self.output_url = f"s3://{os.environ['S3_BUCKET_PIPELINE']}/geotrellis/results/{name}/{get_date_string()}"
+        self.steps = StepList(self.output_url)
+
         self.instances = {
-            "InstanceGroups": [
+            "InstanceFleets": [
                 {
                     "Name": "geotrellis-master",
-                    "Market": "ON_DEMAND",
-                    "InstanceRole": "MASTER",
-                    "InstanceType": WORKER_INSTANCE_TYPE,
-                    "InstanceCount": 1,
-                    "EbsConfiguration": {
-                        "EbsBlockDeviceConfigs": [
-                            {
-                                "VolumeSpecification": {
-                                    "VolumeType": "gp2",
-                                    "SizeInGB": 10,
-                                },
-                                "VolumesPerInstance": 1,
-                            }
-                        ],
-                        "EbsOptimized": True,
-                    },
+                    "InstanceFleetType": "MASTER",
+                    "TargetOnDemandCapacity": 1,
+                    "InstanceTypeConfigs": [
+                        {
+                            "InstanceType": MASTER_INSTANCE_TYPE,
+                            "EbsConfiguration": {
+                                "EbsBlockDeviceConfigs": [
+                                    {
+                                        "VolumeSpecification": {
+                                            "VolumeType": "gp2",
+                                            "SizeInGB": 10,
+                                        },
+                                        "VolumesPerInstance": 1,
+                                    }
+                                ],
+                                "EbsOptimized": True,
+                            },
+                        }
+                    ],
                 },
                 {
                     "Name": "geotrellis-cores",
-                    "Market": "ON_DEMAND",
-                    "InstanceRole": "CORE",
-                    "InstanceType": WORKER_INSTANCE_TYPE,
-                    "InstanceCount": 1,
-                    "EbsConfiguration": {
-                        "EbsBlockDeviceConfigs": [
-                            {
-                                "VolumeSpecification": {
-                                    "VolumeType": "gp2",
-                                    "SizeInGB": 10,
-                                },
-                                "VolumesPerInstance": 1,
-                            }
-                        ],
-                        "EbsOptimized": True,
-                    },
+                    "InstanceFleetType": "CORE",
+                    "TargetOnDemandCapacity": 1,
+                    "InstanceTypeConfigs": [
+                        {
+                            "InstanceType": MASTER_INSTANCE_TYPE,
+                            "EbsConfiguration": {
+                                "EbsBlockDeviceConfigs": [
+                                    {
+                                        "VolumeSpecification": {
+                                            "VolumeType": "gp2",
+                                            "SizeInGB": 10,
+                                        },
+                                        "VolumesPerInstance": 1,
+                                    }
+                                ],
+                                "EbsOptimized": True,
+                            },
+                        }
+                    ],
                 },
                 {
                     "Name": "geotrellis-tasks",
-                    "Market": "SPOT",
-                    "InstanceRole": "TASK",
-                    "InstanceType": WORKER_INSTANCE_TYPE,
-                    "InstanceCount": worker_count,
-                    "EbsConfiguration": {
-                        "EbsBlockDeviceConfigs": [
-                            {
-                                "VolumeSpecification": {
-                                    "VolumeType": "gp2",
-                                    "SizeInGB": 10,
-                                },
-                                "VolumesPerInstance": 1,
-                            }
-                        ],
-                        "EbsOptimized": True,
-                    },
+                    "InstanceFleetType": "TASK",
+                    "TargetSpotCapacity": worker_count,
+                    "InstanceTypeConfigs": [
+                        {
+                            "InstanceType": instance_type,
+                            "EbsConfiguration": {
+                                "EbsBlockDeviceConfigs": [
+                                    {
+                                        "VolumeSpecification": {
+                                            "VolumeType": "gp2",
+                                            "SizeInGB": 10,
+                                        },
+                                        "VolumesPerInstance": 1,
+                                    }
+                                ],
+                                "EbsOptimized": True,
+                            },
+                        }
+                        for instance_type in WORKER_INSTANCE_TYPES
+                    ],
                 },
             ],
             "Ec2KeyName": os.environ["EC2_KEY_NAME"],
             "KeepJobFlowAliveWhenNoSteps": True,
             "TerminationProtected": False,
-            "Ec2SubnetId": random.choice(os.environ["PUBLIC_SUBNET_IDS"]),
+            "Ec2SubnetIds": json.loads(os.environ["PUBLIC_SUBNET_IDS"]),
         }
 
         self.configurations = [
@@ -118,17 +134,22 @@ class EMRConfig:
             {"Name": "Ganglia"},
         ]
 
+    def add_step(self, *k, **kwargs):
+        self.steps.add_step(*k, **kwargs)
+
     def to_serializable(self):
         return {
             "Name": self.name,
+            "OutputUrl": self.output_url,
             "ReleaseLabel": "emr-5.24.0",
             "VisibleToAllUsers": True,
             "JobFlowRole": os.environ["EMR_INSTANCE_PROFILE"],
             "ServiceRole": os.environ["EMR_SERVICE_ROLE"],
-            "LogUri": f"s3://{os.environ['RESULT_BUCKET']}/geotrellis/logs",
+            "LogUri": f"s3://{os.environ['S3_BUCKET_PIPELINE']}/geotrellis/logs",
             "Instances": self.instances,
             "Applications": self.applications,
-            "Configurations": self.applications,
+            "Configurations": self.configurations,
+            "Steps": self.steps.to_serializable(),
             "Tags": [
                 {"Key": "Project", "Value": "Global Forest Watch"},
                 {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},

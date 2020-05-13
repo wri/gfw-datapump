@@ -4,6 +4,8 @@
     "Create_Cluster": {
       "Type": "Task",
       "Resource": "arn:aws:states:::elasticmapreduce:createCluster.sync",
+      "InputPath": "$.Input",
+      "OutputPath": "$.Input",
       "Parameters": {
         "Name.$": "$.emr.config.Name",
         "VisibleToAllUsers": true,
@@ -16,15 +18,21 @@
         "Applications.$": "$.emr.config.Applications",
         "Tags.$": "$.emr.config.Tags"
       },
-      "ResultPath": "$.emr.create_cluster.output",
-      "Next": "Run_Steps"
+      "ResultPath": "$.Input.emr.output.cluster",
+      "Next": "Run_Steps",
+      "Retry": [ {
+         "ErrorEquals": [ "States.ALL" ],
+         "IntervalSeconds": 60,
+         "MaxAttempts": 3,
+         "BackoffRate": 2
+      } ]
     },
     "Run_Steps": {
       "Type": "Map",
-      "ItemsPath": "$.emr.steps",
-      "MaxConcurrency": 1,
+      "ItemsPath": "$.emr.config.Steps",
+      "ResultPath": "$.emr.output.steps",
       "Parameters": {
-        "ClusterId.$": "$.emr.create_cluster.output.ClusterId",
+        "ClusterId.$": "$.emr.output.cluster.ClusterId",
         "Step.$": "$$.Map.Item.Value"
       },
       "Iterator": {
@@ -34,10 +42,16 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::elasticmapreduce:addStep.sync",
             "End": true,
+            "ResultPath": "$.emr.output.steps",
             "Parameters": {
               "ClusterId.$": "$.ClusterId",
               "Step.$": "$.Step"
-            }
+            },
+            "Retry": [ {
+               "ErrorEquals": [ "States.ALL" ],
+               "IntervalSeconds": 60,
+               "MaxAttempts": 2
+            } ]
           }
         }
       },
@@ -50,8 +64,9 @@
     "Terminate_Cluster": {
       "Type": "Task",
       "Resource": "arn:aws:states:::elasticmapreduce:terminateCluster.sync",
+      "ResultPath": "$.emr.output.cluster",
       "Parameters": {
-        "ClusterId.$": "$.emr.output.ClusterId"
+        "ClusterId.$": "$.emr.output.cluster.ClusterId"
       },
       "Retry": [ {
          "ErrorEquals": [ "States.ALL" ],

@@ -37,6 +37,7 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
+      DATASETS                       = jsonencode(var.datasets)
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
@@ -59,7 +60,8 @@ resource "aws_lambda_function" "check_datasets_saved" {
   layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
-      ENV = var.environment
+      DATASETS                       = jsonencode(var.datasets)
+      ENV                            = var.environment
       S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
       EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw

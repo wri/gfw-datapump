@@ -6,8 +6,7 @@
           "Action": [
               "secretsmanager:GetRandomPassword",
               "lambda:InvokeFunction",
-              "elasticmapreduce:RunJobFlow",
-              "elasticmapreduce:DescribeCluster",
+              "elasticmapreduce:*",
               "cloudformation:DescribeChangeSet",
               "cloudformation:DescribeStackResources",
               "cloudformation:DescribeStacks",

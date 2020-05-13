@@ -17,42 +17,18 @@ os.environ[
 os.environ["GLAD_ALERTS_PATH"] = GLAD_ALERTS_PATH
 os.environ["DATASETS"] = json.dumps(
     {
-        "geostore": {
-            "gladalerts": {
-                "daily_alerts": "testid_daily_alerts_glad",
-                "weekly_alerts": "testid_weekly_alerts_glad",
-                "summary": "testid_summary_glad",
-                "whitelist": "testid_whitelist_glad",
-            },
-            "annualupdate_minimal": {
-                "change": "testid_change_tcl",
-                "summary": "testid_summary_tcl",
-                "whitelist": "testid_whitelist_tcl",
-            },
-        },
-        "gadm": {
-            "gladalerts": {
-                "iso": {
-                    "weekly_alerts": "testid_weekly_alerts_glad_iso",
-                },  # noqa: E231
-                "adm1": {
-                    "weekly_alerts": "testid_weekly_alerts_glad_adm1",
-                },  # noqa: E231
-                "adm2": {
-                    "daily_alerts": "testid_daily_alerts_glad_adm2",
-                    "weekly_alerts": "testid_weekly_alerts_glad_adm2",
-                },
-            },
-        },
-        "wdpa": {
-            "gladalerts": {
-                "daily_alerts": "testid_daily_alerts_wdpa",
-                "weekly_alerts": "testid_weekly_alerts_wdpa",
-                "summary": "testid_summary_wdpa",
-                "whitelist": "testid_whitelist_wdpa",
-            },
-        },
-    },
+        "annualupdate_minimal/geostore/change": "testid_change_tcl",
+        "annualupdate_minimal/geostore/summary": "testid_summary_tcl",
+        "gladalerts/geostore/summary": "testid_summary_glad",
+        "gladalerts/geostore/weekly_alerts": "testid_weekly_alerts_glad",
+        "gladalerts/geostore/daily_alerts": "testid_daily_alerts_glad",
+        "gladalerts/gadm/iso/weekly_alerts": "testid_weekly_alerts_glad_iso",
+        "gladalerts/gadm/adm1/weekly_alerts": "testid_weekly_alerts_glad_adm1",
+        "gladalerts/gadm/adm2/weekly_alerts": "testid_weekly_alerts_glad_adm2",
+        "gladalerts/gadm/adm2/daily_alerts": "testid_daily_alerts_glad_adm2",
+        "gladalerts/wdpa/weekly_alerts": "testid_weekly_alerts_wdpa",
+        "gladalerts/wdpa/daily_alerts": "testid_daily_alerts_wdpa",
+    }
 )
 os.environ["PUBLIC_SUBNET_IDS"] = json.dumps(["test_subnet", "test_subnet"])
 os.environ["EC2_KEY_NAME"] = "test_ec2_key_name"
@@ -87,10 +63,13 @@ def _mock_s3_setup():
         )
 
     results_glad = (
-        f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
+        f"geotrellis/results/test_overwrite/{get_date_string()}/gladalerts/geostore"
     )
-    results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
-    results_viirs = f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore"
+    results_tcl = f"geotrellis/results/test_append/{get_date_string()}/annualupdate_minimal/geostore"
+    results_tcl_create = f"geotrellis/results/test_create/{get_date_string()}/annualupdate_minimal/geostore"
+    results_viirs = (
+        f"geotrellis/results/test_append/{get_date_string()}/firealerts/viirs/geostore"
+    )
     results1 = os.path.join(CURDIR, "mock_files/results1.csv")
     results2 = os.path.join(CURDIR, "mock_files/results2.csv")
     results3 = os.path.join(CURDIR, "mock_files/results3.csv")
@@ -119,9 +98,13 @@ def _mock_s3_setup():
     s3_client().upload_fileobj(
         open(results1, "rb"),
         Bucket=pipeline_bucket,
+        Key=f"{results_tcl_create}/change/results1.csv",
+    )
+    s3_client().upload_fileobj(
+        open(results1, "rb"),
+        Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/results1.csv",
     )
-
     s3_client().upload_fileobj(
         open(results2, "rb"),
         Bucket=pipeline_bucket,
@@ -141,6 +124,11 @@ def _mock_s3_setup():
         open(results2, "rb"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/change/results2.csv",
+    )
+    s3_client().upload_fileobj(
+        open(results2, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_tcl_create}/change/results2.csv",
     )
     s3_client().upload_fileobj(
         open(results2, "rb"),
@@ -180,6 +168,11 @@ def _mock_s3_setup():
         open(success, "r"),
         Bucket=pipeline_bucket,
         Key=f"{results_viirs}/change/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(success, "r"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_tcl_create}/change/_SUCCESS",
     )
     s3_client().upload_fileobj(
         open(results1, "rb"),

@@ -2,15 +2,15 @@ import os
 
 
 class StepList:
-    def __init__(self):
+    def __init__(self, output_url):
         self.steps = []
+        self.output_url = output_url
 
     def add_step(
         self,
         analysis,
         feature_type,
         feature_sources,
-        output_path,
         action_on_failure="TERMINATE_CLUSTER",
         summary=True,
         fire_type=None,
@@ -20,7 +20,7 @@ class StepList:
             analysis,
             feature_type,
             feature_sources,
-            output_path,
+            self.output_url,
             action_on_failure,
             summary,
             fire_type,
@@ -38,7 +38,7 @@ class Step:
         analysis,
         feature_type,
         feature_sources,
-        output_path,
+        output_url,
         action_on_failure="TERMINATE_CLUSTER",
         summary=True,
         fire_type=None,
@@ -47,10 +47,10 @@ class Step:
         self.analysis = analysis
         self.action_on_failure = action_on_failure
         if feature_sources is not list:
-            feature_sources = set(feature_sources)
+            feature_sources = [feature_sources]
 
         if fire_sources is not list:
-            fire_sources = set(fire_sources)
+            fire_sources = [fire_sources]
 
         self.step_args = [
             "spark-submit",
@@ -64,7 +64,7 @@ class Step:
             "--feature_type",
             feature_type,
             "--output",
-            output_path,
+            output_url,
         ]
 
         for src in feature_sources:
