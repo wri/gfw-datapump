@@ -184,7 +184,12 @@ def _get_legend(source_url):
 
     legend = dict()
     for col in header_row:
-        legend_type = get_legend_type(col)
+        # if in a whitelist table, just always use keyword because it's all true/false
+        if "whitelist" in source_url:
+            legend_type = "keyword"
+        else:
+            legend_type = get_legend_type(col)
+
         if legend_type in legend:
             legend[legend_type].append(col)
         elif legend_type == "lat" or legend_type == "long":
