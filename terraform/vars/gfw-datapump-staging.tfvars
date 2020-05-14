@@ -44,16 +44,16 @@ datasets = {
       "whitelist" = "cc0a64f1-a656-42f0-9383-7f1b68b4e46b"
     }
     "firealerts_modis": {
-      "daily_alerts" = "0a25370f-e20e-43b2-bd87-075c38b67d2e"
-      "weekly_alerts" = "1e6bb2c0-61d4-421e-be26-9bd09cb65cdf"
-      "all" = "38a9b724-0e6d-4f9c-8af0-a8ddb91a6d10"
-      "whitelist" = "263cae9b-8471-4f16-8322-c8ae34425378"
+      "daily_alerts" = "c0254765-e921-45e5-9eed-72b7294ce150"
+      "weekly_alerts" = "5586eb14-8016-4630-8e2b-7636a0b26983"
+      "all" = "a19c4650-c3e8-4d9c-a98b-5595a3c15bb2"
+      "whitelist" = "fab92867-45f0-4e47-af4e-73ea6b9372e3"
     }
     "firealerts_viirs": {
-      "daily_alerts" = "e17593fd-fdcf-40c5-8e6e-c437c9fc15a2"
-      "weekly_alerts" = "c223fd5c-a029-426c-978d-26afcff66921"
-      "all" = "5b026944-b7b0-4f4a-8df1-0cb9144c1d3f"
-      "whitelist" = "099b27b7-0868-4505-a2c2-603b76fae5f8"
+      "daily_alerts" = "5d7305db-e074-4e33-b011-c34dc09709ba"
+      "weekly_alerts" = "290fa76b-d954-4473-bef2-b7e89f778436"
+      "all" = "dc704ce1-2241-434f-ac1c-eedbbd92a20e"
+      "whitelist" = "4e0cd805-2339-41ce-af02-8ab093ce7ebc"
     }
   }
   "gadm": {
@@ -70,29 +70,29 @@ datasets = {
       }
     }
     "firealerts_viirs": {
-      "all" = "003539d8-b713-4df2-9e31-5eda80353191"
+      "all" = "2a41e4f2-209d-4749-9921-a3f619e0112f"
       "iso": {
-        "weekly_alerts" = "3775de0b-eefc-4325-ae4f-27ef7e04a6f1"
+        "weekly_alerts" = "a4a60110-8465-4f1f-ace1-1be1f3f19446"
       }
       "adm1": {
-        "weekly_alerts" = "0b9ab27d-4003-4a89-87ca-69d34642fc4a"
+        "weekly_alerts" = "0470e566-5ec3-4d23-b4dd-1d0eb42208b5"
       }
       "adm2": {
-        "daily_alerts" = "17388a14-b28e-4b76-bad7-2d174b9f143d"
-        "weekly_alerts" = "6562ac9b-516d-49ce-ab21-191d1e5fec93"
+        "daily_alerts" = "fefec43c-c9fa-40f0-bac7-616338514bc1"
+        "weekly_alerts" = "6bf23a98-3e76-43e6-876c-68a11abf7f8c"
       }
     }
     "firealerts_modis": {
-      "all" = "2861d8b5-6abf-4602-81d0-1311cafce0fc"
+      "all" = "a6ceb599-71af-43a0-9d56-9fdb18e6b562"
       "iso": {
-        "weekly_alerts" = "be3bdf28-a969-4312-a9e3-3ea517908a2a"
+        "weekly_alerts" = "58fee933-81bd-45bd-a1eb-6a37972e7c28"
       }
       "adm1": {
-        "weekly_alerts" = "832df160-13ab-42b8-9409-38cc3128db4c"
+        "weekly_alerts" = "aae20051-c216-4b42-96d0-e8befc34f1cf"
       }
       "adm2": {
-        "daily_alerts" = "b80c6564-ed47-44b4-8baf-b1831441bcb7"
-        "weekly_alerts" = "ab047d27-1ff1-4a7e-a1f2-1a165d5e0a4b"
+        "daily_alerts" = "7dfa052a-155a-4159-b3ba-d0f81152662e"
+        "weekly_alerts" = "03e08f73-135a-464d-9ec3-ded08e6c69dd"
       }
     }
   }
@@ -102,14 +102,14 @@ datasets = {
       "weekly_alerts" = "7e0669c2-e35b-4fa4-9e06-7a3c8e0cd767"
     }
     "firealerts_modis": {
-      "daily_alerts" = "b2e8b335-0017-445c-b02c-55be4ed96a53"
-      "weekly_alerts" = "8a662dcf-b468-4704-baca-a7f5614b62f3"
-      "all" = "02028c88-c073-468e-bc11-031e0b09c7e3"
+      "daily_alerts" = "5be51b58-43f7-4973-aebf-46ae11ac62ba"
+      "weekly_alerts" = "a1e38d65-1e1f-4e2c-ba66-f7c449a82a9a"
+      "all" = "fae9483d-26b3-45e4-9708-5f2f19c2a1e0"
     }
     "firealerts_viirs": {
-      "daily_alerts" = "93a566c7-4788-4745-afb5-940767627279"
-      "weekly_alerts" = "1182262c-3519-46ed-add4-f30317693373"
-      "all" = "05d5c9ff-6134-4ec0-b7e1-6a5b4f50edab"
+      "daily_alerts" = "c8040782-9dbb-4f6a-a8f8-51d43afdf81a"
+      "weekly_alerts" = "9b984feb-2d16-4414-9bf2-08235e3f3cc5"
+      "all" = "02dba0f2-d43b-4b18-9e14-c86ac65901d2"
     }
   }
 }
