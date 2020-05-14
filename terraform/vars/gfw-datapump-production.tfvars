@@ -1,9 +1,5 @@
 environment = "production"
 
-lambda_submit_job_runtime     = "python3.7"
-lambda_submit_job_memory_size = 1024
-lambda_submit_job_timeout     = 300
-
 lambda_upload_results_runtime     = "python3.7"
 lambda_upload_results_memory_size = 1024
 lambda_upload_results_timeout     = 300

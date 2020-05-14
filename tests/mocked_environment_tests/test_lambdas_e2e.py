@@ -41,10 +41,13 @@ def test_upload_results(requests_mock):
     assert len(request_change["sources"]) == 2
     assert len(request_summary["sources"]) == 2
 
-    assert output["dataset_ids"] == ["testid_change_tcl", "testid_summary_tcl"]
+    assert list(output["dataset_ids"].values()) == [
+        "testid_change_tcl",
+        "testid_summary_tcl",
+    ]
     assert (
         output["dataset_result_paths"]["testid_change_tcl"]
-        == "s3://gfw-pipelines-dev/geotrellis/results/test_append/2020-05-12/annualupdate_minimal/geostore/change"
+        == f"s3://gfw-pipelines-dev/geotrellis/results/test_append/{get_date_string()}/annualupdate_minimal/geostore/change"
     )
 
 
@@ -81,8 +84,8 @@ def test_create_dataset(mock_get_legend, requests_mock):
 
     assert request_change["name"] == "Tree Cover Loss 2019 Change - Geostore - v20TEST"
 
-    assert output["dataset_ids"] == ["testid_change_tcl"]
+    assert list(output["dataset_ids"].values()) == ["testid_change_tcl"]
     assert (
         output["dataset_result_paths"]["testid_change_tcl"]
-        == "s3://gfw-pipelines-dev/geotrellis/results/test_create/2020-05-12/annualupdate_minimal/geostore/change"
+        == f"s3://gfw-pipelines-dev/geotrellis/results/test_create/{get_date_string()}/annualupdate_minimal/geostore/change"
     )

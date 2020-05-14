@@ -1,8 +1,8 @@
 from enum import Enum
 import os
 
-S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]
-S3_BUCKET_DATA_LAKE = os.environ["S3_BUCKET_DATA_LAKE"]
+S3_BUCKET_PIPELINE = os.environ.get("S3_BUCKET_PIPELINE", "gfw-pipelines-dev")
+S3_BUCKET_DATA_LAKE = os.environ.get("S3_BUCKET_DATA_LAKE", "gfw-data-lake-dev")
 
 
 class Analysis(Enum):

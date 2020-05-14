@@ -4,7 +4,14 @@ import dateutil.tz as tz
 import os
 import json
 
+from datapump_utils.geotrellis.emr_config import EMRConfig
 from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump_utils.geotrellis.constants import (
+    Analysis,
+    FeatureType,
+    FireType,
+    FeatureSource,
+)
 
 GLAD_ALERTS_PATH = os.environ["GLAD_ALERTS_PATH"]
 DATASETS = json.loads(os.environ["DATASETS"])
@@ -15,40 +22,50 @@ def handler(event, context):
     new_alerts = check_for_new_glad_alerts_in_past_day()
 
     if new_alerts:
+        emr_config_gadm = EMRConfig(30, "gladalerts-gadm-nightly")
+        emr_config_geostore = EMRConfig(30, "gladalerts-geostore-nightly")
+        emr_config_wdpa = EMRConfig(30, "gladalerts-wdpa-nightly")
+
+        emr_config_gadm.add_step(
+            analysis=Analysis.GLAD_ALERTS.value,
+            feature_type=FeatureType.GADM.value,
+            feature_sources=FeatureSource.GADM.value,
+            summary=False,
+        )
+
+        emr_config_geostore.add_step(
+            analysis=Analysis.GLAD_ALERTS.value,
+            feature_type=FeatureType.GEOSTORE.value,
+            feature_sources=FeatureSource.GEOSTORE.value,
+            summary=False,
+        )
+
+        emr_config_wdpa.add_step(
+            analysis=Analysis.GLAD_ALERTS.value,
+            feature_type=FeatureType.WDPA.value,
+            feature_sources=FeatureSource.WDPA.value,
+            summary=False,
+        )
+
         return {
             "status": "NEW_ALERTS_FOUND",
             "geostore": {
-                "instance_size": "r4.2xlarge",
-                "instance_count": 30,
-                "feature_src": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/features/geostore/*.tsv",
-                "feature_type": "geostore",
-                "analyses": ["gladalerts"],
-                "datasets": get_dataset_ids("geostore"),
-                "name": "glad-alerts-geostore",
+                "emr": {"config": emr_config_geostore.to_serializable()},
                 "upload_type": "data-overwrite",
-                "get_summary": False,
+                "name": emr_config_geostore.name,
+                "output_url": emr_config_geostore.output_url,
             },
             "gadm": {
-                "instance_size": "r4.2xlarge",
-                "instance_count": 30,
-                "feature_src": "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv",
-                "feature_type": "gadm",
-                "analyses": ["gladalerts"],
-                "datasets": get_dataset_ids("gadm"),
-                "name": "glad-alerts-gadm",
+                "emr": {"config": emr_config_gadm.to_serializable()},
                 "upload_type": "data-overwrite",
-                "get_summary": False,
+                "name": emr_config_geostore.name,
+                "output_url": emr_config_geostore.output_url,
             },
             "wdpa": {
-                "instance_size": "r4.2xlarge",
-                "instance_count": 30,
-                "feature_src": "s3://gfw-files/2018_update/tsv/wdpa_protected_areas_v201909_1_1.tsv",
-                "feature_type": "wdpa",
-                "analyses": ["gladalerts"],
-                "datasets": get_dataset_ids("wdpa"),
-                "name": "glad-alerts-wdpa",
+                "emr": {"config": emr_config_wdpa.to_serializable()},
                 "upload_type": "data-overwrite",
-                "get_summary": False,
+                "name": emr_config_geostore.name,
+                "output_url": emr_config_geostore.output_url,
             },
         }
     else:
@@ -65,23 +82,6 @@ def check_for_new_glad_alerts_in_past_day():
     one_day_ago = _now() - timedelta(hours=24)
 
     return all(one_day_ago <= dt <= _now() for dt in last_modified_datetimes)
-
-
-def get_dataset_ids(feature_type):
-    dataset_ids = dict()
-
-    feature_datasets = DATASETS[feature_type]
-    dataset_ids["gladalerts"] = deepcopy(
-        feature_datasets["gladalerts"]
-    )  # only want to update glad alerts
-
-    if "summary" in dataset_ids["gladalerts"]:
-        del dataset_ids["gladalerts"]["summary"]  # don't need to update summary daily
-
-    if "whitelist" in dataset_ids["gladalerts"]:
-        del dataset_ids["gladalerts"]["whitelist"]  # whitelist is based on summary
-
-    return dataset_ids
 
 
 def _now():

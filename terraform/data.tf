@@ -13,7 +13,6 @@ data "template_file" "geotrellis_summary_update" {
 data "template_file" "sfn_geotrellis_summary_update" {
   template = file("../step_functions/geotrellis_dataset.json")
   vars = {
-    lambda_submit_job_arn     = aws_lambda_function.submit_job.arn,
     lambda_upload_results_arn = aws_lambda_function.upload_results_to_datasets.arn,
     lambda_check_dataset_arn  = aws_lambda_function.check_datasets_saved.arn
   }

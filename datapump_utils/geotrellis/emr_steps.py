@@ -11,7 +11,7 @@ class StepList:
         analysis,
         feature_type,
         feature_sources,
-        action_on_failure="TERMINATE_CLUSTER",
+        action_on_failure="CONTINUE",
         summary=True,
         fire_type=None,
         fire_sources=[],

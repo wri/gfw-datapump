@@ -1,28 +1,3 @@
-resource "aws_lambda_function" "submit_job" {
-  function_name    = substr("${local.project}-submit_job${local.name_suffix}", 0, 64)
-  filename         = data.archive_file.lambda_submit_job.output_path
-  source_code_hash = data.archive_file.lambda_submit_job.output_base64sha256
-  role             = aws_iam_role.datapump_lambda.arn
-  runtime          = var.lambda_submit_job_runtime
-  handler          = "lambda_function.handler"
-  memory_size      = var.lambda_submit_job_memory_size
-  timeout          = var.lambda_submit_job_timeout
-  publish          = true
-  tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
-  environment {
-    variables = {
-      ENV                            = var.environment
-      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
-      GEOTRELLIS_JAR                 = var.geotrellis_jar
-      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
-      EMR_SERVICE_ROLE               = data.terraform_remote_state.core.outputs.emr_service_role_name
-      EMR_INSTANCE_PROFILE           = data.terraform_remote_state.core.outputs.emr_instance_profile_name
-    }
-  }
-}
-
 resource "aws_lambda_function" "upload_results_to_datasets" {
   function_name    = substr("${local.project}-upload_results_to_datasets${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_upload_results_to_datasets.output_path

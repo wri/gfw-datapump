@@ -31,7 +31,7 @@ def handler(event, context):
         version = event.get("version", None)
         tcl_year = event.get("tcl_year", None)
 
-        updated_datasets = []
+        updated_datasets = {}
         dataset_result_paths = {}
         for path, ds_id in DATASETS.items():
             results_path = f"{result_dir}/{path}"
@@ -46,14 +46,15 @@ def handler(event, context):
                     if upload_type == "create":
                         ds_name = generate_dataset_name(path, version, tcl_year)
                         ds_id = create_dataset(ds_name, dataset_sources)
+                        updated_datasets[ds_name] = ds_id
                     else:
                         update_dataset(ds_id, dataset_sources, upload_type)
+                        updated_datasets[ds_id] = ds_id
 
-                    updated_datasets.append(ds_id)
                     dataset_result_paths[ds_id] = results_path
             else:
                 LOGGER.info(
-                    f"Skipping dataset {path} because there are no results present."
+                    f"Skipping dataset {result_dir}/{path} because there are no results present."
                 )
 
         event.update(

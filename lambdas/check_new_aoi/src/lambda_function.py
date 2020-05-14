@@ -14,11 +14,10 @@ from shapely.geometry import shape, Polygon, MultiPolygon
 from datapump_utils.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump_utils.logger import get_logger
 from datapump_utils.secrets import token
-from datapump_utils.util import bucket_suffix, api_prefix
+from datapump_utils.util import api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
 from datapump_utils.slack import slack_webhook
 from datapump_utils.dataset.dataset import update_aoi_statuses
-from datapump_utils.geotrellis.emr_steps import StepList
 from datapump_utils.geotrellis.constants import (
     Analysis,
     FeatureType,
@@ -78,21 +77,21 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
 
                 # heuristic for how many workers we'll need to process this in Spark/EMR
 
-                steps = StepList()
+                emr_config = EMRConfig(worker_count, SUMMARIZE_NEW_AOIS_NAME)
 
-                steps.add_step(
+                emr_config.add_step(
                     analysis=Analysis.GLAD_ALERTS,
                     feature_type=FeatureType.GEOSTORE.value,
                     feature_sources=FeatureSource.GEOSTORE.value,
                 )
 
-                steps.add_step(
+                emr_config.add_step(
                     analysis=Analysis.ANNUAL_UPDATE_MINIMAL,
                     feature_type=FeatureType.GEOSTORE.value,
                     feature_sources=FeatureSource.GEOSTORE.value,
                 )
 
-                steps.add_step(
+                emr_config.add_step(
                     analysis=Analysis.FIRE_ALERTS,
                     feature_type=FeatureType.GEOSTORE.value,
                     feature_sources=FeatureSource.GEOSTORE.value,
@@ -100,7 +99,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                     fire_sources=FireSources.VIIRS,
                 )
 
-                steps.add_step(
+                emr_config.add_step(
                     analysis=Analysis.FIRE_ALERTS,
                     feature_type=FeatureType.GEOSTORE.value,
                     feature_sources=FeatureSource.GEOSTORE.value,
@@ -108,13 +107,12 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                     fire_sources=FireSources.MODIS,
                 )
 
-                emr_config = EMRConfig(worker_count=worker_count)
-
                 return {
                     "status": "NEW_AREAS_FOUND",
-                    "emr": {"config": emr_config, "steps": steps,},
-                    "name": SUMMARIZE_NEW_AOIS_NAME,
-                    "upload_type": "append",
+                    "emr": {"config": emr_config.to_serializable()},
+                    "upload_type": "data-overwrite",
+                    "name": emr_config.name,
+                    "output_url": emr_config.output_url,
                 }
             else:
                 slack_webhook("INFO", "No new user areas found. Doing nothing.")

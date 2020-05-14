@@ -135,6 +135,18 @@ class EMRConfig:
         ]
 
     def add_step(self, *k, **kwargs):
+        """
+        Add a step representing a step on EMR to do a geotrellis analysis.
+
+        :param analysis: name of geotrellis analysis
+        :param feature_ty[e: name of geotrellis feature type
+        :param feature_sources: list of TSV sources in s3 to use for analysis
+        :param action_on_failure: Default "CONTINUE". Action to take if step fails on EMR.
+        :param summary: Default True. Determines whether to generate summary and whitelist tables in geotrellis.
+        :param fire_type: Defualt None. Include name of fire type if doing fire analysis.
+        :param fire_sources: Defualt []]. Include sources of fire alerts if doing fire analysis.
+        :return:
+        """
         self.steps.add_step(*k, **kwargs)
 
     def to_serializable(self):
