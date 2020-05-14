@@ -57,7 +57,7 @@ def delete_dups_and_old_fires(src_gpkg):
 
 def upload_gpkg(src_gpkg):
     bucket = get_bucket()
-    gpkg_dst = "nasa_viirs_fire_alerts/v1/vector/epsg-4326/gpkg/data.gpkg"
+    gpkg_dst = "fires/data.gpkg"
 
     bucket.upload_file(src_gpkg, gpkg_dst)
 
