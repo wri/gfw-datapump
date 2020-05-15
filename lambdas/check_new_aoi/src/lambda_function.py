@@ -108,14 +108,13 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
-    # TEMPORARILY DISABLE
-    # sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
-    # sync_resp = requests.post(sync_url, headers=headers)
+    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
+    sync_resp = requests.post(sync_url, headers=headers)
 
-    # if sync_resp.status_code != 200:
-    #     raise Exception(
-    #         f"v2/area/sync API failed with status code {sync_resp.status_code}, can't process areas"
-    #     )
+    if sync_resp.status_code != 200:
+        raise Exception(
+            f"v2/area/sync API failed with status code {sync_resp.status_code}, can't process areas"
+        )
 
     pending_areas: List[Any] = []
     has_next_page = True
