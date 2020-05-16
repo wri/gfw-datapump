@@ -108,6 +108,7 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
+    # Area sync
     sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
     sync_resp = requests.post(sync_url, headers=headers)
 
