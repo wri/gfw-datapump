@@ -68,19 +68,16 @@ def test_submit_job_and_get_status():
     mock_environment()
 
     name = "testing"
-    master_instance_type = "r4.xlarge"
-    worker_instance_type = "r4.xlarge"
     worker_instance_count = 10
 
-    instances = _instances(
-        name, master_instance_type, worker_instance_type, worker_instance_count
-    )
+    instances = _instances(worker_instance_count)
     applications = _applications()
     configurations = _configurations(worker_instance_count)
 
     # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
-    del instances["InstanceGroups"][0]["EbsConfiguration"]
-    del instances["InstanceGroups"][1]["EbsConfiguration"]
+    del instances["InstanceFleets"][0]["InstanceTypeConfigs"][0]["EbsConfiguration"]
+    del instances["InstanceFleets"][1]["InstanceTypeConfigs"][0]["EbsConfiguration"]
+    del instances["InstanceFleets"][2]["InstanceTypeConfigs"][0]["EbsConfiguration"]
 
     job_flow_id = _run_job_flow(name, instances, _steps(), applications, configurations)
 
@@ -90,12 +87,8 @@ def test_submit_job_and_get_status():
     cluster_description = client.describe_cluster(ClusterId=job_flow_id)["Cluster"]
 
     assert (
-        cluster_description["Ec2InstanceAttributes"]["Ec2KeyName"]
+        TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2KeyName"]
         == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2KeyName"]
-    )
-    assert (
-        cluster_description["Ec2InstanceAttributes"]["Ec2SubnetId"]
-        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]
     )
     assert (
         cluster_description["Ec2InstanceAttributes"]["IamInstanceProfile"]

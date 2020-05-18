@@ -80,9 +80,10 @@ def test_geotrellis_summary_create(mock_get_legend):
 @patch("datapump_utils.summary_analysis._instances")
 def _test_submit_job(input_params, mock_instances):
     # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
-    instances = _instances(NAME, INSTANCE_SIZE, INSTANCE_SIZE, INSTANCE_COUNT)
-    del instances["InstanceGroups"][0]["EbsConfiguration"]
-    del instances["InstanceGroups"][1]["EbsConfiguration"]
+    instances = _instances(INSTANCE_COUNT)
+    del instances["InstanceFleets"][0]["InstanceTypeConfigs"][0]["EbsConfiguration"]
+    del instances["InstanceFleets"][1]["InstanceTypeConfigs"][0]["EbsConfiguration"]
+    del instances["InstanceFleets"][2]["InstanceTypeConfigs"][0]["EbsConfiguration"]
     mock_instances.return_value = instances
 
     result = submit_job.handler(input_params, None)

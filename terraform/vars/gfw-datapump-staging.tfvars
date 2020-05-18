@@ -46,13 +46,11 @@ datasets = {
     "firealerts_modis": {
       "daily_alerts" = "c0254765-e921-45e5-9eed-72b7294ce150"
       "weekly_alerts" = "5586eb14-8016-4630-8e2b-7636a0b26983"
-      "all" = "a19c4650-c3e8-4d9c-a98b-5595a3c15bb2"
       "whitelist" = "fab92867-45f0-4e47-af4e-73ea6b9372e3"
     }
     "firealerts_viirs": {
       "daily_alerts" = "5d7305db-e074-4e33-b011-c34dc09709ba"
       "weekly_alerts" = "290fa76b-d954-4473-bef2-b7e89f778436"
-      "all" = "dc704ce1-2241-434f-ac1c-eedbbd92a20e"
       "whitelist" = "4e0cd805-2339-41ce-af02-8ab093ce7ebc"
     }
   }
@@ -104,12 +102,10 @@ datasets = {
     "firealerts_modis": {
       "daily_alerts" = "5be51b58-43f7-4973-aebf-46ae11ac62ba"
       "weekly_alerts" = "a1e38d65-1e1f-4e2c-ba66-f7c449a82a9a"
-      "all" = "fae9483d-26b3-45e4-9708-5f2f19c2a1e0"
     }
     "firealerts_viirs": {
       "daily_alerts" = "c8040782-9dbb-4f6a-a8f8-51d43afdf81a"
       "weekly_alerts" = "9b984feb-2d16-4414-9bf2-08235e3f3cc5"
-      "all" = "02dba0f2-d43b-4b18-9e14-c86ac65901d2"
     }
   }
 }
