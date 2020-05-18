@@ -15,6 +15,9 @@ RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge", "m4.2xlarge", "m5.2xlarge"]
+MASTER_INSTANCE_TYPE = "r4.2xlarge"
+
 LOGGER = get_logger(__name__)
 
 
@@ -24,14 +27,10 @@ class JobStatus(Enum):
     FAILURE = "FAILURE"
 
 
-def submit_summary_batch_job(name, steps, instance_type, worker_count):
-    master_instance_type = instance_type
-    worker_instance_type = instance_type
+def submit_summary_batch_job(name, steps, worker_count):
     worker_instance_count = worker_count
 
-    instances = _instances(
-        name, master_instance_type, worker_instance_type, worker_instance_count
-    )
+    instances = _instances(worker_instance_count)
     applications = _applications()
     configurations = _configurations(worker_instance_count)
 
@@ -282,53 +281,81 @@ def _run_job_flow(name, instances, steps, applications, configurations):
     return response["JobFlowId"]
 
 
-def _instances(name, master_instance_type, worker_instance_type, worker_instance_count):
+def _instances(worker_instance_count):
     return {
-        "InstanceGroups": [
+        "InstanceFleets": [
             {
-                "Name": "{}-master".format(name),
-                "Market": "ON_DEMAND",
-                "InstanceRole": "MASTER",
-                "InstanceType": master_instance_type,
-                "InstanceCount": 1,
-                "EbsConfiguration": {
-                    "EbsBlockDeviceConfigs": [
-                        {
-                            "VolumeSpecification": {
-                                "VolumeType": "gp2",
-                                "SizeInGB": 10,
-                            },
-                            "VolumesPerInstance": 1,
-                        }
-                    ],
-                    "EbsOptimized": True,
-                },
+                "Name": "geotrellis-master",
+                "InstanceFleetType": "MASTER",
+                "TargetOnDemandCapacity": 1,
+                "InstanceTypeConfigs": [
+                    {
+                        "InstanceType": MASTER_INSTANCE_TYPE,
+                        "EbsConfiguration": {
+                            "EbsBlockDeviceConfigs": [
+                                {
+                                    "VolumeSpecification": {
+                                        "VolumeType": "gp2",
+                                        "SizeInGB": 10,
+                                    },
+                                    "VolumesPerInstance": 1,
+                                }
+                            ],
+                            "EbsOptimized": True,
+                        },
+                    }
+                ],
             },
             {
-                "Name": "{}-cores".format(name),
-                "Market": "SPOT",
-                "InstanceRole": "CORE",
-                # "BidPrice": "0.532",
-                "InstanceType": worker_instance_type,
-                "InstanceCount": worker_instance_count,
-                "EbsConfiguration": {
-                    "EbsBlockDeviceConfigs": [
-                        {
-                            "VolumeSpecification": {
-                                "VolumeType": "gp2",
-                                "SizeInGB": 10,
-                            },
-                            "VolumesPerInstance": 1,
-                        }
-                    ],
-                    "EbsOptimized": True,
-                },
+                "Name": "geotrellis-cores",
+                "InstanceFleetType": "CORE",
+                "TargetOnDemandCapacity": 1,
+                "InstanceTypeConfigs": [
+                    {
+                        "InstanceType": MASTER_INSTANCE_TYPE,
+                        "EbsConfiguration": {
+                            "EbsBlockDeviceConfigs": [
+                                {
+                                    "VolumeSpecification": {
+                                        "VolumeType": "gp2",
+                                        "SizeInGB": 10,
+                                    },
+                                    "VolumesPerInstance": 1,
+                                }
+                            ],
+                            "EbsOptimized": True,
+                        },
+                    }
+                ],
+            },
+            {
+                "Name": "geotrellis-tasks",
+                "InstanceFleetType": "TASK",
+                "TargetSpotCapacity": worker_instance_count,
+                "InstanceTypeConfigs": [
+                    {
+                        "InstanceType": instance_type,
+                        "EbsConfiguration": {
+                            "EbsBlockDeviceConfigs": [
+                                {
+                                    "VolumeSpecification": {
+                                        "VolumeType": "gp2",
+                                        "SizeInGB": 10,
+                                    },
+                                    "VolumesPerInstance": 1,
+                                }
+                            ],
+                            "EbsOptimized": True,
+                        },
+                    }
+                    for instance_type in WORKER_INSTANCE_TYPES
+                ],
             },
         ],
         "Ec2KeyName": EC2_KEY_NAME,
-        "KeepJobFlowAliveWhenNoSteps": False,
+        "KeepJobFlowAliveWhenNoSteps": True,
         "TerminationProtected": False,
-        "Ec2SubnetId": random.choice(PUBLIC_SUBNET_IDS),
+        "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
     }
 
 
