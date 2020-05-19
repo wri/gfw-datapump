@@ -353,7 +353,7 @@ def _instances(worker_instance_count):
             },
         ],
         "Ec2KeyName": EC2_KEY_NAME,
-        "KeepJobFlowAliveWhenNoSteps": True,
+        "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
         "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
     }
