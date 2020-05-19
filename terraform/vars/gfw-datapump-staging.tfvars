@@ -68,7 +68,6 @@ datasets = {
       }
     }
     "firealerts_viirs": {
-      "all" = "2a41e4f2-209d-4749-9921-a3f619e0112f"
       "iso": {
         "weekly_alerts" = "a4a60110-8465-4f1f-ace1-1be1f3f19446"
       }
@@ -81,7 +80,6 @@ datasets = {
       }
     }
     "firealerts_modis": {
-      "all" = "a6ceb599-71af-43a0-9d56-9fdb18e6b562"
       "iso": {
         "weekly_alerts" = "58fee933-81bd-45bd-a1eb-6a37972e7c28"
       }
