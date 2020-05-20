@@ -77,7 +77,6 @@ def test_submit_job_and_get_status():
     # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
     del instances["InstanceFleets"][0]["InstanceTypeConfigs"][0]["EbsConfiguration"]
     del instances["InstanceFleets"][1]["InstanceTypeConfigs"][0]["EbsConfiguration"]
-    del instances["InstanceFleets"][2]["InstanceTypeConfigs"][0]["EbsConfiguration"]
 
     job_flow_id = _run_job_flow(name, instances, _steps(), applications, configurations)
 
