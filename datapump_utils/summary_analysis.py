@@ -309,28 +309,6 @@ def _instances(worker_instance_count):
             {
                 "Name": "geotrellis-cores",
                 "InstanceFleetType": "CORE",
-                "TargetOnDemandCapacity": 1,
-                "InstanceTypeConfigs": [
-                    {
-                        "InstanceType": MASTER_INSTANCE_TYPE,
-                        "EbsConfiguration": {
-                            "EbsBlockDeviceConfigs": [
-                                {
-                                    "VolumeSpecification": {
-                                        "VolumeType": "gp2",
-                                        "SizeInGB": 10,
-                                    },
-                                    "VolumesPerInstance": 1,
-                                }
-                            ],
-                            "EbsOptimized": True,
-                        },
-                    }
-                ],
-            },
-            {
-                "Name": "geotrellis-tasks",
-                "InstanceFleetType": "TASK",
                 "TargetSpotCapacity": worker_instance_count,
                 "InstanceTypeConfigs": [
                     {

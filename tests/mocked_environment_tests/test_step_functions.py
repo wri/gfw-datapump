@@ -83,7 +83,6 @@ def _test_submit_job(input_params, mock_instances):
     instances = _instances(INSTANCE_COUNT)
     del instances["InstanceFleets"][0]["InstanceTypeConfigs"][0]["EbsConfiguration"]
     del instances["InstanceFleets"][1]["InstanceTypeConfigs"][0]["EbsConfiguration"]
-    del instances["InstanceFleets"][2]["InstanceTypeConfigs"][0]["EbsConfiguration"]
     mock_instances.return_value = instances
 
     result = submit_job.handler(input_params, None)
