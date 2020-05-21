@@ -68,15 +68,16 @@ datasets = {
       }
     }
     "firealerts_viirs": {
+      "all" = "9223ef23-7329-4987-8720-b5a87305f57d"
       "iso": {
-        "weekly_alerts" = "a4a60110-8465-4f1f-ace1-1be1f3f19446"
+        "weekly_alerts" = "17ff682d-6ef2-4934-9a0e-8dddb95e5c45"
       }
       "adm1": {
-        "weekly_alerts" = "0470e566-5ec3-4d23-b4dd-1d0eb42208b5"
+        "weekly_alerts" = "0ebb725e-42e1-4a1f-8875-930d6f51113c"
       }
       "adm2": {
-        "daily_alerts" = "fefec43c-c9fa-40f0-bac7-616338514bc1"
-        "weekly_alerts" = "6bf23a98-3e76-43e6-876c-68a11abf7f8c"
+        "daily_alerts" = "6e451fd5-5241-451b-872f-27f7b87e6a5d"
+        "weekly_alerts" = "8836395d-5173-45b8-bc3c-9dce271feb31"
       }
     }
     "firealerts_modis": {
