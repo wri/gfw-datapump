@@ -77,7 +77,7 @@ def get_summary_analysis_step(
 def get_summary_analysis_steps(
     analyses, feature_src, feature_type, result_dir, get_summary, geotrellis_jar=None
 ):
-    latest_jar = _get_geotrellis_jar()
+    latest_jar = _get_geotrellis_jar(geotrellis_jar)
     steps = []
 
     for analysis in analyses:
