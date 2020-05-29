@@ -34,7 +34,7 @@ def test_get_analysis_steps():
     step_args = " ".join(annualupdate_step["HadoopJarStep"]["Args"])
     assert (
         step_args
-        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis annualupdate --tcl"
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis annualupdate --features s3://my/feature/src --tcl"
     )
 
     annualupdate_step = steps[1]
@@ -43,7 +43,7 @@ def test_get_analysis_steps():
     step_args = " ".join(annualupdate_step["HadoopJarStep"]["Args"])
     assert (
         step_args
-        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --features s3://my/feature/src --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis gladalerts --glad"
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis gladalerts --features s3://my/feature/src --glad"
     )
 
 
