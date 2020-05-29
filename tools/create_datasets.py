@@ -35,6 +35,9 @@ from collections import defaultdict
 @click.option(
     "--fire_alert_type", type=click.Choice(["modis", "viirs"]), default=None,
 )
+@click.option(
+    "--geotrellis_jar", default=None,
+)
 def pump_data(
     features,
     feature_type,
@@ -44,6 +47,7 @@ def pump_data(
     version,
     tcl_year,
     fire_alert_type,
+    geotrellis_jar,
 ):
     if "annualupdate" in analysis and not tcl_year:
         print("FAILURE: tcl_year parameter required for tree cover loss analysis")
@@ -62,34 +66,18 @@ def pump_data(
             "datasets": get_dataset_names(
                 feature_type, analysis, version, tcl_year, fire_alert_type
             ),
-            "fire_config": {fire_alert_type: get_fire_src(fire_alert_type)},
+            "fire_config": {fire_alert_type: get_fire_src(fire_alert_type)}
+            if fire_alert_type
+            else None,
+            "geotrellis_jar": geotrellis_jar,
         }
     }
 
     input = json.dumps(request)  # double dump because sfn client requires escaped JSON
 
     sfn_client = boto3.client("stepfunctions")
-    """
-    response = sfn_client.list_state_machines()
-    arn = None
-    name = None
-
-    response["stateMachines"].sort(
-        reverse=True, key=(lambda sfn: sfn["creationDate"])
-    )  # get most recent, e.g. in case of dev environment
-
-    for sfn in response["stateMachines"]:
-        if "datapump-geotrellis_dataset" in sfn["name"]:
-            arn = sfn["stateMachineArn"]
-            name = sfn["name"]
-            break
-
-    if not arn:
-        print(
-            "FAILURE: State machine `datapump-geotrellis_dataset` couldn't be found in environment"
-        )
-    """
-    arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
+    # arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
+    arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
     execution_id = uuid.uuid4().hex
     response = sfn_client.start_execution(
         stateMachineArn=arn, name=execution_id, input=input,
