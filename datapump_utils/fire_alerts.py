@@ -1,13 +1,16 @@
 import requests
 import csv
 import os
+import zipfile
+import io
+import shapefile
 
 from datapump_utils.s3 import s3_client
 from datapump_utils.logger import get_logger
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
-    "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/csv/MODIS_C6_Global_48h.csv",
-    "VIIRS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/viirs/csv/VNP14IMGTDL_NRT_Global_48h.csv",
+    "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/shapes/zips/MODIS_C6_Global_48h.zip",
+    "VIIRS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/shapes/zips/SUOMI_VIIRS_C2_Global_48h.zip",
 }
 DATA_LAKE_BUCKET = os.environ["S3_BUCKET_DATA_LAKE"]
 BRIGHTNESS_FIELDS = {
@@ -15,12 +18,17 @@ BRIGHTNESS_FIELDS = {
     "VIIRS": ["bright_ti4", "bright_ti5"],
 }
 VERSIONS = {"MODIS": "v6", "VIIRS": "v1"}
-
+SHP_NAMES = {
+    "VIIRS": "SUOMI_VIIRS_C2_Global_48h.shp",
+    "MODIS": "MODIS_C6_Global_48h.shp",
+}
 LOGGER = get_logger(__name__)
+
+TEMP_DIR = "/tmp"
 
 
 def process_active_fire_alerts(alert_type):
-    LOGGER.info(f"Retrieving fire alerts for f{alert_type}")
+    LOGGER.info(f"Retrieving fire alerts for {alert_type}")
     response = requests.get(ACTIVE_FIRE_ALERTS_48HR_CSV_URLS[alert_type])
 
     if response.status_code != 200:
@@ -30,11 +38,20 @@ def process_active_fire_alerts(alert_type):
 
     LOGGER.info(f"Successfully download alerts from NASA")
 
-    lines = response.text.splitlines()
-    csv_reader = csv.DictReader(lines, delimiter=",")
-    sorted_rows = sorted(
-        csv_reader, key=lambda row: f"{row['acq_date']}_{row['acq_time']}"
-    )
+    zip = zipfile.ZipFile(io.BytesIO(response.content))
+    shp_dir = f"{TEMP_DIR}/fire_alerts_{alert_type}"
+    zip.extractall(shp_dir)
+    sf = shapefile.Reader(f"{shp_dir}/{SHP_NAMES[alert_type]}")
+
+    rows = []
+    for shape_record in sf.iterShapeRecords():
+        row = shape_record.record.as_dict()
+        row["LATITUDE"] = shape_record.shape.points[0][1]
+        row["LONGITUDE"] = shape_record.shape.points[0][0]
+        row["ACQ_DATE"] = row["ACQ_DATE"].strftime("%Y-%m-%d")
+        rows.append(row)
+
+    sorted_rows = sorted(rows, key=lambda row: f"{row['ACQ_DATE']}_{row['ACQ_TIME']}")
 
     last_row = sorted_rows[-1]
 
@@ -61,28 +78,28 @@ def process_active_fire_alerts(alert_type):
     first_row = None
     for row in sorted_rows:
         # only start once we confirm we're past the overlap with the last dataset
-        if row["acq_date"] > last_saved_date or (
-            row["acq_date"] == last_saved_date and row["acq_time"] > last_saved_min
+        if row["ACQ_DATE"] > last_saved_date or (
+            row["ACQ_DATE"] == last_saved_date and row["ACQ_DATE"] > last_saved_min
         ):
             if not first_row:
                 first_row = row
                 LOGGER.info(
-                    f"First row datetime: {first_row['acq_date']} {first_row['acq_time']}"
+                    f"First row datetime: {first_row['ACQ_DATE']} {first_row['ACQ_TIME']}"
                 )
 
             # for VIIRS, we only want first letter of confidence category, to make NRT category same as scientific
             if alert_type == "VIIRS":
-                row["confidence"] = row["confidence"][0]
+                row["CONFIDENCE"] = row["CONFIDENCE"][0]
 
             _write_row(row, fields, tsv_writer)
 
-    LOGGER.info(f"Last row datetime: {last_row['acq_date']} {last_row['acq_time']}")
+    LOGGER.info(f"Last row datetime: {last_row['ACQ_DATE']} {last_row['ACQ_TIME']}")
     LOGGER.info(f"Successfully wrote TSV")
 
     tsv_file.close()
 
     # upload both files to s3
-    file_name = f"{first_row['acq_date']}-{first_row['acq_time']}_{last_row['acq_date']}-{last_row['acq_time']}.tsv"
+    file_name = f"{first_row['ACQ_DATE']}-{first_row['ACQ_TIME']}_{last_row['ACQ_DATE']}-{last_row['ACQ_TIME']}.tsv"
     with open(result_path, "rb") as tsv_result:
         pipeline_key = f"{nrt_s3_directory}/{file_name}"
         s3_client().upload_fileobj(
@@ -94,7 +111,7 @@ def process_active_fire_alerts(alert_type):
 
 
 def get_tmp_result_path(alert_type):
-    return f"/tmp/fire_alerts_{alert_type.lower()}.tsv"
+    return f"{TEMP_DIR}/fire_alerts_{alert_type.lower()}.tsv"
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):
@@ -115,7 +132,7 @@ def _get_last_saved_alert_time(nrt_s3_directory):
 def _write_row(row, fields, writer):
     tsv_row = dict()
     for field in fields:
-        if field in row:
-            tsv_row[field] = row[field]
+        if field.upper() in row:
+            tsv_row[field] = row[field.upper()]
 
     writer.writerow(tsv_row)
