@@ -13,5 +13,6 @@ setup(
         "boto3~=1.10.7",
         "requests~=2.22.0",
         "geojson~=2.5.0",
+        "pyshp~=2.1.0",
     ],  # noqa: E231
 )
