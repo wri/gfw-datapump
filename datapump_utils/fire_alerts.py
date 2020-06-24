@@ -79,7 +79,7 @@ def process_active_fire_alerts(alert_type):
     for row in sorted_rows:
         # only start once we confirm we're past the overlap with the last dataset
         if row["ACQ_DATE"] > last_saved_date or (
-            row["ACQ_DATE"] == last_saved_date and row["ACQ_DATE"] > last_saved_min
+            row["ACQ_DATE"] == last_saved_date and row["ACQ_TIME"] > last_saved_min
         ):
             if not first_row:
                 first_row = row
