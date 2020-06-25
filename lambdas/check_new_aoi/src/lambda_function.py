@@ -103,6 +103,9 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         return {"status": "NO_NEW_AREAS_FOUND"}
     except Exception as e:
         LOGGER.error(traceback.format_exc())
+        slack_webhook(
+            "ERROR", "Error processing new user areas. See logs for more info."
+        )
         return {"status": "ERROR", "message": str(e)}
 
 
@@ -115,6 +118,7 @@ def get_pending_areas() -> List[Any]:
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
+    # Area sync
     sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
     sync_resp = requests.post(sync_url, headers=headers)
 
@@ -269,6 +273,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
 
                 # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
                 # in geotrellis
+                # https://gis.stackexchange.com/questions/120286/removing-small-polygon-gaps-in-shapely-polygon
                 geom = geom.buffer(0.0001).buffer(-0.0001)
 
                 # if GEOS thinks geom is invalid, try calling buffer(0) to rewrite it without changing the geometry
@@ -277,7 +282,10 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                     if (
                         not geom.is_valid
                     ):  # is still invalid, we'll need to look into this, but skip for now
-                        LOGGER.warning(f"Invalid geometry {g['id']}: {geom.wkt}")
+                        LOGGER.warning(
+                            f"Invalid geometry {g['geostoreId']}: {geom.wkt}"
+                        )
+                        continue
 
                 for tile in extent_1x1:
                     if geom.intersects(tile[0]):

@@ -55,8 +55,6 @@ def get_summary_analysis_step(
         "--class",
         "org.globalforestwatch.summarystats.SummaryMain",
         jar,
-        "--features",
-        feature_url,
         "--output",
         result_url,
         "--feature_type",
@@ -64,6 +62,13 @@ def get_summary_analysis_step(
         "--analysis",
         analysis,
     ]
+
+    if not isinstance(feature_url, list):
+        feature_url = [feature_url]
+
+    for uri in feature_url:
+        step_args.append("--features")
+        step_args.append(uri)
 
     if "annualupdate" in analysis:
         step_args.append("--tcl")
@@ -89,9 +94,15 @@ def get_summary_analysis_step(
 
 
 def get_summary_analysis_steps(
-    analyses, feature_src, feature_type, result_dir, get_summary=False, fire_config=None
+    analyses,
+    feature_src,
+    feature_type,
+    result_dir,
+    get_summary=False,
+    fire_config=None,
+    geotrellis_jar=None,
 ):
-    latest_jar = _get_latest_geotrellis_jar()
+    latest_jar = _get_geotrellis_jar(geotrellis_jar)
     steps = []
 
     for analysis in analyses:
@@ -386,10 +397,10 @@ def _configurations(worker_instance_count):
     ]
 
 
-def _get_latest_geotrellis_jar():
-
-    # environment should be set via environment variable. This can be done when deploying the lambda function.
-    if "GEOTRELLIS_JAR" in os.environ:
+def _get_geotrellis_jar(geotrellis_jar=None):
+    if geotrellis_jar:
+        return geotrellis_jar
+    elif "GEOTRELLIS_JAR" in os.environ:
         jar = os.environ["GEOTRELLIS_JAR"]
     else:
         raise ValueError("Environment Variable 'GEOTRELLIS_JAR' is not set")
