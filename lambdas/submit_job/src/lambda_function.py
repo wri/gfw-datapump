@@ -28,12 +28,19 @@ def handler(event, context):
     instance_count = event["instance_count"]
     get_summary = event.get("get_summary", False)
     fire_config = event.get("fire_config", None)
+    geotrellis_jar = event.get("geotrellis_jar", None)
 
     result_dir = f"geotrellis/results/{name}/{get_date_string()}"
 
     try:
         steps = get_summary_analysis_steps(
-            analyses, feature_src, feature_type, result_dir, get_summary, fire_config
+            analyses,
+            feature_src,
+            feature_type,
+            result_dir,
+            get_summary,
+            fire_config,
+            geotrellis_jar,
         )
         job_flow_id = submit_summary_batch_job(name, steps, instance_count)
 
