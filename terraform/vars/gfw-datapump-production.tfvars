@@ -44,12 +44,12 @@ datasets = {
       "whitelist" = "b2d07932-beff-4590-93e7-1d03cdb2d6b4"
     }
     "firealerts_modis": {
-      "daily_alerts" = "N/A"
-      "weekly_alerts" = "N/A"
+      "daily_alerts" = "5012bfdf-27a0-456e-b0cb-b4d9730b4ddf"
+      "weekly_alerts" = "df929dfc-6baf-4032-8a2e-dd9b840e9142"
     }
     "firealerts_viirs": {
-      "daily_alerts" = "N/A"
-      "weekly_alerts" = "N/A"
+      "daily_alerts" = "ef91cab3-92ba-4bf4-bb3e-edd526529be2"
+      "weekly_alerts" = "73f7fd7b-9e7c-4a14-be67-79c88f806b42"
     }
   }
   "gadm": {
