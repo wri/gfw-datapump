@@ -153,24 +153,27 @@ def get_dataset_names(
                 },
             }
         elif analysis == "firealerts":
-            return {
+            datasets = {
                 f"firealerts_{fire_alert_type.lower()}": {
-                    "all": f"{fire_alert_type.upper()} Fire Alerts - All - {version}",
                     "iso": {
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Iso level - {version}",
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Iso level - {version}",
                     },
                     "adm1": {
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm1 level - {version}",
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm1 level - {version}",
                     },
                     "adm2": {
                         "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - GADM Adm2 level - {version}",
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm2 level - {version}",
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm2 level - {version}",
                     },
                 },
             }
+
+            if "firealerts_viirs" in datasets:
+                datasets["firealerts_viirs"]["all"] = (
+                    f"VIIRS Fire Alerts - All - {version}",
+                )
+
+            return datasets
     elif feature_type == "wdpa":
         if analysis == "annualupdate_minimal":
             return {
@@ -194,8 +197,6 @@ def get_dataset_names(
                 f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}",
-                    "all": f"{fire_alert_type.upper()} Fire Alerts All - WDPA - {version}",
-                    "whitelist": f"Fire Alerts Whitelist - WDPA - {version}",
                 },
             }
     elif feature_type == "geostore":
@@ -221,8 +222,6 @@ def get_dataset_names(
                 f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}",
-                    "all": f"{fire_alert_type.upper()} Fire Alerts All - Geostore - {version}",
-                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - Geostore - {version}",
                 },
             }
 
