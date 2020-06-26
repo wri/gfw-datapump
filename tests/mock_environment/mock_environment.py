@@ -3,10 +3,12 @@ import os
 
 import boto3
 
-from datapump_utils.util import get_date_string, bucket_suffix
-from datapump_utils.s3 import s3_client, get_s3_path_parts
-
 CURDIR = os.path.dirname(__file__)
+
+from datapump_utils.util import get_date_string, bucket_suffix  # noqa: E402
+from datapump_utils.s3 import s3_client, get_s3_path_parts  # noqa: E402
+
+GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
 GLAD_STATUS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/events/status"
 
 os.environ["S3_BUCKET_PIPELINE"] = f"gfw-pipelines{bucket_suffix()}"
@@ -31,8 +33,12 @@ os.environ["DATASETS"] = json.dumps(
         },
         "gadm": {
             "gladalerts": {
-                "iso": {"weekly_alerts": "testid_weekly_alerts_glad_iso",},
-                "adm1": {"weekly_alerts": "testid_weekly_alerts_glad_adm1",},
+                "iso": {
+                    "weekly_alerts": "testid_weekly_alerts_glad_iso",
+                },  # noqa: E231
+                "adm1": {
+                    "weekly_alerts": "testid_weekly_alerts_glad_adm1",
+                },  # noqa: E231
                 "adm2": {
                     "daily_alerts": "testid_daily_alerts_glad_adm2",
                     "weekly_alerts": "testid_weekly_alerts_glad_adm2",
@@ -85,6 +91,7 @@ def _mock_s3_setup():
         f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
     )
     results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
+    results_viirs = f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore"
     results1 = os.path.join(CURDIR, "mock_files/results1.csv")
     results2 = os.path.join(CURDIR, "mock_files/results2.csv")
     results3 = os.path.join(CURDIR, "mock_files/results3.csv")
@@ -169,6 +176,24 @@ def _mock_s3_setup():
         open(success, "r"),
         Bucket=pipeline_bucket,
         Key=f"{results_tcl}/summary/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(success, "r"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/change/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(results1, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/change/results1.csv",
+    )
+    s3_client().upload_fileobj(
+        open(success, "r"), Bucket=pipeline_bucket, Key=f"{results_viirs}/all/_SUCCESS",
+    )
+    s3_client().upload_fileobj(
+        open(results1, "rb"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/all/results1.csv",
     )
 
     glad_alerts_bucket, glad_status_path = get_s3_path_parts(GLAD_STATUS_PATH)

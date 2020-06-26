@@ -46,6 +46,20 @@ def test_get_analysis_steps():
         == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis gladalerts --features s3://my/feature/src --glad"
     )
 
+    steps_with_fire = get_summary_analysis_steps(
+        ["firealerts"],
+        "s3://my/feature/src",
+        "geostore",
+        "my/result/dir",
+        True,
+        fire_config={"viirs": ["s3a://path/to/viirs"]},
+    )
+    step_args_fire = " ".join(steps_with_fire[0]["HadoopJarStep"]["Args"])
+    assert (
+        step_args_fire
+        == f"spark-submit --deploy-mode cluster --class org.globalforestwatch.summarystats.SummaryMain s3://gfw-pipelines{bucket_suffix()}/geotrellis/jars/test2.jar --output s3://gfw-pipelines{bucket_suffix()}/my/result/dir --feature_type geostore --analysis firealerts --features s3://my/feature/src --fire_alert_type viirs --fire_alert_source s3a://path/to/viirs"
+    )
+
 
 @mock_s3
 @mock_emr
@@ -54,19 +68,15 @@ def test_submit_job_and_get_status():
     mock_environment()
 
     name = "testing"
-    master_instance_type = "r4.xlarge"
-    worker_instance_type = "r4.xlarge"
     worker_instance_count = 10
 
-    instances = _instances(
-        name, master_instance_type, worker_instance_type, worker_instance_count
-    )
+    instances = _instances(worker_instance_count)
     applications = _applications()
     configurations = _configurations(worker_instance_count)
 
     # workaround for this bug with moto: https://github.com/spulec/moto/issues/1708
-    del instances["InstanceGroups"][0]["EbsConfiguration"]
-    del instances["InstanceGroups"][1]["EbsConfiguration"]
+    del instances["InstanceFleets"][0]["InstanceTypeConfigs"][0]["EbsConfiguration"]
+    del instances["InstanceFleets"][1]["InstanceTypeConfigs"][0]["EbsConfiguration"]
 
     job_flow_id = _run_job_flow(name, instances, _steps(), applications, configurations)
 
@@ -76,12 +86,8 @@ def test_submit_job_and_get_status():
     cluster_description = client.describe_cluster(ClusterId=job_flow_id)["Cluster"]
 
     assert (
-        cluster_description["Ec2InstanceAttributes"]["Ec2KeyName"]
+        TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2KeyName"]
         == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2KeyName"]
-    )
-    assert (
-        cluster_description["Ec2InstanceAttributes"]["Ec2SubnetId"]
-        == TEST_CLUSTER_DESCRIPTION["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]
     )
     assert (
         cluster_description["Ec2InstanceAttributes"]["IamInstanceProfile"]
@@ -148,7 +154,7 @@ def test_get_dataset_sources():
 def test_get_dataset_result_paths():
     mock_environment()
 
-    analyses = ["gladalerts", "annualupdate_minimal"]
+    analyses = ["gladalerts", "annualupdate_minimal", "firealerts"]
     dataset_ids = {
         "gladalerts": {
             "daily_alerts": "testid_daily_alerts_glad",
@@ -159,19 +165,25 @@ def test_get_dataset_result_paths():
             "change": "testid_change_tcl",
             "summary": "testid_summary_tcl",
         },
+        "firealerts_viirs": {
+            "change": "testid_change_viirs",
+            "all": "testid_all_viirs",
+        },
     }
 
     result_dir = f"geotrellis/results/test/{get_date_string()}"
     feature_type = "geostore"
+    fire_alert_types = ["viirs"]
 
     dataset_result_paths = get_dataset_result_paths(
-        result_dir, analyses, dataset_ids, feature_type
+        result_dir, analyses, dataset_ids, feature_type, fire_alert_types
     )
 
     results_glad = (
         f"geotrellis/results/test/{get_date_string()}/gladalerts_20191119_1245/geostore"
     )
     results_tcl = f"geotrellis/results/test/{get_date_string()}/annualupdate_minimal_20191119_1245/geostore"
+    results_viirs = f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore"
 
     assert (
         dataset_result_paths["testid_daily_alerts_glad"]
@@ -185,6 +197,8 @@ def test_get_dataset_result_paths():
 
     assert dataset_result_paths["testid_change_tcl"] == f"{results_tcl}/change"
     assert dataset_result_paths["testid_summary_tcl"] == f"{results_tcl}/summary"
+    assert dataset_result_paths["testid_change_viirs"] == f"{results_viirs}/change"
+    assert dataset_result_paths["testid_all_viirs"] == f"{results_viirs}/all"
 
 
 def test_get_dataset_result_keys():
