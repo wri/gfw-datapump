@@ -8,6 +8,7 @@ from datapump_utils.exceptions import (
     StatusMismatchException,
     FailedDatasetUploadException,
 )
+from datapump_utils.summary_analysis import get_dataset_sources
 from datapump_utils.util import error
 from datapump_utils.logger import get_logger
 from datapump_utils.dataset import (
@@ -33,7 +34,7 @@ def handler(event, context):
     try:
         name = event["name"]
         dataset_ids = event["dataset_ids"]
-        dataset_sources = event["dataset_sources"]
+        dataset_result_paths = event["dataset_result_paths"]
         upload_type = event["upload_type"]
 
         # keep track of number of retries to upload each dataset
@@ -46,7 +47,7 @@ def handler(event, context):
 
         try:
             check_for_upload_issues(
-                name, datasets, dataset_sources, tasks, upload_type, retries
+                name, datasets, dataset_result_paths, tasks, upload_type, retries
             )
         except (
             FailedDatasetUploadException,
@@ -70,7 +71,7 @@ def handler(event, context):
 
 
 def check_for_upload_issues(
-    name, datasets, dataset_sources, tasks, upload_type, retries
+    name, datasets, dataset_result_paths, tasks, upload_type, retries
 ):
     # see if any datasets have already failed, and if so immediately exit wait loop and return error
     failed_datasets = get_datasets_with_status(datasets, "failed")
@@ -82,7 +83,7 @@ def check_for_upload_issues(
         raise StatusMismatchException(mismatched_status_error(status_mismatches))
 
     # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
-    retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries)
+    retry_stuck_datasets(datasets, dataset_result_paths, tasks, upload_type, retries)
 
 
 def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
@@ -90,7 +91,7 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
     Check if dataset upload is stuck on writing for various reasons.
     """
     # look for bug where elasticsearch has jammed writers
-    # we can tell this has happened if the # of reads > # of writes
+    # we can tell this has happened if the # of reads < # of writes
     if dataset["status"] == "pending" and task["reads"] < task["writes"]:
         LOGGER.warning(
             f"Pending dataset has fewer reads({task['reads']}) than writes({task['writes']}), might be stuck.'"
@@ -135,7 +136,7 @@ def get_task_log_errors(task):
     ]
 
 
-def retry_upload_dataset(ds, ds_src, task, upload_type, retries):
+def retry_upload_dataset(ds, dataset_result_paths, task, upload_type, retries):
     reset_stuck_dataset(ds, task)
     retries[ds["id"]] = retries[ds["id"]] + 1 if ds["id"] in retries else 1
 
@@ -144,21 +145,20 @@ def retry_upload_dataset(ds, ds_src, task, upload_type, retries):
             f"Upload of dataset {ds['id']} failed after {MAX_RETRIES} retries."
         )
 
+    ds_src = get_dataset_sources(dataset_result_paths[ds["id"]])
     upload_dataset(ds["id"], ds_src, upload_type)
 
     # change local status to pending instead of querying API again
     ds["status"] = "pending"
 
 
-def retry_stuck_datasets(datasets, dataset_sources, tasks, upload_type, retries):
+def retry_stuck_datasets(datasets, dataset_result_paths, tasks, upload_type, retries):
     stuck_on_write_statuses = [
         is_dataset_stuck_on_write(ds, task) for ds, task in zip(datasets, tasks)
     ]
-    for ds, ds_src, task, stuck_on_write in zip(
-        datasets, dataset_sources, tasks, stuck_on_write_statuses
-    ):
+    for ds, task, stuck_on_write in zip(datasets, tasks, stuck_on_write_statuses):
         if stuck_on_write:
-            retry_upload_dataset(ds, ds_src, task, upload_type, retries)
+            retry_upload_dataset(ds, dataset_result_paths, task, upload_type, retries)
 
 
 def log_task_log_warnings(datasets, tasks):

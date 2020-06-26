@@ -1,8 +1,5 @@
 import json
-
 import boto3
-
-from datapump_utils.util import secret_suffix
 
 TOKEN = None
 

@@ -27,7 +27,7 @@ else:
     ENV = "dev"
 
 LOGGER = get_logger(__name__)
-SUMMARIZE_NEW_AOIS_NAME = "new_user_aoi"
+SUMMARIZE_NEW_AOIS_NAME = "new-user-areas"
 DIRNAME = os.path.dirname(__file__)
 DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 GEOSTORE_PAGE_SIZE = 100
@@ -63,7 +63,7 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                         Bucket=geostore_bucket,
                         Key=geostore_path,
                     )
-                    worker_count = math.ceil(geom_count / 100)
+                    worker_count = max(10, math.ceil(geom_count / 100))
 
                 LOGGER.info(f"Found {len(geostore['data'])} pending areas")
                 geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
@@ -76,11 +76,21 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                     "instance_count": worker_count,
                     "feature_src": geostore_full_path,
                     "feature_type": "geostore",
-                    "analyses": ["gladalerts", "annualupdate_minimal"],
+                    "analyses": ["gladalerts", "annualupdate_minimal", "firealerts"],
                     "datasets": DATASETS["geostore"],
                     "name": SUMMARIZE_NEW_AOIS_NAME,
                     "upload_type": "append",
                     "get_summary": True,
+                    "fire_config": {
+                        "viirs": [
+                            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
+                            "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
+                        ],
+                        "modis": [
+                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
+                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
+                        ],
+                    },
                 }
             else:
                 slack_webhook("INFO", "No new user areas found. Doing nothing.")

@@ -2,15 +2,23 @@ import os
 import json
 import random
 from enum import Enum
+from copy import deepcopy
 
 import boto3
 from botocore.exceptions import ClientError
+from datapump_utils.logger import get_logger
+from datapump_utils.dataset import upload_dataset
 
 from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
+
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge", "m4.2xlarge", "m5.2xlarge"]
+MASTER_INSTANCE_TYPE = "r4.2xlarge"
+
+LOGGER = get_logger(__name__)
 
 
 class JobStatus(Enum):
@@ -19,14 +27,10 @@ class JobStatus(Enum):
     FAILURE = "FAILURE"
 
 
-def submit_summary_batch_job(name, steps, instance_type, worker_count):
-    master_instance_type = instance_type
-    worker_instance_type = instance_type
+def submit_summary_batch_job(name, steps, worker_count):
     worker_instance_count = worker_count
 
-    instances = _instances(
-        name, master_instance_type, worker_instance_type, worker_instance_count
-    )
+    instances = _instances(worker_instance_count)
     applications = _applications()
     configurations = _configurations(worker_instance_count)
 
@@ -35,7 +39,14 @@ def submit_summary_batch_job(name, steps, instance_type, worker_count):
 
 
 def get_summary_analysis_step(
-    analysis, feature_url, result_url, jar, feature_type="feature", get_summary=True
+    analysis,
+    feature_url,
+    result_url,
+    jar,
+    feature_type="feature",
+    get_summary=True,
+    fire_src=None,
+    fire_type=None,
 ):
     step_args = [
         "spark-submit",
@@ -67,6 +78,14 @@ def get_summary_analysis_step(
     if not get_summary:
         step_args.append("--change_only")
 
+    if fire_src and fire_type:
+        step_args.append("--fire_alert_type")
+        step_args.append(fire_type)
+
+        for src in fire_src:
+            step_args.append("--fire_alert_source")
+            step_args.append(src)
+
     return {
         "Name": analysis,
         "ActionOnFailure": "TERMINATE_CLUSTER",
@@ -75,19 +94,44 @@ def get_summary_analysis_step(
 
 
 def get_summary_analysis_steps(
-    analyses, feature_src, feature_type, result_dir, get_summary, geotrellis_jar=None
+    analyses,
+    feature_src,
+    feature_type,
+    result_dir,
+    get_summary=False,
+    fire_config=None,
+    geotrellis_jar=None,
 ):
     latest_jar = _get_geotrellis_jar(geotrellis_jar)
     steps = []
 
     for analysis in analyses:
         result_url = get_s3_path(RESULT_BUCKET, result_dir)
-        steps.append(
-            get_summary_analysis_step(
-                analysis, feature_src, result_url, latest_jar, feature_type, get_summary
+        if analysis == "firealerts" and fire_config:
+            for alert_type, alert_sources in fire_config.items():
+                steps.append(
+                    get_summary_analysis_step(
+                        analysis,
+                        feature_src,
+                        result_url,
+                        latest_jar,
+                        feature_type,
+                        get_summary,
+                        alert_sources,
+                        alert_type,
+                    )
+                )
+        else:
+            steps.append(
+                get_summary_analysis_step(
+                    analysis,
+                    feature_src,
+                    result_url,
+                    latest_jar,
+                    feature_type,
+                    get_summary,
+                )
             )
-        )
-
     return steps
 
 
@@ -109,7 +153,9 @@ def get_job_status(job_flow_id: str) -> JobStatus:
         return JobStatus.PENDING
 
 
-def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
+def get_analysis_result_paths(
+    result_bucket, result_directory, analysis_names, fire_alert_types=[]
+):
     """
     Analysis result directories are named as <analysis>_<date>_<time>
     This creates a map of each analysis to its directory name so we know where to find
@@ -127,8 +173,10 @@ def get_analysis_result_paths(result_bucket, result_directory, analysis_names):
     ]
 
     analysis_result_path_map = dict()
+    analyses = _get_geotrellis_analysis_names(analysis_names, fire_alert_types)
+
     for path in analysis_result_paths:
-        for analysis in analysis_names:
+        for analysis in analyses:
             if analysis in os.path.basename(path):
                 analysis_result_path_map[analysis] = path
 
@@ -171,9 +219,11 @@ def get_dataset_sources(results_path):
     ]
 
 
-def get_dataset_result_paths(result_dir, analyses, datasets, feature_type):
+def get_dataset_result_paths(
+    result_dir, analyses, datasets, feature_type, fire_alert_types=[]
+):
     analysis_result_paths = get_analysis_result_paths(
-        RESULT_BUCKET, result_dir, analyses
+        RESULT_BUCKET, result_dir, analyses, fire_alert_types
     )
     dataset_result_paths = dict()
 
@@ -210,6 +260,16 @@ def get_dataset_result_keys(ds_ids):
     return results
 
 
+def _get_geotrellis_analysis_names(analysis_names, fire_alert_types=[]):
+    analyses = deepcopy(analysis_names)
+    if "firealerts" in analyses:
+        analyses.remove("firealerts")
+        for alert_type in fire_alert_types:
+            analyses.append(f"firealerts_{alert_type.lower()}")
+
+    return analyses
+
+
 def _run_job_flow(name, instances, steps, applications, configurations):
     client = boto3.client("emr", region_name="us-east-1")
     response = client.run_job_flow(
@@ -232,53 +292,59 @@ def _run_job_flow(name, instances, steps, applications, configurations):
     return response["JobFlowId"]
 
 
-def _instances(name, master_instance_type, worker_instance_type, worker_instance_count):
+def _instances(worker_instance_count):
     return {
-        "InstanceGroups": [
+        "InstanceFleets": [
             {
-                "Name": "{}-master".format(name),
-                "Market": "ON_DEMAND",
-                "InstanceRole": "MASTER",
-                "InstanceType": master_instance_type,
-                "InstanceCount": 1,
-                "EbsConfiguration": {
-                    "EbsBlockDeviceConfigs": [
-                        {
-                            "VolumeSpecification": {
-                                "VolumeType": "gp2",
-                                "SizeInGB": 10,
-                            },
-                            "VolumesPerInstance": 1,
-                        }
-                    ],
-                    "EbsOptimized": True,
-                },
+                "Name": "geotrellis-master",
+                "InstanceFleetType": "MASTER",
+                "TargetOnDemandCapacity": 1,
+                "InstanceTypeConfigs": [
+                    {
+                        "InstanceType": MASTER_INSTANCE_TYPE,
+                        "EbsConfiguration": {
+                            "EbsBlockDeviceConfigs": [
+                                {
+                                    "VolumeSpecification": {
+                                        "VolumeType": "gp2",
+                                        "SizeInGB": 10,
+                                    },
+                                    "VolumesPerInstance": 1,
+                                }
+                            ],
+                            "EbsOptimized": True,
+                        },
+                    }
+                ],
             },
             {
-                "Name": "{}-cores".format(name),
-                "Market": "SPOT",
-                "InstanceRole": "CORE",
-                # "BidPrice": "0.532",
-                "InstanceType": worker_instance_type,
-                "InstanceCount": worker_instance_count,
-                "EbsConfiguration": {
-                    "EbsBlockDeviceConfigs": [
-                        {
-                            "VolumeSpecification": {
-                                "VolumeType": "gp2",
-                                "SizeInGB": 10,
-                            },
-                            "VolumesPerInstance": 1,
-                        }
-                    ],
-                    "EbsOptimized": True,
-                },
+                "Name": "geotrellis-cores",
+                "InstanceFleetType": "CORE",
+                "TargetSpotCapacity": worker_instance_count,
+                "InstanceTypeConfigs": [
+                    {
+                        "InstanceType": instance_type,
+                        "EbsConfiguration": {
+                            "EbsBlockDeviceConfigs": [
+                                {
+                                    "VolumeSpecification": {
+                                        "VolumeType": "gp2",
+                                        "SizeInGB": 10,
+                                    },
+                                    "VolumesPerInstance": 1,
+                                }
+                            ],
+                            "EbsOptimized": True,
+                        },
+                    }
+                    for instance_type in WORKER_INSTANCE_TYPES
+                ],
             },
         ],
         "Ec2KeyName": EC2_KEY_NAME,
         "KeepJobFlowAliveWhenNoSteps": False,
         "TerminationProtected": False,
-        "Ec2SubnetId": random.choice(PUBLIC_SUBNET_IDS),
+        "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
     }
 
 
