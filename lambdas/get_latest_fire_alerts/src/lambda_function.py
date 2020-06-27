@@ -29,6 +29,7 @@ def handler(event, context):
 
     upload_type = "append"
 
+    # get datasets
     viirs_datasets_geostore = {
         "firealerts_viirs": DATASETS["geostore"]["firealerts_viirs"]
     }
