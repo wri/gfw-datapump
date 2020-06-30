@@ -86,8 +86,8 @@ datasets = {
         "weekly_alerts" = "fb311b24-1b50-4ed9-93d8-bb4fca3a797c"
       }
       "adm2": {
-        "daily_alerts" = "be395f10-6ee0-4e51-aa1d-593f5f2f1ee2"
-        "weekly_alerts" = "105010b0-f121-49f3-a82b-6ce253d26350"
+        "daily_alerts" = "105010b0-f121-49f3-a82b-6ce253d26350"
+        "weekly_alerts" = "be395f10-6ee0-4e51-aa1d-593f5f2f1ee2"
       }
     }
   }
