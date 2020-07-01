@@ -18,6 +18,7 @@
             "Run Geotrellis Summary Update GADM - VIIRS": {
               "Type": "Task",
               "End": true,
+              "ResultPath": "$.viirs_all",
               "Resource": "arn:aws:states:::states:startExecution.sync",
               "Parameters": {
                 "StateMachineArn": "${state_machine_arn}",
@@ -157,10 +158,48 @@
           }
         }
       ],
-      "Next": "Successfully Updated"
+      "Next": "Inject Fires Data"
+    },
+    "Inject Fires Data": {
+      "Type": "Task",
+      "Resource": "${lambda_inject_fires_data_arn}",
+      "InputPath": "$.viirs_all",
+      "ResultPath": "$",
+      "Next": "Wait For Injection"
+    },
+    "Was Injection Successful?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "SUCCESS",
+          "Next": "Successfully Updated"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "FAILED",
+          "Next": "Failed"
+        },
+        {
+          "Variable": "$.status",
+          "StringEquals": "PENDING",
+          "Next": "Wait For Injection"
+        }
+      ],
+      "Default": "Wait For Injection"
+    },
+    "Wait For Dataset Upload": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "Inject Fires Data"
     },
     "Successfully Updated": {
       "Type": "Succeed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Cause": "Failed.",
+      "Error": "Failed"
     }
   }
 }
