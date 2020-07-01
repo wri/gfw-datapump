@@ -40,6 +40,7 @@ data "template_file" "sfn_summarize_new_fire_alerts" {
   template = file("../step_functions/new_fire_alerts.json")
   vars = {
     lambda_get_latest_fire_alerts_arn  = aws_lambda_function.get_latest_fire_alerts.arn,
+    lambda_inject_fires_data_arn      = aws_lambda_function.inject_fires_data.arn,
     state_machine_arn                 =  aws_sfn_state_machine.geotrellis_dataset.id
   }
 }
@@ -60,5 +61,14 @@ data "terraform_remote_state" "lambda-layers" {
     bucket = local.tf_state_bucket
     region = "us-east-1"
     key    = "lambda-layers.tfstate"
+  }
+}
+
+data "terraform_remote_state" "gfw-data-api" {
+  backend = "s3"
+  config = {
+    bucket = local.tf_state_bucket
+    region = "us-east-1"
+    key    = "wri__gfw-data-api.tfstate"
   }
 }

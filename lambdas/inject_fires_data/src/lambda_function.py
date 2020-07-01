@@ -19,7 +19,7 @@ else:
 AOI_UPDATED_STATUS = "saved"
 LOGGER = get_logger(__name__)
 
-DATA_API_VIIRS_VERSION = "1.1.0"
+DATA_API_VIIRS_VERSION = "1.0.0"
 
 
 def handler(event, context):

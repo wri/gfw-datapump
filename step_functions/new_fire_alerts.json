@@ -165,7 +165,7 @@
       "Resource": "${lambda_inject_fires_data_arn}",
       "InputPath": "$.viirs_all",
       "ResultPath": "$",
-      "Next": "Wait For Injection"
+      "Next": "Was Injection Successful?"
     },
     "Was Injection Successful?": {
       "Type": "Choice",
@@ -188,7 +188,7 @@
       ],
       "Default": "Wait For Injection"
     },
-    "Wait For Dataset Upload": {
+    "Wait For Injection": {
       "Type": "Wait",
       "Seconds": 30,
       "Next": "Inject Fires Data"
