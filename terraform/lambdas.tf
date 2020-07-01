@@ -168,7 +168,7 @@ resource "aws_lambda_function" "inject_fires_data" {
   environment {
     variables = {
       ENV                = var.environment
-      DATA_API_URI       = ??
+      DATA_API_URI       = data.terraform_remote_state.gfw-data-api.outputs.loadbalancer_dns
     }
   }
 }
