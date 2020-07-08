@@ -40,7 +40,7 @@ def handler(event, context):
             }
 
             LOGGER.info(f"Calling PATCH on {uri} with payload:\n{payload}")
-            resp = requests.patch(uri, headers=headers, data=payload)
+            resp = requests.patch(uri, headers=headers, json=payload)
 
             if resp.status_code >= 300:
                 raise UnexpectedResponseError(
