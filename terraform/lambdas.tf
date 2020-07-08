@@ -170,6 +170,9 @@ resource "aws_lambda_function" "inject_fires_data" {
       ENV                = var.environment
       DATA_API_URI       = data.terraform_remote_state.gfw-data-api.outputs.loadbalancer_dns
       DATA_API_VIIRS_VERSION = var.data_api_viirs_version
+      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
+      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
     }
   }
 }
