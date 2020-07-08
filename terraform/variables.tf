@@ -109,6 +109,11 @@ variable "lambda_get_latest_fire_alerts_timeout" {
   description = "Timeout in sec for AWS Lambda function"
 }
 
+variable "data_api_viirs_version" {
+  type        = string
+  description = "Data API version for VIIRS fire alerts datasets"
+}
+
 variable "geotrellis_jar" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
