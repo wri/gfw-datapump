@@ -24,10 +24,12 @@ def handler(event, context):
     try:
         uri = f"http://{api_prefix()}-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
-        if "Output" in event:
-            event = json.loads(
-                event["Output"]
-            )  # workaround because nested step functions serialize the output
+        if isinstance(event, list):
+            for out in event:
+                if "viirs_all" in out:
+                    event = json.loads(
+                        out["viirs_all"]["Output"]
+                    )  # workaround because nested step functions serialize the output
 
             datasets = event["datasets"]
             viirs_all_ds = datasets["firealerts_viirs"]["all"]
