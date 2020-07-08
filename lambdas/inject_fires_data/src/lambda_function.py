@@ -49,13 +49,13 @@ def handler(event, context):
             return {"status": "PENDING"}
 
         else:
-            resp = requests.get(uri)
+            resp = requests.get(f"{uri}/assets")
             if resp.status_code >= 300:
                 raise UnexpectedResponseError(
                     f"Got status code {resp.status_code} while making call to data API"
                 )
 
-            status = resp.json()["data"]["status"]
+            status = resp.json()["data"][0]["status"]  # first asset should be table
             if status == "saved":
                 return {"status": "SUCCESS"}
             elif status == "failed":

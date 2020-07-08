@@ -16,7 +16,7 @@ def test_inject_fires(requests_mock):
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
     uri = f"https://test.data-api.com/meta/nasa_viirs_fire_alerts/vtest"
-    pending_resp = {"data": {"status": "pending"}}
+    pending_resp = {"data": [{"status": "pending"}]}
     requests_mock.patch(uri, json=pending_resp)
 
     resp = handler(
@@ -35,12 +35,12 @@ def test_inject_fires(requests_mock):
 
     assert resp["status"] == "PENDING"
 
-    requests_mock.get(uri, json=pending_resp)
+    requests_mock.get(f"{uri}/assets", json=pending_resp)
     resp = handler({"status": "PENDING"}, None)
     assert resp["status"] == "PENDING"
 
-    saved_resp = {"data": {"status": "saved"}}
+    saved_resp = {"data": [{"status": "saved"}]}
 
-    requests_mock.get(uri, json=saved_resp)
+    requests_mock.get(f"{uri}/assets", json=saved_resp)
     resp = handler({"status": "PENDING"}, None)
     assert resp["status"] == "SUCCESS"
