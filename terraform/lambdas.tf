@@ -153,6 +153,27 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   }
 }
 
+resource "aws_lambda_function" "inject_fires_data" {
+  function_name    = substr("${local.project}-inject_fires_data${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_inject_fires_data.output_path
+  source_code_hash = data.archive_file.lambda_inject_fires_data.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_update_new_aoi_statuses_runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_update_new_aoi_statuses_memory_size
+  timeout          = var.lambda_update_new_aoi_statuses_timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_utils_arn]
+  environment {
+    variables = {
+      ENV                = var.environment
+      DATA_API_URI       = data.terraform_remote_state.gfw-data-api.outputs.loadbalancer_dns
+      DATA_API_VIIRS_VERSION = var.data_api_viirs_version
+    }
+  }
+}
+
 resource "aws_lambda_permission" "allow_cloudwatch" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
