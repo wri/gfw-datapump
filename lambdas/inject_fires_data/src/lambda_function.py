@@ -16,15 +16,12 @@ if "ENV" in os.environ:
 else:
     ENV = "dev"
 
-AOI_UPDATED_STATUS = "saved"
 LOGGER = get_logger(__name__)
-
-DATA_API_VIIRS_VERSION = "1.0.0"
 
 
 def handler(event, context):
     try:
-        uri = f"{os.environ['DATA_API_URI']}/meta/nasa_viirs_fire_alerts/{DATA_API_VIIRS_VERSION}"
+        uri = f"{os.environ['DATA_API_URI']}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
         if "Output" in event:
             event = json.loads(
