@@ -12,10 +12,9 @@ from datapump_utils.util import get_date_string
 @mock_secretsmanager
 def test_inject_fires(requests_mock):
     mock_environment()
-    os.environ["DATA_API_URI"] = "https://test.data-api.com"
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
-    uri = f"https://test.data-api.com/meta/nasa_viirs_fire_alerts/vtest"
+    uri = f"http://staging-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/vtest"
     pending_resp = {"data": [{"status": "pending"}]}
     requests_mock.patch(uri, json=pending_resp)
 

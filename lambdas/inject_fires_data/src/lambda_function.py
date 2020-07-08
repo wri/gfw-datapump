@@ -8,6 +8,7 @@ from datapump_utils.util import error
 from datapump_utils.secrets import token
 from datapump_utils.summary_analysis import get_dataset_sources
 from datapump_utils.logger import get_logger
+from datapump_utils.dataset import api_prefix
 import requests
 
 
@@ -21,7 +22,7 @@ LOGGER = get_logger(__name__)
 
 def handler(event, context):
     try:
-        uri = f"{os.environ['DATA_API_URI']}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
+        uri = f"http://{api_prefix()}-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
         if "Output" in event:
             event = json.loads(
