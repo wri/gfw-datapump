@@ -199,7 +199,7 @@ def get_dataset_result_path(analysis_result_path, aggregate_name, feature_type):
     return "{}/{}/{}".format(analysis_result_path, feature_type, aggregate_name)
 
 
-def get_dataset_sources(results_path):
+def get_dataset_sources(results_path, raw_s3=False):
     object_list = s3_client().list_objects(Bucket=RESULT_BUCKET, Prefix=results_path)
 
     keys = [object["Key"] for object in object_list["Contents"]]
@@ -213,10 +213,13 @@ def get_dataset_sources(results_path):
         if meta["ContentLength"] > 0:
             nonempty_csv_keys.append(key)
 
-    return [
-        "https://{}.s3.amazonaws.com/{}".format(RESULT_BUCKET, key)
-        for key in nonempty_csv_keys
-    ]
+    if raw_s3:
+        return [f"s3://{RESULT_BUCKET}/{key}" for key in nonempty_csv_keys]
+    else:
+        return [
+            f"https://{RESULT_BUCKET}.s3.amazonaws.com/{key}"
+            for key in nonempty_csv_keys
+        ]
 
 
 def get_dataset_result_paths(
