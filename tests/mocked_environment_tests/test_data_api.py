@@ -14,7 +14,7 @@ def test_inject_fires(requests_mock):
     mock_environment()
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
-    uri = f"http://staging-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/vtest"
+    uri = f"https://staging-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/vtest"
     pending_resp = {
         "data": [{"change_log": [{"status": "failed"}, {"status": "pending"}]}]
     }
