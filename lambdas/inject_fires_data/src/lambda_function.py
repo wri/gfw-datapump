@@ -29,33 +29,32 @@ def handler(event, context):
 
         uri = f"http://{uri_domain}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
-        if "parallel_output" in event:
-            for output in event["parallel_output"]:
+        if isinstance(event, list):
+            for output in event:
                 if "viirs_all" in output:
                     event = json.loads(
                         output["viirs_all"]["Output"]
                     )  # workaround because nested step functions serialize the output
 
-            datasets = event["datasets"]
-            viirs_all_ds = datasets["firealerts_viirs"]["all"]
-            ds_result_path = event["dataset_result_paths"][viirs_all_ds]
-            ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
+                datasets = event["datasets"]
+                viirs_all_ds = datasets["firealerts_viirs"]["all"]
+                ds_result_path = event["dataset_result_paths"][viirs_all_ds]
+                ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
 
-            headers = {"Authorization": f"Bearer {token()}"}
-            payload = {
-                "source_uri": ds_sources,
-            }
+                headers = {"Authorization": f"Bearer {token()}"}
+                payload = {
+                    "source_uri": ds_sources,
+                }
 
-            LOGGER.info(f"Calling PATCH on {uri} with payload:\n{payload}")
-            resp = requests.patch(uri, headers=headers, json=payload)
+                LOGGER.info(f"Calling PATCH on {uri} with payload:\n{payload}")
+                resp = requests.patch(uri, headers=headers, json=payload)
 
-            if resp.status_code >= 300:
-                raise UnexpectedResponseError(
-                    f"Got status code {resp.status_code} while posting to data API"
-                )
+                if resp.status_code >= 300:
+                    raise UnexpectedResponseError(
+                        f"Got status code {resp.status_code} while posting to data API"
+                    )
 
-            return {"status": "PENDING"}
-
+                return {"status": "PENDING"}
         else:
             resp = requests.get(f"{uri}/assets")
             if resp.status_code >= 300:
