@@ -27,7 +27,7 @@ def handler(event, context):
         else:
             uri_domain = "staging-data-api.globalforestwatch.org"
 
-        uri = f"http://{uri_domain}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
+        uri = f"https://{uri_domain}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
         if isinstance(event, list):
             for output in event:
@@ -41,7 +41,10 @@ def handler(event, context):
                 ds_result_path = event["dataset_result_paths"][viirs_all_ds]
                 ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
 
-                headers = {"Authorization": f"Bearer {token()}"}
+                headers = {
+                    "Authorization": f"Bearer {token()}",
+                    "Content-Type": "application/json",
+                }
                 payload = {
                     "source_uri": ds_sources,
                 }
