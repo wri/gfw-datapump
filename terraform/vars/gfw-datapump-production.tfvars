@@ -28,7 +28,9 @@ lambda_get_latest_fire_alerts_runtime     = "python3.6"
 lambda_get_latest_fire_alerts_memory_size = 3008
 lambda_get_latest_fire_alerts_timeout     = 900
 
-geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.1.2.jar"
+data_api_viirs_version = "v202004.2"
+
+geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.1.2.jar"
 
 datasets = {
   "geostore": {
@@ -46,10 +48,12 @@ datasets = {
     "firealerts_modis": {
       "daily_alerts" = "5012bfdf-27a0-456e-b0cb-b4d9730b4ddf"
       "weekly_alerts" = "df929dfc-6baf-4032-8a2e-dd9b840e9142"
+      "whitelist" = "b43fe0c2-25c5-4a51-b826-c6665a5c3c3a"
     }
     "firealerts_viirs": {
       "daily_alerts" = "ef91cab3-92ba-4bf4-bb3e-edd526529be2"
       "weekly_alerts" = "73f7fd7b-9e7c-4a14-be67-79c88f806b42"
+      "whitelist" = "84b5f5e5-64fe-40ae-b647-9829e38cf051"
     }
   }
   "gadm": {

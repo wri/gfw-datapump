@@ -37,6 +37,9 @@ def handler(event, context):
         "firealerts_modis": DATASETS["geostore"]["firealerts_modis"]
     }
 
+    del viirs_datasets_geostore["firealerts_viirs"]["whitelist"]  # no summary
+    del modis_datasets_geostore["firealerts_modis"]["whitelist"]  # no summary
+
     return {
         "viirs": {
             "gadm": {

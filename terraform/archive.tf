@@ -39,3 +39,9 @@ data "archive_file" "lambda_get_latest_fire_alerts" {
   source_dir  = "../lambdas/get_latest_fire_alerts/src"
   output_path = "../lambdas/get_latest_fire_alerts/lambda.zip"
 }
+
+data "archive_file" "lambda_inject_fires_data" {
+  type        = "zip"
+  source_dir  = "../lambdas/inject_fires_data/src"
+  output_path = "../lambdas/inject_fires_data/lambda.zip"
+}
