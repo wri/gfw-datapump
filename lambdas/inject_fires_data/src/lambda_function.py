@@ -57,7 +57,7 @@ def handler(event, context):
                         f"Got status code {resp.status_code} while posting to data API"
                     )
 
-                return {"status": "PENDING"}
+                return {"status": "SUCCESS"}
         else:
             resp = requests.get(f"{uri}/assets")
             if resp.status_code >= 300:
