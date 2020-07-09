@@ -40,7 +40,7 @@ def test_inject_fires(requests_mock):
         None,
     )
 
-    assert resp["status"] == "PENDING"
+    assert resp["status"] == "SUCCESS"
 
     requests_mock.get(f"{uri}/assets", json=pending_resp)
     resp = handler({"status": "PENDING"}, None)
