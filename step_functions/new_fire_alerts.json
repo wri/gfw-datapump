@@ -10,7 +10,7 @@
     },
     "Run GeoTrellis Summary Updates": {
       "Type": "Parallel",
-      "ResultPath": "$",
+      "ResultPath": "$.parallel_output",
       "Branches": [
         {
           "StartAt": "Run Geotrellis Summary Update GADM - VIIRS",
@@ -163,7 +163,7 @@
     "Inject Fires Data": {
       "Type": "Task",
       "Resource": "${lambda_inject_fires_data_arn}",
-      "InputPath": "$.viirs_all",
+      "InputPath": "$.parallel_output",
       "ResultPath": "$",
       "Next": "Was Injection Successful?"
     },

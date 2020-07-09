@@ -22,19 +22,24 @@ LOGGER = get_logger(__name__)
 
 def handler(event, context):
     try:
-        uri = f"http://{api_prefix()}-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
+        if ENV == "production":
+            uri_domain = "data-api.globalforestwatch.org"
+        else:
+            uri_domain = "staging-data-api.globalforestwatch.org"
 
-        if isinstance(event, list):
-            for out in event:
-                if "viirs_all" in out:
+        uri = f"http://{uri_domain}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
+
+        if "parallel_output" in event:
+            for output in event["parallel_output"]:
+                if "viirs_all" in output:
                     event = json.loads(
-                        out["viirs_all"]["Output"]
+                        output["viirs_all"]["Output"]
                     )  # workaround because nested step functions serialize the output
 
             datasets = event["datasets"]
             viirs_all_ds = datasets["firealerts_viirs"]["all"]
             ds_result_path = event["dataset_result_paths"][viirs_all_ds]
-            ds_sources = get_dataset_sources(ds_result_path)
+            ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
 
             headers = {"Authorization": f"Bearer {token()}"}
             payload = {
@@ -58,7 +63,11 @@ def handler(event, context):
                     f"Got status code {resp.status_code} while making call to data API"
                 )
 
-            status = resp.json()["data"][0]["status"]  # first asset should be table
+            change_log = resp.json()["data"][0][
+                "change_log"
+            ]  # first asset should be table
+            status = change_log[-1]["status"]
+
             if status == "saved":
                 return {"status": "SUCCESS"}
             elif status == "failed":

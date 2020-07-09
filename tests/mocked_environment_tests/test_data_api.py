@@ -15,26 +15,30 @@ def test_inject_fires(requests_mock):
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
     uri = f"http://staging-data-api.globalforestwatch.org/meta/nasa_viirs_fire_alerts/vtest"
-    pending_resp = {"data": [{"status": "pending"}]}
+    pending_resp = {
+        "data": [{"change_log": [{"status": "failed"}, {"status": "pending"}]}]
+    }
     requests_mock.patch(uri, json=pending_resp)
 
     resp = handler(
-        [
-            {
-                "viirs_all": {
-                    "Output": json.dumps(
-                        {
-                            "datasets": {
-                                "firealerts_viirs": {"all": "test_viirs_all_id"}
-                            },
-                            "dataset_result_paths": {
-                                "test_viirs_all_id": f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore/all"
-                            },
-                        }
-                    )
+        {
+            "parallel_output": [
+                {
+                    "viirs_all": {
+                        "Output": json.dumps(
+                            {
+                                "datasets": {
+                                    "firealerts_viirs": {"all": "test_viirs_all_id"}
+                                },
+                                "dataset_result_paths": {
+                                    "test_viirs_all_id": f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore/all"
+                                },
+                            }
+                        )
+                    }
                 }
-            }
-        ],
+            ]
+        },
         None,
     )
 
@@ -44,7 +48,7 @@ def test_inject_fires(requests_mock):
     resp = handler({"status": "PENDING"}, None)
     assert resp["status"] == "PENDING"
 
-    saved_resp = {"data": [{"status": "saved"}]}
+    saved_resp = {"data": [{"change_log": [{"status": "failed"}, {"status": "saved"}]}]}
 
     requests_mock.get(f"{uri}/assets", json=saved_resp)
     resp = handler({"status": "PENDING"}, None)
