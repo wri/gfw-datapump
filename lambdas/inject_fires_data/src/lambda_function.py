@@ -57,7 +57,7 @@ def handler(event, context):
                         f"Got status code {resp.status_code} while posting to data API"
                     )
 
-                return {"status": "SUCCESS"}
+                return {"status": "PENDING"}
         else:
             resp = requests.get(f"{uri}/assets")
             if resp.status_code >= 300:
@@ -70,7 +70,7 @@ def handler(event, context):
             ]  # first asset should be table
             status = change_log[-1]["status"]
 
-            if status == "saved":
+            if status == "success":
                 return {"status": "SUCCESS"}
             elif status == "failed":
                 return error("Failed to inject data to data API")
