@@ -40,13 +40,15 @@ def test_inject_fires(requests_mock):
         None,
     )
 
-    assert resp["status"] == "SUCCESS"
+    assert resp["status"] == "PENDING"
 
     requests_mock.get(f"{uri}/assets", json=pending_resp)
     resp = handler({"status": "PENDING"}, None)
     assert resp["status"] == "PENDING"
 
-    saved_resp = {"data": [{"change_log": [{"status": "failed"}, {"status": "saved"}]}]}
+    saved_resp = {
+        "data": [{"change_log": [{"status": "failed"}, {"status": "success"}]}]
+    }
 
     requests_mock.get(f"{uri}/assets", json=saved_resp)
     resp = handler({"status": "PENDING"}, None)
