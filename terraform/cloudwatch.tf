@@ -13,7 +13,7 @@ resource "aws_cloudwatch_event_rule" "everyday-9-pm-est" {
 resource "aws_cloudwatch_event_rule" "every-3-hours" {
   name                = substr("every-3-hours${local.name_suffix}", 0, 64)
   description         = "Run every 3 hours"
-  schedule_expression = "cron(0 */3 * * * *)" // -5 to EST
+  schedule_expression = "rate(3 hours)"
 }
 
 
