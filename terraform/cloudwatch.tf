@@ -10,6 +10,13 @@ resource "aws_cloudwatch_event_rule" "everyday-9-pm-est" {
   schedule_expression = "cron(0 2 ? * * *)" // -5 to EST
 }
 
+resource "aws_cloudwatch_event_rule" "every-3-hours" {
+  name                = substr("every-3-hours${local.name_suffix}", 0, 64)
+  description         = "Run every 3 hours"
+  schedule_expression = "cron(0 */3 * * * *)" // -5 to EST
+}
+
+
 resource "aws_cloudwatch_event_rule" "everyday-3-am-est" {
   name                = substr("everyday-3-am-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 3 am EST"
@@ -18,11 +25,11 @@ resource "aws_cloudwatch_event_rule" "everyday-3-am-est" {
 
 //We only want to schedule this event in production
 resource "aws_cloudwatch_event_target" "nightly-new-area-check" {
-  rule      = aws_cloudwatch_event_rule.everyday-9-pm-est.name
+  rule      = aws_cloudwatch_event_rule.every-3-hours.name
   target_id = substr("${local.project}-nightly-new-area-check${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.new_user_aoi.id
   role_arn  = aws_iam_role.datapump_states.arn
-  count     = 0
+  count     = var.environment == "production" ? 1 : 0
 }
 
 //We only want to schedule this event in production
