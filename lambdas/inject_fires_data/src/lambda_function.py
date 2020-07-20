@@ -27,7 +27,7 @@ def handler(event, context):
         else:
             uri_domain = "staging-data-api.globalforestwatch.org"
 
-        uri = f"https://{uri_domain}/meta/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
+        uri = f"https://{uri_domain}/dataset/nasa_viirs_fire_alerts/{os.environ['DATA_API_VIIRS_VERSION']}"
 
         if isinstance(event, list):
             for output in event:
@@ -50,7 +50,7 @@ def handler(event, context):
                 }
 
                 LOGGER.info(f"Calling PATCH on {uri} with payload:\n{payload}")
-                resp = requests.patch(uri, headers=headers, json=payload)
+                resp = requests.post(f"{uri}/append", headers=headers, json=payload)
 
                 if resp.status_code >= 300:
                     raise UnexpectedResponseError(
