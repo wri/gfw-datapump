@@ -13,19 +13,23 @@ DATASETS = json.loads(os.environ["DATASETS"])
 
 
 def handler(event, context):
-    modis_path = process_active_fire_alerts("MODIS")
-    viirs_path = process_active_fire_alerts("VIIRS")
+    if "manual" in event:
+        modis_path = event["modis_path"]
+        viirs_path = event["viirs_path"]
+    else:
+        modis_path = process_active_fire_alerts("MODIS")
+        viirs_path = process_active_fire_alerts("VIIRS")
 
-    viirs_local_path = get_tmp_result_path("VIIRS")
+        viirs_local_path = get_tmp_result_path("VIIRS")
 
-    # try to update geopackage, but still move on if it fails
-    try:
-        update_geopackage(viirs_local_path)
-    except Exception:
-        LOGGER.error(f"Error updating fires geopackage: {traceback.format_exc()}")
-        slack_webhook(
-            "ERROR", "Error updating fires geopackage. Check logs for more details."
-        )
+        # try to update geopackage, but still move on if it fails
+        try:
+            update_geopackage(viirs_local_path)
+        except Exception:
+            LOGGER.error(f"Error updating fires geopackage: {traceback.format_exc()}")
+            slack_webhook(
+                "ERROR", "Error updating fires geopackage. Check logs for more details."
+            )
 
     upload_type = "append"
 
