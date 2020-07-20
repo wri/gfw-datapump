@@ -86,10 +86,10 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
                             "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
                             "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
                         ],
-                        # "modis": [
-                        #     "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
-                        #     "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
-                        # ],
+                        "modis": [
+                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
+                            "s3://gfw-data-lake-dev/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
+                        ],
                     },
                 }
             else:
