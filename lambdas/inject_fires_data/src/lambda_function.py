@@ -65,12 +65,9 @@ def handler(event, context):
                     f"Got status code {resp.status_code} while making call to data API"
                 )
 
-            change_log = resp.json()["data"][0][
-                "change_log"
-            ]  # first asset should be table
-            status = change_log[-1]["status"]
+            status = resp.json()["data"][0]["status"]
 
-            if status == "success":
+            if status == "saved":
                 return {"status": "SUCCESS"}
             elif status == "failed":
                 return error("Failed to inject data to data API")
