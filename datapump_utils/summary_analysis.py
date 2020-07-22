@@ -15,7 +15,7 @@ RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
-WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge", "m4.2xlarge", "m5.2xlarge"]
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]  # "m4.2xlarge", "m5.2xlarge"]
 MASTER_INSTANCE_TYPE = "r4.2xlarge"
 
 LOGGER = get_logger(__name__)
