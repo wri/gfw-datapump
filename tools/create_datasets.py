@@ -10,6 +10,7 @@ from collections import defaultdict
 
 
 @click.command()
+@click.option("--env", help="Environment", required=True)
 @click.option("--features", help="feature URI", required=True)
 @click.option(
     "--feature_type",
@@ -40,6 +41,7 @@ from collections import defaultdict
     "--geotrellis_jar", default=None,
 )
 def pump_data(
+    env,
     features,
     feature_type,
     analysis,
@@ -77,8 +79,11 @@ def pump_data(
     input = json.dumps(request)  # double dump because sfn client requires escaped JSON
 
     sfn_client = boto3.client("stepfunctions")
-    # arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
-    arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
+    if env == "production":
+        arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
+    else:
+        arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
+
     execution_id = uuid.uuid4().hex
     response = sfn_client.start_execution(
         stateMachineArn=arn, name=execution_id, input=input,
