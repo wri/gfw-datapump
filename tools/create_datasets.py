@@ -5,7 +5,8 @@ import json
 import uuid
 from collections import defaultdict
 
-# s3://gfw-pipelines-dev/geotrellis/features/cod_gadm36_adm2_1_1.csv
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200805 --fire_alert_type viirs
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200805 --fire_alert_type modis
 
 
 @click.command()
@@ -89,22 +90,14 @@ def pump_data(
 def get_fire_src(fire_alert_type):
     if fire_alert_type == "viirs":
         return [
-            "s3://gfw-data-lake-staging/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
-            "s3://gfw-data-lake-staging/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
+            "s3://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
+            "s3://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
         ]
     else:
         return [
-            "s3://gfw-data-lake-staging/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
-            "s3://gfw-data-lake-staging/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
+            "s3://gfw-data-lake/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
+            "s3://gfw-data-lake/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
         ]
-
-
-"""
-if fire_alert_type == "viirs":
-return "s3://gfw-data-lake-dev/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv"
-else:
-raise Exception()
-"""
 
 
 def get_dataset_names(
@@ -156,22 +149,23 @@ def get_dataset_names(
             datasets = {
                 f"firealerts_{fire_alert_type.lower()}": {
                     "iso": {
+                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Iso level - {version}",
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Iso level - {version}",
                     },
                     "adm1": {
+                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm1 level - {version}",
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm1 level - {version}",
                     },
                     "adm2": {
+                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm2 level - {version}",
                         "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - GADM Adm2 level - {version}",
                         "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm2 level - {version}",
                     },
                 },
             }
 
-            if "firealerts_viirs" in datasets:
-                datasets["firealerts_viirs"]["all"] = (
-                    f"VIIRS Fire Alerts - All - {version}",
-                )
+            # if "firealerts_viirs" in datasets:
+            #     datasets["firealerts_viirs"]["all"] =  f"VIIRS Fire Alerts - All - {version}"
 
             return datasets
     elif feature_type == "wdpa":
