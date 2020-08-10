@@ -16,9 +16,15 @@ def handler(event, context):
     if "manual" in event:
         modis_path = event["modis_path"]
         viirs_path = event["viirs_path"]
+
+        if not isinstance(modis_path, list):
+            modis_path = [modis_path]
+
+        if not isinstance(viirs_path, list):
+            viirs_path = [viirs_path]
     else:
-        modis_path = process_active_fire_alerts("MODIS")
-        viirs_path = process_active_fire_alerts("VIIRS")
+        modis_path = [process_active_fire_alerts("MODIS")]
+        viirs_path = [process_active_fire_alerts("VIIRS")]
 
         viirs_local_path = get_tmp_result_path("VIIRS")
 
@@ -56,7 +62,7 @@ def handler(event, context):
                 "name": "fire-alerts-viirs-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
-                "fire_config": {"viirs": [viirs_path]},
+                "fire_config": {"viirs": viirs_path},
             },
             "wdpa": {
                 "instance_size": "r4.2xlarge",
@@ -68,7 +74,7 @@ def handler(event, context):
                 "name": "fire-alerts-viirs-wdpa",
                 "upload_type": upload_type,
                 "get_summary": False,
-                "fire_config": {"viirs": [viirs_path]},
+                "fire_config": {"viirs": viirs_path},
             },
             "geostore": {
                 "instance_size": "r4.2xlarge",
@@ -80,7 +86,7 @@ def handler(event, context):
                 "name": "fire-alerts-viirs-geostore",
                 "upload_type": upload_type,
                 "get_summary": False,
-                "fire_config": {"viirs": [viirs_path]},
+                "fire_config": {"viirs": viirs_path},
             },
         },
         "modis": {
@@ -94,7 +100,7 @@ def handler(event, context):
                 "name": "fire-alerts-modis-gadm",
                 "upload_type": upload_type,
                 "get_summary": False,
-                "fire_config": {"modis": [modis_path]},
+                "fire_config": {"modis": modis_path},
             },
             "wdpa": {
                 "instance_size": "r4.2xlarge",
@@ -106,7 +112,7 @@ def handler(event, context):
                 "name": "fire-alerts-modis-wdpa",
                 "upload_type": upload_type,
                 "get_summary": False,
-                "fire_config": {"modis": [modis_path]},
+                "fire_config": {"modis": modis_path},
             },
             "geostore": {
                 "instance_size": "r4.2xlarge",
@@ -119,7 +125,7 @@ def handler(event, context):
                 "upload_type": upload_type,
                 "get_summary": False,
                 "fire_src": modis_path,
-                "fire_config": {"modis": [modis_path]},
+                "fire_config": {"modis": modis_path},
             },
         },
     }
