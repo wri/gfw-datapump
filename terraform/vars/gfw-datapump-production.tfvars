@@ -59,14 +59,14 @@ datasets = {
   "gadm": {
     "gladalerts": {
       "iso": {
-        "weekly_alerts" = "2c444b8d-991a-4e90-bb18-6d9063be1432"
+        "weekly_alerts" = "e090cf7c-d52e-4511-8d54-7ff083cd5ba4"
       }
       "adm1": {
-        "weekly_alerts" = "094ae08c-3bf2-4d85-830e-e6d4cbc5c05d"
+        "weekly_alerts" = "7dfccab0-7b5b-4812-926f-bdda40fd2d73"
       }
       "adm2": {
-        "daily_alerts" = "2cacc2dc-35d6-46ab-8641-384267b8ba64",
-        "weekly_alerts" = "6476cd26-446a-4bc0-add5-79baeecceb12"
+        "daily_alerts" = "591dfe99-3184-4ab5-a5b5-1efb642f1606",
+        "weekly_alerts" = "9388c2dd-2b32-449f-9ce9-d31386a45d74"
       }
     }
     "firealerts_viirs": {
@@ -97,8 +97,8 @@ datasets = {
   }
   "wdpa": {
     "gladalerts": {
-      "daily_alerts" = "bfb86d53-c8de-46c5-a424-94eb63fea6da",
-      "weekly_alerts" = "8b7240e7-8372-4b6e-9aed-4694c7a46b49"
+      "daily_alerts" = "cb00f471-63d5-4531-9177-17b4c7acaccf",
+      "weekly_alerts" = "325f79c1-550f-4928-97c2-c4d0904edc88"
     }
     "firealerts_modis": {
       "daily_alerts" = "83b55c8f-2d0c-4002-bd8b-568593393c24"
