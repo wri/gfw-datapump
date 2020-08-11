@@ -5,8 +5,18 @@ import json
 import uuid
 from collections import defaultdict
 
-# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200805 --fire_alert_type viirs
-# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200805 --fire_alert_type modis
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 150 --analysis annualupdate_minimal --version v20200807 --tcl_year 2019 --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv --feature_type wdpa --worker_count 150 --analysis annualupdate_minimal --version v20200807 --tcl_year 2019 --env production
+# python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis gladalerts --version v20200807 --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 100 --analysis gladalerts --version v20200807 --env production
+# python ./tools/create_datasets.py --features "s3://gfw-pipelines/geotrellis/features/geostore/*.tsv" --feature_type geostore --worker_count 150 --analysis annualupdate_minimal --version v20200807 --tcl_year 2019 --env production
+# python ./tools/create_datasets.py --features "s3://gfw-pipelines/geotrellis/features/geostore/*.tsv" --feature_type geostore --worker_count 100 --analysis gladalerts --version v20200807 --env production
+# python ./tools/create_datasets.py --features "s3://gfw-pipelines/geotrellis/features/geostore/*.tsv" --feature_type geostore --worker_count 100 --analysis firealerts --version v20200807 --env production --fire_alert_type viirs
+# python ./tools/create_datasets.py --features "s3://gfw-pipelines/geotrellis/features/geostore/*.tsv" --feature_type geostore --worker_count 100 --analysis firealerts --version v20200807 --env production --fire_alert_type modis
 
 
 @click.command()
@@ -69,12 +79,14 @@ def pump_data(
             "datasets": get_dataset_names(
                 feature_type, analysis, version, tcl_year, fire_alert_type
             ),
-            "fire_config": {fire_alert_type: get_fire_src(fire_alert_type)}
-            if fire_alert_type
-            else None,
             "geotrellis_jar": geotrellis_jar,
         }
     }
+
+    if fire_alert_type:
+        request["Input"]["fire_config"] = {
+            fire_alert_type: get_fire_src(fire_alert_type)
+        }
 
     input = json.dumps(request)  # double dump because sfn client requires escaped JSON
 
@@ -169,6 +181,7 @@ def get_dataset_names(
                 },
             }
 
+            # Run this manually afterwards, it takes ~6 hours to upload and will block all the other datasets
             # if "firealerts_viirs" in datasets:
             #     datasets["firealerts_viirs"]["all"] =  f"VIIRS Fire Alerts - All - {version}"
 
@@ -221,6 +234,7 @@ def get_dataset_names(
                 f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}",
+                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - Geostore - {version}",
                 },
             }
 
