@@ -89,7 +89,7 @@ def test_handler_alerts_found():
     assert result["wdpa"]["feature_type"] == "wdpa"
     assert (
         result["wdpa"]["feature_src"]
-        == "s3://gfw-files/2018_update/tsv/wdpa_protected_areas_v201909_1_1.tsv"
+        == "s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv"
     )
 
 
