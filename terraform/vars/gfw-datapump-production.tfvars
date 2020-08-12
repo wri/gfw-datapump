@@ -35,25 +35,25 @@ geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.1.
 datasets = {
   "geostore": {
     "annualupdate_minimal": {
-      "change" = "d67db9ab-1462-4622-b4a7-e29f403df1a5"
-      "summary" = "09c2a7b5-120b-4907-a4ea-c7b62a3b252b"
-      "whitelist" = "6c004b6c-c940-495d-9ba7-c952afa960ec"
+      "change" = "ecb4817b-a09e-4c78-b735-617e93a7ff4c"
+      "summary" = "b2603f43-8349-4401-99d3-2fb56f889388"
+      "whitelist" = "28006d70-42b5-4034-9008-505806101863"
     }
     "gladalerts": {
-      "daily_alerts" = "0064ccfb-efb0-4bd4-befa-b2ba034197d1"
-      "weekly_alerts" = "5c62a80a-7846-4dfc-b174-53285da9e37a"
-      "summary" = "d78f39a4-9273-4f45-8ec4-d9665b8666d9"
-      "whitelist" = "b2d07932-beff-4590-93e7-1d03cdb2d6b4"
+      "daily_alerts" = "bd35ab8e-1810-4eda-981e-5f0e6fe76f74"
+      "weekly_alerts" = "95735f8d-b86b-485a-8766-c480dd4da21d"
+      "summary" = "11454c79-e0ac-4c58-90ee-dcc9d9d30031"
+      "whitelist" = "61d9f9bc-883c-4c70-865a-af8126c7ccee"
     }
     "firealerts_modis": {
-      "daily_alerts" = "5012bfdf-27a0-456e-b0cb-b4d9730b4ddf"
-      "weekly_alerts" = "df929dfc-6baf-4032-8a2e-dd9b840e9142"
-      "whitelist" = "b43fe0c2-25c5-4a51-b826-c6665a5c3c3a"
+      "daily_alerts" = "b7bf28ef-e893-47da-844a-25a46115fe34"
+      "weekly_alerts" = "1f7bb181-7b28-4823-8aa5-28335268f961"
+      "whitelist" = "d7d9a4b0-e295-42a8-bd46-fb48981c1eca"
     }
     "firealerts_viirs": {
-      "daily_alerts" = "ef91cab3-92ba-4bf4-bb3e-edd526529be2"
-      "weekly_alerts" = "73f7fd7b-9e7c-4a14-be67-79c88f806b42"
-      "whitelist" = "84b5f5e5-64fe-40ae-b647-9829e38cf051"
+      "daily_alerts" = "825edfcd-07f4-4b2b-9054-282663c60caa"
+      "weekly_alerts" = "cfd880fd-8b81-46c2-b3e3-84ba22955337"
+      "whitelist" = "e101f15a-4104-4dfd-bade-164986154694"
     }
   }
   "gadm": {
