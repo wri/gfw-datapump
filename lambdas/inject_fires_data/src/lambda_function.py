@@ -8,7 +8,7 @@ from datapump_utils.util import error
 from datapump_utils.secrets import token
 from datapump_utils.summary_analysis import get_dataset_sources
 from datapump_utils.logger import get_logger
-from datapump_utils.dataset import api_prefix
+from datapump_utils.slack import slack_webhook
 import requests
 
 
@@ -68,10 +68,11 @@ def handler(event, context):
             status = resp.json()["data"][0]["status"]
 
             if status == "saved":
+                slack_webhook("INFO", "Successfully injected VIIRS alerts to data API")
                 return {"status": "SUCCESS"}
             elif status == "failed":
                 return error("Failed to inject data to data API")
             elif status == "pending":
                 return {"status": "PENDING"}
-    except UnexpectedResponseError as e:
+    except Exception as e:
         return error(str(e))
