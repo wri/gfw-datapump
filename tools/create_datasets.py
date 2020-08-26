@@ -7,8 +7,8 @@ from collections import defaultdict
 
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
-# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
-# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/vector/epsg-4326/wdpa_protected_areas_v202007_1x1.tsv --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
+# python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/vector/epsg-4326/wdpa_protected_areas_v202007_1x1.tsv  --feature_type wdpa --worker_count 80 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 150 --analysis annualupdate_minimal --version v20200807 --tcl_year 2019 --env production
 # python ./tools/create_datasets.py --features s3://gfw-data-lake/wdpa_protected_areas/v202007/text/wdpa_protected_areas_v202007_1x1.tsv --feature_type wdpa --worker_count 150 --analysis annualupdate_minimal --version v20200807 --tcl_year 2019 --env production
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis gladalerts --version v20200807 --env production
@@ -209,6 +209,7 @@ def get_dataset_names(
                 f"firealerts_{fire_alert_type.lower()}": {
                     "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}",
                     "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}",
+                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - WDPA - {version}",
                 },
             }
     elif feature_type == "geostore":
