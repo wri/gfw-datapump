@@ -101,12 +101,12 @@ datasets = {
       "weekly_alerts" = "8b7240e7-8372-4b6e-9aed-4694c7a46b49"
     }
     "firealerts_modis": {
-      "daily_alerts" = "83b55c8f-2d0c-4002-bd8b-568593393c24"
-      "weekly_alerts" = "33d2256e-645f-44cf-b0d3-2613a71cf62b"
+      "daily_alerts" = "46aa211a-f1e7-491c-af26-1dfcf1e88c91"
+      "weekly_alerts" = "30575408-697b-4151-b430-d54462b54cc9"
     }
     "firealerts_viirs": {
-      "daily_alerts" = "43371354-4a60-4cac-afd9-1e4627682ea2"
-      "weekly_alerts" = "02f3d46b-ba14-469c-b536-4d189834d71a"
+      "daily_alerts" = "a8575b2f-5035-4855-85e8-a16255aed666"
+      "weekly_alerts" = "eeb586f8-0ea7-4f76-a5b3-2e5bc8cabcbf"
     }
   }
 }
