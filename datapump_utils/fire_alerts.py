@@ -9,8 +9,8 @@ from datapump_utils.s3 import s3_client
 from datapump_utils.logger import get_logger
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
-    "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/shapes/zips/MODIS_C6_Global_48h.zip",
-    "VIIRS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/shapes/zips/SUOMI_VIIRS_C2_Global_48h.zip",
+    "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/shapes/zips/MODIS_C6_Global_7d.zip",
+    "VIIRS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/shapes/zips/SUOMI_VIIRS_C2_Global_7d.zip",
 }
 DATA_LAKE_BUCKET = os.environ["S3_BUCKET_DATA_LAKE"]
 BRIGHTNESS_FIELDS = {
