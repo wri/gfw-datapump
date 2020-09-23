@@ -12,4 +12,4 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_REGION
     working_dir: /usr/local/src
-    entrypoint: /bin/sh
+    entrypoint: infra
