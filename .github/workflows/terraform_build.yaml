@@ -33,7 +33,7 @@ jobs:
         ENV: test
         AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_dev }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_dev }}
-        AWS_REGION: ${{ secrets.aws_region_dev }}
+        AWS_DEFAULT_REGION: ${{ secrets.aws_region_dev }}
         CC_TEST_REPORTER_ID: ${{ secrets.test_report_id }}
       run: |
         ./cc-test-reporter before-build
