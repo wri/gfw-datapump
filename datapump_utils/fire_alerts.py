@@ -19,8 +19,8 @@ BRIGHTNESS_FIELDS = {
 }
 VERSIONS = {"MODIS": "v6", "VIIRS": "v1"}
 SHP_NAMES = {
-    "VIIRS": "SUOMI_VIIRS_C2_Global_48h.shp",
-    "MODIS": "MODIS_C6_Global_48h.shp",
+    "VIIRS": "SUOMI_VIIRS_C2_Global_7d.shp",
+    "MODIS": "MODIS_C6_Global_7d.shp",
 }
 LOGGER = get_logger(__name__)
 
