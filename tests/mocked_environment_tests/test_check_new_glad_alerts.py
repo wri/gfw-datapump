@@ -71,8 +71,8 @@ def test_handler_alerts_found():
     assert geostore_result["analyses"] == ["gladalerts"]
     assert geostore_result["datasets"] == {
         "gladalerts": {
-            "daily_alerts": "testid_daily_alerts_glad",
-            "weekly_alerts": "testid_weekly_alerts_glad",
+            "daily_alerts": ["testid_daily_alerts_glad"],
+            "weekly_alerts": ["testid_weekly_alerts_glad"],
         },
     }
     assert (

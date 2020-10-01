@@ -20,37 +20,37 @@ os.environ["DATASETS"] = json.dumps(
     {
         "geostore": {
             "gladalerts": {
-                "daily_alerts": "testid_daily_alerts_glad",
-                "weekly_alerts": "testid_weekly_alerts_glad",
-                "summary": "testid_summary_glad",
-                "whitelist": "testid_whitelist_glad",
+                "daily_alerts": ["testid_daily_alerts_glad"],
+                "weekly_alerts": ["testid_weekly_alerts_glad"],
+                "summary": ["testid_summary_glad"],
+                "whitelist": ["testid_whitelist_glad"],
             },
             "annualupdate_minimal": {
-                "change": "testid_change_tcl",
-                "summary": "testid_summary_tcl",
-                "whitelist": "testid_whitelist_tcl",
+                "change": ["testid_change_tcl"],
+                "summary": ["testid_summary_tcl"],
+                "whitelist": ["testid_whitelist_tcl"],
             },
         },
         "gadm": {
             "gladalerts": {
                 "iso": {
-                    "weekly_alerts": "testid_weekly_alerts_glad_iso",
+                    "weekly_alerts": ["testid_weekly_alerts_glad_iso"],
                 },  # noqa: E231
                 "adm1": {
-                    "weekly_alerts": "testid_weekly_alerts_glad_adm1",
+                    "weekly_alerts": ["testid_weekly_alerts_glad_adm1"],
                 },  # noqa: E231
                 "adm2": {
-                    "daily_alerts": "testid_daily_alerts_glad_adm2",
-                    "weekly_alerts": "testid_weekly_alerts_glad_adm2",
+                    "daily_alerts": ["testid_daily_alerts_glad_adm2"],
+                    "weekly_alerts": ["testid_weekly_alerts_glad_adm2"],
                 },
             },
         },
         "wdpa": {
             "gladalerts": {
-                "daily_alerts": "testid_daily_alerts_wdpa",
-                "weekly_alerts": "testid_weekly_alerts_wdpa",
-                "summary": "testid_summary_wdpa",
-                "whitelist": "testid_whitelist_wdpa",
+                "daily_alerts": ["testid_daily_alerts_wdpa"],
+                "weekly_alerts": ["testid_weekly_alerts_wdpa"],
+                "summary": ["testid_summary_wdpa"],
+                "whitelist": ["testid_whitelist_wdpa"],
             },
         },
     },

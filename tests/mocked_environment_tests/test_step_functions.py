@@ -319,22 +319,22 @@ INSTANCE_COUNT = 10
 RESULT_DIR = f"geotrellis/results/test/{get_date_string()}"
 DATASETS = {
     "gladalerts": {
-        "daily_alerts": "testid_daily_alerts_glad",
-        "weekly_alerts": "testid_weekly_alerts_glad",
-        "summary": "testid_summary_glad",
+        "daily_alerts": ["testid_daily_alerts_glad"],
+        "weekly_alerts": ["testid_weekly_alerts_glad"],
+        "summary": ["testid_summary_glad"],
     },
     "annualupdate_minimal": {
-        "change": "testid_change_tcl",
-        "summary": "testid_summary_tcl",
+        "change": ["testid_change_tcl"],
+        "summary": ["testid_summary_tcl"],
     },
 }
 DATASETS_CREATE = {
     "gladalerts": {
-        "daily_alerts": "Daily Alerts GLAD",
-        "weekly_alerts": "Weekly Alerts GLAD",
-        "summary": "Summary GLAD",
+        "daily_alerts": ["Daily Alerts GLAD"],
+        "weekly_alerts": ["Weekly Alerts GLAD"],
+        "summary": ["Summary GLAD"],
     },
-    "annualupdate_minimal": {"change": "Change TCL", "summary": "Summary TCL"},
+    "annualupdate_minimal": {"change": ["Change TCL"], "summary": ["Summary TCL"]},
 }
 DATASET_IDS = {
     "Daily Alerts GLAD": "testid_daily_alerts_glad",

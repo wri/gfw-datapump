@@ -125,19 +125,37 @@ def get_dataset_names(
             return {
                 "annualupdate_minimal": {
                     "iso": {
-                        "change": f"Tree Cover Loss {tcl_year} Change - GADM Iso level - {version}",
-                        "summary": f"Tree Cover Loss {tcl_year} Summary - GADM Iso level - {version}",
-                        "whitelist": f"Tree Cover Loss {tcl_year} Whitelist - GADM Iso level - {version}",
+                        "change": [
+                            f"Tree Cover Loss {tcl_year} Change - GADM Iso level - {version}"
+                        ],
+                        "summary": [
+                            f"Tree Cover Loss {tcl_year} Summary - GADM Iso level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Tree Cover Loss {tcl_year} Whitelist - GADM Iso level - {version}"
+                        ],
                     },
                     "adm1": {
-                        "change": f"Tree Cover Loss {tcl_year} Change - GADM Adm1 level - {version}",
-                        "summary": f"Tree Cover Loss {tcl_year} Summary - GADM Adm1 level - {version}",
-                        "whitelist": f"Tree Cover Loss {tcl_year} Whitelist - GADM Adm1 level - {version}",
+                        "change": [
+                            f"Tree Cover Loss {tcl_year} Change - GADM Adm1 level - {version}"
+                        ],
+                        "summary": [
+                            f"Tree Cover Loss {tcl_year} Summary - GADM Adm1 level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Tree Cover Loss {tcl_year} Whitelist - GADM Adm1 level - {version}"
+                        ],
                     },
                     "adm2": {
-                        "change": f"Tree Cover Loss {tcl_year} Change - GADM Adm2 level - {version}",
-                        "summary": f"Tree Cover Loss {tcl_year} Summary - GADM Adm2 level - {version}",
-                        "whitelist": f"Tree Cover Loss {tcl_year} Whitelist - GADM Adm2 level - {version}",
+                        "change": [
+                            f"Tree Cover Loss {tcl_year} Change - GADM Adm2 level - {version}"
+                        ],
+                        "summary": [
+                            f"Tree Cover Loss {tcl_year} Summary - GADM Adm2 level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Tree Cover Loss {tcl_year} Whitelist - GADM Adm2 level - {version}"
+                        ],
                     },
                 },
             }
@@ -145,20 +163,40 @@ def get_dataset_names(
             return {
                 "gladalerts": {
                     "iso": {
-                        "weekly_alerts": f"Glad Alerts Weekly Change - GADM Iso level - {version}",
-                        "summary": f"Glad Alerts Summary - GADM Iso level - {version}",
-                        "whitelist": f"Glad Alerts Whitelist - GADM Iso level - {version}",
+                        "weekly_alerts": [
+                            f"Glad Alerts Weekly Change - GADM Iso level - {version}"
+                        ],
+                        "summary": [
+                            f"Glad Alerts Summary - GADM Iso level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Glad Alerts Whitelist - GADM Iso level - {version}"
+                        ],
                     },
                     "adm1": {
-                        "weekly_alerts": f"Glad Alerts Weekly Change - GADM Adm1 level - {version}",
-                        "summary": f"Glad Alerts Summary - GADM Adm1 level - {version}",
-                        "whitelist": f"Glad Alerts Whitelist - GADM Adm1 level - {version}",
+                        "weekly_alerts": [
+                            f"Glad Alerts Weekly Change - GADM Adm1 level - {version}"
+                        ],
+                        "summary": [
+                            f"Glad Alerts Summary - GADM Adm1 level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Glad Alerts Whitelist - GADM Adm1 level - {version}"
+                        ],
                     },
                     "adm2": {
-                        "daily_alerts": f"Glad Alerts Daily Change - GADM Adm2 level - {version}",
-                        "weekly_alerts": f"Glad Alerts Weekly Change - GADM Adm2 level - {version}",
-                        "summary": f"Glad Alerts Summary - GADM Adm2 level - {version}",
-                        "whitelist": f"Glad Alerts Whitelist - GADM Adm2 level - {version}",
+                        "daily_alerts": [
+                            f"Glad Alerts Daily Change - GADM Adm2 level - {version}"
+                        ],
+                        "weekly_alerts": [
+                            f"Glad Alerts Weekly Change - GADM Adm2 level - {version}"
+                        ],
+                        "summary": [
+                            f"Glad Alerts Summary - GADM Adm2 level - {version}"
+                        ],
+                        "whitelist": [
+                            f"Glad Alerts Whitelist - GADM Adm2 level - {version}"
+                        ],
                     },
                 },
             }
@@ -166,17 +204,31 @@ def get_dataset_names(
             datasets = {
                 f"firealerts_{fire_alert_type.lower()}": {
                     "iso": {
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Iso level - {version}",
-                        "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Iso level - {version}",
+                        "whitelist": [
+                            f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Iso level - {version}"
+                        ],
+                        "weekly_alerts": [
+                            f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Iso level - {version}"
+                        ],
                     },
                     "adm1": {
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm1 level - {version}",
-                        "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm1 level - {version}",
+                        "whitelist": [
+                            f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm1 level - {version}"
+                        ],
+                        "weekly_alerts": [
+                            f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm1 level - {version}"
+                        ],
                     },
                     "adm2": {
-                        "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm2 level - {version}",
-                        "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - GADM Adm2 level - {version}",
-                        "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm2 level - {version}",
+                        "whitelist": [
+                            f"{fire_alert_type.upper()} Fire Alerts Whitelist - GADM Adm2 level - {version}"
+                        ],
+                        "daily_alerts": [
+                            f"{fire_alert_type.upper()} Fire Alerts Daily Change - GADM Adm2 level - {version}"
+                        ],
+                        "weekly_alerts": [
+                            f"{fire_alert_type.upper()} Fire Alerts Weekly Change - GADM Adm2 level - {version}"
+                        ],
                     },
                 },
             }
@@ -190,52 +242,78 @@ def get_dataset_names(
         if analysis == "annualupdate_minimal":
             return {
                 "annualupdate_minimal": {
-                    "change": f"Tree Cover Loss {tcl_year} Change - WDPA- {version}",
-                    "summary": f"Tree Cover Loss {tcl_year} Summary - WDPA - {version}",
-                    "whitelist": f"Tree Cover Loss {tcl_year} Whitelist - WDPA - {version}",
+                    "change": [f"Tree Cover Loss {tcl_year} Change - WDPA- {version}"],
+                    "summary": [
+                        f"Tree Cover Loss {tcl_year} Summary - WDPA - {version}"
+                    ],
+                    "whitelist": [
+                        f"Tree Cover Loss {tcl_year} Whitelist - WDPA - {version}"
+                    ],
                 },
             }
         elif analysis == "gladalerts":
             return {
                 "gladalerts": {
-                    "daily_alerts": f"Glad Alerts Daily Change - WDPA - {version}",
-                    "weekly_alerts": f"Glad Alerts Weekly Change - WDPA - {version}",
-                    "summary": f"Glad Alerts Summary - WDPA - {version}",
-                    "whitelist": f"Glad Alerts Whitelist - WDPA - {version}",
+                    "daily_alerts": [f"Glad Alerts Daily Change - WDPA - {version}"],
+                    "weekly_alerts": [f"Glad Alerts Weekly Change - WDPA - {version}"],
+                    "summary": [f"Glad Alerts Summary - WDPA - {version}"],
+                    "whitelist": [f"Glad Alerts Whitelist - WDPA - {version}"],
                 },
             }
         elif analysis == "firealerts":
             return {
                 f"firealerts_{fire_alert_type.lower()}": {
-                    "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}",
-                    "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}",
-                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - WDPA - {version}",
+                    "daily_alerts": [
+                        f"{fire_alert_type.upper()} Fire Alerts Daily Change - WDPA - {version}"
+                    ],
+                    "weekly_alerts": [
+                        f"{fire_alert_type.upper()} Fire Alerts Weekly Change - WDPA - {version}"
+                    ],
+                    "whitelist": [
+                        f"{fire_alert_type.upper()} Fire Alerts Whitelist - WDPA - {version}"
+                    ],
                 },
             }
     elif feature_type == "geostore":
         if analysis == "annualupdate_minimal":
             return {
                 "annualupdate_minimal": {
-                    "change": f"Tree Cover Loss {tcl_year} Change - Geostore - {version}",
-                    "summary": f"Tree Cover Loss {tcl_year} Summary - Geostore - {version}",
-                    "whitelist": f"Tree Cover Loss {tcl_year} Whitelist - Geostore - {version}",
+                    "change": [
+                        f"Tree Cover Loss {tcl_year} Change - Geostore - {version}"
+                    ],
+                    "summary": [
+                        f"Tree Cover Loss {tcl_year} Summary - Geostore - {version}"
+                    ],
+                    "whitelist": [
+                        f"Tree Cover Loss {tcl_year} Whitelist - Geostore - {version}"
+                    ],
                 },
             }
         elif analysis == "gladalerts":
             return {
                 "gladalerts": {
-                    "daily_alerts": f"Glad Alerts Daily Change - Geostore - {version}",
-                    "weekly_alerts": f"Glad Alerts Weekly Change - Geostore - {version}",
-                    "summary": f"Glad Alerts Summary - Geostore - {version}",
-                    "whitelist": f"Glad Alerts Whitelist - Geostore - {version}",
+                    "daily_alerts": [
+                        f"Glad Alerts Daily Change - Geostore - {version}"
+                    ],
+                    "weekly_alerts": [
+                        f"Glad Alerts Weekly Change - Geostore - {version}"
+                    ],
+                    "summary": [f"Glad Alerts Summary - Geostore - {version}"],
+                    "whitelist": [f"Glad Alerts Whitelist - Geostore - {version}"],
                 }
             }
         elif analysis == "firealerts":
             return {
                 f"firealerts_{fire_alert_type.lower()}": {
-                    "daily_alerts": f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}",
-                    "weekly_alerts": f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}",
-                    "whitelist": f"{fire_alert_type.upper()} Fire Alerts Whitelist - Geostore - {version}",
+                    "daily_alerts": [
+                        f"{fire_alert_type.upper()} Fire Alerts Daily Change - Geostore - {version}"
+                    ],
+                    "weekly_alerts": [
+                        f"{fire_alert_type.upper()} Fire Alerts Weekly Change - Geostore - {version}"
+                    ],
+                    "whitelist": [
+                        f"{fire_alert_type.upper()} Fire Alerts Whitelist - Geostore - {version}"
+                    ],
                 },
             }
 
