@@ -157,17 +157,17 @@ def test_get_dataset_result_paths():
     analyses = ["gladalerts", "annualupdate_minimal", "firealerts"]
     dataset_ids = {
         "gladalerts": {
-            "daily_alerts": "testid_daily_alerts_glad",
-            "weekly_alerts": "testid_weekly_alerts_glad",
-            "summary": "testid_summary_glad",
+            "daily_alerts": ["testid_daily_alerts_glad", "testid_daily_alerts_glad_2"],
+            "weekly_alerts": ["testid_weekly_alerts_glad"],
+            "summary": ["testid_summary_glad"],
         },
         "annualupdate_minimal": {
-            "change": "testid_change_tcl",
-            "summary": "testid_summary_tcl",
+            "change": ["testid_change_tcl"],
+            "summary": ["testid_summary_tcl"],
         },
         "firealerts_viirs": {
-            "change": "testid_change_viirs",
-            "all": "testid_all_viirs",
+            "change": ["testid_change_viirs"],
+            "all": ["testid_all_viirs"],
         },
     }
 
@@ -187,6 +187,10 @@ def test_get_dataset_result_paths():
 
     assert (
         dataset_result_paths["testid_daily_alerts_glad"]
+        == f"{results_glad}/daily_alerts"
+    )
+    assert (
+        dataset_result_paths["testid_daily_alerts_glad_2"]
         == f"{results_glad}/daily_alerts"
     )
     assert (
