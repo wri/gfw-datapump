@@ -232,17 +232,18 @@ def get_dataset_result_paths(
 
     for analysis, ds_ids in datasets.items():
         ds_keys = get_dataset_result_keys(ds_ids)
-        for key_path, ds_id in ds_keys:
-            if (
-                feature_type != "gadm"
-            ):  # TODO temp solution, need to deal with gadm output being different
-                dataset_result_paths[
-                    ds_id
-                ] = f"{analysis_result_paths[analysis]}/{feature_type}/{key_path}"
-            else:
-                dataset_result_paths[
-                    ds_id
-                ] = f"{analysis_result_paths[analysis]}/{key_path}"
+        for key_path, ds_ids in ds_keys:
+            for ds_id in ds_ids:
+                if (
+                    feature_type != "gadm"
+                ):  # TODO temp solution, need to deal with gadm output being different
+                    dataset_result_paths[
+                        ds_id
+                    ] = f"{analysis_result_paths[analysis]}/{feature_type}/{key_path}"
+                else:
+                    dataset_result_paths[
+                        ds_id
+                    ] = f"{analysis_result_paths[analysis]}/{key_path}"
 
     return dataset_result_paths
 
