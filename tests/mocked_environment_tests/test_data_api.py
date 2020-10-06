@@ -25,7 +25,7 @@ def test_inject_fires(requests_mock):
                     "Output": json.dumps(
                         {
                             "datasets": {
-                                "firealerts_viirs": {"all": "test_viirs_all_id"}
+                                "firealerts_viirs": {"all": ["test_viirs_all_id"]}
                             },
                             "dataset_result_paths": {
                                 "test_viirs_all_id": f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore/all"
