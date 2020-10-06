@@ -38,7 +38,7 @@ def handler(event, context):
 
                 datasets = event["datasets"]
                 viirs_all_ds = datasets["firealerts_viirs"]["all"]
-                ds_result_path = event["dataset_result_paths"][viirs_all_ds]
+                ds_result_path = event["dataset_result_paths"][viirs_all_ds[0]]
                 ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
 
                 headers = {
@@ -75,4 +75,4 @@ def handler(event, context):
             elif status == "pending":
                 return {"status": "PENDING"}
     except Exception as e:
-        return error(str(e))
+        return error(f"Exception while injecting fire data to API: {str(e)}")
