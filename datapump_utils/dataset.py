@@ -214,6 +214,8 @@ def get_legend_type(field):
         or field.endswith("__perc")
         or field.endswith("__year")
         or field.endswith("__week")
+        or field == "adm1"
+        or field == "adm2"
     ):
         return "integer"
     elif field == "latitude":
