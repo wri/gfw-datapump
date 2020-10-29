@@ -90,7 +90,8 @@ def pump_data(
 
     input = json.dumps(request)  # double dump because sfn client requires escaped JSON
 
-    sfn_client = boto3.client("stepfunctions")
+    session = boto3.session.Session(profile_name=f"gfw-{env}")
+    sfn_client = session.client("stepfunctions")
     if env == "production":
         arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
     else:
