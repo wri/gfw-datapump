@@ -4,6 +4,7 @@ import os
 import zipfile
 import io
 import shapefile
+import shutil
 
 from datapump_utils.s3 import s3_client
 from datapump_utils.logger import get_logger
@@ -107,6 +108,10 @@ def process_active_fire_alerts(alert_type):
         )
 
     LOGGER.info(f"Successfully uploaded to s3://{DATA_LAKE_BUCKET}/{pipeline_key}")
+
+    # remove raw shapefile, since it can be big and hit max lambda storage size of 512 MB
+    shutil.rmtree(shp_dir)
+
     return f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}"
 
 
