@@ -15,7 +15,7 @@ RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
-WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge", "m4.2xlarge", "m5.2xlarge"]
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]  # "m4.2xlarge", "m5.2xlarge"]
 MASTER_INSTANCE_TYPE = "r4.2xlarge"
 
 LOGGER = get_logger(__name__)
@@ -232,17 +232,18 @@ def get_dataset_result_paths(
 
     for analysis, ds_ids in datasets.items():
         ds_keys = get_dataset_result_keys(ds_ids)
-        for key_path, ds_id in ds_keys:
-            if (
-                feature_type != "gadm"
-            ):  # TODO temp solution, need to deal with gadm output being different
-                dataset_result_paths[
-                    ds_id
-                ] = f"{analysis_result_paths[analysis]}/{feature_type}/{key_path}"
-            else:
-                dataset_result_paths[
-                    ds_id
-                ] = f"{analysis_result_paths[analysis]}/{key_path}"
+        for key_path, ds_ids in ds_keys:
+            for ds_id in ds_ids:
+                if (
+                    feature_type != "gadm"
+                ):  # TODO temp solution, need to deal with gadm output being different
+                    dataset_result_paths[
+                        ds_id
+                    ] = f"{analysis_result_paths[analysis]}/{feature_type}/{key_path}"
+                else:
+                    dataset_result_paths[
+                        ds_id
+                    ] = f"{analysis_result_paths[analysis]}/{key_path}"
 
     return dataset_result_paths
 

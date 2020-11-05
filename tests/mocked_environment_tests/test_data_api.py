@@ -15,9 +15,8 @@ def test_inject_fires(requests_mock):
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
     uri = f"https://staging-data-api.globalforestwatch.org/dataset/nasa_viirs_fire_alerts/vtest"
-    pending_resp = {
-        "data": [{"change_log": [{"status": "failed"}, {"status": "pending"}]}]
-    }
+    pending_resp = {"data": [{"status": "pending"}]}
+
     requests_mock.post(f"{uri}/append", json=pending_resp)
 
     resp = handler(
@@ -27,7 +26,7 @@ def test_inject_fires(requests_mock):
                     "Output": json.dumps(
                         {
                             "datasets": {
-                                "firealerts_viirs": {"all": "test_viirs_all_id"}
+                                "firealerts_viirs": {"all": ["test_viirs_all_id"]}
                             },
                             "dataset_result_paths": {
                                 "test_viirs_all_id": f"geotrellis/results/test/{get_date_string()}/firealerts_viirs_20191119_1245/geostore/all"
@@ -40,13 +39,13 @@ def test_inject_fires(requests_mock):
         None,
     )
 
-    assert resp["status"] == "SUCCESS"
+    assert resp["status"] == "PENDING"
 
     requests_mock.get(f"{uri}/assets", json=pending_resp)
     resp = handler({"status": "PENDING"}, None)
     assert resp["status"] == "PENDING"
 
-    saved_resp = {"data": [{"change_log": [{"status": "failed"}, {"status": "saved"}]}]}
+    saved_resp = {"data": [{"status": "saved"}]}
 
     requests_mock.get(f"{uri}/assets", json=saved_resp)
     resp = handler({"status": "PENDING"}, None)
