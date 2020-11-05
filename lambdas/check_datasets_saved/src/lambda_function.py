@@ -7,6 +7,7 @@ from datapump_utils.exceptions import (
     MaxRetriesHitException,
     StatusMismatchException,
     FailedDatasetUploadException,
+    UnexpectedResponseError,
 )
 from datapump_utils.summary_analysis import get_dataset_sources
 from datapump_utils.util import error
@@ -65,6 +66,10 @@ def handler(event, context):
         log_task_log_warnings(datasets, tasks)
         slack_webhook("INFO", f"Successfully ran {name} summary dataset update")
         event.update({"status": "SUCCESS"})
+        return event
+    except UnexpectedResponseError:
+        # sometimes get weird 500 errors from API. Just retry again later
+        event.update({"status": "PENDING", "retries": retries})
         return event
     except Exception as e:
         return error(f"Exception caught while running {name} update: {e}")

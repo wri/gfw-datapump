@@ -212,7 +212,10 @@ def get_legend_type(field):
         field.endswith("__threshold")
         or field.endswith("__count")
         or field.endswith("__perc")
-        or field.endswith("_year")
+        or field.endswith("__year")
+        or field.endswith("__week")
+        or field == "adm1"
+        or field == "adm2"
     ):
         return "integer"
     elif field == "latitude":

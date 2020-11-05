@@ -8,7 +8,7 @@ from datapump_utils.util import error
 from datapump_utils.secrets import token
 from datapump_utils.summary_analysis import get_dataset_sources
 from datapump_utils.logger import get_logger
-from datapump_utils.dataset import api_prefix
+from datapump_utils.slack import slack_webhook
 import requests
 
 
@@ -38,7 +38,7 @@ def handler(event, context):
 
                 datasets = event["datasets"]
                 viirs_all_ds = datasets["firealerts_viirs"]["all"]
-                ds_result_path = event["dataset_result_paths"][viirs_all_ds]
+                ds_result_path = event["dataset_result_paths"][viirs_all_ds[0]]
                 ds_sources = get_dataset_sources(ds_result_path, raw_s3=True)
 
                 headers = {
@@ -57,7 +57,7 @@ def handler(event, context):
                         f"Got status code {resp.status_code} while posting to data API"
                     )
 
-                return {"status": "SUCCESS"}
+                return {"status": "PENDING"}
         else:
             resp = requests.get(f"{uri}/assets")
             if resp.status_code >= 300:
@@ -65,16 +65,14 @@ def handler(event, context):
                     f"Got status code {resp.status_code} while making call to data API"
                 )
 
-            change_log = resp.json()["data"][0][
-                "change_log"
-            ]  # first asset should be table
-            status = change_log[-1]["status"]
+            status = resp.json()["data"][0]["status"]
 
             if status == "saved":
+                slack_webhook("INFO", "Successfully injected VIIRS alerts to data API")
                 return {"status": "SUCCESS"}
             elif status == "failed":
                 return error("Failed to inject data to data API")
             elif status == "pending":
                 return {"status": "PENDING"}
-    except UnexpectedResponseError as e:
-        return error(str(e))
+    except Exception as e:
+        return error(f"Exception while injecting fire data to API: {str(e)}")

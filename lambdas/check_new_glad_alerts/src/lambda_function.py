@@ -42,7 +42,6 @@ def handler(event, context):
             "wdpa": {
                 "instance_size": "r4.2xlarge",
                 "instance_count": 50,
-                "feature_src": "s3://gfw-files/2018_update/tsv/wdpa_protected_areas_v201909_1_1.tsv",
                 "feature_src": "s3://gfw-data-lake/wdpa_protected_areas/v202007/vector/epsg-4326/wdpa_protected_areas_v202007_1x1.tsv",
                 "feature_type": "wdpa",
                 "analyses": ["gladalerts"],

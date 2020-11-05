@@ -26,7 +26,7 @@
     },
     "Wait For Job Termination": {
       "Type": "Wait",
-      "Seconds": 10,
+      "Seconds": 120,
       "Next": "Upload GeoTrellis Results To Dataset"
     },
     "Upload GeoTrellis Results To Dataset": {
@@ -59,7 +59,7 @@
     },
     "Wait For Dataset Upload": {
       "Type": "Wait",
-      "Seconds": 10,
+      "Seconds": 120,
       "Next": "Check Datasets Saved"
     },
     "Check Datasets Saved": {
