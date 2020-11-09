@@ -9,16 +9,16 @@ resource "aws_lambda_function" "submit_job" {
   timeout          = var.lambda_submit_job_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                            = var.environment
-      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE             = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       GEOTRELLIS_JAR                 = var.geotrellis_jar
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
-      EMR_SERVICE_ROLE               = data.terraform_remote_state.core.outputs.emr_service_role_name
-      EMR_INSTANCE_PROFILE           = data.terraform_remote_state.core.outputs.emr_instance_profile_name
+      EC2_KEY_NAME                   = var.environment == "test" ? "test_key" : data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EMR_SERVICE_ROLE               = var.environment == "test" ? "test_role" : data.terraform_remote_state.core.outputs.emr_service_role_name
+      EMR_INSTANCE_PROFILE           = var.environment == "test" ? "test_profile" : data.terraform_remote_state.core.outputs.emr_instance_profile_name
     }
   }
 }
@@ -34,13 +34,13 @@ resource "aws_lambda_function" "upload_results_to_datasets" {
   timeout          = var.lambda_upload_results_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                            = var.environment
-      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE             = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EC2_KEY_NAME                   = var.environment == "test" ? "test_key" : data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
     }
   }
 }
@@ -56,13 +56,13 @@ resource "aws_lambda_function" "check_datasets_saved" {
   timeout          = var.lambda_check_datasets_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV = var.environment
-      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE             = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EC2_KEY_NAME                   = var.environment == "test" ? "test_key" : data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
     }
   }
 }
@@ -78,12 +78,12 @@ resource "aws_lambda_function" "check_new_aoi" {
   timeout          = var.lambda_check_new_aoi_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_shapely_pyyaml_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn, (var.environment == "test" ? "test_layer" : data.terraform_remote_state.lambda-layers.outputs.lambda_layer_shapely_pyyaml_arn)]
   environment {
     variables = {
       ENV                = var.environment
-      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
-      S3_BUCKET_DATALAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
+      S3_BUCKET_PIPELINE = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_DATALAKE = var.environment == "test" ? "test_data_lake" : data.terraform_remote_state.core.outputs.data-lake_bucket
       DATASETS    = jsonencode(var.datasets)
     }
   }
@@ -100,11 +100,11 @@ resource "aws_lambda_function" "update_new_aoi_statuses" {
   timeout          = var.lambda_update_new_aoi_statuses_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
-      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
     }
   }
 }
@@ -120,11 +120,11 @@ resource "aws_lambda_function" "check_new_glad_alerts" {
   timeout          = var.lambda_check_new_glad_alerts_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
-      S3_BUCKET_PIPELINE = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       DATASETS       = jsonencode(var.datasets)
       GLAD_STATUS_PATH   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod/events/status"
     }
@@ -142,12 +142,12 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   timeout          = var.lambda_get_latest_fire_alerts_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_rasterio_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn, (var.environment == "test" ? "test_layer" : data.terraform_remote_state.lambda-layers.outputs.lambda_layer_rasterio_arn)]
   environment {
     variables = {
       ENV                 = var.environment
-      S3_BUCKET_DATA_LAKE = data.terraform_remote_state.core.outputs.data-lake_bucket
-      S3_BUCKET_PIPELINE  = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_DATA_LAKE = var.environment == "test" ? "test_data_lake" : data.terraform_remote_state.core.outputs.data-lake_bucket
+      S3_BUCKET_PIPELINE  = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       DATASETS            = jsonencode(var.datasets)
     }
   }
@@ -164,14 +164,14 @@ resource "aws_lambda_function" "inject_fires_data" {
   timeout          = var.lambda_update_new_aoi_statuses_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+//  layers           = [module.lambda_layers.datapump_utils_arn]
   environment {
     variables = {
       ENV                = var.environment
       DATA_API_VIIRS_VERSION = var.data_api_viirs_version
-      S3_BUCKET_PIPELINE             = data.terraform_remote_state.core.outputs.pipelines_bucket
+      S3_BUCKET_PIPELINE             = var.environment == "test" ? "test_bucket" : data.terraform_remote_state.core.outputs.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(data.terraform_remote_state.core.outputs.public_subnet_ids)
-      EC2_KEY_NAME                   = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+      EC2_KEY_NAME                   = var.environment == "test" ? "test_key" : data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
     }
   }
 }

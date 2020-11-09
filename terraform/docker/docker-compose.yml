@@ -13,3 +13,19 @@ services:
       - AWS_REGION
     working_dir: /usr/local/src
     entrypoint: infra
+    depends_on:
+      - localstack
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack2
+    ports:
+      - '4563-4584:4563-4584'
+      - '8055:8080'
+    environment:
+      - SERVICES=serverless,stepfunctions
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - './.localstack:/tmp/localstack'
+      - '/var/run/docker.sock:/var/run/docker.sock'
