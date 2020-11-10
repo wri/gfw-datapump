@@ -1,0 +1,159 @@
+{
+  "StartAt": "api_entrypoint",
+  "States": {
+    "api_entrypoint": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-submit_job-hotfix-AllowSimultaneousUpdatingDatasets",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "run_jobs"
+    },
+    "run_jobs": {
+      "Type": "Map",
+      "InputPath": "$",
+      "ItemsPath": "$.jobs",
+      "MaxConcurrency": 0,
+      "Iterator": {
+        "StartAt": "job_dispatcher",
+        "States": {
+          "job_dispatcher": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "full",
+                "Next": "submit_to_emr"
+              },
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "upload_only",
+                "Next": "upload"
+              },
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "check_only",
+                "Next": "check_datasets_saved"
+              }
+            ],
+            "Default": "Wait For Job Termination"
+          },
+          "submit_to_emr": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-submit_job-hotfix-AllowSimultaneousUpdatingDatasets",
+            "InputPath": "$.Input",
+            "ResultPath": "$",
+            "Next": "Job Submitted?"
+          },
+          "Job Submitted?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "SUCCESS",
+                "Next": "Wait For Job Termination"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "FAILED",
+                "Next": "Job Submission Failed"
+              }
+            ],
+            "Default": "Wait For Job Termination"
+          },
+          "Wait For Job Termination": {
+            "Type": "Wait",
+            "Seconds": 10,
+            "Next": "upload"
+          },
+          "upload": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-upload_results_to_datasets-hotfix-AllowSimultaneousUpda",
+            "InputPath": "$",
+            "ResultPath": "$",
+            "Next": "Job Terminated?"
+          },
+          "Job Terminated?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "PENDING",
+                "Next": "Wait For Job Termination"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "FAILED",
+                "Next": "GeoTrellis Job Failure"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "SUCCESS",
+                "Next": "Wait For Dataset Upload"
+              }
+            ],
+            "Default": "Wait For Dataset Upload"
+          },
+          "Wait For Dataset Upload": {
+            "Type": "Wait",
+            "Seconds": 10,
+            "Next": "check_datasets_saved"
+          },
+          "check_datasets_saved": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-check_datasets_saved-hotfix-AllowSimultaneousUpdatingDa",
+            "InputPath": "$",
+            "ResultPath": "$",
+            "Next": "Datasets Saved?"
+          },
+          "Datasets Saved?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "SUCCESS",
+                "Next": "Success"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "FAILED",
+                "Next": "Dataset Save Failed"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "PENDING",
+                "Next": "Wait For Dataset Upload"
+              }
+            ],
+            "Default": "Wait For Dataset Upload"
+          },
+          "Job Submission Failed": {
+            "Type": "Fail",
+            "Cause": "GeoTrellis EMR job submission failed.",
+            "Error": "JobSubmissionFailure"
+          },
+          "GeoTrellis Job Failure": {
+            "Type": "Fail",
+            "Cause": "GeoTrellis EMR job execution failed.",
+            "Error": "GeoTrellisJobFailure"
+          },
+          "Dataset Save Failed": {
+            "Type": "Fail",
+            "Cause": "Failed to save results in dataset.",
+            "Error": "DatasetSaveFailed"
+          },
+          "Success": {
+            "Type": "Succeed"
+          }
+        }
+      },
+      "Next": "postprocessor"
+    },
+    "postprocessor": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:563860007740:function:datapump-submit_job-hotfix-AllowSimultaneousUpdatingDatasets",
+      "InputPath": "$.Input",
+      "ResultPath": "$",
+      "End": true
+    }
+  }
+}
