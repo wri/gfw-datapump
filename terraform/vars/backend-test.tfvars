@@ -1,1 +1,0 @@
-bucket = "gfw-terraform-test"

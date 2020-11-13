@@ -1,6 +1,8 @@
 import requests
+from typing import List
 
-from datapump_utils.globals import DATA_API_URI
+from datapump_utils.globals import DATA_API_URI, LOGGER
+from datapump_utils.exceptions import DataApiResponseError
 
 
 class DataApiClient:
@@ -17,8 +19,27 @@ class DataApiClient:
             if asset["asset_type"] == "1x1 grid":
                 return asset["asset_uri"]
 
-    def create_new_version(self, source_uri):
-        pass
+    def add_version(
+        self, dataset: str, version: str, source_uris: List[str], indices, cluster
+    ):
+        payload = {
+            "creation_options": {
+                "source_type": "table",
+                "source_driver": "text",
+                "source_uri": source_uris,
+                "delimiter": "\t",
+                "table_schema": "",
+                "indices": indices,
+                "cluster": cluster,
+            }
+        }
+
+        resp = requests.put(f"{DATA_API_URI}/{dataset}/{version}", json=payload)
+
+        if resp.status_code >= 300:
+            raise DataApiResponseError(
+                f"Data API responded with status code {resp.status_code}"
+            )
 
     def append(self):
         pass
