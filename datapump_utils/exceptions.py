@@ -6,6 +6,10 @@ class UnexpectedResponseError(Exception):
     pass
 
 
+class DataApiResponseError(Exception):
+    pass
+
+
 class MaxRetriesHitException(Exception):
     pass
 

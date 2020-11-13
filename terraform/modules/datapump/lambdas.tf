@@ -1,0 +1,54 @@
+resource "aws_lambda_function" "analyzer" {
+  function_name    = substr("${local.project}-analyzer${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_analyzer.output_path
+  source_code_hash = data.archive_file.lambda_analyzer.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_analyzer_runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_analyzer_memory_size
+  timeout          = var.lambda_analyzer_timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_utils_arn]
+  environment {
+    variables = {
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = var.pipelines_bucket
+      GEOTRELLIS_JAR_VERSION         = var.geotrellis_jar
+      PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
+      EC2_KEY_NAME                   = var.ec2_key_name
+      EMR_SERVICE_ROLE               = var.emr_service_role_name
+      EMR_INSTANCE_PROFILE           = var.emr_instance_profile_name
+    }
+  }
+}
+
+resource "aws_lambda_function" "uploader" {
+  function_name    = substr("${local.project}-uploader${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_uploader.output_path
+  source_code_hash = data.archive_file.lambda_uploader.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_uploader_runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_uploader_memory_size
+  timeout          = var.lambda_uploader_timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_utils_arn]
+  environment {
+    variables = {
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = var.pipelines_bucket
+      PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
+      EC2_KEY_NAME                   = var.ec2_key_name
+    }
+  }
+}
+//
+//resource "aws_lambda_permission" "allow_cloudwatch" {
+//  statement_id  = "AllowExecutionFromCloudWatch"
+//  action        = "lambda:InvokeFunction"
+//  function_name = aws_lambda_function.get_latest_fire_alerts.function_name
+//  principal     = "events.amazonaws.com"
+//  source_arn    = aws_cloudwatch_event_rule.everyday-11-pm-est.arn
+//}

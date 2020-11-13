@@ -1,11 +1,13 @@
 from uuid import UUID
 from enum import Enum
 from typing import Dict, Any, List
+from itertools import groupby
+from pathlib import Path
 
 from pydantic import BaseModel
 import boto3
 
-from datapump_utils.analysis import AnalysisTable
+from datapump_utils.analysis import AnalysisInputTable
 from datapump_utils.globals import (
     RESULT_BUCKET,
     MASTER_INSTANCE_TYPE,
@@ -19,9 +21,9 @@ from datapump_utils.globals import (
     WORKER_COUNT_MIN,
     WORKER_COUNT_PER_GB_FEATURES,
 )
-from datapump_utils.aws import get_emr_client
+from datapump_utils.aws import get_emr_client, get_s3_client
 from datapump_utils.s3 import get_s3_path_parts
-from datapump_utils.analysis import Analysis, AnalysisTable
+from datapump_utils.analysis import Analysis, AnalysisInputTable
 
 
 class JobType(str, Enum):
@@ -35,19 +37,49 @@ class JobStatus(str, Enum):
     failed = "failed"
 
 
+class GeotrellisChangeAggregates(str, Enum):
+    tcl = ["change"]
+    glad = ["daily_alerts", "weekly_alerts"]
+    viirs = ["daily_alerts", "weekly_alerts"]
+    modis = ["daily_alerts", "weekly_alerts"]
+
+
+class GeotrellisSummaryAggregates(str, Enum):
+    tcl = ["summary", "whitelist"]
+    glad = ["summary", "whitelist"]
+    viirs = ["whitelist"]
+    modis = ["whitelist"]
+
+
+class GadmChangeAggregates(str, Enum):
+    tcl = ["change"]
+    glad = ["daily_alerts", "weekly_alerts"]
+    viirs = ["daily_alerts", "weekly_alerts"]
+    modis = ["daily_alerts", "weekly_alerts"]
+
+
 class Job(BaseModel):
     job_id: UUID
     job_type: JobType
 
 
+class AnalysisResultTable(BaseModel):
+    dataset: str
+    version: str
+    source_uri: List[str]
+    index_columns: List[str]
+
+
 class GeotrellisJob(Job):
-    table: AnalysisTable
+    table: AnalysisInputTable
     version: str
     features_1x1: str
+    feature_type: str
     geotrellis_jar_version: str
     change_only: bool = False
     status: JobStatus = JobStatus.pending
     emr_job_id: str = None
+    result_tables: List[AnalysisResultTable] = []
 
     def start_analysis(self):
         name = (
@@ -76,10 +108,53 @@ class GeotrellisJob(Job):
             and status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED"
         ):
             self.status = JobStatus.complete
+            self.result_tables = self._get_result_tables()
         elif status["State"] == "TERMINATED_WITH_ERRORS":
             self.status = JobStatus.failed
         else:
             self.status = JobStatus.running
+
+    def _get_result_tables(self):
+        bucket, prefix = get_s3_path_parts(self._get_result_path(include_analysis=True))
+
+        resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
+
+        keys = [item["Key"] for item in resp["Contents"]]
+
+        result_tables = []
+        for dir, files in groupby(keys, lambda key: Path(key).parent):
+            aggregation = dir.parts[-1]
+            result_dataset = (
+                f"{self.table.dataset}__{self.table.analysis}__{aggregation}"
+            )
+
+            result_tables.append(
+                AnalysisResultTable(
+                    dataset=result_dataset,
+                    version=self.version,
+                    source_uri=list(files),
+                    index_columns=self._get_index_cols(aggregation),
+                )
+            )
+
+        return result_tables
+
+    def _get_index_cols(self, aggregation: str):
+        cols = ["id"]
+
+        if self.table.analysis == Analysis.tcl:
+            cols += [
+                "umd_tree_cover_loss__year",
+                "umd_tree_cover_density_2000__threshold",
+            ]
+        if self.table.analysis == Analysis.glad:
+            cols += ["confirmation__status"]
+            if aggregation == "daily_alerts":
+                cols += ["alert__date"]
+            elif aggregation == "weekly_alerts":
+                cols += ["alert__year", "alert__week"]
+
+        return cols
 
     def _calculate_worker_count(self):
         """
@@ -98,7 +173,7 @@ class GeotrellisJob(Job):
         byte_size = boto3.resource("s3").Bucket(bucket).Object(key).content_length
 
         analysis_weight = 1.0
-        if self.table.analysis == AnalysisTable.tcl:
+        if self.table.analysis == AnalysisInputTable.tcl:
             analysis_weight *= 1.25
 
         if self.change_only:
@@ -110,7 +185,6 @@ class GeotrellisJob(Job):
         return max(worker_count, WORKER_COUNT_MIN)
 
     def _get_step(self) -> Dict[str, Any]:
-        result_path = f"s3://{RESULT_BUCKET}/geotrellis/results/{self.version}/{self.table.dataset}"
         step_args = [
             "spark-submit",
             "--deploy-mode",
@@ -119,9 +193,9 @@ class GeotrellisJob(Job):
             "org.globalforestwatch.summarystats.SummaryMain",
             f"{GEOTRELLIS_JAR_PATH}/{self.geotrellis_jar_version}",
             "--output",
-            result_path,
+            self._get_result_path(),
             "--feature_type",
-            feature_type,
+            self.feature_type,
             "--analysis",
             self.table.analysis,
         ]
@@ -140,6 +214,13 @@ class GeotrellisJob(Job):
             "ActionOnFailure": "TERMINATE_CLUSTER",
             "HadoopJarStep": {"Jar": "command-runner.jar", "Args": step_args},
         }
+
+    def _get_result_path(self, include_analysis=False):
+        result_path = f"s3://{RESULT_BUCKET}/geotrellis/results/{self.version}/{self.table.dataset}"
+        if include_analysis:
+            result_path += f"/{self.table.analysis}"
+
+        return result_path
 
     @staticmethod
     def _run_job_flow(name, instances, steps, applications, configurations):
@@ -166,7 +247,7 @@ class GeotrellisJob(Job):
 
     @staticmethod
     def _instances(worker_instance_count: int) -> Dict[str, Any]:
-        return {
+        instances = {
             "InstanceFleets": [
                 {
                     "Name": "geotrellis-master",
@@ -214,11 +295,15 @@ class GeotrellisJob(Job):
                     ],
                 },
             ],
-            "Ec2KeyName": EC2_KEY_NAME,
             "KeepJobFlowAliveWhenNoSteps": False,
             "TerminationProtected": False,
-            "Ec2SubnetIds": PUBLIC_SUBNET_IDS,
         }
+
+        if EC2_KEY_NAME:
+            instances["Ec2KeyName"] = EC2_KEY_NAME
+
+        if PUBLIC_SUBNET_IDS:
+            instances["Ec2SubnetIds"] = PUBLIC_SUBNET_IDS
 
     @staticmethod
     def _applications() -> List[Dict[str, str]]:
