@@ -3,6 +3,26 @@ variable "environment" {
   description = "An environment namespace for the infrastructure."
 }
 
+variable "policies_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
+variable "lambdas_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
+variable "lambda_layers_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
+variable "step_functions_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
+}
+
 variable "lambda_analyzer_runtime" {
   type        = string
   description = "Runtime version for AWS Lambda"
