@@ -11,10 +11,12 @@ data "template_file" "datapump_policy" {
 }
 
 data "template_file" "sfn_datapump" {
-  template = file("${var.step_functions_path}/datapump.json")
+  template = file("${var.step_functions_path}/datapump.json.tmpl")
   vars = {
-    lambda_submit_job_arn     = aws_lambda_function.analyzer.arn,
-    lambda_upload_results_arn = aws_lambda_function.uploader.arn,
+    lambda_dispatcher_arn = aws_lambda_function.dispatcher.arn,
+    lambda_analyzer_arn = aws_lambda_function.analyzer.arn,
+    lambda_uploader_arn = aws_lambda_function.uploader.arn,
+    wait_time = var.sfn_wait_time
   }
 }
 

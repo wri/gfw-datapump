@@ -12,8 +12,26 @@ services:
     environment:
       - SERVICES=serverless,stepfunctions,sts,cloudwatch,emr,events
       - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
+#      - DATA_DIR=/tmp/localstack/data
       - DISABLE_EVENTS=1
+      - LAMBDA_DOCKER_NETWORK=test
     volumes:
       - './.localstack:/tmp/localstack'
       - '/var/run/docker.sock:/var/run/docker.sock'
+
+  mock_server:
+    image: mockserver/mockserver:mockserver-5.11.1
+    ports:
+      - 1080:1080
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /mock_server/mock_responses.json
+    volumes:
+      - type: bind
+        source: ./mock_server
+        target: /mock_server
+
+
+networks:
+  default:
+    external:
+      name: "test"

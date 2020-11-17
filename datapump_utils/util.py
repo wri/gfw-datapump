@@ -53,6 +53,6 @@ def api_prefix() -> str:
 
 
 def error(msg):
-    LOGGER.error(msg)
+    LOGGER.exception(msg)
     slack_webhook("ERROR", msg)
     return {"status": "FAILED"}

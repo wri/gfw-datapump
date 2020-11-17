@@ -1,16 +1,18 @@
-from datapump_utils.util import error
-from datapump_utils.jobs import GeotrellisJob, JobStatus
+from datapump_utils.globals import LOGGER
+from datapump_utils.jobs import GeotrellisJob, GeotrellisJobStatus
 
 
 def handler(event, context):
     try:
         job = GeotrellisJob(**event)
 
-        if job.status == JobStatus.pending:
+        LOGGER.info(f"Running analysis job:\n{job.dict()}")
+        if job.status == GeotrellisJobStatus.starting:
             job.start_analysis()
-        elif job.status == JobStatus.running:
+        elif job.status == GeotrellisJobStatus.analyzing:
             job.update_status()
 
         return job.dict()
     except Exception as e:
-        return error(f"Exception caught while running update: {e}")
+        LOGGER.exception(e)
+        return {"status": "failed"}

@@ -3,6 +3,11 @@ variable "environment" {
   description = "An environment namespace for the infrastructure."
 }
 
+variable "data_api_uri" {
+  type        = string
+  description = "URI for data API."
+}
+
 variable "policies_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
@@ -23,34 +28,31 @@ variable "step_functions_path" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_analyzer_runtime" {
-  type        = string
-  description = "Runtime version for AWS Lambda"
+variable "lambda_analyzer" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
 }
 
-variable "lambda_uploader_runtime" {
-  type        = string
-  description = "Runtime version for AWS Lambda"
+variable "lambda_uploader" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
 }
 
-variable "lambda_analyzer_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_uploader_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_analyzer_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_uploader_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
+variable "lambda_dispatcher" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
 }
 
 variable "geotrellis_jar" {

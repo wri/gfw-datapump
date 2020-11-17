@@ -1,12 +1,32 @@
+resource "aws_lambda_function" "dispatcher" {
+  function_name    = substr("${local.project}-dispatcher${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_dispatcher.output_path
+  source_code_hash = data.archive_file.lambda_dispatcher.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_dispatcher.runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_dispatcher.memory_size
+  timeout          = var.lambda_dispatcher.timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_utils_arn]
+  environment {
+    variables = {
+      ENV                           = var.environment
+      DATA_API_URI                  = var.data_api_uri
+    }
+  }
+}
+
 resource "aws_lambda_function" "analyzer" {
   function_name    = substr("${local.project}-analyzer${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_analyzer.output_path
   source_code_hash = data.archive_file.lambda_analyzer.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
-  runtime          = var.lambda_analyzer_runtime
+  runtime          = var.lambda_analyzer.runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_analyzer_memory_size
-  timeout          = var.lambda_analyzer_timeout
+  memory_size      = var.lambda_analyzer.memory_size
+  timeout          = var.lambda_analyzer.timeout
   publish          = true
   tags             = local.tags
   layers           = [module.lambda_layers.datapump_utils_arn]
@@ -28,10 +48,10 @@ resource "aws_lambda_function" "uploader" {
   filename         = data.archive_file.lambda_uploader.output_path
   source_code_hash = data.archive_file.lambda_uploader.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
-  runtime          = var.lambda_uploader_runtime
+  runtime          = var.lambda_uploader.runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_uploader_memory_size
-  timeout          = var.lambda_uploader_timeout
+  memory_size      = var.lambda_uploader.memory_size
+  timeout          = var.lambda_uploader.timeout
   publish          = true
   tags             = local.tags
   layers           = [module.lambda_layers.datapump_utils_arn]
@@ -41,6 +61,7 @@ resource "aws_lambda_function" "uploader" {
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
       PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
       EC2_KEY_NAME                   = var.ec2_key_name
+      DATA_API_URI                  = var.data_api_uri
     }
   }
 }
