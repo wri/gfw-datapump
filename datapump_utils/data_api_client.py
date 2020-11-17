@@ -10,7 +10,8 @@ class DataApiClient:
         pass
 
     def get_assets(self, dataset: str, version: str):
-        return requests.get(f"{DATA_API_URI}/{dataset}/{version}/assets").json()["data"]
+        uri = f"{DATA_API_URI}/{dataset}/{version}/assets"
+        return requests.get(uri).json()["data"]
 
     def get_1x1_asset(self, dataset: str, version: str) -> str:
         assets = self.get_assets(dataset, version)
@@ -40,6 +41,18 @@ class DataApiClient:
             raise DataApiResponseError(
                 f"Data API responded with status code {resp.status_code}"
             )
+        else:
+            return resp.json()["data"]
+
+    def get_version(self, dataset: str, version: str):
+        resp = requests.get(f"{DATA_API_URI}/{dataset}/{version}")
+
+        if resp.status_code >= 300:
+            raise DataApiResponseError(
+                f"Data API responded with status code {resp.status_code}"
+            )
+        else:
+            return resp.json()["data"]
 
     def append(self):
         pass

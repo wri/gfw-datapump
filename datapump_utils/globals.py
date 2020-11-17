@@ -1,6 +1,9 @@
 import os
+import logging
 
-DATA_API_URI = ""
+LOGGER = logging.getLogger("datapump")
+
+DATA_API_URI = os.environ.get("DATA_API_URI", None)
 DYNAMODB_DB_TABLE = ""
 
 AWS_REGION = ""
@@ -9,8 +12,8 @@ MASTER_INSTANCE_TYPE = ""
 WORKER_INSTANCE_TYPES = ""
 EC2_KEY_NAME = ""
 PUBLIC_SUBNET_IDS = ""
-EMR_INSTANCE_PROFILE = os.enivron.get("EMR_INSTANCE_PROFILE", None)
-EMR_SERVICE_ROLE = os.enivron.get("EMR_SERVICE_ROLE", None)
+EMR_INSTANCE_PROFILE = os.environ.get("EMR_INSTANCE_PROFILE", None)
+EMR_SERVICE_ROLE = os.environ.get("EMR_SERVICE_ROLE", None)
 
 EMR_VERSION = "emr-5.24.0"
 
