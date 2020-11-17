@@ -28,12 +28,11 @@ module "datapump" {
   lambdas_path = var.lambdas_path
   lambda_layers_path = var.lambda_layers_path
   geotrellis_jar = var.geotrellis_jar
-  lambda_analyzer_memory_size = var.lambda_analyzer_memory_size
-  lambda_analyzer_runtime = var.lambda_analyzer_runtime
-  lambda_analyzer_timeout = var.lambda_analyzer_timeout
-  lambda_uploader_memory_size = var.lambda_uploader_memory_size
-  lambda_uploader_runtime = var.lambda_uploader_runtime
-  lambda_uploader_timeout = var.lambda_analyzer_timeout
   pipelines_bucket = aws_s3_bucket.pipelines_test.id
   tags = {}
+  lambda_analyzer = var.lambda_analyzer
+  lambda_dispatcher = var.lambda_dispatcher
+  lambda_uploader = var.lambda_uploader
+  sfn_wait_time = 2
+  data_api_uri = var.data_api_uri
 }

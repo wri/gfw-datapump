@@ -26,41 +26,26 @@ from datapump_utils.s3 import get_s3_path_parts
 from datapump_utils.analysis import Analysis, AnalysisInputTable
 
 
-class JobType(str, Enum):
-    full = "full"
-
-
 class JobStatus(str, Enum):
     pending = "pending"
     running = "running"
-    complete = "complete"
+    complete = "success"
     failed = "failed"
 
 
-class GeotrellisChangeAggregates(str, Enum):
-    tcl = ["change"]
-    glad = ["daily_alerts", "weekly_alerts"]
-    viirs = ["daily_alerts", "weekly_alerts"]
-    modis = ["daily_alerts", "weekly_alerts"]
-
-
-class GeotrellisSummaryAggregates(str, Enum):
-    tcl = ["summary", "whitelist"]
-    glad = ["summary", "whitelist"]
-    viirs = ["whitelist"]
-    modis = ["whitelist"]
-
-
-class GadmChangeAggregates(str, Enum):
-    tcl = ["change"]
-    glad = ["daily_alerts", "weekly_alerts"]
-    viirs = ["daily_alerts", "weekly_alerts"]
-    modis = ["daily_alerts", "weekly_alerts"]
+class GeotrellisJobStatus(str, Enum):
+    starting = "starting"
+    analyzing = "analyzing"
+    analyzed = "analyzed"
+    uploading = "uploading"
+    uploaded = "uploaded"
+    success = "success"
+    failed = "failed"
 
 
 class Job(BaseModel):
-    job_id: UUID
-    job_type: JobType
+    id: str
+    status: JobStatus = JobStatus.pending
 
 
 class AnalysisResultTable(BaseModel):
@@ -72,19 +57,17 @@ class AnalysisResultTable(BaseModel):
 
 class GeotrellisJob(Job):
     table: AnalysisInputTable
+    status: GeotrellisJobStatus
     version: str
     features_1x1: str
     feature_type: str
     geotrellis_jar_version: str
     change_only: bool = False
-    status: JobStatus = JobStatus.pending
     emr_job_id: str = None
     result_tables: List[AnalysisResultTable] = []
 
     def start_analysis(self):
-        name = (
-            f"{self.table.dataset}_{self.table.analysis}_{self.version}__{self.job_id}"
-        )
+        name = f"{self.table.dataset}_{self.table.analysis}_{self.version}__{self.id}"
         steps = self._get_step()
 
         worker_count = self._calculate_worker_count()
@@ -95,7 +78,7 @@ class GeotrellisJob(Job):
         self.emr_job_id = self._run_job_flow(
             name, instances, steps, applications, configurations
         )
-        self.status = JobStatus.running
+        self.status = GeotrellisJobStatus.analyzing
 
     def update_status(self):
         cluster_description = get_emr_client().describe_cluster(
@@ -107,12 +90,12 @@ class GeotrellisJob(Job):
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED"
         ):
-            self.status = JobStatus.complete
+            self.status = GeotrellisJobStatus.analyzed
             self.result_tables = self._get_result_tables()
         elif status["State"] == "TERMINATED_WITH_ERRORS":
-            self.status = JobStatus.failed
+            self.status = GeotrellisJobStatus.failed
         else:
-            self.status = JobStatus.running
+            self.status = GeotrellisJobStatus.analyzing
 
     def _get_result_tables(self):
         bucket, prefix = get_s3_path_parts(self._get_result_path(include_analysis=True))
