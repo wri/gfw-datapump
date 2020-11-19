@@ -3,11 +3,11 @@ import os
 import io
 from typing import Set
 
-from datapump_utils.exceptions import UnexpectedResponseError
-from datapump_utils.util import api_prefix, error
-from datapump_utils.s3 import s3_client, get_s3_path_parts
-from datapump_utils.logger import get_logger
-from datapump_utils.dataset import update_aoi_statuses
+from datapump.util.exceptions import UnexpectedResponseError
+from datapump.util import error
+from datapump.util.s3 import s3_client, get_s3_path_parts
+from datapump.util.logger import get_logger
+from datapump.rw_api import update_area_statuses
 
 
 if "ENV" in os.environ:
@@ -27,7 +27,7 @@ def handler(event, context):
         aoi_src = event["feature_src"]
 
         geostore_ids = get_aoi_geostore_ids(aoi_src)
-        update_aoi_statuses(geostore_ids, "saved")
+        update_area_statuses(geostore_ids, "saved")
 
         return {"status": "SUCCESS"}
     except UnexpectedResponseError as e:

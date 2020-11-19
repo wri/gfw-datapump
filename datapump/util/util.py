@@ -1,8 +1,8 @@
 from datetime import date
 import os
 
-from datapump_utils.logger import get_logger
-from datapump_utils.slack import slack_webhook
+from datapump.util.logger import get_logger
+from datapump.util.slack import slack_webhook
 
 LOGGER = get_logger(__name__)
 if "ENV" in os.environ:

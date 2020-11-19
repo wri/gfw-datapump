@@ -19,15 +19,18 @@ sleep 10s
 aws emr create-default-roles --iam-endpoint http://localhost:4566
 
 pushd tests/terraform
-(terraform init && \
-  terraform destroy -var-file="terraform-test.tfvars" -auto-approve && \
-  terraform plan -var-file="terraform-test.tfvars" && \
-  terraform apply -var-file="terraform-test.tfvars" -auto-approve) || truw
+(terraform init && terraform destroy -var-file="terraform-test.tfvars" -auto-approve && terraform plan -var-file="terraform-test.tfvars" && terraform apply -var-file="terraform-test.tfvars" -auto-approve) || true
 popd
 
 pytest tests/tests || true
 
+docker-compose -f tests/docker-compose-localstack.yml logs -t 1000 localstack > tests/logs/localstack.log
+docker-compose -f tests/docker-compose-localstack.yml logs -t 1000 mock_server > tests/logs/mock_server.log
+
 docker-compose -f tests/docker-compose-localstack.yml stop
 docker-compose -f tests/docker-compose-localstack.yml rm -f
+
+# delete if exists, otherwise localstack might have issues with EMR on next run
+docker rm -f localstack_bigdata || true
 
 rm tests/terraform/terraform.tfstate*

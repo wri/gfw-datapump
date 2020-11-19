@@ -1,9 +1,9 @@
 import boto3
 
-from datapump_utils.globals import AWS_REGION
+from datapump.globals import AWS_REGION, AWS_ENDPOINT_URI
 
 
-def client_constructor(service: str, entrypoint_url=None):
+def client_constructor(service: str):
     """Using closure design for a client constructor This way we only need to
     create the client once in central location and it will be easier to
     mock."""
@@ -13,7 +13,7 @@ def client_constructor(service: str, entrypoint_url=None):
         nonlocal service_client
         if service_client is None:
             service_client = boto3.client(
-                service, region_name=AWS_REGION, endpoint_url=entrypoint_url
+                service, region_name=AWS_REGION, endpoint_url=AWS_ENDPOINT_URI
             )
         return service_client
 

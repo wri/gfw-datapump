@@ -1,36 +1,27 @@
-from uuid import UUID
 from enum import Enum
 from typing import Dict, Any, List
 from itertools import groupby
 from pathlib import Path
+from pprint import pformat
 
 from pydantic import BaseModel
-import boto3
 
-from datapump_utils.analysis import AnalysisInputTable
-from datapump_utils.globals import (
-    RESULT_BUCKET,
-    MASTER_INSTANCE_TYPE,
-    WORKER_INSTANCE_TYPES,
+from datapump.globals import (
+    S3_BUCKET_PIPELINE,
     EC2_KEY_NAME,
     PUBLIC_SUBNET_IDS,
-    EMR_SERVICE_ROLE,
-    EMR_INSTANCE_PROFILE,
+    LOGGER,
     EMR_VERSION,
     GEOTRELLIS_JAR_PATH,
     WORKER_COUNT_MIN,
     WORKER_COUNT_PER_GB_FEATURES,
 )
-from datapump_utils.aws import get_emr_client, get_s3_client
-from datapump_utils.s3 import get_s3_path_parts
-from datapump_utils.analysis import Analysis, AnalysisInputTable
+from datapump.clients.aws import get_emr_client, get_s3_client
+from datapump.util.s3 import get_s3_path_parts
+from datapump.jobs.jobs import Analysis, AnalysisInputTable, AnalysisResultTable, Job
 
-
-class JobStatus(str, Enum):
-    pending = "pending"
-    running = "running"
-    complete = "success"
-    failed = "failed"
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]
+MASTER_INSTANCE_TYPE = "r4.2xlarge"
 
 
 class GeotrellisJobStatus(str, Enum):
@@ -41,18 +32,6 @@ class GeotrellisJobStatus(str, Enum):
     uploaded = "uploaded"
     success = "success"
     failed = "failed"
-
-
-class Job(BaseModel):
-    id: str
-    status: JobStatus = JobStatus.pending
-
-
-class AnalysisResultTable(BaseModel):
-    dataset: str
-    version: str
-    source_uri: List[str]
-    index_columns: List[str]
 
 
 class GeotrellisJob(Job):
@@ -68,7 +47,7 @@ class GeotrellisJob(Job):
 
     def start_analysis(self):
         name = f"{self.table.dataset}_{self.table.analysis}_{self.version}__{self.id}"
-        steps = self._get_step()
+        steps = [self._get_step()]
 
         worker_count = self._calculate_worker_count()
         instances = self._instances(worker_count)
@@ -104,37 +83,51 @@ class GeotrellisJob(Job):
 
         keys = [item["Key"] for item in resp["Contents"]]
 
-        result_tables = []
-        for dir, files in groupby(keys, lambda key: Path(key).parent):
-            aggregation = dir.parts[-1]
-            result_dataset = (
-                f"{self.table.dataset}__{self.table.analysis}__{aggregation}"
-            )
-
-            result_tables.append(
-                AnalysisResultTable(
-                    dataset=result_dataset,
-                    version=self.version,
-                    source_uri=list(files),
-                    index_columns=self._get_index_cols(aggregation),
-                )
-            )
+        result_tables = [
+            self._get_result_table for path, files in groupby(keys, lambda key: Path(key).parent)
+        ]
 
         return result_tables
 
-    def _get_index_cols(self, aggregation: str):
-        cols = ["id"]
+    def _get_result_table(self, path: str, files: List[str]):
+        analysis_agg, feature_agg = (path.parts[-1], path.parts[-2])
+
+        result_dataset = f"{self.table.dataset}__{self.table.analysis}__"
+        if self.feature_type == "gadm":
+            result_dataset += f"__{feature_agg}_{analysis_agg}"
+        else:
+            result_dataset += f"__{analysis_agg}"
+
+        return AnalysisResultTable(
+                dataset=result_dataset,
+                version=self.version,
+                source_uri=list(files),
+                index_columns=self._get_index_cols(analysis_agg, feature_agg)
+            )
+
+    def _get_index_cols(self, analysis_agg: str, feature_agg: str):
+        if self.feature_type == "gadm":
+            cols = ["iso"]
+            if feature_agg == "adm1":
+                cols += ["adm1"]
+            elif feature_agg == "adm2":
+                cols += ["adm1", "adm2"]
+        elif self.feature_type == "wdpa":
+            cols = ["wdpa_id"]
+        elif self.feature_type == "geostore":
+            cols = ["geostore_id"]
+        else:
+            cols = ["feature_id"]
 
         if self.table.analysis == Analysis.tcl:
-            cols += [
-                "umd_tree_cover_loss__year",
-                "umd_tree_cover_density_2000__threshold",
-            ]
+            cols += ["umd_tree_cover_density_2000__threshold"]
+            if analysis_agg == "change":
+                cols += ["umd_tree_cover_loss__year",]
         if self.table.analysis == Analysis.glad:
             cols += ["confirmation__status"]
-            if aggregation == "daily_alerts":
+            if analysis_agg == "daily_alerts":
                 cols += ["alert__date"]
-            elif aggregation == "weekly_alerts":
+            elif analysis_agg == "weekly_alerts":
                 cols += ["alert__year", "alert__week"]
 
         return cols
@@ -153,17 +146,18 @@ class GeotrellisJob(Job):
         :return: calculate number of works appropriate for job size
         """
         bucket, key = get_s3_path_parts(self.features_1x1)
-        byte_size = boto3.resource("s3").Bucket(bucket).Object(key).content_length
+        resp = get_s3_client().head_object(Bucket=bucket, Key=key)
+        byte_size = resp['ContentLength']
 
         analysis_weight = 1.0
-        if self.table.analysis == AnalysisInputTable.tcl:
+        if self.table.analysis == Analysis.tcl:
             analysis_weight *= 1.25
 
         if self.change_only:
             analysis_weight *= 0.75
 
         worker_count = round(
-            (byte_size / 1000000) * WORKER_COUNT_PER_GB_FEATURES * analysis_weight
+            (byte_size / 1000000000) * WORKER_COUNT_PER_GB_FEATURES * analysis_weight
         )
         return max(worker_count, WORKER_COUNT_MIN)
 
@@ -174,13 +168,13 @@ class GeotrellisJob(Job):
             "cluster",
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
-            f"{GEOTRELLIS_JAR_PATH}/{self.geotrellis_jar_version}",
+            f"{GEOTRELLIS_JAR_PATH}/treecoverloss-assembly-{self.geotrellis_jar_version}.jar",
             "--output",
             self._get_result_path(),
             "--feature_type",
             self.feature_type,
             "--analysis",
-            self.table.analysis,
+            self.table.analysis.value,
         ]
 
         # These limit the extent to look at for certain types of analyses
@@ -193,13 +187,17 @@ class GeotrellisJob(Job):
             step_args.append("--change_only")
 
         return {
-            "Name": self.table.analysis,
+            "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
-            "HadoopJarStep": {"Jar": "command-runner.jar", "Args": step_args},
+            "HadoopJarStep": {
+                "Jar": f"{GEOTRELLIS_JAR_PATH}/treecoverloss-assembly-{self.geotrellis_jar_version}.jar",
+                # "MainClass": "org.globalforestwatch.summarystats.SummaryMain",
+                "Args": step_args
+            },
         }
 
     def _get_result_path(self, include_analysis=False):
-        result_path = f"s3://{RESULT_BUCKET}/geotrellis/results/{self.version}/{self.table.dataset}"
+        result_path = f"s3://{S3_BUCKET_PIPELINE}/geotrellis/results/{self.version}/{self.table.dataset}"
         if include_analysis:
             result_path += f"/{self.table.analysis}"
 
@@ -209,21 +207,39 @@ class GeotrellisJob(Job):
     def _run_job_flow(name, instances, steps, applications, configurations):
         client = get_emr_client()
 
-        response = client.run_job_flow(
-            Name=name,
-            ReleaseLabel=EMR_VERSION,
-            LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
-            Instances=instances,
-            Steps=steps,
-            Applications=applications,
-            Configurations=configurations,
-            VisibleToAllUsers=True,
-            JobFlowRole=EMR_INSTANCE_PROFILE,
-            ServiceRole=EMR_SERVICE_ROLE,
-            Tags=[
+        request = {
+            "Name": name,
+            "ReleaseLabel": EMR_VERSION,
+            "LogUri": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/logs",
+            "Steps": steps,
+            "Instances": instances,
+            "Applications": applications,
+            "Configurations": configurations,
+            "VisibleToAllUsers": True,
+            "Tags": [
                 {"Key": "Project", "Value": "Global Forest Watch"},
                 {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
-            ],  # flake8 --ignore
+            ],
+        }
+
+        LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
+
+        response = client.run_job_flow(
+            **request
+            # Name=name,
+            # ReleaseLabel=EMR_VERSION,
+            # LogUri=f"s3://{S3_BUCKET_PIPELINE}/geotrellis/logs",  # TODO should this be param?
+            # Instances=instances,
+            # Steps=steps,
+            # Applications=applications,
+            # Configurations=configurations,
+            # VisibleToAllUsers=True,
+            # # JobFlowRole=EMR_INSTANCE_PROFILE,
+            # # ServiceRole=EMR_SERVICE_ROLE,
+            # Tags=[
+            #     {"Key": "Project", "Value": "Global Forest Watch"},
+            #     {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
+            # ],  # flake8 --ignore
         )
 
         return response["JobFlowId"]
@@ -287,6 +303,8 @@ class GeotrellisJob(Job):
 
         if PUBLIC_SUBNET_IDS:
             instances["Ec2SubnetIds"] = PUBLIC_SUBNET_IDS
+
+        return instances
 
     @staticmethod
     def _applications() -> List[Dict[str, str]]:

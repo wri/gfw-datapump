@@ -55,31 +55,31 @@ variable "lambda_dispatcher" {
   description = "Lambda parameters"
 }
 
-variable "geotrellis_jar" {
+variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
 }
 
 variable "emr_instance_profile_name" {
-  default     = null
+  default     = ""
   type        = string
   description = "EMR instance profile"
 }
 
 variable "emr_service_role_name" {
-  default     = null
+  default     = ""
   type        = string
   description = "EMR service role"
 }
 
 variable "ec2_key_name" {
-  default     = null
+  default     = ""
   type        = string
   description = "Key pair to use for SSHing into EC2"
 }
 
 variable "public_subnet_ids" {
-  default     = null
+  default     = []
   type        = list(string)
   description = "Public subnet IDs to run on"
 }

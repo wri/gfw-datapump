@@ -9,7 +9,7 @@ resource "aws_lambda_function" "dispatcher" {
   timeout          = var.lambda_dispatcher.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+  layers           = [module.lambda_layers.datapump_arn]
   environment {
     variables = {
       ENV                           = var.environment
@@ -29,12 +29,12 @@ resource "aws_lambda_function" "analyzer" {
   timeout          = var.lambda_analyzer.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+  layers           = [module.lambda_layers.datapump_arn]
   environment {
     variables = {
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
-      GEOTRELLIS_JAR_VERSION         = var.geotrellis_jar
+      GEOTRELLIS_JAR_PATH            = var.geotrellis_jar_path
       PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
       EC2_KEY_NAME                   = var.ec2_key_name
       EMR_SERVICE_ROLE               = var.emr_service_role_name
@@ -54,14 +54,12 @@ resource "aws_lambda_function" "uploader" {
   timeout          = var.lambda_uploader.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn]
+  layers           = [module.lambda_layers.datapump_arn]
   environment {
     variables = {
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
-      PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
-      EC2_KEY_NAME                   = var.ec2_key_name
-      DATA_API_URI                  = var.data_api_uri
+      DATA_API_URI                   = var.data_api_uri
     }
   }
 }

@@ -1,21 +1,19 @@
 import os
 import json
-import random
 from enum import Enum
 from copy import deepcopy
 
 import boto3
 from botocore.exceptions import ClientError
-from datapump_utils.logger import get_logger
-from datapump_utils.dataset import upload_dataset
+from datapump.util.logger import get_logger
 
-from datapump_utils.s3 import get_s3_path, s3_client
+from datapump.util.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
 PUBLIC_SUBNET_IDS = json.loads(os.environ["PUBLIC_SUBNET_IDS"])
 EC2_KEY_NAME = os.environ["EC2_KEY_NAME"]
 
-WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]  # "m4.2xlarge", "m5.2xlarge"]
+WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]
 MASTER_INSTANCE_TYPE = "r4.2xlarge"
 
 LOGGER = get_logger(__name__)
@@ -278,7 +276,7 @@ def _run_job_flow(name, instances, steps, applications, configurations):
     client = boto3.client("emr", region_name="us-east-1")
     response = client.run_job_flow(
         Name=name,
-        ReleaseLabel="emr-5.24.0",
+        ReleaseLabel="emr-5.9.0",
         LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
         Instances=instances,
         Steps=steps,
