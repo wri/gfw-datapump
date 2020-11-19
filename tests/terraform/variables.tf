@@ -55,7 +55,7 @@ variable "lambda_dispatcher" {
   description = "Lambda parameters"
 }
 
-variable "geotrellis_jar" {
+variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
 }

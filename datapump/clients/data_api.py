@@ -1,8 +1,8 @@
 import requests
 from typing import List
 
-from datapump_utils.globals import DATA_API_URI, LOGGER
-from datapump_utils.exceptions import DataApiResponseError
+from datapump.globals import DATA_API_URI
+from datapump.util.exceptions import DataApiResponseError
 
 
 class DataApiClient:

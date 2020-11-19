@@ -4,16 +4,16 @@ import urllib.request
 import csv
 import io
 
-from datapump_utils.secrets import token
-from datapump_utils.util import api_prefix, get_date_string
-from datapump_utils.exceptions import UnexpectedResponseError
-from datapump_utils.logger import get_logger
-from datapump_utils.slack import slack_webhook
+from datapump.util.secrets import token
+from datapump.util import api_prefix, get_date_string
+from datapump.util.exceptions import UnexpectedResponseError
+from datapump.util.logger import get_logger
+from datapump.util.slack import slack_webhook
 
 LOGGER = get_logger(__name__)
 
 
-def update_aoi_statuses(geostore_ids, status):
+def update_area_statuses(geostore_ids, status):
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/update"
 
     headers = {

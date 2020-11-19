@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="datapump_utils",
+    name="datapump",
     version="0.2.0",
     description="Common utils to run GeoTrellis job on EMR and update in data API.",
     packages=find_packages(),

@@ -17,6 +17,13 @@ resource "aws_s3_bucket_object" "qc_1x1" {
   etag   = filemd5("../files/qc.tsv")
 }
 
+resource "aws_s3_bucket_object" "geotrellis_jar" {
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "geotrellis/jars/treecoverloss-assembly-1.2.1.jar"
+  source = "../files/treecoverloss-assembly-1.2.1.jar"
+  etag   = filemd5("../files/treecoverloss-assembly-1.2.1.jar")
+}
+
 resource "aws_s3_bucket_object" "shapely_pyyaml" {
   bucket = aws_s3_bucket.pipelines_test.id
   key    = "lambda_layers/shapely_pyyaml.zip"

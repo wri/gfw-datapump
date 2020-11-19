@@ -4,7 +4,7 @@ import dateutil.tz as tz
 import os
 import json
 
-from datapump_utils.s3 import s3_client, get_s3_path_parts
+from datapump.util.s3 import s3_client, get_s3_path_parts
 
 GLAD_STATUS_PATH = os.environ["GLAD_STATUS_PATH"]
 DATASETS = json.loads(os.environ["DATASETS"])

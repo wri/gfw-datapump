@@ -20,7 +20,7 @@ function build_lambda_layer {
   docker rm -f lambda_layer
 }
 
-lambda_layers=( datapump_utils )
+lambda_layers=( datapump )
 
 
 for l in "${lambda_layers[@]}"

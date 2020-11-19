@@ -1,11 +1,11 @@
 [
   {
     "httpRequest": {
-      "path": "/test_zonal_stats/vtest1/assets",
-      "method": "GET"
+        "path": "/test_zonal_stats/vtest1/assets",
+        "method": "GET"
     },
     "httpResponse": {
-      "body": {
+        "body": {
         "data": [
             {
                 "created_on": "2020-09-25T14:06:19.785933",
@@ -290,14 +290,6 @@
         ],
         "status": "success"
       }
-    }
-  },
-  {
-    "httpRequest": {
-      "path": "/simpleSecond"
-    },
-    "httpResponse": {
-      "body": "some second response"
     }
   }
 ]

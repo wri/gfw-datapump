@@ -2,10 +2,10 @@ import os
 import json
 import traceback
 
-from datapump_utils.fire_alerts import process_active_fire_alerts, get_tmp_result_path
-from datapump_utils.gpkg_util import update_geopackage
-from datapump_utils.logger import get_logger
-from datapump_utils.slack import slack_webhook
+from datapump.sync.fire_alerts import process_active_fire_alerts, get_tmp_result_path
+from datapump.util.gpkg_util import update_geopackage
+from datapump.util.logger import get_logger
+from datapump.util.slack import slack_webhook
 
 LOGGER = get_logger(__name__)
 S3_BUCKET_PIPELINE = os.environ["S3_BUCKET_PIPELINE"]

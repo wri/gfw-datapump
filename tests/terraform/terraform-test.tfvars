@@ -25,4 +25,4 @@ lambda_dispatcher = {
   timeout = 300
 }
 
-geotrellis_jar = "s3://gfw-pipelines-staging/geotrellis/jars/treecoverloss-assembly-1.1.2.jar"
+geotrellis_jar_path = "s3://gfw-pipelines-test/geotrellis/jars"
