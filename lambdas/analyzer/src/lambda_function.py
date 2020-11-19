@@ -1,5 +1,5 @@
-from datapump_utils.globals import LOGGER
-from datapump_utils.jobs import GeotrellisJob, GeotrellisJobStatus
+from datapump.globals import LOGGER
+from datapump.jobs.jobs import GeotrellisJob, GeotrellisJobStatus
 
 
 def handler(event, context):

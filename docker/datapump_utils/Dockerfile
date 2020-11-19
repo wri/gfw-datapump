@@ -7,9 +7,9 @@ WORKDIR $WORKDIR
 RUN mkdir -p python
 
 # Make the dir and to install all packages into packages/
-COPY datapump_utils/ datapump_utils/
+COPY datapump/ datapump/
 COPY setup.py .
-COPY docker/datapump_utils/.lambdaignore .
+COPY docker/datapump/.lambdaignore .
 
 # installing dependencies to build package
 RUN pip install . -t python

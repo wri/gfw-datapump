@@ -4,7 +4,6 @@ import os
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Tuple, Set
-import math
 import traceback
 
 import requests
@@ -14,10 +13,12 @@ from shapely.geometry import shape, Polygon, MultiPolygon
 from datapump.util.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump.util.logger import get_logger
 from datapump.util.secrets import token
-from datapump.util import bucket_suffix, api_prefix
-from datapump.util.s3 import get_s3_path, s3_client
+from datapump.util import api_prefix
 from datapump.util.slack import slack_webhook
 from datapump.rw_api import update_area_statuses
+
+from datapump.clients.aws import get_s3_client
+from datapump.globals import S3_BUCKET_PIPELINE
 
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -32,15 +33,25 @@ DIRNAME = os.path.dirname(__file__)
 DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 GEOSTORE_PAGE_SIZE = 100
 
+def create_1x1_tsv(version: str):
+    tsv = get_virutal_1x1_tsv()
+    now: datetime = datetime.now()
 
-def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    geostore_path = f"geotrellis/features/geostore/{version}.tsv"
+
+    if geostore_path:
+        get_s3_client.put_object(
+            Body=tsv,
+            Bucket=S3_BUCKET_PIPELINE,
+            Key=geostore_path,
+        )
+
+def get_virutal_1x1_tsv() -> Dict[str, Any]:
     """
     Main Lambda function
     """
 
     LOGGER.info("Check for pending areas")
-
-    now: datetime = datetime.now()
 
     try:
         areas: List[Any] = get_pending_areas()
@@ -50,48 +61,16 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
             geostore = filter_geostores(geostore)
 
             if geostore:
-                geostore_path = f"geotrellis/features/geostore/aoi-{now.strftime('%Y%m%d_%H%M')}.tsv"
-                geostore_bucket = f"gfw-pipelines{bucket_suffix()}"
-
                 with geostore_to_wkb(geostore) as (wkb, geom_count):
                     if geom_count == 0:
-                        slack_webhook("INFO", "No new user areas found. Doing nothing.")
-                        return {"status": "NO_NEW_AREAS_FOUND"}
-
-                    s3_client().put_object(
-                        Body=str.encode(wkb.getvalue()),
-                        Bucket=geostore_bucket,
-                        Key=geostore_path,
-                    )
-                    worker_count = max(25, math.ceil(geom_count / 100))
+                        return None
+                    else:
+                        return str.encode(wkb.getvalue())
 
                 LOGGER.info(f"Found {len(geostore['data'])} pending areas")
                 geostore_full_path = get_s3_path(geostore_bucket, geostore_path)
 
                 # heuristic for how many workers we'll need to process this in Spark/EMR
-
-                return {
-                    "status": "NEW_AREAS_FOUND",
-                    "instance_size": "r4.2xlarge",
-                    "instance_count": worker_count,
-                    "feature_src": geostore_full_path,
-                    "feature_type": "geostore",
-                    "analyses": ["gladalerts", "annualupdate_minimal", "firealerts"],
-                    "datasets": DATASETS["geostore"],
-                    "name": SUMMARIZE_NEW_AOIS_NAME,
-                    "upload_type": "append",
-                    "get_summary": True,
-                    "fire_config": {
-                        "viirs": [
-                            "s3://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/*.tsv",
-                            "s3://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/scientific/*.tsv",
-                        ],
-                        "modis": [
-                            "s3://gfw-data-lake/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/*.tsv",
-                            "s3://gfw-data-lake/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/scientific/*.tsv",
-                        ],
-                    },
-                }
             else:
                 slack_webhook("INFO", "No new user areas found. Doing nothing.")
                 return {"status": "NO_NEW_AREAS_FOUND"}

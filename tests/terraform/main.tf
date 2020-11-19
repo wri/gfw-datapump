@@ -27,7 +27,7 @@ module "datapump" {
   step_functions_path = var.step_functions_path
   lambdas_path = var.lambdas_path
   lambda_layers_path = var.lambda_layers_path
-  geotrellis_jar = var.geotrellis_jar
+  geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = aws_s3_bucket.pipelines_test.id
   tags = {}
   lambda_analyzer = var.lambda_analyzer

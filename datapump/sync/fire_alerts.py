@@ -6,8 +6,8 @@ import io
 import shapefile
 import shutil
 
-from datapump_utils.s3 import s3_client
-from datapump_utils.logger import get_logger
+from datapump.util.s3 import s3_client
+from datapump.util.logger import get_logger
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
     "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/shapes/zips/MODIS_C6_Global_7d.zip",

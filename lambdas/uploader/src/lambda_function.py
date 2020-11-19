@@ -1,10 +1,9 @@
 import os
-import traceback
 
-from datapump_utils.logger import get_logger
-from datapump_utils.util import error
-from datapump_utils.jobs import GeotrellisJob, GeotrellisJobStatus
-from datapump_utils.data_api_client import DataApiClient
+from datapump.util.logger import get_logger
+from datapump.util import error
+from datapump.jobs.jobs import GeotrellisJob, GeotrellisJobStatus
+from datapump.data_api import DataApiClient
 
 if "ENV" in os.environ:
     ENV = os.environ["ENV"]
@@ -24,7 +23,7 @@ def handler(event, context):
                 # convert table.index_columns to usable index
                 # create cluster based off index
                 client.add_version(
-                    table.dataset, table.version, table.source_uri, table.index_columns
+                    table.dataset, table.version, table.source_uri, table.index_columns, table.index_columns
                 )
                 job.status = GeotrellisJobStatus.uploading
         elif job.status == GeotrellisJobStatus.uploading:

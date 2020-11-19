@@ -23,11 +23,11 @@ def test_datapump_update():
                         "version": "vtest1",
                         "analysis": "tcl",
                     },
-                    {
-                        "dataset": "test_zonal_stats",
-                        "version": "vtest1",
-                        "analysis": "glad",
-                    },
+                    # {
+                    #     "dataset": "test_zonal_stats",
+                    #     "version": "vtest1",
+                    #     "analysis": "glad",
+                    # },
                 ],
             },
         }
@@ -41,35 +41,40 @@ def test_datapump_update():
 def _dump_logs(start_time):
     sfn_client = boto3.client("stepfunctions", endpoint_url=LOCALSTACK_URI)
     log_client = boto3.client("logs", endpoint_url=LOCALSTACK_URI)
+    emr_client = boto3.client("emr", endpoint_url=LOCALSTACK_URI)
 
     resp = sfn_client.list_executions(stateMachineArn=DATAPUMP_SFN_ARN)
     execution_arn = resp["executions"][-1]["executionArn"]
 
-    resp = sfn_client.get_execution_history(executionArn=execution_arn)
-    pprint(resp["events"])
+    with open("tests/logs/stepfunction.log", "w") as sfn_logs:
+        resp = sfn_client.get_execution_history(executionArn=execution_arn)
+        pprint(resp["events"], stream=sfn_logs)
 
-    for log_group in log_client.describe_log_groups()["logGroups"]:
-        log_group_name = log_group["logGroupName"]
-        print(
-            f"---------------------------- {log_group_name} ---------------------------------"
-        )
-        # for log_stream in log_client.describe_log_streams(logGroupName=log_group_name)['logStreams']:
-        # if log_stream['lastEventTimestamp'] / 1000 > start_time:
-        log_streams = log_client.describe_log_streams(logGroupName=log_group_name)[
-            "logStreams"
-        ]
-        log_stream_name = log_streams[-1]["logStreamName"]
-        log_events = log_client.get_log_events(
-            logGroupName=log_group_name,
-            logStreamName=log_stream_name,
-            # startTime=int(start_time * 1000)
-        )["events"]
+    with open("tests/logs/emr.log", "w") as emr_logs:
+        clusters = emr_client.list_clusters()['Clusters']
+        pprint(clusters, stream=emr_logs)
 
-        for event in log_events:
-            # for some reason stack traces come with carriage returns,
-            # which overwrites the line instead of making a new line
-            message = event["message"].replace("\r", "\n")
-            print(f"{log_stream_name}: {message}")
+        for cluster in clusters:
+            pprint(emr_client.describe_cluster(ClusterId=cluster['Id']), stream=emr_logs)
+
+    with open("tests/logs/lambdas.log", "w") as lambda_logs:
+        for log_group in log_client.describe_log_groups()["logGroups"]:
+            log_group_name = log_group["logGroupName"]
+            print(
+                f"---------------------------- {log_group_name} ---------------------------------",  file=lambda_logs)
+            for log_stream in log_client.describe_log_streams(logGroupName=log_group_name)['logStreams']:
+                # if log_stream['lastEventTimestamp'] / 1000 > start_time:
+                log_events = log_client.get_log_events(
+                    logGroupName=log_group_name,
+                    logStreamName=log_stream['logStreamName'],
+                    # startTime=int(start_time * 1000)
+                )["events"]
+
+                for event in log_events:
+                    # for some reason stack traces come with carriage returns,
+                    # which overwrites the line instead of making a new line
+                    message = event["message"].replace("\r", "\n")
+                    print(f"{log_stream['logStreamName']}: {message}", file=lambda_logs)
 
 
 def _tests_datapump(input, expected_status):
