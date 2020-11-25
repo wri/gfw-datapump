@@ -5,7 +5,7 @@ import csv
 import io
 
 from datapump.util.secrets import token
-from datapump.util import api_prefix, get_date_string
+from datapump.util.util import api_prefix, get_date_string
 from datapump.util.exceptions import UnexpectedResponseError
 from datapump.util.logger import get_logger
 from datapump.util.slack import slack_webhook

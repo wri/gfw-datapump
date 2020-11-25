@@ -13,9 +13,9 @@ from shapely.geometry import shape, Polygon, MultiPolygon
 from datapump.util.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump.util.logger import get_logger
 from datapump.util.secrets import token
-from datapump.util import api_prefix
+from datapump.util.util import api_prefix
 from datapump.util.slack import slack_webhook
-from datapump.rw_api import update_area_statuses
+from datapump.clients.rw_api import update_area_statuses
 
 from datapump.clients.aws import get_s3_client
 from datapump.globals import S3_BUCKET_PIPELINE

@@ -17,6 +17,7 @@ def test_datapump_update():
             "command": "update",
             "parameters": {
                 "version": "vteststats1",
+                "geotrellis_version": "1.2.1",
                 "tables": [
                     {
                         "dataset": "test_zonal_stats",
@@ -33,7 +34,6 @@ def test_datapump_update():
         }
 
         _tests_datapump(input, "SUCCEEDED")
-        assert False
     finally:
         _dump_logs(start_time)
 
@@ -88,7 +88,7 @@ def _tests_datapump(input, expected_status):
     print(execution_arn)
 
     tries = 0
-    while tries < 30:
+    while tries < 3000:
         time.sleep(2)
         tries += 1
 
@@ -97,3 +97,5 @@ def _tests_datapump(input, expected_status):
             continue
         else:
             assert status == expected_status
+            break
+

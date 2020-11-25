@@ -10,13 +10,13 @@ services:
       - '8055:8080'
       - '${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}'
     environment:
-      - SERVICES=serverless,stepfunctions,sts,cloudwatch,emr,events
+      - SERVICES=iam,lambda,stepfunctions,sts,cloudwatch,emr,events,ec2,cloudformation
       - DEBUG=1
 #      - DATA_DIR=/tmp/localstack/data
       - DISABLE_EVENTS=1
       - LAMBDA_DOCKER_NETWORK=test
     volumes:
-      - './.localstack:/tmp/localstack'
+      - "${TMPDIR:-./localstack}:/tmp/localstack"
       - '/var/run/docker.sock:/var/run/docker.sock'
 
   mock_server:
@@ -27,9 +27,8 @@ services:
       MOCKSERVER_INITIALIZATION_JSON_PATH: /mock_server/mock_responses.json
     volumes:
       - type: bind
-        source: ./mock_server
+        source: ./files/mock_server
         target: /mock_server
-
 
 networks:
   default:

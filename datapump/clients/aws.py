@@ -23,3 +23,4 @@ def client_constructor(service: str):
 get_s3_client = client_constructor("s3")
 get_emr_client = client_constructor("emr")
 get_lambda_client = client_constructor("lambda")
+get_dynamo_client = client_constructor("dynamodb")
