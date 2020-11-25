@@ -8,7 +8,7 @@ export AWS_SECRET_ACCESS_KEY=test
 
 #docker network create test || true
 docker-compose -f tests/docker-compose-localstack.yml up --remove-orphans -d
-sleep 10s
+sleep 20s
 
 ## copy lambda layer zips to test folder, so we can upload them to localstack
 #aws s3 cp s3://gfw-pipelines-dev/lambda_layers/shapely_pyyaml.zip tests/files/shapely_pyyaml.zip --profile gfw-dev
@@ -16,7 +16,11 @@ sleep 10s
 
 ## just use default roles for EMR, need to be created with this call first
 ## for some awslocal doesn't work, had to manually specify endpoint
-aws emr create-default-roles --iam-endpoint http://localhost:4566
+#aws emr create-default-roles --iam-endpoint http://localhost:4566
+
+pushd tests/files/mock_geotrellis
+mvn package
+popd
 
 pushd tests/terraform
 (terraform init && terraform destroy -var-file="terraform-test.tfvars" -auto-approve && terraform plan -var-file="terraform-test.tfvars" && terraform apply -var-file="terraform-test.tfvars" -auto-approve) || true
@@ -24,8 +28,8 @@ popd
 
 pytest tests/tests || true
 
-docker-compose -f tests/docker-compose-localstack.yml logs -t 1000 localstack > tests/logs/localstack.log
-docker-compose -f tests/docker-compose-localstack.yml logs -t 1000 mock_server > tests/logs/mock_server.log
+docker-compose -f tests/docker-compose-localstack.yml logs -t localstack > tests/logs/localstack.log
+docker-compose -f tests/docker-compose-localstack.yml logs -t mock_server > tests/logs/mock_server.log
 
 docker-compose -f tests/docker-compose-localstack.yml stop
 docker-compose -f tests/docker-compose-localstack.yml rm -f

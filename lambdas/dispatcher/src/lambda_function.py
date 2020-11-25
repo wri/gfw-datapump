@@ -6,11 +6,11 @@ from pydantic import BaseModel, parse_obj_as
 from pprint import pformat
 
 from datapump.util.logger import get_logger
-from datapump.util import error
-from datapump.data_api import DataApiClient
-from datapump.jobs.jobs import Job, GeotrellisJob, GeotrellisJobStatus, Analysis
-from datapump.jobs.analysis import AnalysisInputTable
-from datapump.sync import SyncType, sync
+from datapump.clients.data_api import DataApiClient
+from datapump.jobs.jobs import Job, JobStatus, Analysis,AnalysisInputTable
+from datapump.jobs.geotrellis import GeotrellisJob
+# from datapump.sync.sync import SyncType, sync, Sync
+
 
 # changing something
 # environment should be set via environment variable. This can be done when deploying the lambda function.
@@ -63,28 +63,30 @@ class UpdateCommand(BaseModel):
 
     class Parameters(BaseModel):
         version: str
+        geotrellis_version: str
         tables: List[AnalysisInputTable]
 
     parameters: Parameters
 
 
-class SyncCommand(BaseModel):
-    command: str
+# class SyncCommand(BaseModel):
+#     command: str
+#
+#     # class SyncVersions(BaseModel):
+#     #     class FeatureAnalysis(BaseModel):
+#     #         feature_type: str
+#     #         analysis: Analysis
+#     #
+#     #     type: SyncType
+#     #     version: str
+#     #     analyses: List[AnalysisInputTable] = None  # optional, to filter to specific analyses to run
+#     #
+#     class Parameters(BaseModel):
+#         version: str
+#         types: List[SyncType]
+#
+#     parameters: Parameters
 
-    # class SyncVersions(BaseModel):
-    #     class FeatureAnalysis(BaseModel):
-    #         feature_type: str
-    #         analysis: Analysis
-    #
-    #     type: SyncType
-    #     version: str
-    #     analyses: List[AnalysisInputTable] = None  # optional, to filter to specific analyses to run
-    #
-    class Parameters(BaseModel):
-        version: str
-        types: List[SyncType]
-
-    parameters: Parameters
 
 class JobMap(BaseModel):
     jobs: List[Job]
@@ -92,7 +94,7 @@ class JobMap(BaseModel):
 
 def handler(event, context):
     try:
-        command = parse_obj_as(Union[UpdateCommand, SyncCommand], event)
+        command = parse_obj_as(Union[UpdateCommand], event)
         client = DataApiClient()
 
         jobs = []
@@ -104,39 +106,38 @@ def handler(event, context):
                 asset_uri = client.get_1x1_asset(table.dataset, table.version)
                 job = GeotrellisJob(
                     id=str(uuid1()),
-                    status=GeotrellisJobStatus.starting,
+                    status=JobStatus.starting,
                     version=command.parameters.version,
                     table=table,
                     features_1x1=asset_uri,
-                    feature_type="gadm",
-                    geotrellis_jar_version="1.2.1"
+                    geotrellis_jar_version=command.parameters.geotrellis_version
                 )
                 jobs.append(job)
 
-        elif isinstance(command, SyncCommand):
-            cast(SyncCommand, command)
-
-            # sync_types = set([sync_version.type for sync_version in command.parameters])
-            for type in command.parameters.types:
-                sync(type, command.parameters.version)
-
-            # ALTERNATIVELY
-            # scan data API for datasets with this version?
-            # or just put a file with version name and such?
-            # get all geostore jobs
-
-            somehow_get_datasets_to_update()
-            create_job_for_each()
-
-            # schema: main_version, analysis, dataset, last_job,
-            # sync table: all syncs and versions
-            # if sync version doesn't exist, sync and rerun
-            # if it doesn't, get output for each sync type and re-use for an update
-            # OR simpler, just COMPLETELY roll back everything if a sync fails and redo
-
-            # for sync_version in command.parameters:
-
-
+        # elif isinstance(command, SyncCommand):
+        #     cast(SyncCommand, command)
+        #
+        #     # sync_types = set([sync_version.type for sync_version in command.parameters])
+        #     version = command.parameters.types if command.parameters.types is not None else Sync.get_latest_version()
+        #     for type in command.parameters.types:
+        #         sync(type, version)
+        #
+        #
+        #     # ALTERNATIVELY
+        #     # scan data API for datasets with this version?
+        #     # or just put a file with version name and such?
+        #     # get all geostore jobs
+        #
+        #     # somehow_get_datasets_to_update()
+        #     # create_job_for_each()
+        #
+        #     # schema: main_version, analysis, dataset, last_job,
+        #     # sync table: all syncs and versions
+        #     # if sync version doesn't exist, sync and rerun
+        #     # if it doesn't, get output for each sync type and re-use for an update
+        #     # OR simpler, just COMPLETELY roll back everything if a sync fails and redo
+        #
+        #     # for sync_version in command.parameters:
 
         job_map = JobMap(jobs=jobs).dict()
         LOGGER.info(f"Dispatching jobs:\n{pformat(job_map)}")
@@ -144,4 +145,4 @@ def handler(event, context):
 
 
     except Exception as e:
-        return error(f"Exception caught while running update: {e}")
+        return LOGGER.exception(f"Exception caught while running update: {e}")

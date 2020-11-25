@@ -33,6 +33,6 @@ module "datapump" {
   lambda_analyzer = var.lambda_analyzer
   lambda_dispatcher = var.lambda_dispatcher
   lambda_uploader = var.lambda_uploader
-  sfn_wait_time = 2
+  sfn_wait_time = 1
   data_api_uri = var.data_api_uri
 }

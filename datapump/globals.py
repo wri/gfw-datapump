@@ -2,6 +2,8 @@ import os
 import logging
 import json
 
+ENV = os.environ["ENV"]
+
 LOGGER = logging.getLogger("datapump")
 LOGGER.setLevel(logging.DEBUG)
 

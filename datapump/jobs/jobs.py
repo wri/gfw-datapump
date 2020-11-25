@@ -5,22 +5,23 @@ from pydantic import BaseModel
 
 
 class JobStatus(str, Enum):
-    pending = "pending"
-    running = "running"
-    complete = "success"
+    starting = "starting"
+    analyzing = "analyzing"
+    analyzed = "analyzed"
+    uploading = "uploading"
+    complete = "complete"
     failed = "failed"
 
 
 class Job(BaseModel):
     id: str
-    status: JobStatus = JobStatus.pending
+    status: JobStatus = JobStatus.starting
 
 
 class Analysis(str, Enum):
     """
     Supported analyses to run on datasets
     """
-
     tcl = "tcl"
     glad = "glad"
     viirs = "viirs"
