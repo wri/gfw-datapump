@@ -17,11 +17,19 @@ resource "aws_s3_bucket_object" "qc_1x1" {
   etag   = filemd5("../files/qc.tsv")
 }
 
+resource "aws_s3_bucket_object" "geotrellis_results" {
+  for_each = fileset("../files/geotrellis_results", "**/*.csv")
+
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "geotrellis/results/vteststats1/test_zonal_stats/${each.value}"
+  source = "../files/geotrellis_results/${each.value}"
+}
+
 resource "aws_s3_bucket_object" "geotrellis_jar" {
   bucket = aws_s3_bucket.pipelines_test.id
   key    = "geotrellis/jars/treecoverloss-assembly-1.2.1.jar"
-  source = "../files/treecoverloss-assembly-1.2.1.jar"
-  etag   = filemd5("../files/treecoverloss-assembly-1.2.1.jar")
+  source = "../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar"
+  etag   = filemd5("../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar")
 }
 
 resource "aws_s3_bucket_object" "shapely_pyyaml" {

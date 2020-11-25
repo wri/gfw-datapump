@@ -1,7 +1,8 @@
 import requests
 from typing import List
+from pprint import pformat
 
-from datapump.globals import DATA_API_URI
+from datapump.globals import DATA_API_URI, LOGGER
 from datapump.util.exceptions import DataApiResponseError
 
 
@@ -35,7 +36,10 @@ class DataApiClient:
             }
         }
 
-        resp = requests.put(f"{DATA_API_URI}/{dataset}/{version}", json=payload)
+        uri = f"{DATA_API_URI}/{dataset}/{version}"
+
+        LOGGER.debug(f"Adding new version at {uri} with payload:\n{pformat(payload)}")
+        resp = requests.put(uri, json=payload)
 
         if resp.status_code >= 300:
             raise DataApiResponseError(
