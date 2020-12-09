@@ -55,6 +55,15 @@ variable "lambda_dispatcher" {
   description = "Lambda parameters"
 }
 
+variable "lambda_postprocessor" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
+}
+
 variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
@@ -89,9 +98,25 @@ variable "pipelines_bucket" {
   description = "Pipelines bucket to store intermediate results"
 }
 
+
+variable "data_lake_bucket" {
+  type        = string
+  description = "Data lake bucket to store intermediate results"
+}
+
 variable "tags" {}
 
 variable "sfn_wait_time" {
   type        = number
   description = "Time to wait in between steps of step function"
+}
+
+variable "rasterio_lambda_layer_arn" {
+  type        = string
+  description = "Pipelines bucket to store intermediate results"
+}
+
+variable "glad_path" {
+  type        = string
+  description = "S3 path to GLAD data"
 }

@@ -55,7 +55,22 @@ variable "lambda_dispatcher" {
   description = "Lambda parameters"
 }
 
+variable "lambda_postprocessor" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
+}
+
+
 variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
+}
+
+variable "glad_path" {
+  type = string
+  description = "S3 path to GLAD data"
 }

@@ -9,11 +9,14 @@ resource "aws_lambda_function" "dispatcher" {
   timeout          = var.lambda_dispatcher.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_arn]
+  layers           = [module.lambda_layers.datapump_arn, var.rasterio_lambda_layer_arn]
   environment {
     variables = {
       ENV                           = var.environment
       DATA_API_URI                  = var.data_api_uri
+      S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
+      DATAPUMP_DB_S3_PATH           = local.config_db_s3_path
+      S3_GLAD_PATH                  = var.glad_path
     }
   }
 }
@@ -63,11 +66,26 @@ resource "aws_lambda_function" "uploader" {
     }
   }
 }
-//
-//resource "aws_lambda_permission" "allow_cloudwatch" {
-//  statement_id  = "AllowExecutionFromCloudWatch"
-//  action        = "lambda:InvokeFunction"
-//  function_name = aws_lambda_function.get_latest_fire_alerts.function_name
-//  principal     = "events.amazonaws.com"
-//  source_arn    = aws_cloudwatch_event_rule.everyday-11-pm-est.arn
-//}
+
+resource "aws_lambda_function" "postprocessor" {
+  function_name    = substr("${local.project}-postprocessor${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_postprocessor.output_path
+  source_code_hash = data.archive_file.lambda_postprocessor.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_postprocessor.runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_postprocessor.memory_size
+  timeout          = var.lambda_postprocessor.timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.lambda_layers.datapump_arn, var.rasterio_lambda_layer_arn]
+  environment {
+    variables = {
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = var.pipelines_bucket
+      S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
+      DATA_API_URI                   = var.data_api_uri
+      DATAPUMP_DB_S3_PATH           = local.config_db_s3_path
+    }
+  }
+}
