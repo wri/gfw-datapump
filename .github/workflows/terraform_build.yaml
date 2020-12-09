@@ -28,6 +28,9 @@ jobs:
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
         chmod +x ./cc-test-reporter
+    - name: Build Lambda Layers
+      if: success()
+      run: ./scripts/cibuild
     - name: Test with pytest
       env:
         ENV: test
@@ -40,9 +43,6 @@ jobs:
         ./cc-test-reporter before-build
         ./scripts/test
         ./cc-test-reporter after-build -t coverage.py -p ${PWD} --exit-code $?
-    - name: Build Lambda layers
-      if: success()
-      run: ./scripts/cibuild
     - name: Deploy production
       if: success() && contains(github.ref, 'master')
       env:

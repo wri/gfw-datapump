@@ -12,9 +12,6 @@ docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
 # need to sleep to make sure localstack has time to start up all services
 sleep 20s
 
-## copy lambda layer zips to test folder, so we can upload them to localstack
-#aws s3 cp s3://gfw-pipelines-dev/lambda_layers/rasterio.zip tests/files/rasterio.zip --profile gfw-dev
-
 pushd tests/files/mock_geotrellis
 mvn package
 popd

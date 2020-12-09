@@ -5,7 +5,7 @@ lambdas_path = "../src/lambdas"
 policies_path = "../terraform/modules/datapump/policies"
 lambda_layers_path = "../src/docker"
 
-data_api_uri = "http://mock_server:1080"
+data_api_uri = "https://staging-data-api.globalforestwatch.org"
 
 lambda_analyzer = {
   runtime          = "python3.7"
