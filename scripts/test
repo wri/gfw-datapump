@@ -16,6 +16,8 @@ pushd tests/files/mock_geotrellis
 mvn package
 popd
 
+docker-compose -f tests/docker-compose-mock.yml logs -t --tail=1000 localstack
+
 pushd tests/terraform
 (terraform init && terraform destroy -var-file="terraform-test.tfvars" -auto-approve && terraform plan -var-file="terraform-test.tfvars" && terraform apply -var-file="terraform-test.tfvars" -auto-approve) || true
 popd
