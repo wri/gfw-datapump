@@ -3,37 +3,69 @@ variable "environment" {
   description = "An environment namespace for the infrastructure."
 }
 
-variable "lambda_analyzer_runtime" {
+variable "data_api_uri" {
+  type        = string
+  description = "URI for data API."
+}
+
+variable "policies_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_uploader_runtime" {
+variable "lambdas_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_analyzer_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
+variable "lambda_layers_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_uploader_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
+variable "step_functions_path" {
+  type        = string
+  description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_analyzer_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
+variable "lambda_analyzer" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
 }
 
-variable "lambda_uploader_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
+variable "lambda_uploader" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
 }
 
-variable "geotrellis_jar" {
+variable "lambda_dispatcher" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
+}
+
+variable "lambda_postprocessor" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
+}
+
+
+variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
 }

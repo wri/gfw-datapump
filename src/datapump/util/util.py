@@ -1,0 +1,51 @@
+from datetime import date
+
+from ..globals import LOGGER, ENV
+from ..util.slack import slack_webhook
+
+
+def get_date_string():
+    return date.today().strftime("%Y-%m-%d")
+
+
+def secret_suffix() -> str:
+    """
+    Get environment suffix for secret token
+    """
+    if ENV == "production":
+        suffix: str = "prod"
+    else:
+        suffix = "staging"
+    return suffix
+
+
+def bucket_suffix() -> str:
+    """
+    Get environment suffix for bucket
+    """
+    if ENV is None:
+        suffix: str = "-dev"
+    elif ENV == "production":
+        suffix = ""
+    else:
+        suffix = f"-{ENV}"
+
+    return suffix
+
+
+def api_prefix() -> str:
+    """
+    Get environment prefix for API
+    """
+    if ENV == "production":
+        suffix: str = "production"
+    else:
+        suffix = "staging"
+
+    return suffix
+
+
+def error(msg):
+    LOGGER.exception(msg)
+    slack_webhook("ERROR", msg)
+    return {"status": "FAILED"}

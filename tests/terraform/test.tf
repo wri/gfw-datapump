@@ -4,6 +4,13 @@ resource "aws_s3_bucket" "pipelines_test" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket" "data_lake_test" {
+  bucket = "gfw-data-lake-test"
+  acl    = "private"
+  force_destroy = true
+}
+
+
 resource "aws_s3_bucket" "terraform_test" {
   bucket = "gfw-terraform-test"
   acl    = "private"
@@ -32,19 +39,12 @@ resource "aws_s3_bucket_object" "geotrellis_jar" {
   etag   = filemd5("../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar")
 }
 
-resource "aws_s3_bucket_object" "shapely_pyyaml" {
-  bucket = aws_s3_bucket.pipelines_test.id
-  key    = "lambda_layers/shapely_pyyaml.zip"
-  source = "../files/shapely_pyyaml.zip"
-  etag   = filemd5("../files/shapely_pyyaml.zip")
-}
 
-resource "aws_lambda_layer_version" "shapely_pyyaml" {
-  layer_name          = substr("$test-shapely_pyyaml", 0, 64)
-  s3_bucket           = aws_s3_bucket_object.shapely_pyyaml.bucket
-  s3_key              = aws_s3_bucket_object.shapely_pyyaml.key
-  compatible_runtimes = ["python3.7"]
-  source_code_hash    = filebase64sha256("../files/shapely_pyyaml.zip")
+resource "aws_s3_bucket_object" "glad_status" {
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "glad/events/status"
+  source = "../files/status"
+  etag   = filemd5("../files/status")
 }
 
 resource "aws_s3_bucket_object" "rasterio" {
@@ -60,4 +60,13 @@ resource "aws_lambda_layer_version" "rasterio" {
   s3_key              = aws_s3_bucket_object.rasterio.key
   compatible_runtimes = ["python3.7"]
   source_code_hash    = filebase64sha256("../files/rasterio.zip")
+}
+
+resource "aws_secretsmanager_secret" "gfw_api_token" {
+  name = "gfw-api/token"
+}
+
+resource "aws_secretsmanager_secret_version" "gfw_api_token" {
+  secret_id     = aws_secretsmanager_secret.gfw_api_token.id
+  secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@wri.org" })
 }

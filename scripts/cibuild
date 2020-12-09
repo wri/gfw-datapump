@@ -8,13 +8,13 @@ function build_lambda_layer {
   IMAGE="gfw/${1}_layer"
 
   echo "BUILD image ${IMAGE}"
-  docker build -t "${IMAGE}":"${GIT_SHA}" -f docker/"${1}"/Dockerfile .
+  docker build -t "${IMAGE}":"${GIT_SHA}" -f src/docker/"${1}"/Dockerfile .
 
   echo "CREATE container"
   docker run --name lambda_layer -itd "${IMAGE}":"${GIT_SHA}" /bin/bash
 
   echo "COPY ZIP package to host"
-  docker cp lambda_layer:/var/task/layer.zip docker/"${1}"/layer.zip
+  docker cp lambda_layer:/var/task/layer.zip src/docker/"${1}"/layer.zip
 
   echo "REMOVE container"
   docker rm -f lambda_layer

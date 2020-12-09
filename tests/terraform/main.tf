@@ -17,6 +17,7 @@ provider "aws" {
     cloudwatch = "http://localhost:4566"
     sts = "http://localhost:4566"
     cloudwatchevents = "http://localhost:4566"
+    secretsmanager = "http://localhost:4566"
   }
 }
 
@@ -35,4 +36,8 @@ module "datapump" {
   lambda_uploader = var.lambda_uploader
   sfn_wait_time = 1
   data_api_uri = var.data_api_uri
+  lambda_postprocessor = var.lambda_postprocessor
+  data_lake_bucket = aws_s3_bucket.data_lake_test.id
+  rasterio_lambda_layer_arn = aws_lambda_layer_version.rasterio.arn
+  glad_path = var.glad_path
 }
