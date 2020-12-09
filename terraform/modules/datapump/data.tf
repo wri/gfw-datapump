@@ -16,6 +16,7 @@ data "template_file" "sfn_datapump" {
     lambda_dispatcher_arn = aws_lambda_function.dispatcher.arn,
     lambda_analyzer_arn = aws_lambda_function.analyzer.arn,
     lambda_uploader_arn = aws_lambda_function.uploader.arn,
+    lambda_postprocessor_arn = aws_lambda_function.postprocessor.arn,
     wait_time = var.sfn_wait_time
   }
 }
@@ -26,6 +27,10 @@ module "lambda_layers" {
   project     = local.project
   name_suffix = local.name_suffix
   lambda_layers_path = var.lambda_layers_path
+}
+
+locals {
+  config_db_s3_path = "s3://${var.pipelines_bucket}/datapump/config.db"
 }
 
 //data "terraform_remote_state" "gfw-data-api" {

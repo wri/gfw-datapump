@@ -6,17 +6,14 @@ export ENV=test
 export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 
-#docker network create test || true
-docker-compose -f tests/docker-compose-localstack.yml up --remove-orphans -d
+docker network create test || true
+docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
+
+# need to sleep to make sure localstack has time to start up all services
 sleep 20s
 
 ## copy lambda layer zips to test folder, so we can upload them to localstack
-#aws s3 cp s3://gfw-pipelines-dev/lambda_layers/shapely_pyyaml.zip tests/files/shapely_pyyaml.zip --profile gfw-dev
 #aws s3 cp s3://gfw-pipelines-dev/lambda_layers/rasterio.zip tests/files/rasterio.zip --profile gfw-dev
-
-## just use default roles for EMR, need to be created with this call first
-## for some awslocal doesn't work, had to manually specify endpoint
-#aws emr create-default-roles --iam-endpoint http://localhost:4566
 
 pushd tests/files/mock_geotrellis
 mvn package
@@ -28,11 +25,11 @@ popd
 
 pytest tests/tests || true
 
-docker-compose -f tests/docker-compose-localstack.yml logs -t localstack > tests/logs/localstack.log
-docker-compose -f tests/docker-compose-localstack.yml logs -t mock_server > tests/logs/mock_server.log
+docker-compose -f tests/docker-compose-mock.yml logs -t localstack > tests/logs/localstack.log
+docker-compose -f tests/docker-compose-mock.yml logs -t mock_server > tests/logs/mock_server.log
 
-docker-compose -f tests/docker-compose-localstack.yml stop
-docker-compose -f tests/docker-compose-localstack.yml rm -f
+docker-compose -f tests/docker-compose-mock.yml stop
+docker-compose -f tests/docker-compose-mock.yml rm -f
 
 # delete if exists, otherwise localstack might have issues with EMR on next run
 docker rm -f localstack_bigdata || true
