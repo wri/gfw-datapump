@@ -16,9 +16,8 @@ from ..globals import (
     ENV,
 )
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
+from ..commands import Analysis, AnalysisInputTable
 from ..jobs.jobs import (
-    Analysis,
-    AnalysisInputTable,
     AnalysisResultTable,
     Job,
     JobStatus,
@@ -265,23 +264,7 @@ class GeotrellisJob(Job):
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
-        response = client.run_job_flow(
-            **request
-            # Name=name,
-            # ReleaseLabel=EMR_VERSION,
-            # LogUri=f"s3://{S3_BUCKET_PIPELINE}/geotrellis/logs",  # TODO should this be param?
-            # Instances=instances,
-            # Steps=steps,
-            # Applications=applications,
-            # Configurations=configurations,
-            # VisibleToAllUsers=True,
-            # # JobFlowRole=EMR_INSTANCE_PROFILE,
-            # # ServiceRole=EMR_SERVICE_ROLE,
-            # Tags=[
-            #     {"Key": "Project", "Value": "Global Forest Watch"},
-            #     {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
-            # ],  # flake8 --ignore
-        )
+        response = client.run_job_flow(**request)
 
         return response["JobFlowId"]
 

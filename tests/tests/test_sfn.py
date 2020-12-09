@@ -12,10 +12,11 @@ DATAPUMP_SFN_ARN = (
 
 def test_datapump():
     add_version_input = {
-        "command": "update",
+        "command": "analysis",
         "parameters": {
             "analysis_version": "vteststats1",
             "geotrellis_version": "1.2.1",
+            "sync": True,
             "tables": [
                 {
                     "dataset": "test_zonal_stats",
@@ -36,17 +37,6 @@ def test_datapump():
 
     status = _run_datapump(sync_input)
     assert status == "SUCCEEDED"
-
-
-# def test_datapump_sync():
-#     input = {
-#         "command": "sync",
-#         "parameters": {
-#             "types": ["glad"]
-#         },
-#     }
-#
-#     _test_datapump(input, "SUCCEEDED")
 
 
 def _dump_logs(start_time):

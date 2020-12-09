@@ -8,7 +8,7 @@ from datapump.globals import LOGGER
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.clients.datapump_store import DatapumpStore, DatapumpConfig
-from datapump.sync.sync import SyncType
+from datapump.commands import SyncType
 
 if "ENV" in os.environ:
     ENV = os.environ["ENV"]

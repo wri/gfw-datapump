@@ -84,9 +84,6 @@ class DatapumpStore:
         columns = [desc[0] for desc in cursor.description]
         rows = cursor.fetchall()
 
-        LOGGER.debug(columns)
-        LOGGER.debug(rows)
-
         return [
             DatapumpConfig(
                 **dict(
@@ -104,29 +101,3 @@ class DatapumpStore:
     def close(self):
         self.conn.close()
         get_s3_client().upload_file(LOCAL_DB_PATH, DB_BUCKET, DB_KEY)
-
-
-# analysis_version: str = None, sync: bool = True, dataset: str = None, analysis: str = None):
-# resp = get_dynamo_client().query(
-#     ExpressionAttributeValues={
-#         ":analysis_version": analysis_version,
-#         ":sync": sync,
-#     },
-#     KeyConditionExpression="analysis_version = :analysis_version AND sync = :sync",
-#     TableName=TABLE_NAME,
-# )
-#
-# return resp["Items"]
-
-# get_dynamo_client().put_item(
-#     TableName=TABLE_NAME,
-#     Item={
-#         "analysis_version": analysis_version,
-#         # "dataset_analysis": f"{dataset}_{analysis}",
-#         "dataset": dataset,
-#         "analysis": str,
-#         "dataset_version": dataset_version,
-#         "sync": sync,
-#         "metadata": metadata
-#     }
-# )

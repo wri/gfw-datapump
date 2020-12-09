@@ -1,5 +1,9 @@
 Tests are performed through extensive mocking using localstack and MockServer. Both are set up as local services using docker compose.
 
+###Localstack
+
+Localstack is a service that attempts to completely mock AWS. These tests use the Pro version, so you must set the LOCALSTACK_API_KEY environment variable to run the tests.
+
 ###Terraform
 The mock environment is created by using mostly the same terraform code used for production deployment. This also allows testing of the infrastructure code.
 
