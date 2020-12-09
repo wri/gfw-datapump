@@ -10,33 +10,12 @@ from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..sync.fire_alerts import process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
 from ..clients.datapump_store import DatapumpConfig
+from ..commands import SyncType, AnalysisInputTable
 from ..jobs.geotrellis import (
     GeotrellisJob,
-    AnalysisInputTable,
     FireAlertsGeotrellisJob,
     Job,
-    Analysis,
 )
-
-
-class SyncType(str, Enum):
-    viirs = "viirs"
-    modis = "modis"
-    glad = "glad"
-    rw_areas = "rw_areas"
-
-    @staticmethod
-    def get_sync_types(dataset: str, analysis: Analysis):
-        sync_types = []
-        try:
-            sync_types.append(SyncType[analysis.value])
-        except KeyError:
-            pass
-
-        if "geostore" in dataset:
-            sync_types.append(SyncType.rw_areas)
-
-        return sync_types
 
 
 class Sync:
