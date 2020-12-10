@@ -23,7 +23,7 @@ data "template_file" "sfn_datapump" {
 
 module "lambda_layers" {
   source      = "../lambda_layers"
-  s3_bucket   = local.tf_state_bucket
+  s3_bucket   = var.pipelines_bucket
   project     = local.project
   name_suffix = local.name_suffix
   lambda_layers_path = var.lambda_layers_path
@@ -32,12 +32,3 @@ module "lambda_layers" {
 locals {
   config_db_s3_path = "s3://${var.pipelines_bucket}/datapump/config.db"
 }
-
-//data "terraform_remote_state" "gfw-data-api" {
-//  backend = "s3"
-//  config = {
-//    bucket = local.tf_state_bucket
-//    region = "us-east-1"
-//    key    = "wri__gfw-data-api.tfstate"
-//  }
-//}
