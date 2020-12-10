@@ -6,8 +6,12 @@ export ENV=test
 export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 
+echo "JUSTIN"
+echo $LOCALSTACK_API_KEY
+exit 1
+
 docker network create test || true
-docker-compose -f tests/docker-compose-mock.yml up --remove-orphans # -d
+docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
 
 # need to sleep to make sure localstack has time to start up all services
 sleep 20s
