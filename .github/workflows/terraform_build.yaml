@@ -34,8 +34,8 @@ jobs:
     - name: Test with pytest
       env:
         ENV: test
-        AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_dev }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_dev }}
+        AWS_ACCESS_KEY_ID: test
+        AWS_SECRET_ACCESS_KEY: test
         AWS_DEFAULT_REGION: ${{ secrets.aws_region_dev }}
         LOCALSTACK_API_KEY: ${{ secrets.localstack_api_key }}
         CC_TEST_REPORTER_ID: ${{ secrets.test_report_id }}

@@ -1,4 +1,4 @@
-environment = "test"
+environment = "staging"
 
 step_functions_path = "../src/step_functions"
 lambdas_path = "../src/lambdas"
