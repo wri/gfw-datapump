@@ -16,6 +16,7 @@ services:
       - LAMBDA_DOCKER_NETWORK=test
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
       - DNS_ADDRESS=22.22.22.22
+      - LAMBDA_REMOTE_DOCKER=1
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
       - '/var/run/docker.sock:/var/run/docker.sock'
