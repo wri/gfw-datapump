@@ -7,16 +7,14 @@ export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 
 docker network create test || true
-docker-compose -f tests/docker-compose-mock.yml up --remove-orphans
+docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
 
 # need to sleep to make sure localstack has time to start up all services
-sleep 300s
+sleep 20s
 
 pushd tests/files/mock_geotrellis
 mvn package
 popd
-
-#docker-compose -f tests/docker-compose-mock.yml logs localstack
 
 pushd tests/terraform
 (terraform init && terraform destroy -var-file="terraform-test.tfvars" -auto-approve && terraform plan -var-file="terraform-test.tfvars" && terraform apply -var-file="terraform-test.tfvars" -auto-approve) || true
