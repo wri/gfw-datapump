@@ -15,6 +15,7 @@ services:
       - DISABLE_EVENTS=1
       - LAMBDA_DOCKER_NETWORK=test
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DOCKER_CMD="sudo docker"
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
       - '/var/run/docker.sock:/var/run/docker.sock'
