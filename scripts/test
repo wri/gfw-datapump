@@ -22,8 +22,13 @@ popd
 
 pytest tests/tests || true
 
-docker-compose -f tests/docker-compose-mock.yml logs -t localstack > tests/logs/localstack.log
-docker-compose -f tests/docker-compose-mock.yml logs -t mock_server > tests/logs/mock_server.log
+if [ -z "$DUMP_TO_STDOUT" ]
+then
+  docker-compose -f tests/docker-compose-mock.yml logs
+else
+  docker-compose -f tests/docker-compose-mock.yml logs -t localstack > tests/logs/localstack.log
+  docker-compose -f tests/docker-compose-mock.yml logs -t mock_server > tests/logs/mock_server.log
+fi
 
 docker-compose -f tests/docker-compose-mock.yml stop
 docker-compose -f tests/docker-compose-mock.yml rm -f
