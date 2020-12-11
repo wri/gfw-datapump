@@ -1,5 +1,5 @@
 import requests
-from typing import List
+from typing import List, Dict, Any
 from pprint import pformat
 
 from ..globals import DATA_API_URI, LOGGER
@@ -11,7 +11,7 @@ class DataApiClient:
     def get_latest(self):
         pass
 
-    def get_assets(self, dataset: str, version: str):
+    def get_assets(self, dataset: str, version: str) -> List[Dict[str, Any]]:
         uri = f"{DATA_API_URI}/{dataset}/{version}/assets"
         return requests.get(uri).json()["data"]
 
@@ -31,7 +31,7 @@ class DataApiClient:
         source_uris: List[str],
         indices: List[str],
         cluster: List[str],
-    ):
+    ) -> Dict[str, Any]:
         payload = {
             "creation_options": {
                 "source_type": "table",
