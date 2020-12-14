@@ -9,6 +9,8 @@ export AWS_SECRET_ACCESS_KEY=test
 docker network create test || true
 docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
 
+docker rm -f localstack_bigdata || true
+
 # need to sleep to make sure localstack has time to start up all services
 sleep 20s
 
