@@ -24,14 +24,12 @@ resource "aws_iam_role_policy_attachment" "datapump_states" {
   policy_arn = aws_iam_policy.datapump.arn
 }
 
-//resource "aws_iam_role_policy_attachment" "datapump_lambda_secrets_gfw_token" {
-//  role       = aws_iam_role.datapump_lambda.name
-//  policy_arn = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
-//  count     = var.environment == "test" ? 0 : 1
-//}
-//
-//resource "aws_iam_role_policy_attachment" "datapump_lambda_secrets_gfw_sync" {
-//  role       = aws_iam_role.datapump_lambda.name
-//  policy_arn = data.terraform_remote_state.core.outputs.secrets_read-slack-gfw-sync_policy_arn
-//  count     = var.environment == "test" ? 0 : 1
-//}
+resource "aws_iam_role_policy_attachment" "datapump_lambda_secrets_gfw_token" {
+  role       = aws_iam_role.datapump_lambda.name
+  policy_arn = var.read_gfw_api_secrets_policy
+}
+
+resource "aws_iam_role_policy_attachment" "datapump_lambda_secrets_gfw_sync" {
+  role       = aws_iam_role.datapump_lambda.name
+  policy_arn = var.read_gfw_sync_secrets_policy
+}

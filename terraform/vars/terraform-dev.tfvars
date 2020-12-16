@@ -31,4 +31,4 @@ lambda_postprocessor = {
   timeout = 300
 }
 
-geotrellis_jar_path = "s3://gfw-pipelines-test/geotrellis/jars"
+geotrellis_jar_path = "s3://gfw-pipelines-dev/geotrellis/jars"

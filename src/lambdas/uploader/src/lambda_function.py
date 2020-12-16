@@ -15,7 +15,7 @@ def handler(event, context):
                     # temporarily just appending sync versions to analysis version instead of using version inheritance
                     client.append(table.dataset, table.version, table.source_uri)
                 else:
-                    client.add_version(
+                    client.create_dataset_and_version(
                         table.dataset,
                         table.version,
                         table.source_uri,
@@ -29,7 +29,7 @@ def handler(event, context):
                 status = client.get_version(table.dataset, table.version)["status"]
                 if status == "failed":
                     job.status = JobStatus.failed
-                    return job
+                    return job.dict()
 
                 all_saved &= status == "saved"
 

@@ -40,4 +40,5 @@ module "datapump" {
   data_lake_bucket = aws_s3_bucket.data_lake_test.id
   rasterio_lambda_layer_arn = aws_lambda_layer_version.rasterio.arn
   glad_path = var.glad_path
+  command_runner_jar = "s3://gfw-pipelines-test/geotrellis-mock.jar"
 }

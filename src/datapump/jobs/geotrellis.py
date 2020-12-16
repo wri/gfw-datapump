@@ -3,6 +3,9 @@ from itertools import groupby
 from pathlib import Path
 from pprint import pformat
 from enum import Enum
+import urllib
+import csv
+import io
 
 from ..globals import (
     S3_BUCKET_PIPELINE,
@@ -14,7 +17,9 @@ from ..globals import (
     WORKER_COUNT_MIN,
     WORKER_COUNT_PER_GB_FEATURES,
     ENV,
-)
+    EMR_INSTANCE_PROFILE,
+    EMR_SERVICE_ROLE,
+    COMMAND_RUNNER_JAR)
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..commands import Analysis, AnalysisInputTable
 from ..jobs.jobs import (
@@ -81,7 +86,7 @@ class GeotrellisJob(Job):
         status = cluster_description["Cluster"]["Status"]
 
         LOGGER.info(
-            f"EMR job {self.emr_job_id} has state {status['State']} for reason {status['StateChangeReason']['Code']}"
+            f"EMR job {self.emr_job_id} has state {status['State']} for reason {pformat(status['StateChangeReason'])}"
         )
         if (
             status["State"] == "TERMINATED"
@@ -98,8 +103,13 @@ class GeotrellisJob(Job):
             self.result_tables = self._get_result_tables()
         elif status["State"] == "TERMINATED_WITH_ERRORS":
             self.status = JobStatus.failed
-
-            self.status = JobStatus.analyzed
+        elif (
+            status["State"] == "TERMINATED"
+            and status["StateChangeReason"]["Code"] == "USER_REQUEST"
+        ):
+            # this can happen if someone manually terminates the EMR job, which means the step function should stop
+            # since we can't know if it completed correctly
+            self.status = JobStatus.failed
         else:
             self.status = JobStatus.analyzing
 
@@ -111,14 +121,14 @@ class GeotrellisJob(Job):
         else:
             return GeotrellisFeatureType.feature
 
-    def _get_result_tables(self):
+    def _get_result_tables(self) -> List[AnalysisResultTable]:
         result_path = self._get_result_path(include_analysis=True)
         bucket, prefix = get_s3_path_parts(result_path)
 
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
-        keys = [item["Key"] for item in resp["Contents"]]
+        keys = [item["Key"] for item in resp["Contents"] if item["Key"].endswith(".csv")]
 
         result_tables = [
             self._get_result_table(bucket, path, files)
@@ -142,6 +152,7 @@ class GeotrellisJob(Job):
             version=self.analysis_version,
             source_uri=sources,
             index_columns=self._get_index_cols(analysis_agg, feature_agg),
+            table_schema=self._get_table_schema(sources[0])
         )
 
     def _get_index_cols(self, analysis_agg: str, feature_agg: str):
@@ -152,11 +163,11 @@ class GeotrellisJob(Job):
             elif feature_agg == "adm2":
                 cols += ["adm1", "adm2"]
         elif self.feature_type == "wdpa":
-            cols = ["wdpa_id"]
+            cols = ["wdpa_protected_area__id"]
         elif self.feature_type == "geostore":
-            cols = ["geostore_id"]
+            cols = ["geostore__id"]
         else:
-            cols = ["feature_id"]
+            cols = ["feature__id"]
 
         if self.table.analysis == Analysis.tcl:
             cols += ["umd_tree_cover_density_2000__threshold"]
@@ -172,6 +183,64 @@ class GeotrellisJob(Job):
                 cols += ["alert__year", "alert__week"]
 
         return cols
+
+    def _get_table_schema(self, source_uri):
+        # get header of a sample source uri
+        src_url_open = urllib.request.urlopen(source_uri)
+        src_csv = csv.reader(
+            io.TextIOWrapper(src_url_open, encoding="utf-8"), delimiter="\t"
+        )
+        header_row = next(src_csv)
+
+        table_schema = []
+        for field_name in header_row:
+            is_whitelist = "whitelist" in source_uri
+            field_type = self._get_field_type(field_name, is_whitelist)
+
+            table_schema.append({
+                "field_name": field_name,
+                "field_type": field_type
+            })
+
+        return table_schema
+
+    @staticmethod
+    def _get_field_type(field, is_whitelist=False):
+        if is_whitelist:
+            # if whitelist, everything but ID fields should be bool
+            if (
+                field.endswith("__id")
+                or field == "iso"
+                or field == "adm1"
+                or field == "adm2"
+            ):
+                return "text"
+            else:
+                return "boolean"
+        else:
+            if (
+                    field.endswith("__Mg")
+                    or field.endswith("__ha")
+                    or field.endswith("__K")
+                    or field.endswith("__MW")
+                    or field == "latitude"
+                    or field == "longitude"
+            ):
+                return "double precision"
+            elif (
+                    field.endswith("__threshold")
+                    or field.endswith("__count")
+                    or field.endswith("__perc")
+                    or field.endswith("__year")
+                    or field.endswith("__week")
+                    or field == "adm1"
+                    or field == "adm2"
+            ):
+                return "integer"
+            elif field.startswith("is__"):
+                return "boolean"
+            else:
+                return "text"
 
     def _calculate_worker_count(self):
         """
@@ -212,6 +281,8 @@ class GeotrellisJob(Job):
             f"{GEOTRELLIS_JAR_PATH}/treecoverloss-assembly-{self.geotrellis_version}.jar",
             "--output",
             self._get_result_path(),
+            "--features",
+            self.features_1x1,
             "--feature_type",
             self.feature_type,
             "--analysis",
@@ -231,7 +302,7 @@ class GeotrellisJob(Job):
             "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
             "HadoopJarStep": {
-                "Jar": f"{GEOTRELLIS_JAR_PATH}/treecoverloss-assembly-{self.geotrellis_version}.jar",
+                "Jar": COMMAND_RUNNER_JAR,
                 "Args": step_args,
             },
         }
@@ -256,11 +327,27 @@ class GeotrellisJob(Job):
             "Applications": applications,
             "Configurations": configurations,
             "VisibleToAllUsers": True,
+            "BootstrapActions": [
+                {
+                    "Name": "Install GDAL",
+                    "ScriptBootstrapAction": {
+                        "Path": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/bootstrap/gdal.sh",
+                        "Args": [
+                            "3.1.2"
+                        ]
+                    }
+                },
+            ],
             "Tags": [
                 {"Key": "Project", "Value": "Global Forest Watch"},
                 {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
             ],
         }
+
+        if EMR_INSTANCE_PROFILE:
+            request["JobFlowRole"] = EMR_INSTANCE_PROFILE
+        if EMR_SERVICE_ROLE:
+            request["ServiceRole"] = EMR_SERVICE_ROLE
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
@@ -349,24 +436,26 @@ class GeotrellisJob(Job):
             {
                 "Classification": "spark-defaults",
                 "Properties": {
-                    "spark.executor.memory": "6G",
-                    "spark.driver.memory": "6G",
+                    "spark.executor.memory": "5G",
+                    "spark.driver.memory": "5G",
                     "spark.driver.cores": "1",
                     "spark.driver.maxResultSize": "3G",
+                    "spark.yarn.appMasterEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
                     "spark.rdd.compress": "true",
                     "spark.executor.cores": "1",
+                    "spark.executorEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
                     "spark.sql.shuffle.partitions": str(
                         (70 * worker_instance_count) - 1
                     ),
+                    "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
                     "spark.shuffle.spill.compress": "true",
                     "spark.shuffle.compress": "true",
                     "spark.default.parallelism": str((70 * worker_instance_count) - 1),
+                    "spark.executor.memoryOverhead": "2G",
                     "spark.shuffle.service.enabled": "true",
-                    "spark.executor.extraJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
+                    "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
                     "spark.executor.instances": str((7 * worker_instance_count) - 1),
-                    "spark.yarn.executor.memoryOverhead": "1G",
-                    "spark.dynamicAllocation.enabled": "false",
-                    "spark.driver.extraJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
+                    "spark.dynamicAllocation.enabled": "false"
                 },
                 "Configurations": [],
             },
@@ -380,6 +469,7 @@ class GeotrellisJob(Job):
                 "Configurations": [],
             },
         ]
+
 
 
 class FireAlertsGeotrellisJob(GeotrellisJob):
