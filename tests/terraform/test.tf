@@ -34,7 +34,7 @@ resource "aws_s3_bucket_object" "geotrellis_results" {
 
 resource "aws_s3_bucket_object" "geotrellis_jar" {
   bucket = aws_s3_bucket.pipelines_test.id
-  key    = "geotrellis/jars/treecoverloss-assembly-1.2.1.jar"
+  key    = "geotrellis-mock.jar"
   source = "../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar"
   etag   = filemd5("../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar")
 }
@@ -62,11 +62,20 @@ resource "aws_lambda_layer_version" "rasterio" {
   source_code_hash    = filebase64sha256("../files/rasterio.zip")
 }
 
-resource "aws_secretsmanager_secret" "gfw_api_token" {
-  name = "gfw-api/token"
-}
+//resource "aws_secretsmanager_secret" "gfw_api_token" {
+//  name = "gfw-api/token"
+//}
+//
+//resource "aws_secretsmanager_secret_version" "gfw_api_token" {
+//  secret_id     = aws_secretsmanager_secret.gfw_api_token.id
+//  secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@wri.org" })
+//}
 
-resource "aws_secretsmanager_secret_version" "gfw_api_token" {
-  secret_id     = aws_secretsmanager_secret.gfw_api_token.id
-  secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@wri.org" })
+module "secrets" {
+  source  = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  project = "test_proj"
+  secrets = [
+    { name = "gfw-api/token", secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" }) },
+    { name = "slack/gfw-sync", secret_string = jsonencode({ "data-updates" = "test_hook" }) }
+  ]
 }

@@ -16,8 +16,9 @@ EC2_KEY_NAME = os.environ.get("EC2_KEY_NAME", "")
 PUBLIC_SUBNET_IDS = json.loads(os.environ.get("PUBLIC_SUBNET_IDS", b"[]"))
 EMR_INSTANCE_PROFILE = os.environ.get("EMR_INSTANCE_PROFILE", "")
 EMR_SERVICE_ROLE = os.environ.get("EMR_SERVICE_ROLE", "")
+COMMAND_RUNNER_JAR = os.environ.get("COMMAND_RUNNER_JAR", "command-runner.jar")
 
-EMR_VERSION = "emr-5.9.0"
+EMR_VERSION = "emr-6.1.0"
 
 GEOTRELLIS_JAR_PATH = os.environ.get("GEOTRELLIS_JAR_PATH", "")
 WORKER_COUNT_MIN = 5

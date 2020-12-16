@@ -120,3 +120,21 @@ variable "glad_path" {
   type        = string
   description = "S3 path to GLAD data"
 }
+
+variable "command_runner_jar" {
+  type        = string
+  description = "Path to command-runner.jar for EMR"
+  default = "command-runner.jar"
+}
+
+variable "read_gfw_api_secrets_policy" {
+  type        = string
+  default     = ""
+  description = "ARN to policy to read gfw api secrets"
+}
+
+variable "read_gfw_sync_secrets_policy" {
+  type        = string
+  default     = ""
+  description = "ARN to policy to read gfw sync secrets"
+}

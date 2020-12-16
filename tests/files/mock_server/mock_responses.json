@@ -1,7 +1,7 @@
 [
     {
         "httpRequest": {
-            "path": "/test_zonal_stats/vtest1/assets",
+            "path": "/dataset/test_zonal_stats/vtest1/assets",
             "method": "GET"
         },
         "httpResponse": {
@@ -294,7 +294,66 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
             "method": "PUT",
             "body": {
                 "creation_options":{
@@ -327,7 +386,7 @@
     },
         {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
             "method": "PUT",
             "body": {
                 "creation_options":{
@@ -360,7 +419,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
             "method": "PUT",
             "body": {
                 "creation_options":{
@@ -393,7 +452,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
             "method": "PUT"
         },
         "httpResponse": {
@@ -407,7 +466,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -424,7 +483,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -441,7 +500,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -458,7 +517,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -475,7 +534,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -492,7 +551,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -509,7 +568,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -526,7 +585,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -543,7 +602,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1/append",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1/append",
             "method": "POST",
             "body": {
                 "creation_options":{
@@ -562,7 +621,7 @@
     },
         {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1/append",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1/append",
             "method": "POST",
             "body": {
                 "creation_options":{
@@ -581,10 +640,10 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1/append",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1/append",
             "method": "POST",
             "body": {
-                "creation_options":{
+                "creation_options": {
                     "source_uri": ["s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/geostore/summary/part-00000-0e78f50c-064b-4af0-a8df-ed90946c9607-c000.csv", "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/geostore/summary/part-00001-0e78f50c-064b-4af0-a8df-ed90946c9607-c000.csv", "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/geostore/summary/part-00002-0e78f50c-064b-4af0-a8df-ed90946c9607-c000.csv", "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/geostore/summary/part-00003-0e78f50c-064b-4af0-a8df-ed90946c9607-c000.csv"]
                }
             }
@@ -600,7 +659,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1/append",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1/append",
             "method": "POST"
         },
         "httpResponse": {
@@ -614,7 +673,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -631,7 +690,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -648,7 +707,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -665,7 +724,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -682,7 +741,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -699,7 +758,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -716,7 +775,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__summary/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
@@ -733,7 +792,7 @@
     },
     {
         "httpRequest": {
-            "path": "/test_zonal_stats__glad__whitelist/vteststats1",
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
             "method": "GET"
         },
         "httpResponse": {
