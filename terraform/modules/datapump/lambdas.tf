@@ -42,6 +42,7 @@ resource "aws_lambda_function" "analyzer" {
       EC2_KEY_NAME                   = var.ec2_key_name
       EMR_SERVICE_ROLE               = var.emr_service_role_name
       EMR_INSTANCE_PROFILE           = var.emr_instance_profile_name
+      COMMAND_RUNNER_JAR             = var.command_runner_jar
     }
   }
 }

@@ -51,6 +51,12 @@ module "datapump" {
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket
   rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py37_rasterio_115_arn
   glad_path = local.glad_path
+  emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
+  emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name
+  public_subnet_ids = data.terraform_remote_state.core.outputs.public_subnet_ids
+  ec2_key_name = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+  read_gfw_api_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
+  read_gfw_sync_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-slack-gfw-sync_policy_arn
 }
 
 locals {
