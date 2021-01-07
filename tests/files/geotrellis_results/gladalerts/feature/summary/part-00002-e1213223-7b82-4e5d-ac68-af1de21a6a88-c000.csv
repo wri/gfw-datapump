@@ -1,0 +1,15 @@
+feature__id	wdpa_protected_area__iucn_cat	is__umd_regional_primary_forest_2001	is__birdlife_alliance_for_zero_extinction_site	is__birdlife_key_biodiversity_area	is__landmark_land_right	gfw_plantation__type	is__gfw_mining	is__gfw_managed_forest	rspo_oil_palm__certification_status	is__gfw_wood_fiber	is__peatland	is__idn_forest_moratorium	is__gfw_oil_palm	idn_forest_area__type	per_forest_concession__type	is__gfw_oil_gas	is__gmw_mangroves_2016	is__ifl_intact_forest_landscape_2016	bra_biome__name	area__ha
+fe3c726cd9a3afa98656edcf184f359a		false	false	false	true	Oil Palm	false	false	Certified	false	false	false	false			false	false	false		9.385475165864824
+8ba2bcb78154e69daa00508b8c872574		true	false	false	true		true	false		false	false	false	false		Timber Concession	false	false	false		0.6114082267204297
+aed5d0d61ddfe919589f8ea08a0565d8		false	false	false	false	Oil Palm	true	false		false	false	false	true			false	false	false		11.737404184764392
+aed5d0d61ddfe919589f8ea08a0565d8	Other Category	false	false	true	false		true	false		false	false	false	false			false	false	true		468.37752737104313
+8ba2bcb78154e69daa00508b8c872574		false	false	true	false		false	false		false	false	false	false			false	false	true		1.6027883052827212
+2a107f53b87cbf27454486a40fb24be2	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	true		3.8095532611776255
+aed5d0d61ddfe919589f8ea08a0565d8	Other Category	true	false	false	false		true	true		false	false	false	false			true	false	false		1015.8225146532033
+a822bd4ab1acc16e7a7768300d9bc330		true	false	false	false		false	false		false	false	false	false			false	false	true		79.61413829653998
+aed5d0d61ddfe919589f8ea08a0565d8		true	false	true	false		false	false		false	false	false	true			false	false	false		0.1532109297097352
+8ba2bcb78154e69daa00508b8c872574		false	false	false	true		false	false		false	false	false	false			false	false	false		6945.428333512304
+aed5d0d61ddfe919589f8ea08a0565d8		true	false	false	false	Oil Palm	false	false		false	false	false	true			false	false	false		1230.2122517241526
+0af53c2e254ac187145ec021fbea9944		true	false	false	false		false	false	Not certified	false	false	false	false			false	false	false		973.9030800882364
+aed5d0d61ddfe919589f8ea08a0565d8	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	true		65424.897501849235
+a822bd4ab1acc16e7a7768300d9bc330	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	true		7.916096223552291

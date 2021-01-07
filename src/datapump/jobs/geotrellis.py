@@ -19,7 +19,9 @@ from ..globals import (
     ENV,
     EMR_INSTANCE_PROFILE,
     EMR_SERVICE_ROLE,
-    COMMAND_RUNNER_JAR)
+    COMMAND_RUNNER_JAR,
+    AWS_ENDPOINT_URI,
+)
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..commands import Analysis, AnalysisInputTable
 from ..jobs.jobs import (
@@ -48,6 +50,23 @@ class GeotrellisFeatureType(str, Enum):
     wdpa = "wdpa"
     geostore = "geostore"
     feature = "feature"
+
+    @staticmethod
+    def get_feature_fields(feature_type):
+        if feature_type == GeotrellisFeatureType.wdpa:
+            return [
+                "wdpa_protected_area__id",
+                "wdpa_protected_area__name",
+                "wdpa_protected_area__iucn_cat",
+                "wdpa_protected_area__iso",
+                "wdpa_protected_area__status",
+            ]
+        elif feature_type == GeotrellisFeatureType.gadm:
+            return ["iso", "adm1", "adm2"]
+        elif feature_type == GeotrellisFeatureType.geostore:
+            return ["geostore__id"]
+        elif feature_type == GeotrellisFeatureType.feature:
+            return ["feature__id"]
 
 
 class GeotrellisJob(Job):
@@ -118,6 +137,8 @@ class GeotrellisJob(Job):
             return GeotrellisFeatureType.wdpa
         elif self.table.dataset == "global_administrative_areas":
             return GeotrellisFeatureType.gadm
+        elif "geostore" in self.table.dataset:
+            return GeotrellisFeatureType.geostore
         else:
             return GeotrellisFeatureType.feature
 
@@ -128,10 +149,12 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
-        keys = [item["Key"] for item in resp["Contents"] if item["Key"].endswith(".csv")]
+        keys = [
+            item["Key"] for item in resp["Contents"] if item["Key"].endswith(".csv")
+        ]
 
         result_tables = [
-            self._get_result_table(bucket, path, files)
+            self._get_result_table(bucket, path, list(files))
             for path, files in groupby(keys, lambda key: Path(key).parent)
         ]
 
@@ -152,7 +175,7 @@ class GeotrellisJob(Job):
             version=self.analysis_version,
             source_uri=sources,
             index_columns=self._get_index_cols(analysis_agg, feature_agg),
-            table_schema=self._get_table_schema(sources[0])
+            table_schema=self._get_table_schema(sources[0]),
         )
 
     def _get_index_cols(self, analysis_agg: str, feature_agg: str):
@@ -176,17 +199,20 @@ class GeotrellisJob(Job):
                     "umd_tree_cover_loss__year",
                 ]
         if self.table.analysis == Analysis.glad:
-            cols += ["confirmation__status"]
             if analysis_agg == "daily_alerts":
-                cols += ["alert__date"]
+                cols += ["is__confirmed_alert", "alert__date"]
             elif analysis_agg == "weekly_alerts":
-                cols += ["alert__year", "alert__week"]
+                cols += ["is__confirmed_alert", "alert__year", "alert__week"]
 
         return cols
 
-    def _get_table_schema(self, source_uri):
-        # get header of a sample source uri
-        src_url_open = urllib.request.urlopen(source_uri)
+    def _get_table_schema(self, source_uri: str) -> List[Dict[str, Any]]:
+        bucket, key = get_s3_path_parts(source_uri)
+        s3_host = AWS_ENDPOINT_URI if AWS_ENDPOINT_URI else "https://s3.amazonaws.com"
+        http_uri = f"{s3_host}/{bucket}/{key}"
+
+        LOGGER.info(f"Checking column names at source {http_uri}")
+        src_url_open = urllib.request.urlopen(http_uri)  # type: ignore
         src_csv = csv.reader(
             io.TextIOWrapper(src_url_open, encoding="utf-8"), delimiter="\t"
         )
@@ -197,44 +223,35 @@ class GeotrellisJob(Job):
             is_whitelist = "whitelist" in source_uri
             field_type = self._get_field_type(field_name, is_whitelist)
 
-            table_schema.append({
-                "field_name": field_name,
-                "field_type": field_type
-            })
+            table_schema.append({"field_name": field_name, "field_type": field_type})
 
         return table_schema
 
-    @staticmethod
-    def _get_field_type(field, is_whitelist=False):
+    def _get_field_type(self, field, is_whitelist=False):
         if is_whitelist:
             # if whitelist, everything but ID fields should be bool
-            if (
-                field.endswith("__id")
-                or field == "iso"
-                or field == "adm1"
-                or field == "adm2"
-            ):
+            if field in GeotrellisFeatureType.get_feature_fields(self.feature_type):
                 return "text"
             else:
                 return "boolean"
         else:
             if (
-                    field.endswith("__Mg")
-                    or field.endswith("__ha")
-                    or field.endswith("__K")
-                    or field.endswith("__MW")
-                    or field == "latitude"
-                    or field == "longitude"
+                field.endswith("__Mg")
+                or field.endswith("__ha")
+                or field.endswith("__K")
+                or field.endswith("__MW")
+                or field == "latitude"
+                or field == "longitude"
             ):
                 return "double precision"
             elif (
-                    field.endswith("__threshold")
-                    or field.endswith("__count")
-                    or field.endswith("__perc")
-                    or field.endswith("__year")
-                    or field.endswith("__week")
-                    or field == "adm1"
-                    or field == "adm2"
+                field.endswith("__threshold")
+                or field.endswith("__count")
+                or field.endswith("__perc")
+                or field.endswith("__year")
+                or field.endswith("__week")
+                or field == "adm1"
+                or field == "adm2"
             ):
                 return "integer"
             elif field.startswith("is__"):
@@ -301,10 +318,7 @@ class GeotrellisJob(Job):
         return {
             "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
-            "HadoopJarStep": {
-                "Jar": COMMAND_RUNNER_JAR,
-                "Args": step_args,
-            },
+            "HadoopJarStep": {"Jar": COMMAND_RUNNER_JAR, "Args": step_args},
         }
 
     def _get_result_path(self, include_analysis=False):
@@ -332,10 +346,8 @@ class GeotrellisJob(Job):
                     "Name": "Install GDAL",
                     "ScriptBootstrapAction": {
                         "Path": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/bootstrap/gdal.sh",
-                        "Args": [
-                            "3.1.2"
-                        ]
-                    }
+                        "Args": ["3.1.2"],
+                    },
                 },
             ],
             "Tags": [
@@ -455,7 +467,7 @@ class GeotrellisJob(Job):
                     "spark.shuffle.service.enabled": "true",
                     "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
                     "spark.executor.instances": str((7 * worker_instance_count) - 1),
-                    "spark.dynamicAllocation.enabled": "false"
+                    "spark.dynamicAllocation.enabled": "false",
                 },
                 "Configurations": [],
             },
@@ -469,7 +481,6 @@ class GeotrellisJob(Job):
                 "Configurations": [],
             },
         ]
-
 
 
 class FireAlertsGeotrellisJob(GeotrellisJob):

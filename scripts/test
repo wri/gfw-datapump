@@ -2,40 +2,37 @@
 
 set -e
 
-export ENV=test
-export AWS_ACCESS_KEY_ID=test
-export AWS_SECRET_ACCESS_KEY=test
+# Default values
+POSITIONAL=()
+BUILD=true
+# extracting cmd line arguments
+while [[ $# -gt 0 ]]
+do
+  key="$1"
 
-docker network create test || true
-docker-compose -f tests/docker-compose-mock.yml up --remove-orphans -d
+  case $key in
+      --no_build)
+      BUILD=false
+      shift # past argument
+      ;;
+      *)    # unknown option
+      POSITIONAL+=("$1") # save it in an array for later
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
 
-docker rm -f localstack_bigdata || true
-
-# need to sleep to make sure localstack has time to start up all services
-sleep 20s
-
-pushd tests/files/mock_geotrellis
-mvn package
-popd
-
-pushd tests/terraform
-(terraform init && terraform destroy -var-file="terraform-test.tfvars" -auto-approve && terraform plan -var-file="terraform-test.tfvars" && terraform apply -var-file="terraform-test.tfvars" -auto-approve) || true
-popd
-
-pytest tests/tests || true
-
-if [ -z "$DUMP_TO_STDOUT" ]
-then
-  docker-compose -f tests/docker-compose-mock.yml logs -t localstack > tests/logs/localstack.log
-  docker-compose -f tests/docker-compose-mock.yml logs -t mock_server > tests/logs/mock_server.log
-else
-  docker-compose -f tests/docker-compose-mock.yml logs
+if [ "${BUILD}" = true ]; then
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
 fi
 
-docker-compose -f tests/docker-compose-mock.yml stop
-docker-compose -f tests/docker-compose-mock.yml rm -f
+docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
+docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
+docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
+docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test down
 
 # delete if exists, otherwise localstack might have issues with EMR on next run
 docker rm -f localstack_bigdata || true
-
 rm tests/terraform/terraform.tfstate*
+[[ -z "${failed:-}" ]] || exit 1

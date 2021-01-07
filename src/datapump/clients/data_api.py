@@ -1,6 +1,6 @@
 import json
 import requests
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from pprint import pformat
 from enum import Enum
 
@@ -25,7 +25,7 @@ class DataApiClient:
 
     def get_assets(self, dataset: str, version: str) -> List[Dict[str, Any]]:
         uri = f"{DATA_API_URI}/dataset/{dataset}/{version}/assets"
-        return self._send_request(ValidMethods.get, uri)
+        return self._send_request(ValidMethods.get, uri)["data"]
 
     def get_1x1_asset(self, dataset: str, version: str) -> str:
         assets = self.get_assets(dataset, version)
@@ -43,22 +43,25 @@ class DataApiClient:
         source_uris: List[str],
         indices: List[str],
         cluster: List[str],
-        metadata: Dict[str, Any]={}
-    ):
+        table_schema: List[Dict[str, Any]],
+        metadata: Dict[str, Any] = {},
+    ) -> Dict[str, Any]:
         try:
             self.get_dataset(dataset)
         except DataApiResponseError:
             self.create_dataset(dataset, metadata)
 
-        self.create_version(dataset, version, source_uris, indices, cluster)
+        return self.create_version(
+            dataset, version, source_uris, indices, cluster, table_schema
+        )
 
-    def create_dataset(self, dataset: str, metadata: Dict[str, Any]={}):
+    def create_dataset(
+        self, dataset: str, metadata: Dict[str, Any] = {}
+    ) -> Dict[str, Any]:
         uri = f"{DATA_API_URI}/dataset/{dataset}"
-        payload = {
-            "metadata": metadata
-        }
+        payload = {"metadata": metadata}
 
-        return self._send_request(ValidMethods.put, uri, payload)
+        return self._send_request(ValidMethods.put, uri, payload)["data"]
 
     def create_version(
         self,
@@ -67,6 +70,7 @@ class DataApiClient:
         source_uris: List[str],
         indices: List[str],
         cluster: List[str],
+        table_schema: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         payload = {
             "creation_options": {
@@ -77,27 +81,32 @@ class DataApiClient:
                 "has_header": True,
                 "indices": [{"index_type": "btree", "column_names": indices}],
                 "cluster": {"index_type": "btree", "column_names": cluster},
+                "table_schema": table_schema,
             }
         }
 
         uri = f"{DATA_API_URI}/dataset/{dataset}/{version}"
-        return self._send_request(ValidMethods.put, uri, payload)
+        return self._send_request(ValidMethods.put, uri, payload)["data"]
 
-    def append(self, dataset: str, version: str, source_uris: List[str]):
+    def append(
+        self, dataset: str, version: str, source_uris: List[str]
+    ) -> Dict[str, Any]:
         payload = {"creation_options": {"source_uri": source_uris}}
         uri = f"{DATA_API_URI}/dataset/{dataset}/{version}/append"
-        return self._send_request(ValidMethods.post, uri, payload)
+        return self._send_request(ValidMethods.post, uri, payload)["data"]
 
     def get_version(self, dataset: str, version: str):
         uri = f"{DATA_API_URI}/dataset/{dataset}/{version}"
-        return self._send_request(ValidMethods.get, uri)
+        return self._send_request(ValidMethods.get, uri)["data"]
 
     def get_dataset(self, dataset: str):
         uri = f"{DATA_API_URI}/dataset/{dataset}"
-        return self._send_request(ValidMethods.get, uri)
+        return self._send_request(ValidMethods.get, uri)["data"]
 
     @staticmethod
-    def _send_request(method: ValidMethods, uri: str, payload: Dict[str, Any]=None) -> Dict[str, Any]:
+    def _send_request(
+        method: ValidMethods, uri: str, payload: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
         LOGGER.info(
             f"Send Data API request:\n"
             f"\tURI: {uri}\n"
@@ -127,4 +136,4 @@ class DataApiClient:
             finally:
                 raise DataApiResponseError(error_msg)
         else:
-            return resp.json()["data"]
+            return resp.json()
