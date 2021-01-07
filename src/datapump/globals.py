@@ -48,9 +48,11 @@ class Globals(EnvSettings):
 
     # if LOCALSTACK_HOSTNAME is set, it means we're running in a mock environment
     # and should use that as the endpoint URI
-    localstack_hostname: Optional[str] = Field(None, env="LOCALSTACK_HOSTNAME")
+    # localstack_hostname: Optional[str] = Field(None, env="LOCALSTACK_HOSTNAME")
     aws_endpoint_uri: Optional[str] = Field(
-        f"http://{localstack_hostname}:4566" if localstack_hostname else None
+        f"http://{os.environ['LOCALSTACK_HOSTNAME']}:4566"
+        if "LOCALSTACK_HOSTNAME" in os.environ
+        else None
     )
 
 
