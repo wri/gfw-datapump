@@ -30,4 +30,4 @@ class AnalysisResultTable(BaseModel):
     source_uri: List[str]
     index_columns: List[str] = None
     partitions: PartitionSchema = None
-    table_schema: List[Dict[str, Any]] = {}
+    table_schema: List[Dict[str, Any]] = []

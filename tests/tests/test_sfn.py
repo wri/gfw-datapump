@@ -7,7 +7,7 @@ import os
 from pprint import pprint
 
 
-LOCALSTACK_URI = "http://localhost:4566"
+LOCALSTACK_URI = "http://localstack:4566"
 DATAPUMP_SFN_ARN = (
     "arn:aws:states:us-east-1:000000000000:stateMachine:datapump-datapump-default"
 )
@@ -55,9 +55,9 @@ def _dump_logs():
     if DUMP_TO_STDOUT:
         sfn_stream, emr_stream, lambda_stream = sys.stdout, sys.stdout, sys.stdout
     else:
-        sfn_stream = open("tests/logs/stepfunction.log", "w")
-        emr_stream = open("tests/logs/emr.log", "w")
-        lambda_stream = open("tests/logs/lambdas.log", "w")
+        sfn_stream = open("/app/tests/logs/stepfunction.log", "w")
+        emr_stream = open("/app/tests/logs/emr.log", "w")
+        lambda_stream = open("/app/tests/logs/lambdas.log", "w")
 
     #### Step Function
     resp = sfn_client.list_executions(stateMachineArn=DATAPUMP_SFN_ARN)
@@ -95,7 +95,7 @@ def _dump_logs():
     if not DUMP_TO_STDOUT:
         try:
             s3_client.download_file(
-                "gfw-pipelines-test", "datapump/config.db", "tests/logs/config.db"
+                "gfw-pipelines-test", "datapump/config.db", "/app/tests/logs/config.db"
             )
         except ClientError:
             print("config.db not available")

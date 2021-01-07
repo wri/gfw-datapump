@@ -62,20 +62,17 @@ resource "aws_lambda_layer_version" "rasterio" {
   source_code_hash    = filebase64sha256("../files/rasterio.zip")
 }
 
-//resource "aws_secretsmanager_secret" "gfw_api_token" {
-//  name = "gfw-api/token"
-//}
-//
-//resource "aws_secretsmanager_secret_version" "gfw_api_token" {
-//  secret_id     = aws_secretsmanager_secret.gfw_api_token.id
-//  secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@wri.org" })
-//}
+module "api_token_secret" {
+  source        = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  project       = "test_proj"
+  name          = "gfw-api/token"
+  secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" })
+}
 
-module "secrets" {
-  source  = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
-  project = "test_proj"
-  secrets = [
-    { name = "gfw-api/token", secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" }) },
-    { name = "slack/gfw-sync", secret_string = jsonencode({ "data-updates" = "test_hook" }) }
-  ]
+
+module "slack_secret" {
+  source        = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  project       = "test_proj"
+  name          = "slack/gfw-sync"
+  secret_string = jsonencode({ "data-updates" = "test_hook" })
 }

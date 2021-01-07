@@ -7,6 +7,7 @@ ENV = os.environ["ENV"]
 LOGGER = logging.getLogger("datapump")
 LOGGER.setLevel(logging.DEBUG)
 
+TOKEN_SECRET_ID = "gfw-api/token"
 DATA_API_URI = os.environ.get("DATA_API_URI", None)
 
 AWS_REGION = os.environ.get("AWS_REGION", None)
@@ -28,5 +29,3 @@ WORKER_COUNT_PER_GB_FEATURES = 50
 # and should use that as the endpoint URI
 LOCALSTACK_HOSTNAME = os.environ.get("LOCALSTACK_HOSTNAME", None)
 AWS_ENDPOINT_URI = f"http://{LOCALSTACK_HOSTNAME}:4566" if LOCALSTACK_HOSTNAME else None
-
-LOGGER.info(str(AWS_ENDPOINT_URI))

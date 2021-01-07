@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+  datapump_test:
+    build:
+      context: .
+      args:
+        - ENV=test
+    container_name: datapump_test
+    volumes:
+      - ./tests:/app/tests
+      - ./terraform:/app/terraform
+      - ./src:/app/src
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    entrypoint: /app/tests/run_tests.sh
+    environment:
+      - AWS_ACCESS_KEY_ID=testing  # pragma: allowlist secret
+      - AWS_SECRET_ACCESS_KEY=testing  # pragma: allowlist secret
+      - AWS_SECURITY_TOKEN=testing  # pragma: allowlist secret
+      - AWS_SESSION_TOKEN=testing  # pragma: allowlist secret
+      - AWS_DEFAULT_REGION=us-east-1 # pragma: allowlist secret
+    depends_on:
+      - localstack
+      - mock_server
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+#      - '53:53'
+      - '443:443'
+      - '4563-4584:4563-4584'
+      - '8055:8080'
+      - '${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}'
+    environment:
+      - SERVICES=iam,lambda,stepfunctions,sts,cloudwatch,emr,events,ec2,cloudformation,s3,secretsmanager
+      - DEBUG=1
+      - DISABLE_EVENTS=1
+      - LAMBDA_DOCKER_NETWORK=gfw-datapump_test_default
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+      - DNS_ADDRESS=22.22.22.22
+      - LAMBDA_REMOTE_DOCKER=1
+    volumes:
+      - "${TMPDIR:-./localstack}:/tmp/localstack"
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+  mock_server:
+    image: mockserver/mockserver:mockserver-5.11.1
+    ports:
+      - 1080:1080
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /mock_server/mock_responses.json
+    volumes:
+      - type: bind
+        source: ./tests/files/mock_server
+        target: /mock_server
