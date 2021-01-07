@@ -28,43 +28,6 @@ variable "step_functions_path" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_analyzer" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-variable "lambda_uploader" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-variable "lambda_dispatcher" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-variable "lambda_postprocessor" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-
 variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"

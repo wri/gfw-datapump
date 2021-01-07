@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
@@ -7,21 +7,7 @@ import urllib
 import csv
 import io
 
-from ..globals import (
-    S3_BUCKET_PIPELINE,
-    EC2_KEY_NAME,
-    PUBLIC_SUBNET_IDS,
-    LOGGER,
-    EMR_VERSION,
-    GEOTRELLIS_JAR_PATH,
-    WORKER_COUNT_MIN,
-    WORKER_COUNT_PER_GB_FEATURES,
-    ENV,
-    EMR_INSTANCE_PROFILE,
-    EMR_SERVICE_ROLE,
-    COMMAND_RUNNER_JAR,
-    AWS_ENDPOINT_URI,
-)
+from ..globals import GLOBALS, LOGGER
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..commands import Analysis, AnalysisInputTable
 from ..jobs.jobs import (
@@ -98,7 +84,7 @@ class GeotrellisJob(Job):
         )
         self.status = JobStatus.analyzing
 
-    def update_status(self):
+    def update_status(self) -> None:
         cluster_description = get_emr_client().describe_cluster(
             ClusterId=self.emr_job_id
         )
@@ -114,7 +100,7 @@ class GeotrellisJob(Job):
             self.status = JobStatus.analyzed
             self.result_tables = self._get_result_tables()
         elif (
-            ENV == "test"
+            GLOBALS.env == "test"
             and status["State"] == "WAITING"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
@@ -160,7 +146,9 @@ class GeotrellisJob(Job):
 
         return result_tables
 
-    def _get_result_table(self, bucket: str, path: Path, files: List[str]):
+    def _get_result_table(
+        self, bucket: str, path: Path, files: List[str]
+    ) -> AnalysisResultTable:
         analysis_agg, feature_agg = (path.parts[-1], path.parts[-2])
 
         result_dataset = f"{self.table.dataset}__{self.table.analysis}"
@@ -178,37 +166,62 @@ class GeotrellisJob(Job):
             table_schema=self._get_table_schema(sources[0]),
         )
 
-    def _get_index_cols(self, analysis_agg: str, feature_agg: str):
-        if self.feature_type == "gadm":
-            cols = ["iso"]
-            if feature_agg == "adm1":
-                cols += ["adm1"]
-            elif feature_agg == "adm2":
-                cols += ["adm1", "adm2"]
-        elif self.feature_type == "wdpa":
-            cols = ["wdpa_protected_area__id"]
-        elif self.feature_type == "geostore":
-            cols = ["geostore__id"]
-        else:
-            cols = ["feature__id"]
+    def _get_index_cols(
+        self, analysis_agg: str, feature_agg: Optional[str] = None
+    ) -> List[str]:
+        id_col_constructor = {
+            ("gadm", "iso"): ["iso"],
+            ("gadm", "adm1"): ["iso", "adm1"],
+            ("gadm", "adm2"): ["iso", "adm1", "adm2"],
+            ("wdpa", None): ["wdpa_protected_area__id"],
+            ("geostore", None): ["geostore__id"],
+        }
 
-        if self.table.analysis == Analysis.tcl:
-            cols += ["umd_tree_cover_density_2000__threshold"]
-            if analysis_agg == "change":
-                cols += [
-                    "umd_tree_cover_loss__year",
-                ]
-        if self.table.analysis == Analysis.glad:
-            if analysis_agg == "daily_alerts":
-                cols += ["is__confirmed_alert", "alert__date"]
-            elif analysis_agg == "weekly_alerts":
-                cols += ["is__confirmed_alert", "alert__year", "alert__week"]
+        try:
+            cols = id_col_constructor[(self.feature_type, feature_agg)]
+        except KeyError:
+            cols = ["feature_id"]
+
+        analysis_col_constructor = {
+            (Analysis.tcl, "change"): [
+                "umd_tree_cover_density_2000__threshold",
+                "umd_tree_cover_loss__year",
+            ],
+            (Analysis.tcl, "summary"): ["umd_tree_cover_density_2000__threshold"],
+            (Analysis.glad, "daily_alerts"): ["is__confirmed_alert", "alert__date"],
+            (Analysis.glad, "weekly_alerts"): [
+                "is__confirmed_alert",
+                "alert__year",
+                "alert__week",
+            ],
+            (Analysis.viirs, "daily_alerts"): ["confidence__cat", "alert__date"],
+            (Analysis.viirs, "weekly_alerts"): [
+                "confidence__cat",
+                "alert__year",
+                "alert__week",
+            ],
+            (Analysis.modis, "daily_alerts"): ["confidence__cat", "alert__date"],
+            (Analysis.modis, "weekly_alerts"): [
+                "confidence__cat",
+                "alert__year",
+                "alert__week",
+            ],
+        }
+
+        try:
+            cols += analysis_col_constructor[(self.table.analysis, analysis_agg)]
+        except KeyError:
+            pass
 
         return cols
 
     def _get_table_schema(self, source_uri: str) -> List[Dict[str, Any]]:
         bucket, key = get_s3_path_parts(source_uri)
-        s3_host = AWS_ENDPOINT_URI if AWS_ENDPOINT_URI else "https://s3.amazonaws.com"
+        s3_host = (
+            GLOBALS.aws_endpoint_uri
+            if GLOBALS.aws_endpoint_uri
+            else "https://s3.amazonaws.com"
+        )
         http_uri = f"{s3_host}/{bucket}/{key}"
 
         LOGGER.info(f"Checking column names at source {http_uri}")
@@ -259,7 +272,7 @@ class GeotrellisJob(Job):
             else:
                 return "text"
 
-    def _calculate_worker_count(self):
+    def _calculate_worker_count(self) -> int:
         """
         Calculate a heuristic for number of workers appropriate for job based on the size
         of the input features.
@@ -267,7 +280,7 @@ class GeotrellisJob(Job):
         Uses global constant WORKER_COUNT_PER_GB_FEATURES to determine number of worker per GB of features.
         Uses global constant WORKER_COUNT_MIN to determine minimum number of workers.
 
-        Multiples by weights for specific analyses.
+        Multiplies by weights for specific analyses.
 
         :param job: input job
         :return: calculate number of works appropriate for job size
@@ -284,9 +297,11 @@ class GeotrellisJob(Job):
             analysis_weight *= 0.75
 
         worker_count = round(
-            (byte_size / 1000000000) * WORKER_COUNT_PER_GB_FEATURES * analysis_weight
+            (byte_size / 1000000000)
+            * GLOBALS.worker_count_per_gb_features
+            * analysis_weight
         )
-        return max(worker_count, WORKER_COUNT_MIN)
+        return max(worker_count, GLOBALS.worker_count_min)
 
     def _get_step(self) -> Dict[str, Any]:
         step_args = [
@@ -295,7 +310,7 @@ class GeotrellisJob(Job):
             "cluster",
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
-            f"{GEOTRELLIS_JAR_PATH}/treecoverloss-assembly-{self.geotrellis_version}.jar",
+            f"{GLOBALS.geotrellis_jar_path}/treecoverloss-assembly-{self.geotrellis_version}.jar",
             "--output",
             self._get_result_path(),
             "--features",
@@ -318,11 +333,11 @@ class GeotrellisJob(Job):
         return {
             "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
-            "HadoopJarStep": {"Jar": COMMAND_RUNNER_JAR, "Args": step_args},
+            "HadoopJarStep": {"Jar": GLOBALS.command_runner_jar, "Args": step_args},
         }
 
-    def _get_result_path(self, include_analysis=False):
-        result_path = f"s3://{S3_BUCKET_PIPELINE}/geotrellis/results/{self.analysis_version}/{self.table.dataset}"
+    def _get_result_path(self, include_analysis=False) -> str:
+        result_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/results/{self.analysis_version}/{self.table.dataset}"
         if include_analysis:
             result_path += f"/{GeotrellisAnalysis[self.table.analysis].value}"
 
@@ -334,8 +349,8 @@ class GeotrellisJob(Job):
 
         request = {
             "Name": name,
-            "ReleaseLabel": EMR_VERSION,
-            "LogUri": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/logs",
+            "ReleaseLabel": GLOBALS.emr_version,
+            "LogUri": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/logs",
             "Steps": steps,
             "Instances": instances,
             "Applications": applications,
@@ -345,7 +360,7 @@ class GeotrellisJob(Job):
                 {
                     "Name": "Install GDAL",
                     "ScriptBootstrapAction": {
-                        "Path": f"s3://{S3_BUCKET_PIPELINE}/geotrellis/bootstrap/gdal.sh",
+                        "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh",
                         "Args": ["3.1.2"],
                     },
                 },
@@ -356,10 +371,10 @@ class GeotrellisJob(Job):
             ],
         }
 
-        if EMR_INSTANCE_PROFILE:
-            request["JobFlowRole"] = EMR_INSTANCE_PROFILE
-        if EMR_SERVICE_ROLE:
-            request["ServiceRole"] = EMR_SERVICE_ROLE
+        if GLOBALS.emr_instance_profile:
+            request["JobFlowRole"] = GLOBALS.emr_instance_profile
+        if GLOBALS.emr_service_role:
+            request["ServiceRole"] = GLOBALS.emr_service_role
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
@@ -421,11 +436,11 @@ class GeotrellisJob(Job):
             "TerminationProtected": False,
         }
 
-        if EC2_KEY_NAME:
-            instances["Ec2KeyName"] = EC2_KEY_NAME
+        if GLOBALS.ec2_key_name:
+            instances["Ec2KeyName"] = GLOBALS.ec2_key_name
 
-        if PUBLIC_SUBNET_IDS:
-            instances["Ec2SubnetIds"] = PUBLIC_SUBNET_IDS
+        if GLOBALS.public_subnet_ids:
+            instances["Ec2SubnetIds"] = GLOBALS.public_subnet_ids
 
         return instances
 

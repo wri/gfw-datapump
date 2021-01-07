@@ -28,42 +28,19 @@ variable "step_functions_path" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_analyzer" {
+variable "lambda_params" {
   type        = object({
     runtime     = string
     memory_size = number
     timeout     = number
   })
   description = "Lambda parameters"
+  default = {
+    runtime = "python3.7"
+    memory_size = 3048
+    timeout = 300
+  }
 }
-
-variable "lambda_uploader" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-variable "lambda_dispatcher" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
-variable "lambda_postprocessor" {
-  type        = object({
-    runtime     = string
-    memory_size = number
-    timeout     = number
-  })
-  description = "Lambda parameters"
-}
-
 
 variable "geotrellis_jar_path" {
   type        = string

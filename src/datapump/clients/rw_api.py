@@ -7,7 +7,7 @@ import io
 from .aws import get_secrets_manager_client
 from ..util.util import api_prefix, get_date_string
 from ..util.exceptions import UnexpectedResponseError
-from ..globals import LOGGER, TOKEN_SECRET_ID
+from ..globals import LOGGER, GLOBALS
 from ..util.slack import slack_webhook
 
 TOKEN = None
@@ -22,7 +22,9 @@ def token() -> str:
 
 
 def _get_token() -> str:
-    response = get_secrets_manager_client().get_secret_value(SecretId=TOKEN_SECRET_ID)
+    response = get_secrets_manager_client().get_secret_value(
+        SecretId=GLOBALS.token_secret_id
+    )
 
     return json.loads(response["SecretString"])["token"]
 
