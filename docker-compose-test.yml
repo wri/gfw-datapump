@@ -18,6 +18,7 @@ services:
       - AWS_SECURITY_TOKEN=testing  # pragma: allowlist secret
       - AWS_SESSION_TOKEN=testing  # pragma: allowlist secret
       - AWS_DEFAULT_REGION=us-east-1 # pragma: allowlist secret
+      - DUMP_TO_STDOUT=${DUMP_TO_STDOUT}
     depends_on:
       - localstack
       - mock_server
@@ -39,7 +40,6 @@ services:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
       - DNS_ADDRESS=22.22.22.22
       - LAMBDA_REMOTE_DOCKER=1
-      - DUMP_TO_STDOUT=${DUMP_TO_STDOUT}
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
       - '/var/run/docker.sock:/var/run/docker.sock'
