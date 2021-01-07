@@ -25,11 +25,11 @@ class Globals(EnvSettings):
     env: str = Field(env="ENV")
 
     token_secret_id: str = Field("gfw-api/token")
-    data_api_uri: str = Field(env="DATA_API_URI")
+    data_api_uri: Optional[str] = Field(env="DATA_API_URI")
 
     aws_region: Optional[str] = Field("us-east-1", env="AWS_REGION")
-    s3_bucket_pipeline: str = Field("", env="S3_BUCKET_PIPELINE")
-    s3_glad_path: str = Field(env="S3_GLAD_PATH")
+    s3_bucket_pipeline: Optional[str] = Field("", env="S3_BUCKET_PIPELINE")
+    s3_glad_path: Optional[str] = Field(env="S3_GLAD_PATH")
     ec2_key_name: Optional[str] = Field("", env="EC2_KEY_NAME")
     public_subnet_ids: List[str] = Field(
         json.loads(os.environ.get("PUBLIC_SUBNET_IDS", b"[]"))
