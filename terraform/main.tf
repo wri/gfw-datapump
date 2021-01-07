@@ -42,10 +42,6 @@ module "datapump" {
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = data.terraform_remote_state.core.outputs.pipelines_bucket
   tags = local.tags
-  lambda_analyzer = var.lambda_analyzer
-  lambda_dispatcher = var.lambda_dispatcher
-  lambda_uploader = var.lambda_uploader
-  lambda_postprocessor = var.lambda_postprocessor
   sfn_wait_time = 30
   data_api_uri = var.data_api_uri
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket

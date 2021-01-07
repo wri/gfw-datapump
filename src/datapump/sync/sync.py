@@ -4,7 +4,7 @@ from typing import List, Dict, Optional, Type
 from uuid import uuid1
 import dateutil.tz as tz
 
-from ..globals import S3_GLAD_PATH
+from ..globals import GLOBALS
 from ..jobs.jobs import JobStatus
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..sync.fire_alerts import process_active_fire_alerts
@@ -91,7 +91,7 @@ class GladSync(Sync):
             return None
 
     def _check_for_new_glad(self):
-        bucket, path = get_s3_path_parts(S3_GLAD_PATH)
+        bucket, path = get_s3_path_parts(GLOBALS.s3_glad_path)
         response = get_s3_client().get_object(
             Bucket=bucket, Key=f"{path}/events/status"
         )

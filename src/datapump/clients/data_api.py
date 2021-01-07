@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Union
 from pprint import pformat
 from enum import Enum
 
-from ..globals import DATA_API_URI, LOGGER
+from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import DataApiResponseError
 from .rw_api import token
 
@@ -18,13 +18,13 @@ class ValidMethods(str, Enum):
 
 class DataApiClient:
     def __init__(self):
-        LOGGER.info(f"Create data API client at URI: {DATA_API_URI}")
+        LOGGER.info(f"Create data API client at URI: {GLOBALS.data_api_uri}")
 
     def get_latest(self):
         pass
 
     def get_assets(self, dataset: str, version: str) -> List[Dict[str, Any]]:
-        uri = f"{DATA_API_URI}/dataset/{dataset}/{version}/assets"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
         return self._send_request(ValidMethods.get, uri)["data"]
 
     def get_1x1_asset(self, dataset: str, version: str) -> str:
@@ -58,7 +58,7 @@ class DataApiClient:
     def create_dataset(
         self, dataset: str, metadata: Dict[str, Any] = {}
     ) -> Dict[str, Any]:
-        uri = f"{DATA_API_URI}/dataset/{dataset}"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}"
         payload = {"metadata": metadata}
 
         return self._send_request(ValidMethods.put, uri, payload)["data"]
@@ -85,22 +85,22 @@ class DataApiClient:
             }
         }
 
-        uri = f"{DATA_API_URI}/dataset/{dataset}/{version}"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         return self._send_request(ValidMethods.put, uri, payload)["data"]
 
     def append(
         self, dataset: str, version: str, source_uris: List[str]
     ) -> Dict[str, Any]:
         payload = {"creation_options": {"source_uri": source_uris}}
-        uri = f"{DATA_API_URI}/dataset/{dataset}/{version}/append"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/append"
         return self._send_request(ValidMethods.post, uri, payload)["data"]
 
     def get_version(self, dataset: str, version: str):
-        uri = f"{DATA_API_URI}/dataset/{dataset}/{version}"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         return self._send_request(ValidMethods.get, uri)["data"]
 
     def get_dataset(self, dataset: str):
-        uri = f"{DATA_API_URI}/dataset/{dataset}"
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}"
         return self._send_request(ValidMethods.get, uri)["data"]
 
     @staticmethod

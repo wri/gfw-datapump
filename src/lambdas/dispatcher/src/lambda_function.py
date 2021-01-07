@@ -6,7 +6,6 @@ from pprint import pformat
 
 from datapump.globals import LOGGER
 from datapump.clients.data_api import DataApiClient
-from datapump.commands import AnalysisInputTable, AnalysisTable, Analysis, SyncType
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.sync.sync import Syncer

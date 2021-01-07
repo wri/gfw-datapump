@@ -1,4 +1,4 @@
-from datapump.globals import LOGGER, ENV
+from datapump.globals import LOGGER
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.clients.data_api import DataApiClient

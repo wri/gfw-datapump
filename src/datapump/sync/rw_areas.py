@@ -15,7 +15,7 @@ from ..util.util import api_prefix
 from ..util.slack import slack_webhook
 from ..clients.rw_api import update_area_statuses, token
 from ..clients.aws import get_s3_client
-from ..globals import S3_BUCKET_PIPELINE, LOGGER
+from ..globals import GLOBALS, LOGGER
 
 SUMMARIZE_NEW_AOIS_NAME = "new-user-areas"
 DIRNAME = os.path.dirname(__file__)
@@ -29,7 +29,7 @@ def create_1x1_tsv(version: str) -> Optional[str]:
     if tsv:
         geostore_path = f"geotrellis/features/geostore/{version}.tsv"
         get_s3_client.put_object(
-            Body=tsv, Bucket=S3_BUCKET_PIPELINE, Key=geostore_path,
+            Body=tsv, Bucket=GLOBALS.s3_bucket_pipeline, Key=geostore_path,
         )
         return geostore_path
     else:

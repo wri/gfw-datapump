@@ -31,12 +31,8 @@ module "datapump" {
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = aws_s3_bucket.pipelines_test.id
   tags = {}
-  lambda_analyzer = var.lambda_analyzer
-  lambda_dispatcher = var.lambda_dispatcher
-  lambda_uploader = var.lambda_uploader
   sfn_wait_time = 1
   data_api_uri = var.data_api_uri
-  lambda_postprocessor = var.lambda_postprocessor
   data_lake_bucket = aws_s3_bucket.data_lake_test.id
   rasterio_lambda_layer_arn = aws_lambda_layer_version.rasterio.arn
   glad_path = var.glad_path
