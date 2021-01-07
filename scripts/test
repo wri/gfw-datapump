@@ -28,7 +28,7 @@ if [ "${BUILD}" = true ]; then
 fi
 
 if [ "${DUMP_TO_STDOUT}" = true ]; then
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test || failed=yes
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs
 else
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
