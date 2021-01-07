@@ -1,6 +1,6 @@
 from datetime import date
 
-from ..globals import LOGGER, ENV
+from ..globals import LOGGER, GLOBALS
 from ..util.slack import slack_webhook
 
 
@@ -12,7 +12,7 @@ def secret_suffix() -> str:
     """
     Get environment suffix for secret token
     """
-    if ENV == "production":
+    if GLOBALS.env == "production":
         suffix: str = "prod"
     else:
         suffix = "staging"
@@ -23,12 +23,12 @@ def bucket_suffix() -> str:
     """
     Get environment suffix for bucket
     """
-    if ENV is None:
+    if GLOBALS.env is None:
         suffix: str = "-dev"
-    elif ENV == "production":
+    elif GLOBALS.env == "production":
         suffix = ""
     else:
-        suffix = f"-{ENV}"
+        suffix = f"-{GLOBALS.env}"
 
     return suffix
 
@@ -37,7 +37,7 @@ def api_prefix() -> str:
     """
     Get environment prefix for API
     """
-    if ENV == "production":
+    if GLOBALS.env == "production":
         suffix: str = "production"
     else:
         suffix = "staging"

@@ -1,7 +1,11 @@
 import boto3
 from urllib.parse import urlparse
 
-from ..globals import AWS_REGION, AWS_ENDPOINT_URI
+from ..globals import GLOBALS
+
+from botocore.config import Config
+
+config = Config(retries=dict(max_attempts=0))
 
 
 def client_constructor(service: str):
@@ -14,7 +18,10 @@ def client_constructor(service: str):
         nonlocal service_client
         if service_client is None:
             service_client = boto3.client(
-                service, region_name=AWS_REGION, endpoint_url=AWS_ENDPOINT_URI
+                service,
+                region_name=GLOBALS.aws_region,
+                endpoint_url=GLOBALS.aws_endpoint_uri,
+                config=config,
             )
         return service_client
 
