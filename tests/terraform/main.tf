@@ -1,6 +1,6 @@
 # Download any stable version in AWS provider of 2.36.1000 or higher in 2.36 train
 terraform {
-  required_version = ">=0.12.13"
+  required_version = ">=0.13"
 }
 
 provider "aws" {
@@ -10,14 +10,14 @@ provider "aws" {
   skip_metadata_api_check = true
   s3_force_path_style = true
   endpoints {
-    s3 = "http://localhost:4566"
-    iam = "http://localhost:4566"
-    stepfunctions = "http://localhost:4566"
-    lambda = "http://localhost:4566"
-    cloudwatch = "http://localhost:4566"
-    sts = "http://localhost:4566"
-    cloudwatchevents = "http://localhost:4566"
-    secretsmanager = "http://localhost:4566"
+    s3 = "http://localstack:4566"
+    iam = "http://localstack:4566"
+    stepfunctions = "http://localstack:4566"
+    lambda = "http://localstack:4566"
+    cloudwatch = "http://localstack:4566"
+    sts = "http://localstack:4566"
+    cloudwatchevents = "http://localstack:4566"
+    secretsmanager = "http://localstack:4566"
   }
 }
 
@@ -41,4 +41,6 @@ module "datapump" {
   rasterio_lambda_layer_arn = aws_lambda_layer_version.rasterio.arn
   glad_path = var.glad_path
   command_runner_jar = "s3://gfw-pipelines-test/geotrellis-mock.jar"
+  read_gfw_api_secrets_policy = module.api_token_secret.read_policy_arn
+  read_gfw_sync_secrets_policy = module.slack_secret.read_policy_arn
 }

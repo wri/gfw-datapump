@@ -1,0 +1,564 @@
+feature__id	alert__date	is__confirmed_alert	wdpa_protected_area__iucn_cat	is__umd_regional_primary_forest_2001	is__birdlife_alliance_for_zero_extinction_site	is__birdlife_key_biodiversity_area	is__landmark_land_right	gfw_plantation__type	is__gfw_mining	is__gfw_managed_forest	rspo_oil_palm__certification_status	is__gfw_wood_fiber	is__peatland	is__idn_forest_moratorium	is__gfw_oil_palm	idn_forest_area__type	per_forest_concession__type	is__gfw_oil_gas	is__gmw_mangroves_2016	is__ifl_intact_forest_landscape_2016	bra_biome__name	alert__count	alert_area__ha	whrc_aboveground_co2_emissions__Mg
+fe3c726cd9a3afa98656edcf184f359a	2020-09-22	false	Category Ia/b or II	true	false	true	true		false	false		false	false	false	false			false	false	false		3	0.23078718482917213	148.6525930186066
+fe3c726cd9a3afa98656edcf184f359a	2020-03-21	true		true	false	true	true		false	false		false	false	false	false			false	false	true		6	0.46151543276737333	316.8688041978083
+fe3c726cd9a3afa98656edcf184f359a	2020-06-09	true		true	false	true	true		false	false		false	false	false	false			false	false	false		39	2.999865702803093	2019.6788007408486
+8ba2bcb78154e69daa00508b8c872574	2019-08-03	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15300399070096793	56.942985205876894
+8ba2bcb78154e69daa00508b8c872574	2019-09-20	true		false	false	true	false		true	false		false	false	false	false			false	false	false		6	0.45903754938501085	139.56066123995478
+8ba2bcb78154e69daa00508b8c872574	2017-09-21	true		false	false	false	true		false	false		false	false	false	false			false	false	false		2	0.15309768061524742	41.119913345756544
+8ba2bcb78154e69daa00508b8c872574	2020-08-05	false	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		27	2.0657151845736137	740.3169403263225
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-22	true		true	false	false	false		true	true		false	false	false	false			true	false	false		2	0.15321336518336803	59.82981910410521
+aed5d0d61ddfe919589f8ea08a0565d8	2016-04-28	true		false	false	false	false		false	true		false	false	false	false			true	false	false		20	1.5364392595713539	759.9798448141881
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-04	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	true		1	0.07680065869033863	23.09139804622848
+2a107f53b87cbf27454486a40fb24be2	2020-09-14	false	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		142	10.612240581178387	4122.251800809376
+2a107f53b87cbf27454486a40fb24be2	2020-01-26	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		24	1.794900757771729	777.1171697246551
+70d285eeb5a9312dcad21b5c16daf6e3	2018-09-25	true		true	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		1	0.07686566678780501	18.319650584426864
+8ba2bcb78154e69daa00508b8c872574	2016-07-25	true		true	true	true	false		false	false		false	false	false	false			false	false	false		146	11.143889648803704	5432.286986923009
+8ba2bcb78154e69daa00508b8c872574	2016-09-03	true		true	true	true	false		false	false		false	false	false	false			false	false	false		808	61.664271537181094	31640.780014150478
+8ba2bcb78154e69daa00508b8c872574	2020-06-02	true		false	false	false	true		false	false		false	false	false	false			false	false	false		3	0.2296420243874761	65.11497682608135
+8ba2bcb78154e69daa00508b8c872574	2015-09-25	false		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		4	0.30551090594129127	133.30458913779506
+fe3c726cd9a3afa98656edcf184f359a	2020-10-07	true	Category Ia/b or II	false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07692923741162426	11.141917885116913
+b1684c1eb7d394d308599bd603a773e8	2020-03-19	true		false	false	true	true		false	false		false	false	false	false			false	false	false		33	2.4119733962618404	633.8202741004575
+2a107f53b87cbf27454486a40fb24be2	2020-11-08	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		26	1.940957014467801	818.8946712632641
+aed5d0d61ddfe919589f8ea08a0565d8	2020-02-28	true		false	false	false	false		false	false		false	false	false	false			false	false	false		50	3.8412777242081217	1873.1240864087158
+aed5d0d61ddfe919589f8ea08a0565d8	2020-11-18	false		true	false	false	false		false	true		false	false	false	false			true	false	false		378	29.021060594203394	17755.66308575948
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-04	true		false	false	false	false		false	true		false	false	false	false			true	false	false		3	0.22996074210013884	23.890157397656928
+aed5d0d61ddfe919589f8ea08a0565d8	2017-03-05	true		false	false	false	false		false	false		false	false	false	false			false	false	false		284	21.753013228546656	8403.781953009919
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-26	true	Category Ia/b or II	true	false	false	false		false	false		false	false	false	false			false	false	false		3	0.23018431541138562	110.45010645843486
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-10	true		false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.2305024235521192	124.94252227794583
+aed5d0d61ddfe919589f8ea08a0565d8	2019-11-29	true		false	true	true	false		true	false		false	false	false	false			false	false	false		1	0.07657164676976566	43.79898195230596
+34e932127cada589574afa39288180cd	2015-08-21	true	Category Ia/b or II	false	true	true	false		false	false		false	false	true	false	Sanctuary Reserves/Nature Conservation Area		false	false	false		1	0.07683856856867523	26.061081172875678
+aed5d0d61ddfe919589f8ea08a0565d8	2017-12-19	false		true	false	false	false		false	false		false	false	false	false			false	false	false		909	69.82751983928925	38096.005818032914
+aed5d0d61ddfe919589f8ea08a0565d8	2016-02-22	true		false	false	false	false		true	false		false	false	false	false			false	false	false		2	0.15313960774874347	47.16699918661299
+fe3c726cd9a3afa98656edcf184f359a	2017-04-21	true		false	false	false	false		false	false		false	false	false	false			false	false	false		67	5.153594010057844	2493.207664029982
+fe3c726cd9a3afa98656edcf184f359a	2018-09-16	true		false	false	true	true		false	false		false	false	false	false			false	false	false		1	0.07692892606176396	11.141872791278814
+fe3c726cd9a3afa98656edcf184f359a	2017-09-13	true		false	false	false	false	Oil Palm	false	false		false	false	false	false			false	false	false		1	0.07693057972561962	47.24819771481805
+c35f0c5368a38bb60dd08c49b25479be	2015-09-10	true		true	false	false	false		false	false		false	false	false	false			false	false	false		412	31.414657649763175	16868.513504979124
+8ba2bcb78154e69daa00508b8c872574	2020-09-06	false		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		253	19.32626463703141	8516.300448345859
+8ba2bcb78154e69daa00508b8c872574	2015-10-11	false		false	true	true	true		true	false		false	false	false	false			false	false	false		1	0.07655602051080297	25.40383947283479
+8ba2bcb78154e69daa00508b8c872574	2019-08-11	true		true	false	true	false		true	false		false	false	false	false			false	false	false		2	0.1530225941539084	68.45210737179082
+8ba2bcb78154e69daa00508b8c872574	2018-06-13	true		false	true	true	false		true	false		false	false	false	false			false	false	false		1	0.07631837753254775	20.148051668592604
+8ba2bcb78154e69daa00508b8c872574	2018-09-17	true		false	false	false	true		false	false		false	false	false	false			false	false	false		18	1.3777407036447786	424.4686213101246
+8ba2bcb78154e69daa00508b8c872574	2019-10-15	true		false	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		1	0.07636087065864366	32.0588388648539
+8ba2bcb78154e69daa00508b8c872574	2015-12-13	false		true	false	false	true		true	false		false	false	false	false			false	false	false		5	0.3827835239300998	143.02105779069947
+8ba2bcb78154e69daa00508b8c872574	2020-07-27	false		true	true	true	true		true	false		false	false	false	false			false	false	false		4	0.30622679359648874	119.16048382489862
+aed5d0d61ddfe919589f8ea08a0565d8	2016-05-14	true		true	false	false	false		false	false		false	false	false	false			false	false	false		661	50.74578400123932	28354.773505692723
+aed5d0d61ddfe919589f8ea08a0565d8	2016-05-12	true		true	false	false	false		false	true		false	false	false	true			true	false	false		9	0.6896319916780207	352.887220918856
+fe3c726cd9a3afa98656edcf184f359a	2019-10-04	true		false	false	false	false		false	false		false	false	false	false			false	false	false		36	2.768888693922999	1268.0996913254883
+aed5d0d61ddfe919589f8ea08a0565d8	2017-06-10	true		true	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07680956414428274	49.56777206111047
+fe3c726cd9a3afa98656edcf184f359a	2020-07-27	false	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		17	1.3078379668263436	639.9045655252473
+b1684c1eb7d394d308599bd603a773e8	2019-01-04	true		true	false	false	true		false	false		false	false	false	false			false	false	false		4	0.2924496466363097	98.38493888814713
+c35f0c5368a38bb60dd08c49b25479be	2017-08-06	true		true	false	false	false		false	false		false	false	false	false			false	false	true		25	1.9064379216934133	1053.9931789063671
+309ca94d3d4b21bad16cc5a6222708ec	2018-02-17	true		true	false	true	true		false	false		false	false	false	false			false	false	false		3	0.21795919575414185	53.94490495407831
+fe3c726cd9a3afa98656edcf184f359a	2019-08-25	true		true	false	true	false		false	false		false	false	false	false			false	false	false		3	0.23071751322203277	86.42934461013238
+8ba2bcb78154e69daa00508b8c872574	2020-09-06	false		false	false	true	false		false	false		false	false	false	false			false	false	false		809	61.88783726208787	19905.5923856134
+aed5d0d61ddfe919589f8ea08a0565d8	2019-03-11	true	Category Ia/b or II	false	false	true	false		false	false		false	false	false	false			false	false	false		6	0.4581232176366927	107.6486150485709
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-31	true		true	false	false	false		false	true		false	false	false	false			true	false	true		10	0.7682933868920899	469.4752767978898
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-05	true		true	false	false	false		true	true		false	false	false	false			true	false	false		2	0.15357718247083002	67.43321886794237
+aed5d0d61ddfe919589f8ea08a0565d8	2015-11-26	true		true	true	true	false		false	false		false	false	false	false			false	false	false		3	0.22995323629338973	120.15056705148717
+fe3c726cd9a3afa98656edcf184f359a	2020-03-13	true		false	true	true	false		false	false		false	false	false	false			false	false	false		7	0.5385213960347007	130.0400933555752
+2a107f53b87cbf27454486a40fb24be2	2018-06-21	true		true	false	false	true		false	false		false	false	false	false			false	false	false		467	34.927234855468285	13930.50810393133
+2a107f53b87cbf27454486a40fb24be2	2019-09-19	true		true	false	false	false		false	false		false	false	false	false			false	false	false		330	24.608872855376895	9471.120357772968
+2a107f53b87cbf27454486a40fb24be2	2018-09-16	true	Category Ia/b or II	false	true	true	false		false	false		false	false	false	false			false	false	false		8	0.5949197177512338	159.64997379546594
+8ba2bcb78154e69daa00508b8c872574	2018-06-13	true		true	false	false	false		true	false		false	false	false	false			false	false	false		44	3.3649255665073943	1277.9665663284836
+8ba2bcb78154e69daa00508b8c872574	2017-08-13	true		true	false	false	true		false	false		false	false	false	false			false	false	false		3	0.2294440412806402	97.87063104417834
+fe3c726cd9a3afa98656edcf184f359a	2020-06-17	false	Other Category	true	true	true	false		false	false		false	false	false	false			false	false	true		5	0.3846391626505994	156.12503690063897
+b1684c1eb7d394d308599bd603a773e8	2019-06-12	true	Category Ia/b or II	true	false	true	true		false	false		false	false	false	false			false	false	true		139	10.165285129013094	3480.0346524458455
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-08	true		false	false	false	false		true	false		false	false	false	false			false	false	false		107	8.195753596912077	2510.4351512136473
+aed5d0d61ddfe919589f8ea08a0565d8	2015-12-07	true		true	false	false	false		true	false		false	false	false	false			false	false	false		48	3.6880610348164353	2103.347693689236
+aed5d0d61ddfe919589f8ea08a0565d8	2016-03-10	true		true	false	false	false		true	false		false	false	false	false			false	false	false		5	0.3820067495011176	110.51638859016923
+aed5d0d61ddfe919589f8ea08a0565d8	2015-12-23	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07681801250327266	40.98240967049596
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-03	true		true	false	false	false		true	true		false	false	false	false			true	false	false		1	0.07669932636040146	30.65416410204045
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-30	false		false	false	false	false		false	false		false	false	false	false			false	false	true		2	0.15319393182697696	47.32301640077164
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-14	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07662024037138243	21.772918305534507
+8ba2bcb78154e69daa00508b8c872574	2015-07-07	true		false	false	false	false		false	false		false	false	false	false			false	false	false		384	29.354871278617008	9156.200279157954
+8ba2bcb78154e69daa00508b8c872574	2018-04-18	true		false	false	false	false		true	false		false	false	false	false			false	false	false		55	4.205770262408235	1347.6323145721885
+8ba2bcb78154e69daa00508b8c872574	2017-06-10	true		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		1	0.07631406972303169	42.95210224244634
+aed5d0d61ddfe919589f8ea08a0565d8	2019-02-07	true		false	false	false	false		false	true		false	false	false	false			true	false	false		19	1.4547434056390667	526.805727035183
+fe3c726cd9a3afa98656edcf184f359a	2017-10-31	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	true		1	0.07693066560226003	39.20899590195186
+b1684c1eb7d394d308599bd603a773e8	2019-03-24	true		false	false	false	true		false	false		false	false	false	false			false	false	false		57	4.164920972496507	998.7984723302795
+b1684c1eb7d394d308599bd603a773e8	2019-07-30	true	Category Ia/b or II	false	false	true	true		false	false		false	false	false	false			false	false	false		3	0.2193307748057601	52.27368930916225
+3e132d923b9fd2508daa1eb508b06860	2016-05-02	true		true	false	false	false		false	false		false	false	false	false			false	false	true		6	0.45101904975589785	241.72135384698433
+2a107f53b87cbf27454486a40fb24be2	2020-12-10	false	Category Ia/b or II	true	false	false	false		false	false		false	false	false	false			false	false	false		51	3.793324144809098	1355.9719634346184
+2a107f53b87cbf27454486a40fb24be2	2020-12-10	false	Category Ia/b or II	false	false	false	false	Fruit	false	false		false	false	false	false			false	false	false		4	0.2975769328548008	103.92854519116634
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-21	true		false	false	false	false		false	false		false	false	false	false			false	false	false		8	0.6123346551931946	221.71831661276116
+aed5d0d61ddfe919589f8ea08a0565d8	2017-11-07	true		false	false	false	false		false	false		false	false	false	false			false	false	false		55	4.213319044978623	1578.4648895388275
+aed5d0d61ddfe919589f8ea08a0565d8	2017-10-23	true		false	false	false	false		true	false		false	false	false	false			false	false	false		18	1.3778030459520916	374.81671779993957
+aed5d0d61ddfe919589f8ea08a0565d8	2019-07-17	true		false	false	false	false		false	false		false	false	false	false			false	false	false		28	2.148912785150085	731.3864765040522
+aed5d0d61ddfe919589f8ea08a0565d8	2016-09-10	true		true	false	false	false		false	false		false	false	false	false			false	false	false		7	0.536418369236352	265.107499891305
+aed5d0d61ddfe919589f8ea08a0565d8	2018-07-08	true		false	false	false	false		false	false		false	false	false	false			false	false	false		9	0.6900860428328276	290.29773746229745
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-24	false		true	false	false	false		false	true		false	false	false	false			true	false	false		2	0.1533042095518576	72.37236225927279
+8ba2bcb78154e69daa00508b8c872574	2016-08-10	true		false	false	true	false		true	false		false	false	false	false			false	false	false		30	2.2951968239156137	687.8512505733333
+8ba2bcb78154e69daa00508b8c872574	2016-11-14	true		true	false	false	false		true	false		false	false	false	false			false	false	false		9	0.6879792921391752	297.2417075497978
+8ba2bcb78154e69daa00508b8c872574	2015-02-05	true		false	true	true	false		false	false		false	false	false	false			false	false	false		2	0.1526215904796029	60.15895966002759
+2a107f53b87cbf27454486a40fb24be2	2019-06-16	true		false	false	false	true		false	false		false	false	false	false			false	false	false		7429	556.2485781789603	204178.51037526148
+fe3c726cd9a3afa98656edcf184f359a	2017-06-17	true		true	false	false	false	Oil Palm	false	false		false	false	false	false			false	false	false		1	0.07692518730547396	44.847384199091316
+0af53c2e254ac187145ec021fbea9944	2018-11-16	true		true	false	false	false		false	false	Not certified	false	false	false	false			false	false	false		1	0.07664148244576394	45.10351241933208
+b1684c1eb7d394d308599bd603a773e8	2020-08-09	true		false	false	true	true		false	false		false	false	false	false			false	false	false		23	1.6803388317533765	451.24174504154826
+fe3c726cd9a3afa98656edcf184f359a	2017-04-22	true		false	false	false	false		false	false		false	false	false	false			false	false	false		2929	225.3285710752367	110138.97152875469
+309ca94d3d4b21bad16cc5a6222708ec	2020-07-24	false		false	false	true	false		false	false		false	false	false	false			false	false	false		21	1.52553565775816	356.92484378818574
+b1684c1eb7d394d308599bd603a773e8	2020-09-03	false		true	false	false	true		false	false		false	false	false	false			false	false	false		38	2.7772692934897583	928.8604294493698
+8ba2bcb78154e69daa00508b8c872574	2020-08-05	true		true	false	false	true		false	false		false	false	false	false			false	false	false		88	6.73593366418906	2981.3432800301807
+8ba2bcb78154e69daa00508b8c872574	2017-08-20	true		true	false	false	false		true	false		false	false	false	false			false	false	false		22	1.6843379055275194	675.2789941364908
+8ba2bcb78154e69daa00508b8c872574	2016-03-02	true		true	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15307410826415146	51.91703775181518
+2a107f53b87cbf27454486a40fb24be2	2019-03-28	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		10	0.7479820287233733	289.877096422347
+2a107f53b87cbf27454486a40fb24be2	2020-09-30	false	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		2480	185.52775971173628	68756.96524757044
+2a107f53b87cbf27454486a40fb24be2	2020-10-08	false	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1195	89.16882956872364	39902.54355297493
+70d285eeb5a9312dcad21b5c16daf6e3	2017-09-06	true		true	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		40	3.0746158160680968	1742.1957241422567
+70d285eeb5a9312dcad21b5c16daf6e3	2016-11-14	true		false	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		314	24.137073110891198	2767.6721993143747
+fe3c726cd9a3afa98656edcf184f359a	2020-08-03	false		false	false	false	true		false	false		false	false	false	false			false	false	false		13	0.9999592403668617	452.814748544606
+fe3c726cd9a3afa98656edcf184f359a	2020-10-23	false		true	false	false	false		false	false		false	false	false	false			false	false	true		16	1.2307305868491005	599.0579896100624
+2a107f53b87cbf27454486a40fb24be2	2020-09-22	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		63	4.7123879939662565	2107.414993874157
+2a107f53b87cbf27454486a40fb24be2	2020-01-26	true		true	false	true	true		false	false		false	false	false	false			false	false	false		4	0.29945136344349343	102.93645261315648
+2a107f53b87cbf27454486a40fb24be2	2020-08-05	false	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	true		120	8.962844041781358	4361.859262659584
+8ba2bcb78154e69daa00508b8c872574	2015-08-07	true		false	false	false	true		false	false		false	false	false	false			false	false	false		55	4.2103776369021055	1365.0082003951575
+fe3c726cd9a3afa98656edcf184f359a	2017-11-08	true		false	false	false	false		false	false	Certified	false	false	false	false			false	false	false		3	0.23079114714607266	64.5959197878849
+aed5d0d61ddfe919589f8ea08a0565d8	2016-05-31	true		false	false	false	false		false	false		false	false	false	false			false	false	false		697	53.46579892667651	24100.334378153504
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-31	false		true	false	false	false		true	false		false	false	false	false			false	false	false		38	2.911782808108852	1350.9158000536581
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-31	false	Category Ia/b or II	false	false	true	false		false	false		false	false	false	false			false	false	false		4	0.30541029127683816	54.87204914815421
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-28	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.2292083949058572	25.77322216247697
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-29	true		true	false	false	false		false	true		false	false	false	false			true	false	false		1	0.07681394523599824	51.82380838588682
+aed5d0d61ddfe919589f8ea08a0565d8	2020-02-28	true		false	false	false	false		true	false		false	false	false	false			false	false	false		6	0.46099650396007036	252.275004713634
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-24	true		true	false	false	false		true	true		false	false	false	false			true	false	false		4	0.3066746665725195	135.63949077222475
+aed5d0d61ddfe919589f8ea08a0565d8	2019-01-22	true	Category Ia/b or II	false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07635756272623265	25.33798456465487
+b1684c1eb7d394d308599bd603a773e8	2020-10-20	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		2	0.14602737972440483	49.79533648602205
+2a107f53b87cbf27454486a40fb24be2	2018-05-28	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	true		2	0.14935833315917119	64.21168325435093
+8ba2bcb78154e69daa00508b8c872574	2016-07-16	true		false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07653899404406035	17.680507624177938
+8ba2bcb78154e69daa00508b8c872574	2015-12-14	false		false	true	true	false		true	false		false	false	false	false			false	false	false		10	0.7655512061765519	226.10624660547336
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-27	true		true	false	true	false		true	false		false	false	false	false			false	false	false		5	0.3841990612695095	203.5614695036209
+aed5d0d61ddfe919589f8ea08a0565d8	2015-01-21	true		true	false	false	false		true	true		false	false	false	false			true	false	false		5	0.3841498866117132	243.67850750717017
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-12	true		true	false	true	false		false	false		false	false	false	false			false	false	false		26	1.9938258854989919	775.3490380270679
+aed5d0d61ddfe919589f8ea08a0565d8	2019-02-06	true		true	false	false	false		false	false		false	false	false	false			false	false	false		11	0.844472169086292	313.86215378560246
+aed5d0d61ddfe919589f8ea08a0565d8	2015-12-20	true		true	false	false	false		true	true		false	false	false	false			true	false	false		22	1.6854409046881424	609.879425415331
+aed5d0d61ddfe919589f8ea08a0565d8	2015-05-26	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07663051599174912	24.16415604273156
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-25	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		4	0.3071276750178862	113.59884839960365
+aed5d0d61ddfe919589f8ea08a0565d8	2018-06-04	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07640447877142578	11.626214853051955
+fe3c726cd9a3afa98656edcf184f359a	2020-12-10	false	Other Category	true	true	true	false		false	false		false	false	false	false			false	false	true		24	1.8463085824548724	777.1170277927611
+2a107f53b87cbf27454486a40fb24be2	2020-03-14	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		77	5.761827137435196	2125.7657083570784
+c35f0c5368a38bb60dd08c49b25479be	2018-08-25	true		true	false	false	false		false	false		false	false	false	false			false	false	false		145	11.0550060324407	6058.177992312907
+8ba2bcb78154e69daa00508b8c872574	2016-05-31	true		true	false	false	false		false	false		false	false	false	false			false	false	false		8	0.6112926191812912	313.94508614240334
+b1684c1eb7d394d308599bd603a773e8	2018-05-09	true		true	false	false	true		false	false		false	false	false	false			false	false	false		108	7.893862824117981	2575.546124816112
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-22	true		false	false	false	false		false	true		false	false	false	false			true	false	false		5	0.3828616271649848	164.11134957978408
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-07	true		true	false	false	false		false	true		false	false	false	false			true	false	false		51	3.904878795136768	1345.741201418322
+c35f0c5368a38bb60dd08c49b25479be	2020-11-18	false		false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.22871795583007593	103.29143133552299
+8ba2bcb78154e69daa00508b8c872574	2015-09-25	false		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		101	7.714118434390121	3106.990190061029
+8ba2bcb78154e69daa00508b8c872574	2016-06-15	true		true	true	true	true		false	false		false	false	false	false			false	false	true		1	0.07655781661296225	23.15873952542108
+fe3c726cd9a3afa98656edcf184f359a	2020-09-05	false	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		80	6.154532386742067	4067.350960912597
+aed5d0d61ddfe919589f8ea08a0565d8	2020-08-06	false		true	false	false	false		false	false		false	false	false	false			false	false	false		41	3.1502145471855	2009.9759719839465
+aed5d0d61ddfe919589f8ea08a0565d8	2016-02-01	true		false	false	false	false		true	false		false	false	false	false			false	false	false		11	0.8450526494284571	398.18636604875513
+aed5d0d61ddfe919589f8ea08a0565d8	2020-07-18	false		false	false	false	false		true	false		false	false	false	false			false	false	false		12	0.9203995674411699	260.3759105368187
+309ca94d3d4b21bad16cc5a6222708ec	2018-11-16	true		false	false	true	true		false	false		false	false	false	false			false	false	false		1	0.07264417701171462	18.245795792775656
+8ba2bcb78154e69daa00508b8c872574	2017-07-11	true		true	false	false	false		true	false		false	false	false	false			false	false	false		26	1.9902532775446788	745.6259189467511
+8ba2bcb78154e69daa00508b8c872574	2015-12-14	false		false	false	false	true		false	false		false	false	false	false			false	false	false		28	2.1433011241568445	596.9902684899135
+8ba2bcb78154e69daa00508b8c872574	2018-01-27	true		true	false	false	true		false	false		false	false	false	false			false	false	false		13	0.9951047913073221	375.1162410451426
+2a107f53b87cbf27454486a40fb24be2	2020-03-06	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		27	2.0187559632172327	773.2675465087466
+309ca94d3d4b21bad16cc5a6222708ec	2019-02-12	true		false	false	true	false		false	false		false	false	false	false			false	false	false		61	4.431661065111511	1117.8742196659005
+8ba2bcb78154e69daa00508b8c872574	2019-07-26	true		false	true	true	true		false	false		false	false	false	false			false	false	false		38	2.908735252399216	1290.6509116617365
+fe3c726cd9a3afa98656edcf184f359a	2020-04-22	true		true	false	true	true		false	false		false	false	false	false			false	false	true		2	0.15383848950834103	104.07173808684448
+fe3c726cd9a3afa98656edcf184f359a	2020-11-09	true		true	false	false	true		false	false		false	false	false	false			false	false	false		2	0.1538612584340665	100.98427261889233
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-30	false	Category Ia/b or II	true	true	true	false		false	false		false	false	false	false			false	false	false		7	0.5370289626697828	313.0878849652715
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-10	false		false	false	false	false	Oil Palm	false	false		false	false	false	false			false	false	false		4	0.3071194009639311	119.22622937132621
+34e932127cada589574afa39288180cd	2015-06-26	true	Category Ia/b or II	true	true	true	false		false	false		false	false	true	false	Sanctuary Reserves/Nature Conservation Area		false	false	false		2	0.1536766154723114	75.22470327369643
+aed5d0d61ddfe919589f8ea08a0565d8	2020-04-16	true		true	false	false	false		true	true		false	false	false	false			true	false	false		35	2.6894771284073724	1539.9137423042725
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-07	true		true	false	false	false		true	false		false	false	false	false			false	false	false		17	1.3047030368170052	600.3855743573205
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-27	true	Other Category	true	false	true	false		true	false		false	false	false	false			false	false	false		7	0.5378641342523566	279.06172426698794
+aed5d0d61ddfe919589f8ea08a0565d8	2020-05-24	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	false		4	0.3053720775884158	76.69928719593405
+fe3c726cd9a3afa98656edcf184f359a	2019-01-07	true	Category Ia/b or II	true	false	true	true		false	false		false	false	false	false			false	false	false		8	0.6154312027114858	354.0011562001074
+fe3c726cd9a3afa98656edcf184f359a	2020-12-10	false		true	true	true	false		false	false		false	false	false	false			false	false	false		17	1.3078373995122994	719.7336516351337
+2a107f53b87cbf27454486a40fb24be2	2019-09-28	true		false	false	false	false		false	false		false	false	false	false			false	false	false		203	15.180245381558464	6300.237431824251
+2a107f53b87cbf27454486a40fb24be2	2018-12-14	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		175	13.065202094448031	5214.37113854109
+2a107f53b87cbf27454486a40fb24be2	2019-12-02	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		9	0.6744600020941458	200.86676383280712
+8ba2bcb78154e69daa00508b8c872574	2017-07-29	true		true	false	false	false		false	false		false	false	false	false			false	false	false		188	14.36200708406876	6914.223403719374
+8ba2bcb78154e69daa00508b8c872574	2015-06-22	true		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		2	0.15278696896781901	66.66604824849597
+2a107f53b87cbf27454486a40fb24be2	2018-06-04	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		958	71.43918945241684	31267.816951974703
+2a107f53b87cbf27454486a40fb24be2	2018-11-27	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		187	13.97144783228582	5072.98597754758
+309ca94d3d4b21bad16cc5a6222708ec	2018-11-08	true		true	false	true	false		false	false		false	false	false	false			false	false	false		19	1.3803176156553036	355.0808225993197
+aed5d0d61ddfe919589f8ea08a0565d8	2015-12-06	true		true	false	true	false		false	false		false	false	false	false			false	false	false		41	3.1471285740099666	1346.5991620418267
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-04	true		false	false	false	false		false	false		false	false	false	false			false	false	false		15	1.1475857571184354	390.63072574318505
+61c3ec87707af5a0fc7795f6a19dff26	2020-02-04	true		true	false	true	false		false	false		false	false	false	false			false	false	false		5	0.3813586915437609	132.97796569786246
+0af53c2e254ac187145ec021fbea9944	2016-04-07	true		true	false	false	false	Unknown	false	false	Not certified	false	false	false	false			false	false	false		5	0.38322374885869104	213.16200784324462
+8ba2bcb78154e69daa00508b8c872574	2019-04-21	true		false	false	false	false		false	false		false	false	false	false			false	false	false		127	9.711815318365337	3234.275307069212
+8ba2bcb78154e69daa00508b8c872574	2017-08-29	true		true	false	true	false		false	false		false	false	false	false		Conservation	false	false	false		2	0.1527587787310026	49.430193691662595
+8ba2bcb78154e69daa00508b8c872574	2019-04-21	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		41	3.1324033773905877	1253.4366695190877
+8ba2bcb78154e69daa00508b8c872574	2016-07-25	true		false	false	true	false		false	false		false	false	false	false			false	false	false		136	10.403406973208806	3466.656485529358
+8ba2bcb78154e69daa00508b8c872574	2015-11-04	false		false	true	true	true		false	false		false	false	false	false			false	false	false		4	0.3061589676885243	112.25791458447412
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-31	true		true	false	false	false		false	false		false	false	false	false			false	false	false		848	65.09303259623975	36170.43029122518
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-14	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	true		1	0.07670771242349825	31.22003895636379
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-20	false	Other Category	false	false	false	false		false	false		false	false	false	false			false	true	false		4	0.3070336856469552	83.17347881784877
+2a107f53b87cbf27454486a40fb24be2	2020-07-20	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		594	44.41935626824708	17163.072290289612
+fe3c726cd9a3afa98656edcf184f359a	2020-08-03	true		true	false	false	false		false	false		false	false	false	false			false	false	false		2	0.15383048509169056	80.37653022395816
+fe3c726cd9a3afa98656edcf184f359a	2020-10-07	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		24	1.846329999876195	1096.0152246910827
+b1684c1eb7d394d308599bd603a773e8	2018-06-26	true	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	false		8	0.584161273066456	210.5797014107717
+309ca94d3d4b21bad16cc5a6222708ec	2019-06-12	true		false	false	true	true		false	false		false	false	false	false			false	false	false		2	0.14540669229816883	28.65723560709744
+61c3ec87707af5a0fc7795f6a19dff26	2019-12-02	true		false	false	true	false		false	false		false	false	false	false			false	false	false		9	0.6865204067729644	195.64586001146216
+97a7d08876b0fd705d336c031cfc549d	2018-05-20	true		true	false	true	false		false	false		false	false	false	false			false	false	false		10	0.707649720048788	234.562277320037
+fe3c726cd9a3afa98656edcf184f359a	2020-10-14	true		false	false	false	false		false	false		false	false	false	false			false	false	false		4	0.30770474153116095	141.8775279258315
+2a107f53b87cbf27454486a40fb24be2	2018-12-06	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		783	58.509157828677964	26562.671629784523
+aed5d0d61ddfe919589f8ea08a0565d8	2016-09-09	true		false	true	true	false		true	false		false	false	false	false			false	false	false		1	0.07657049350666882	27.514330666729663
+aed5d0d61ddfe919589f8ea08a0565d8	2015-10-13	true		true	false	false	false		false	true		false	false	false	false			true	false	false		9	0.6915508115921646	496.00823313087363
+aed5d0d61ddfe919589f8ea08a0565d8	2020-11-24	true		false	false	false	false		false	false		false	false	false	false			false	false	false		11	0.8419991499942555	289.6143114562107
+aed5d0d61ddfe919589f8ea08a0565d8	2018-05-04	true		false	false	false	false		false	true		false	false	false	false			true	false	false		3	0.22973827879153436	90.55089175250022
+aed5d0d61ddfe919589f8ea08a0565d8	2017-06-08	true		true	false	false	false	Fruit	false	false		false	false	false	true			false	false	false		1	0.0767344197859657	14.630696039190793
+8ba2bcb78154e69daa00508b8c872574	2015-09-17	true		true	false	false	false		true	false		false	false	false	false			false	false	false		161	12.306440520050298	5016.755011336554
+2a107f53b87cbf27454486a40fb24be2	2019-07-18	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1426	106.52794211840461	48762.76543067396
+2a107f53b87cbf27454486a40fb24be2	2020-02-02	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		417	31.09672520358375	13820.054439745834
+aed5d0d61ddfe919589f8ea08a0565d8	2018-10-20	true		true	false	false	false		false	false		false	false	false	false			false	false	false		46	3.530674699704612	2088.3458364698968
+aed5d0d61ddfe919589f8ea08a0565d8	2019-11-14	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07637157557345485	20.862168727482082
+aed5d0d61ddfe919589f8ea08a0565d8	2017-03-06	true		true	false	false	false		false	true		false	false	false	false			true	false	false		9	0.6897374514506986	334.81660891111085
+aed5d0d61ddfe919589f8ea08a0565d8	2019-02-10	true		true	false	false	false		true	true		false	false	false	false			true	false	false		1	0.07680529293131073	56.323881482961205
+8ba2bcb78154e69daa00508b8c872574	2017-08-29	true		false	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		42	3.2084761000217905	1140.862419840798
+8ba2bcb78154e69daa00508b8c872574	2019-12-17	true		true	false	false	true		true	false		false	false	false	false			false	false	false		13	0.9942949087700499	359.7112329802361
+8ba2bcb78154e69daa00508b8c872574	2015-06-13	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	true		4	0.3055210855013064	133.026790169549
+fe3c726cd9a3afa98656edcf184f359a	2017-05-16	true		false	true	true	false		false	false		false	false	false	false			false	false	false		14	1.0770423801591116	521.4295335903248
+b1684c1eb7d394d308599bd603a773e8	2019-12-13	true		false	false	true	true		false	false		false	false	false	false			false	false	false		1	0.073093014611541	10.988316529934997
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-28	true		false	false	false	false		false	false		false	false	false	false			false	false	false		552	42.26356157907535	13783.924223818032
+aed5d0d61ddfe919589f8ea08a0565d8	2015-03-07	true		false	false	false	false		false	false		false	false	false	false			false	false	false		4	0.3061297179769576	169.62985332428548
+aed5d0d61ddfe919589f8ea08a0565d8	2015-11-29	true		true	false	false	false		false	false		false	false	false	false			false	false	false		66	5.06301647765923	3053.1895073673413
+aed5d0d61ddfe919589f8ea08a0565d8	2016-05-12	true		true	false	false	false		true	true		false	false	false	false			true	false	false		142	10.872510770099682	3821.9304372531583
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-05	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		12	0.9168850667238952	166.96958130546636
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-28	true		false	false	false	false		false	false		false	false	false	true			false	false	false		12	0.920782970979017	266.5792733797777
+aed5d0d61ddfe919589f8ea08a0565d8	2018-03-02	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15363694512588114	80.69778863387246
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-13	true		true	false	false	false		false	true		false	false	false	false			true	false	false		2	0.1531502589585959	55.032025639107026
+aed5d0d61ddfe919589f8ea08a0565d8	2015-10-19	true		false	false	false	false		false	false		false	false	false	false			false	false	false		2	0.1531232927419618	66.95191994554759
+2a107f53b87cbf27454486a40fb24be2	2019-10-22	true		false	false	false	true		false	false		false	false	false	false			false	false	false		1145	85.74339411747593	31244.338265184222
+2a107f53b87cbf27454486a40fb24be2	2020-08-05	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		59	4.408323068722847	1863.5791263838526
+8ba2bcb78154e69daa00508b8c872574	2019-10-06	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		113	8.633899939212617	3431.06362314187
+8ba2bcb78154e69daa00508b8c872574	2019-09-12	true		true	false	false	true		false	false		false	false	false	false			false	false	false		85	6.505538596228983	2778.871738591744
+8ba2bcb78154e69daa00508b8c872574	2016-09-04	true		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		3	0.2290822663129536	108.35555025308135
+b1684c1eb7d394d308599bd603a773e8	2020-04-11	true		true	false	true	true		false	false		false	false	false	false			false	false	false		21	1.5352952039115881	465.49680010056204
+309ca94d3d4b21bad16cc5a6222708ec	2020-08-09	false		false	false	true	true		false	false		false	false	false	false			false	false	false		4	0.2906258742654121	76.9916176399369
+3e132d923b9fd2508daa1eb508b06860	2017-07-24	true		true	false	false	true		false	false		false	false	false	false			false	false	false		3	0.22545509082521453	108.01821543139104
+fe3c726cd9a3afa98656edcf184f359a	2017-08-20	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	true		1	0.07693061870584687	32.86219595718092
+aed5d0d61ddfe919589f8ea08a0565d8	2015-12-21	true		true	false	true	false		false	false		false	false	false	false			false	false	false		54	4.144118509767424	2037.5827701284443
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-22	true		false	false	false	false		true	false		false	false	false	false			false	false	false		21	1.6109030589634394	668.3636328270907
+aed5d0d61ddfe919589f8ea08a0565d8	2020-12-09	false		true	false	true	false		false	false		false	false	false	false			false	false	false		7	0.5365937584134791	306.0891603716821
+aed5d0d61ddfe919589f8ea08a0565d8	2019-06-23	true		true	false	false	false		false	true		false	false	false	false			true	false	false		2	0.15316325548827256	64.72423904841918
+aed5d0d61ddfe919589f8ea08a0565d8	2020-02-09	true		false	true	true	false		true	false		false	false	false	false			false	false	false		1	0.07657145468724613	20.636007038212835
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-28	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		2	0.1527200085126324	75.73639441389513
+aed5d0d61ddfe919589f8ea08a0565d8	2020-12-03	true		false	false	false	false		true	false		false	false	false	false			false	false	false		1	0.07643062988579209	19.05670371819083
+8ba2bcb78154e69daa00508b8c872574	2017-07-20	true		true	true	true	false		true	false		false	false	false	false			false	false	false		4	0.3062281658713369	108.21340129662671
+8ba2bcb78154e69daa00508b8c872574	2015-10-11	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		40	3.0563860989117946	1236.662693394158
+2a107f53b87cbf27454486a40fb24be2	2018-04-19	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		37	2.7744462270366457	1020.25439557218
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-24	true		false	false	false	false		false	false		false	false	false	false			false	false	false		244	18.67614492635053	5262.45773671885
+aed5d0d61ddfe919589f8ea08a0565d8	2015-01-13	false		true	false	false	false		false	true		false	false	false	false			true	false	false		4	0.30694446525036234	191.75099508375703
+aed5d0d61ddfe919589f8ea08a0565d8	2018-04-19	true		true	false	false	false		false	true		false	false	false	false			true	false	true		1	0.07676807266752504	52.07434262613782
+309ca94d3d4b21bad16cc5a6222708ec	2018-07-27	true		false	false	true	true		false	false		false	false	false	false			false	false	false		1	0.07265564989149925	18.78148549695256
+fe3c726cd9a3afa98656edcf184f359a	2018-03-25	true		true	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07693156500933138	50.915874108675816
+fe3c726cd9a3afa98656edcf184f359a	2017-12-01	true		true	false	false	false		false	false		false	false	false	false			false	false	true		3	0.23074551031638524	106.88644805655666
+8ba2bcb78154e69daa00508b8c872574	2016-05-30	true		true	false	true	false		false	false		false	false	false	false			false	false	false		55	4.207218911112717	1601.1369952778432
+8ba2bcb78154e69daa00508b8c872574	2018-04-10	true		true	false	false	false		true	false		false	false	false	false			false	false	false		271	20.726946006840667	7817.734368551758
+8ba2bcb78154e69daa00508b8c872574	2018-10-28	true		true	false	false	false		false	false		false	false	false	false			false	false	false		2	0.15277600736001737	71.00250360464139
+8ba2bcb78154e69daa00508b8c872574	2015-08-16	true		false	true	true	true		false	false		false	false	false	false			false	false	false		9	0.6888948170051692	299.3256648747869
+2a107f53b87cbf27454486a40fb24be2	2018-01-11	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		123	9.172577830107471	2742.9876524032907
+2a107f53b87cbf27454486a40fb24be2	2020-05-24	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		890	66.39743531952959	22486.29481221622
+0af53c2e254ac187145ec021fbea9944	2015-10-07	true		true	false	false	false	Unknown	false	false	Not certified	false	false	false	false			false	false	false		49	3.755633101123042	2788.1361886140903
+b1684c1eb7d394d308599bd603a773e8	2019-01-11	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	true		1	0.07309032108940558	21.8418242855507
+b1684c1eb7d394d308599bd603a773e8	2018-05-16	true	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	true		4	0.2925199299088375	115.70381980611303
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-04	true	Other Category	true	false	true	false		true	false		false	false	false	false			false	false	true		104	7.987450452110675	4770.3111021472605
+8ba2bcb78154e69daa00508b8c872574	2015-09-17	true		false	true	true	true		false	false		false	false	false	false			false	false	false		193	14.772983983563716	5522.136375046916
+8ba2bcb78154e69daa00508b8c872574	2018-04-10	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		31	2.368865285726634	931.1936717377192
+fe3c726cd9a3afa98656edcf184f359a	2020-10-24	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07693170028956353	47.107844477309406
+fe3c726cd9a3afa98656edcf184f359a	2017-12-10	true	Category Ia/b or II	false	false	false	true		false	false		false	false	false	false			false	false	false		1	0.07692900147665044	41.74680480132897
+70d285eeb5a9312dcad21b5c16daf6e3	2016-06-15	true		false	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		33	2.536661203597446	706.0371003733728
+2a107f53b87cbf27454486a40fb24be2	2019-03-29	true		false	false	true	true		false	false		false	false	false	false			false	false	false		68	5.090949640283669	1505.2763059155034
+aed5d0d61ddfe919589f8ea08a0565d8	2016-11-13	true		true	false	false	false		false	true		false	false	false	false			true	false	false		3	0.22970589022269747	96.43771583537962
+8ba2bcb78154e69daa00508b8c872574	2016-06-14	true		true	false	false	true		false	false		false	false	false	false			false	false	false		92	7.042889476375794	3122.597723769026
+8ba2bcb78154e69daa00508b8c872574	2015-06-13	true		false	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		1	0.07640316155517143	15.968260765030829
+8ba2bcb78154e69daa00508b8c872574	2019-07-02	true		true	true	true	false		false	false		false	false	false	false			false	false	true		9	0.6868810014399457	347.42187917882677
+c35f0c5368a38bb60dd08c49b25479be	2016-04-13	true		true	false	false	false		false	false		false	false	false	false			false	false	false		11	0.8386575629690819	408.8453882780894
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-13	false		true	false	false	false		false	false		false	false	false	false			false	false	false		357	27.385914572517812	10173.609178989554
+aed5d0d61ddfe919589f8ea08a0565d8	2016-03-25	true		false	false	false	false		false	true		false	false	false	false			true	false	false		1	0.07669996900363062	31.77935382383762
+aed5d0d61ddfe919589f8ea08a0565d8	2016-08-16	true		false	false	false	false		false	false		false	false	false	false			false	false	false		2	0.15302013697264755	49.23422907094935
+8ba2bcb78154e69daa00508b8c872574	2015-06-05	true		false	false	false	true		false	false		false	false	false	false			false	false	false		2	0.15308492548937938	32.977044365837145
+8ba2bcb78154e69daa00508b8c872574	2018-09-17	true		true	true	true	false		false	false		false	false	false	false		Timber Concession	false	false	false		1	0.07630621034098958	34.55399558274478
+2a107f53b87cbf27454486a40fb24be2	2020-11-18	false	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	false		42	3.1530314121103875	1269.7975620370923
+2a107f53b87cbf27454486a40fb24be2	2019-10-06	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		351	26.267792143683863	10221.33880167385
+2a107f53b87cbf27454486a40fb24be2	2020-03-05	true		false	false	false	true		false	false		false	false	false	false			false	false	false		6	0.44647690817163266	131.6484274994959
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-27	true		false	false	false	false		true	false		false	false	false	false			false	false	false		132	10.143775154196033	5098.501259443069
+8ba2bcb78154e69daa00508b8c872574	2016-08-18	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1229	93.93167250084389	32926.20136001822
+8ba2bcb78154e69daa00508b8c872574	2018-05-04	true		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	true		6	0.4585438620116927	170.9349641467195
+c35f0c5368a38bb60dd08c49b25479be	2016-08-27	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07624738507296659	34.80693128580925
+fe3c726cd9a3afa98656edcf184f359a	2017-08-20	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		35	2.6925550646053216	1717.9905643767047
+fe3c726cd9a3afa98656edcf184f359a	2020-09-05	true		true	false	false	false		false	false		false	false	false	false			false	false	true		2	0.15386285569583935	101.9726076132257
+2a107f53b87cbf27454486a40fb24be2	2020-10-07	true	Category Ia/b or II	true	true	true	false		false	false		false	false	false	false			false	false	false		6	0.4462235455691253	185.56689720331337
+aed5d0d61ddfe919589f8ea08a0565d8	2017-11-08	true		true	false	true	false		false	true		false	false	false	false			true	false	true		4	0.30676128029168215	137.78672438500308
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-06	true		true	false	false	false		false	false		false	false	false	false			false	false	false		4	0.3062479162389259	131.10664210258716
+aed5d0d61ddfe919589f8ea08a0565d8	2016-04-20	true	Other Category	false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.0768138353087197	41.40265723139992
+0af53c2e254ac187145ec021fbea9944	2019-03-31	true		true	false	false	false		false	false	Not certified	false	false	false	false			false	false	false		27	2.069301936038519	1438.2414284859215
+aed5d0d61ddfe919589f8ea08a0565d8	2019-01-22	true		false	false	false	false		false	true		false	false	false	false			true	false	false		11	0.8425798343483897	280.1735432330108
+aed5d0d61ddfe919589f8ea08a0565d8	2017-08-21	true		false	false	false	false		false	false		false	false	false	false			false	false	false		6	0.45932727809440765	174.59574462488845
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-31	true		true	false	false	false		true	false		false	false	false	false			false	false	true		5	0.3841987052026149	223.70610147556758
+aed5d0d61ddfe919589f8ea08a0565d8	2018-02-03	true		true	false	false	false		false	false		false	false	false	false			false	false	false		8	0.61260597740041	269.98787805801146
+aed5d0d61ddfe919589f8ea08a0565d8	2016-03-04	true		true	false	false	false		false	true		false	false	false	false			true	false	false		7	0.5375626977754415	313.95902609492646
+aed5d0d61ddfe919589f8ea08a0565d8	2015-11-12	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		2	0.15364676592555548	91.97039330360542
+8ba2bcb78154e69daa00508b8c872574	2017-07-20	true		false	true	true	true		false	false		false	false	false	false			false	false	false		46	3.5210571954894494	1276.4717049946032
+8ba2bcb78154e69daa00508b8c872574	2015-07-31	true		false	false	true	false		false	false		false	false	false	false			false	false	false		352	26.929640128602447	8967.564050640534
+8ba2bcb78154e69daa00508b8c872574	2016-05-30	true		true	false	false	true		true	false		false	false	false	false			false	false	false		2	0.15301510517414496	65.7858028585083
+2a107f53b87cbf27454486a40fb24be2	2020-09-13	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		14	1.0456830591510224	491.73247087551096
+fe3c726cd9a3afa98656edcf184f359a	2017-12-18	false	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		11	0.8462097103393413	535.2277559779739
+fe3c726cd9a3afa98656edcf184f359a	2018-05-11	true	Other Category	true	true	true	false		false	false		false	false	false	false			false	false	false		1	0.07693157115300484	49.08234239561708
+aed5d0d61ddfe919589f8ea08a0565d8	2020-02-27	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		16	1.2290564874694905	693.7255102641883
+c35f0c5368a38bb60dd08c49b25479be	2016-08-19	true		true	false	false	true		false	false		false	false	false	false			false	false	false		48	3.6593059801061285	1982.846793420506
+b1684c1eb7d394d308599bd603a773e8	2020-06-22	false	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	false		1	0.07301850102755661	15.662468470410893
+0af53c2e254ac187145ec021fbea9944	2019-10-25	true		true	false	false	false		false	false	Not certified	false	false	false	false			false	false	false		3	0.22992533788706365	141.07200430372626
+8ba2bcb78154e69daa00508b8c872574	2019-12-17	true		false	false	false	false		false	false		false	false	false	false			false	false	false		238	18.19269771071909	5490.901086173824
+8ba2bcb78154e69daa00508b8c872574	2017-06-02	true		true	false	false	false		true	false		false	false	false	false			false	false	false		4	0.3056003982215755	145.653155463656
+aed5d0d61ddfe919589f8ea08a0565d8	2020-02-18	true		false	false	false	false		false	false		false	false	false	false			false	false	false		216	16.520118936749657	5291.084651061157
+aed5d0d61ddfe919589f8ea08a0565d8	2016-02-10	true		false	false	false	false		false	false		false	false	false	false			false	false	false		4	0.3073004822927779	123.80061244357522
+aed5d0d61ddfe919589f8ea08a0565d8	2018-01-05	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07680390378078449	37.45470374376257
+2a107f53b87cbf27454486a40fb24be2	2019-09-12	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		1638	122.47597536185887	58507.79732102611
+2a107f53b87cbf27454486a40fb24be2	2019-01-07	true		false	false	false	false		false	false		false	false	false	false			false	false	false		5	0.3735777795556746	138.95839495728973
+2a107f53b87cbf27454486a40fb24be2	2018-05-19	true		false	false	false	true		false	false		false	false	false	false			false	false	false		3	0.22324749703991786	29.60462831399707
+3e132d923b9fd2508daa1eb508b06860	2017-06-06	true		false	false	false	true		false	false		false	false	false	false			false	false	true		10	0.7517455202013444	391.9600220960949
+2a107f53b87cbf27454486a40fb24be2	2018-04-11	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		16	1.1983712959554207	274.71808604182104
+2a107f53b87cbf27454486a40fb24be2	2019-05-30	true	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	false		99	7.390200008050795	3196.1329314497298
+aed5d0d61ddfe919589f8ea08a0565d8	2019-11-15	true		true	false	false	false		false	false		false	false	false	false			false	false	false		16	1.2292658361475264	669.6168251440326
+aed5d0d61ddfe919589f8ea08a0565d8	2017-08-12	true		true	false	false	false		true	false		false	false	false	false			false	false	false		11	0.8403513782063325	280.2584931743797
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-26	true		true	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07681993013685001	45.912711578457355
+aed5d0d61ddfe919589f8ea08a0565d8	2020-04-05	true		true	false	false	false		false	false		false	false	false	false			false	false	true		6	0.45959290996579416	166.4101983561867
+aed5d0d61ddfe919589f8ea08a0565d8	2019-01-15	true	Other Category	true	false	false	false		true	false		false	false	false	false			false	false	false		2	0.15361026314275927	85.61212051377282
+8ba2bcb78154e69daa00508b8c872574	2016-07-25	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1091	83.35426814782986	28675.06340097147
+8ba2bcb78154e69daa00508b8c872574	2017-06-18	true		true	false	false	false		false	false		false	false	false	false			false	false	false		284	21.688587732666498	10161.063111821202
+8ba2bcb78154e69daa00508b8c872574	2016-05-29	true		false	false	false	true		true	false		false	false	false	false			false	false	false		1	0.07655624934434244	31.860159102137175
+fe3c726cd9a3afa98656edcf184f359a	2017-09-05	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		19	1.4615970765072483	794.2899397955912
+fe3c726cd9a3afa98656edcf184f359a	2017-08-20	true		true	false	true	false		false	false		false	false	false	false			false	false	false		18	1.3847681900480473	905.4845521819252
+fe3c726cd9a3afa98656edcf184f359a	2020-06-10	true	Category Ia/b or II	true	false	true	true		false	false		false	false	false	false			false	false	false		5	0.3846544772083017	219.59924113710557
+fe3c726cd9a3afa98656edcf184f359a	2017-06-17	true		true	false	false	true		false	false		false	false	false	false			false	false	false		1257	96.69820762370158	58095.22590804012
+fe3c726cd9a3afa98656edcf184f359a	2017-09-29	true	Other Category	false	true	true	true		false	false		false	false	false	false			false	false	false		16	1.2309068068892928	547.5227303844538
+aed5d0d61ddfe919589f8ea08a0565d8	2017-07-19	true		false	false	false	false		false	false		false	false	false	false			false	false	false		36	2.7552870911441794	689.0705621677421
+aed5d0d61ddfe919589f8ea08a0565d8	2018-05-28	true		true	false	false	false		false	false		false	false	false	false			false	false	false		31	2.3728834857555188	1049.452160719469
+aed5d0d61ddfe919589f8ea08a0565d8	2018-04-24	true		false	false	false	false		false	false		false	false	false	true			false	false	false		17	1.3037431573903775	360.91940156326143
+aed5d0d61ddfe919589f8ea08a0565d8	2016-04-11	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		9	0.6909012961703438	271.90814940623693
+2a107f53b87cbf27454486a40fb24be2	2019-06-07	true		true	false	false	false		false	false		false	false	false	false			false	false	false		868	64.70589046186996	24999.42902307854
+2a107f53b87cbf27454486a40fb24be2	2020-12-04	false	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		18	1.3509050866357402	524.0776887342462
+2a107f53b87cbf27454486a40fb24be2	2019-05-30	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		253	18.893565870516777	8179.791502758625
+2a107f53b87cbf27454486a40fb24be2	2020-09-23	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		7	0.5248469913351481	179.1503045601875
+2a107f53b87cbf27454486a40fb24be2	2019-06-07	true	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	false		9	0.6718575609081648	300.95438935705505
+b1684c1eb7d394d308599bd603a773e8	2018-05-16	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		42	3.067816110427509	718.8679609833973
+aed5d0d61ddfe919589f8ea08a0565d8	2016-04-13	true		true	false	false	false		false	true		false	false	false	false			true	false	false		95	7.290670992150936	4720.6682030377715
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-04	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		2	0.1527371950086719	43.68290635576638
+aed5d0d61ddfe919589f8ea08a0565d8	2015-01-20	true		true	false	false	false		true	true		false	false	false	false			true	false	false		3	0.23023011244471378	139.289221850406
+2a107f53b87cbf27454486a40fb24be2	2018-09-16	true	Category Ia/b or II	true	true	true	false		false	false		false	false	false	false			false	false	false		152	11.30479953499267	4641.821826174176
+2a107f53b87cbf27454486a40fb24be2	2019-08-26	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		388	28.98312508433786	12519.74197661147
+2a107f53b87cbf27454486a40fb24be2	2019-09-13	true		true	false	false	true		false	false		false	false	false	false			false	false	false		238	17.85430789464486	6590.319862930799
+2a107f53b87cbf27454486a40fb24be2	2019-08-20	true		false	false	true	true		false	false		false	false	false	false			false	false	false		3	0.224636197300877	73.3066716204881
+8ba2bcb78154e69daa00508b8c872574	2019-07-18	true		false	true	true	false		false	false		false	false	false	false			false	false	false		70	5.343469189606795	2519.544766512352
+8ba2bcb78154e69daa00508b8c872574	2015-08-08	false		true	false	true	false		false	false		false	false	false	false			false	false	false		24	1.8358840750801044	697.0018270204032
+3e132d923b9fd2508daa1eb508b06860	2017-08-25	true		true	false	false	false		false	false		false	false	false	false			false	false	true		2	0.15033446140355017	85.02666534243599
+c35f0c5368a38bb60dd08c49b25479be	2015-07-24	true		false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.22873702608562063	75.76295091119201
+c35f0c5368a38bb60dd08c49b25479be	2015-11-21	true		true	false	false	false		false	false		false	false	false	false			false	false	false		9	0.6862203939878841	393.7759943878424
+34e932127cada589574afa39288180cd	2015-11-17	true	Category Ia/b or II	true	true	true	false		false	false		false	false	true	false	Sanctuary Reserves/Nature Conservation Area		false	false	true		1	0.07683794849583994	58.17913333610014
+2a107f53b87cbf27454486a40fb24be2	2020-12-04	true		true	false	false	true		false	false		false	false	false	false			false	false	false		498	37.343544136171474	14272.963552885785
+2a107f53b87cbf27454486a40fb24be2	2019-01-07	true		false	false	true	true		false	false		false	false	false	false			false	false	false		8	0.5990035744032628	170.07940175233412
+2a107f53b87cbf27454486a40fb24be2	2020-11-08	false	Category Ia/b or II	false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.22321582723958122	63.56738143223218
+aed5d0d61ddfe919589f8ea08a0565d8	2019-03-19	true		true	false	false	false		true	false		false	false	false	true			false	false	false		61	4.683402522401463	1800.718635902961
+8ba2bcb78154e69daa00508b8c872574	2019-07-10	true	Other Category	false	true	true	false		false	false		false	false	false	false			false	false	false		3	0.22938035337319662	86.48913657466031
+8ba2bcb78154e69daa00508b8c872574	2018-09-17	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		6	0.4590662001991059	166.22032106641606
+c35f0c5368a38bb60dd08c49b25479be	2015-08-09	true		true	false	false	false		false	false		false	false	false	false			false	false	false		156	11.894450789311474	5964.631475130156
+fe3c726cd9a3afa98656edcf184f359a	2020-10-23	true	Category Ia/b or II	false	false	false	true		false	false		false	false	false	false			false	false	false		5	0.3846457594252342	205.067475790909
+8ba2bcb78154e69daa00508b8c872574	2017-01-09	true		false	false	false	false		false	false		false	false	false	false			false	false	false		23	1.7569016932505401	523.8657074284072
+8ba2bcb78154e69daa00508b8c872574	2020-09-06	false		true	true	true	true		false	false		false	false	false	false			false	false	false		296	22.65569717174167	10111.641881495674
+8ba2bcb78154e69daa00508b8c872574	2019-07-02	true		true	true	true	false		false	false		false	false	false	false			false	false	false		124	9.464268078522517	4961.047688452249
+2a107f53b87cbf27454486a40fb24be2	2018-01-29	true		true	false	false	true		false	false		false	false	false	false			false	false	false		381	28.581823449359753	11653.766019071138
+2a107f53b87cbf27454486a40fb24be2	2020-12-04	false		false	false	false	true		false	false		false	false	false	false			false	false	false		2586	193.8547542327015	69645.75814767784
+2a107f53b87cbf27454486a40fb24be2	2018-04-10	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		204	15.245246356832844	6807.559763840229
+2a107f53b87cbf27454486a40fb24be2	2018-11-04	true		true	false	false	true		false	false		false	false	false	false			false	false	false		66	4.939975426797105	1903.9263369136597
+2a107f53b87cbf27454486a40fb24be2	2019-06-07	true	Category Ia/b or II	false	false	false	false		false	false		false	false	false	false			false	false	false		23	1.7106852961345016	443.5856266729303
+309ca94d3d4b21bad16cc5a6222708ec	2020-05-13	true		true	false	true	false		false	false		false	false	false	false			false	false	false		662	48.0965858579682	11978.705801244123
+c35f0c5368a38bb60dd08c49b25479be	2016-01-08	true		false	false	false	true		false	false		false	false	false	false			false	false	false		8	0.6099187597460591	188.26955817875793
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-25	true		false	false	false	false		false	true		false	false	false	false			true	false	false		6	0.4602195959974674	174.89601603324732
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-18	false		false	false	false	false		false	false		false	false	false	false			false	false	false		2	0.15362195552330965	86.74519755216218
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-27	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		54	4.1481425018816145	2105.3001375306126
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-13	true		true	false	false	false		true	false		false	false	false	false			false	false	false		30	2.299504545464974	849.0843088336424
+aed5d0d61ddfe919589f8ea08a0565d8	2016-02-15	true		true	false	false	false		false	false		false	false	false	false			false	false	false		127	9.723610320426237	4162.783848916029
+aed5d0d61ddfe919589f8ea08a0565d8	2020-07-18	true		true	false	false	false		false	false		false	false	false	false			false	false	true		1	0.07657811544026256	26.113137365129536
+8ba2bcb78154e69daa00508b8c872574	2016-08-02	true		false	false	false	false		true	false		false	false	false	false			false	false	false		3	0.22943675629992188	82.7246872911285
+8ba2bcb78154e69daa00508b8c872574	2016-08-26	true		true	false	false	true		false	false		false	false	false	false		Conservation	false	false	false		1	0.07643818851073785	31.670889439615717
+8ba2bcb78154e69daa00508b8c872574	2018-05-04	true		true	true	true	false		false	false		false	false	false	false			false	false	true		1	0.07632067166394965	38.61825986195853
+2a107f53b87cbf27454486a40fb24be2	2019-03-20	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		9080	677.5685799533398	304877.0396425325
+2a107f53b87cbf27454486a40fb24be2	2020-07-04	false	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		10	0.7475035468099597	308.3477544777115
+fe3c726cd9a3afa98656edcf184f359a	2020-12-10	true		true	false	false	true		false	false		false	false	false	false			false	false	false		9	0.6923790178500763	435.39117097255826
+fe3c726cd9a3afa98656edcf184f359a	2020-09-13	false		false	true	true	true		false	false		false	false	false	false			false	false	false		1	0.07692493498342534	25.52625759199998
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-04	true		true	false	false	false		true	false		false	false	false	false			false	false	false		75	5.730968727201551	1822.0236950315032
+aed5d0d61ddfe919589f8ea08a0565d8	2018-12-13	false		false	false	false	false		true	false		false	false	false	false			false	false	false		37	2.8379202804678405	882.8108348050037
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-17	false		false	false	false	false		true	false		false	false	false	false			false	false	false		9	0.6898403667865494	267.1405453602408
+aed5d0d61ddfe919589f8ea08a0565d8	2018-03-24	true	Category Ia/b or II	false	false	true	false		false	false		false	false	false	false			false	false	false		16	1.2218888311463063	336.15826427383297
+fe3c726cd9a3afa98656edcf184f359a	2018-09-24	true		false	false	false	true	Oil Palm	false	false		false	false	false	false			false	false	false		23	1.7693649895042396	931.686576065879
+fe3c726cd9a3afa98656edcf184f359a	2019-08-18	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	true		1	0.07693061519067963	35.54194421809399
+2a107f53b87cbf27454486a40fb24be2	2020-11-08	false	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		405	30.258630749147688	13207.9827127184
+2a107f53b87cbf27454486a40fb24be2	2019-05-30	true	Category Ia/b or II	true	true	true	false		false	false		false	false	false	false			false	false	false		13	0.966718288738594	349.96557814010714
+2a107f53b87cbf27454486a40fb24be2	2019-04-06	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		17	1.2757468565185568	405.82662230010783
+2a107f53b87cbf27454486a40fb24be2	2020-02-04	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		14	1.0491625629914767	281.78894380400516
+aed5d0d61ddfe919589f8ea08a0565d8	2018-04-26	true	Category Ia/b or II	false	false	false	false		false	false		false	false	false	false			false	false	false		25	1.9159323434319657	596.9916582989716
+aed5d0d61ddfe919589f8ea08a0565d8	2016-12-14	true		false	false	false	false		true	false		false	false	false	false			false	false	false		3	0.22978203915715928	79.75980763831474
+8ba2bcb78154e69daa00508b8c872574	2015-09-09	true		true	false	false	true		false	false		false	false	false	false			false	false	false		60	4.5915522063103404	1875.9390217482742
+8ba2bcb78154e69daa00508b8c872574	2017-05-09	true		false	false	true	false		false	false		false	false	false	false			false	false	false		14	1.070994175591573	442.2057838083772
+b1684c1eb7d394d308599bd603a773e8	2020-11-29	false		false	false	true	true		false	false		false	false	false	false			false	false	false		48	3.5088333835176053	924.5038807029989
+c35f0c5368a38bb60dd08c49b25479be	2016-08-03	true		false	false	false	true		false	false		false	false	false	false			false	false	false		10	0.7623880952552192	275.06816940093836
+fe3c726cd9a3afa98656edcf184f359a	2020-09-14	false		true	false	false	true		false	false		false	false	false	false			false	false	false		15	1.1539484138813976	712.3835831814968
+aed5d0d61ddfe919589f8ea08a0565d8	2020-11-16	false	Category Ia/b or II	false	false	true	false		false	false		false	false	false	false			false	false	false		3	0.2290793900789258	61.877133100028956
+8ba2bcb78154e69daa00508b8c872574	2018-10-19	true		false	false	false	false		true	false		false	false	false	false			false	false	false		13	0.994463897239885	337.7189103837074
+8ba2bcb78154e69daa00508b8c872574	2020-05-09	true		true	true	true	false		false	false		false	false	false	false			false	false	false		67	5.113565588419274	2561.562388839867
+8ba2bcb78154e69daa00508b8c872574	2020-10-24	false		false	false	true	false		false	false		false	false	false	false			false	false	false		33	2.5240899283828644	740.1186995009206
+8ba2bcb78154e69daa00508b8c872574	2019-08-03	true		false	false	false	true		true	false		false	false	false	false			false	false	false		1	0.07655745773572699	13.474112561487951
+b1684c1eb7d394d308599bd603a773e8	2019-01-27	true		false	false	false	true		false	false		false	false	false	false			false	false	false		13	0.949997656140375	220.65694892458782
+3e132d923b9fd2508daa1eb508b06860	2019-09-16	true		true	false	false	true		false	false		false	false	false	false			false	false	false		4	0.3006363353537156	146.74797633366012
+2a107f53b87cbf27454486a40fb24be2	2019-06-23	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1045	77.93442819367434	33859.739672458905
+2a107f53b87cbf27454486a40fb24be2	2020-09-30	true		false	false	false	false		false	false		false	false	false	false			false	false	false		3	0.2234126103901015	68.80839521032722
+2a107f53b87cbf27454486a40fb24be2	2018-01-04	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		6	0.4489933449267642	169.70476506806844
+aed5d0d61ddfe919589f8ea08a0565d8	2016-05-12	true		false	false	false	false		false	false		false	false	false	false			false	false	false		38	2.9095058486539576	1323.4802979351305
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-23	true		false	false	false	false		false	false		false	false	false	false			false	true	false		1	0.0767578129964149	22.23417983129485
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-23	true		true	false	false	false		true	false		false	false	false	false			false	false	false		1	0.07666225244549267	34.153033464466986
+aed5d0d61ddfe919589f8ea08a0565d8	2017-06-17	true		false	false	false	false		false	false		false	false	false	false			false	false	false		2	0.1536467132185785	59.99904151185491
+fe3c726cd9a3afa98656edcf184f359a	2018-02-04	true		false	false	false	false		false	false		false	false	false	false			false	false	false		575	44.2344759692156	23161.28286236632
+c35f0c5368a38bb60dd08c49b25479be	2015-07-16	true		false	false	false	true		false	false		false	false	false	false			false	false	false		2	0.1524682316832053	40.25161381726441
+b1684c1eb7d394d308599bd603a773e8	2018-07-28	true		true	false	true	true		false	false		false	false	false	false			false	false	false		5	0.3654335129633143	91.53676974649323
+fe3c726cd9a3afa98656edcf184f359a	2017-06-08	true		false	false	false	true		false	false		false	false	false	false			false	false	false		9	0.6922522777424737	388.072768621404
+fe3c726cd9a3afa98656edcf184f359a	2018-09-23	true		true	false	false	false		false	false		false	false	false	false			false	false	true		10	0.7691540800501144	365.07899243247334
+fe3c726cd9a3afa98656edcf184f359a	2020-09-13	true		true	false	false	false		false	false		false	false	false	false			false	false	true		9	0.6923830538601172	445.83057727197837
+2a107f53b87cbf27454486a40fb24be2	2019-03-20	true		false	false	false	true		false	false		false	false	false	false			false	false	false		1921	143.81991874616367	52212.2503832013
+2a107f53b87cbf27454486a40fb24be2	2018-05-12	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		1	0.07477108184842217	33.036356330027864
+aed5d0d61ddfe919589f8ea08a0565d8	2018-08-07	true		false	false	false	false		false	false		false	false	false	false			false	false	false		14	1.0714464994099544	347.1355072474195
+aed5d0d61ddfe919589f8ea08a0565d8	2019-11-13	true		true	false	false	false		true	true		false	false	false	false			true	false	false		8	0.6128777353452886	237.78378184729465
+aed5d0d61ddfe919589f8ea08a0565d8	2018-03-17	true		true	false	true	false		false	false		false	false	false	false			false	false	false		3	0.23026589245414275	86.68279520830143
+aed5d0d61ddfe919589f8ea08a0565d8	2016-04-03	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		6	0.45971980423825515	164.63078018062558
+8ba2bcb78154e69daa00508b8c872574	2015-07-31	true		true	false	false	false		true	false		false	false	false	false			false	false	false		80	6.117354906795323	2527.531341922862
+8ba2bcb78154e69daa00508b8c872574	2018-07-15	true		true	false	false	false		false	false		false	false	false	false		Conservation	false	false	false		43	3.2846701902811284	1361.6399320022967
+8ba2bcb78154e69daa00508b8c872574	2016-01-14	true		false	false	false	true		false	false		false	false	false	false			false	false	false		1	0.0765520210964692	35.22668837455858
+aed5d0d61ddfe919589f8ea08a0565d8	2018-04-11	true		true	false	false	false		false	false		false	false	false	false			false	false	false		137	10.52332819904969	6607.875899503954
+8ba2bcb78154e69daa00508b8c872574	2020-11-09	false	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		18	1.3764747267195945	658.0842551407474
+8ba2bcb78154e69daa00508b8c872574	2020-09-07	false		true	false	false	false		true	false		false	false	false	false			false	false	false		13	0.9935647010296742	430.30272826836676
+8ba2bcb78154e69daa00508b8c872574	2019-12-25	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	true		15	1.1442633126816844	425.9965309630055
+b1684c1eb7d394d308599bd603a773e8	2019-05-19	true		false	false	false	true		false	false		false	false	false	false			false	false	false		7	0.5114395595182208	111.57669190061071
+b1684c1eb7d394d308599bd603a773e8	2019-02-20	true	Category Ia/b or II	false	false	true	true		false	false		false	false	false	false			false	false	false		18	1.3161841683202378	355.11556059604334
+2a107f53b87cbf27454486a40fb24be2	2019-01-23	true		false	false	true	true		false	false		false	false	false	false			false	false	false		50	3.7435785709804668	769.6436949181631
+2a107f53b87cbf27454486a40fb24be2	2019-10-22	true		false	false	true	true		false	false		false	false	false	false			false	false	false		34	2.545443947548896	751.4672501769942
+2a107f53b87cbf27454486a40fb24be2	2019-02-09	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		18	1.3472986651703112	287.3469251132468
+fe3c726cd9a3afa98656edcf184f359a	2017-01-25	true		true	false	false	false		false	false		false	false	false	false			false	false	false		26	2.0002118921234544	1202.0888491179633
+fe3c726cd9a3afa98656edcf184f359a	2020-09-12	false	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		1	0.07692562357597761	31.59078941520147
+2a107f53b87cbf27454486a40fb24be2	2018-05-19	true		false	false	false	false	Fruit	false	false		false	false	false	false			false	false	false		4	0.2985459581510353	107.83310937326547
+8ba2bcb78154e69daa00508b8c872574	2019-04-21	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	true		7	0.5340895385817839	175.27115948781858
+8ba2bcb78154e69daa00508b8c872574	2019-09-12	true		false	false	false	false		false	false		false	false	false	false			false	false	false		142	10.85962864787692	3542.7482124198764
+8ba2bcb78154e69daa00508b8c872574	2016-07-17	true		true	true	true	false		true	false		false	false	false	false			false	false	false		17	1.2981891794442406	552.1666689873126
+aed5d0d61ddfe919589f8ea08a0565d8	2020-12-09	false		false	false	false	false		true	false		false	false	false	false			false	false	false		31	2.376304417948456	684.0820583492364
+aed5d0d61ddfe919589f8ea08a0565d8	2015-11-27	false		false	false	false	false		true	true		false	false	false	false			true	false	false		2	0.1536050591035883	58.574806844055836
+aed5d0d61ddfe919589f8ea08a0565d8	2018-08-09	true		true	false	false	false		false	true		false	false	false	false			true	false	false		3	0.2302280574828971	159.9723585263708
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-01	true		false	true	true	false		false	false		false	false	false	false			false	false	false		1	0.07649310438150607	36.32147573048513
+2a107f53b87cbf27454486a40fb24be2	2018-10-02	true		true	false	false	false		false	false		false	false	false	false			false	false	false		99	7.379408099327124	2875.569433183563
+2a107f53b87cbf27454486a40fb24be2	2020-07-11	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		200	14.943423713798285	6697.864666298192
+aed5d0d61ddfe919589f8ea08a0565d8	2017-03-13	true		false	false	false	false		false	false		false	false	false	false			false	false	false		838	64.13369765716067	19674.947509634716
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-08	true		false	true	true	false		true	false		false	false	false	false			false	false	false		2	0.15314326150122837	86.75566292214074
+aed5d0d61ddfe919589f8ea08a0565d8	2018-06-05	true		true	false	false	false		false	false		false	false	false	false			false	false	false		5	0.38276358653860676	147.63601720862943
+aed5d0d61ddfe919589f8ea08a0565d8	2018-02-06	true		false	false	false	false		false	true		false	false	false	false			true	false	false		1	0.07674316231689017	35.596036787984225
+8ba2bcb78154e69daa00508b8c872574	2019-05-31	true		false	false	false	false		true	false		false	false	false	false			false	false	false		3	0.2293574824346224	83.39061081809534
+8ba2bcb78154e69daa00508b8c872574	2015-11-27	true		true	false	false	true		false	false		false	false	false	false			false	false	false		25	1.9138464511915476	850.0922125173054
+b1684c1eb7d394d308599bd603a773e8	2020-04-03	true		true	false	true	true		false	false		false	false	false	false			false	false	false		20	1.4620830765418005	358.2410308706267
+fe3c726cd9a3afa98656edcf184f359a	2020-09-13	true		false	false	false	true		false	false		false	false	false	false			false	false	false		5120	393.8611059754999	212781.91225385276
+fe3c726cd9a3afa98656edcf184f359a	2020-06-18	true		true	false	false	false		false	false		false	false	false	false			false	false	false		14	1.0770401007834445	647.3780330664624
+fe3c726cd9a3afa98656edcf184f359a	2018-02-04	true		false	false	false	false		false	false	Certified	false	false	false	false			false	false	false		5	0.3846509872160667	1.410386953125578
+fe3c726cd9a3afa98656edcf184f359a	2018-09-24	true	Category Ia/b or II	true	false	false	true		false	false		false	false	false	false			false	false	false		2	0.15385821986720588	101.68746184130319
+8ba2bcb78154e69daa00508b8c872574	2015-02-05	true		false	false	false	false		true	false		false	false	false	false			false	false	false		16	1.223052603852882	471.43956524983014
+8ba2bcb78154e69daa00508b8c872574	2016-01-15	true		true	true	true	false		false	false		false	false	false	false			false	false	false		27	2.066495933563208	887.7890873819887
+aed5d0d61ddfe919589f8ea08a0565d8	2015-05-13	true		true	false	false	false		false	false		false	false	false	false			false	false	false		190	14.590472775296126	8289.060445179659
+aed5d0d61ddfe919589f8ea08a0565d8	2019-04-28	true		true	false	true	false		false	false		false	false	false	false			false	false	false		4	0.30671748986651903	106.27760424167997
+aed5d0d61ddfe919589f8ea08a0565d8	2015-01-11	false		false	false	false	false		false	false		false	false	false	true			false	false	false		19	1.4586829332532	530.2057558441936
+fe3c726cd9a3afa98656edcf184f359a	2020-11-24	false		true	false	false	false		false	false		false	false	false	false			false	false	false		61	4.692203574386389	2506.283159860226
+fe3c726cd9a3afa98656edcf184f359a	2020-08-12	true		true	false	false	true		false	false		false	false	false	false			false	false	true		3	0.2307940952172975	151.61889888354088
+2a107f53b87cbf27454486a40fb24be2	2019-06-23	true		true	false	false	false		false	false		false	false	false	false			false	false	false		134	9.988854914939571	3724.697049519341
+2a107f53b87cbf27454486a40fb24be2	2020-01-18	true		false	false	false	true		false	false		false	false	false	false			false	false	false		283	21.181237224350895	7642.351976651081
+2a107f53b87cbf27454486a40fb24be2	2020-12-04	false		true	false	false	false		false	false		false	false	false	false			false	false	false		95	7.126030709728868	2776.390551513756
+2a107f53b87cbf27454486a40fb24be2	2019-08-04	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		13	0.9757560229469933	239.71057548802972
+aed5d0d61ddfe919589f8ea08a0565d8	2020-12-02	false		true	false	false	false		false	false		false	false	false	false			false	false	false		679	51.98517703564896	23690.73065816896
+aed5d0d61ddfe919589f8ea08a0565d8	2019-05-08	true		false	false	false	false		false	false		false	false	false	false			false	false	false		107	8.210404615310129	3520.011178577812
+aed5d0d61ddfe919589f8ea08a0565d8	2017-09-05	true		false	false	false	false		true	true		false	false	false	false			true	false	false		1	0.07678645924844942	30.970538563541265
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-08	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07649950942655817	21.87885969599564
+aed5d0d61ddfe919589f8ea08a0565d8	2016-06-14	true		false	false	false	false		true	false		false	false	false	false			false	false	false		11	0.841679992494028	316.5121569134764
+aed5d0d61ddfe919589f8ea08a0565d8	2015-11-11	true		false	false	false	false		false	true		false	false	false	false			true	false	false		3	0.22971722415338325	82.12364021535932
+8ba2bcb78154e69daa00508b8c872574	2020-08-05	false		false	false	false	true		false	false		false	false	false	false			false	false	false		21	1.6071885900922918	586.7394173856959
+8ba2bcb78154e69daa00508b8c872574	2020-07-12	false		true	false	false	false		true	false		false	false	false	false			false	false	false		175	13.381529109204363	5417.098379874584
+8ba2bcb78154e69daa00508b8c872574	2016-11-14	true		false	true	true	false		false	false		false	false	false	false			false	false	false		8	0.6106637870648632	219.42599054443107
+aed5d0d61ddfe919589f8ea08a0565d8	2020-03-31	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		18	1.382641937650785	676.5281627111859
+309ca94d3d4b21bad16cc5a6222708ec	2020-08-17	false		true	false	true	false		false	false		false	false	false	false			false	false	false		43	3.124422175443667	756.9032281232526
+70d285eeb5a9312dcad21b5c16daf6e3	2020-11-09	true		true	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		16	1.2298029638808994	781.5160046590515
+0af53c2e254ac187145ec021fbea9944	2016-09-30	true		false	false	false	false	Unknown	false	false	Not certified	false	false	false	false			false	false	false		4	0.3065791996770873	151.61617279737789
+2a107f53b87cbf27454486a40fb24be2	2018-03-16	true	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		69	5.154950585909068	1945.0855358978024
+2a107f53b87cbf27454486a40fb24be2	2018-10-10	true		true	false	false	false		false	false		false	false	false	false			false	false	false		842	62.79234714116292	24135.13602540269
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-03	true		true	false	false	false		false	false		false	false	false	false			false	false	false		388	29.7975888809847	18097.625521791528
+b1684c1eb7d394d308599bd603a773e8	2019-12-14	true		false	false	true	true		false	false		false	false	false	false			false	false	false		18	1.315801075920064	276.7353972745871
+0af53c2e254ac187145ec021fbea9944	2016-04-15	true		true	false	false	false		false	false	Not certified	false	false	false	false			false	false	false		14	1.0729909501555495	697.635662111093
+34e932127cada589574afa39288180cd	2019-09-09	true	Category Ia/b or II	false	true	true	false		false	false		false	false	true	false	Sanctuary Reserves/Nature Conservation Area		false	false	false		20	1.5367657791941423	325.83276094657816
+fe3c726cd9a3afa98656edcf184f359a	2017-09-21	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		9	0.6923524169045993	386.29461637166867
+fe3c726cd9a3afa98656edcf184f359a	2017-11-08	true		true	false	true	true		false	false		false	false	false	false			false	false	true		77	5.9227925534113535	4049.638934614291
+fe3c726cd9a3afa98656edcf184f359a	2018-10-18	true		false	false	true	true		false	false		false	false	false	false			false	false	false		7	0.5384275948799335	319.6850142789793
+8ba2bcb78154e69daa00508b8c872574	2017-06-26	true		true	true	true	false		false	false		false	false	false	false			false	false	false		122	9.329250809538838	4007.1526077934286
+8ba2bcb78154e69daa00508b8c872574	2017-06-19	true		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		1	0.07636070951715061	37.51856194276
+2a107f53b87cbf27454486a40fb24be2	2018-12-14	true	Other Category	true	false	true	true		false	false		false	false	false	false			false	false	true		334	24.941026431597447	12028.294244717432
+2a107f53b87cbf27454486a40fb24be2	2020-01-26	true		true	false	false	false		false	false		false	false	false	false			false	false	false		35	2.6194141191096687	1096.0932810061981
+2a107f53b87cbf27454486a40fb24be2	2018-05-12	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		8	0.5989027347194754	195.85367731089906
+3e132d923b9fd2508daa1eb508b06860	2017-09-10	true		false	false	false	true		false	false		false	false	false	false			false	false	false		1	0.07515913711262594	29.21185129110728
+8ba2bcb78154e69daa00508b8c872574	2018-07-23	true		false	false	false	false		false	false		false	false	false	false			false	false	false		82	6.265592408069521	2080.232283154625
+8ba2bcb78154e69daa00508b8c872574	2019-05-07	true		true	true	true	false		false	false		false	false	false	false		Conservation	false	false	true		1	0.07634652185085286	26.174132574534056
+8ba2bcb78154e69daa00508b8c872574	2016-07-17	true		true	false	false	true		true	false		false	false	false	false			false	false	false		15	1.148352186999479	536.1527959668781
+2a107f53b87cbf27454486a40fb24be2	2019-10-06	true		true	false	false	false		false	false		false	false	false	false			false	false	false		116	8.676609578912416	3793.0983894177507
+2a107f53b87cbf27454486a40fb24be2	2020-02-20	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		2	0.15009479809082243	67.96837303619826
+2a107f53b87cbf27454486a40fb24be2	2020-07-04	true	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		2	0.14971157710285607	23.05557894569241
+2a107f53b87cbf27454486a40fb24be2	2019-03-28	true	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		8	0.5988100764474487	206.5275164897539
+aed5d0d61ddfe919589f8ea08a0565d8	2017-02-04	true		true	false	false	false		true	true		false	false	false	false			true	false	true		3	0.23058388096237337	149.36710396429405
+aed5d0d61ddfe919589f8ea08a0565d8	2016-10-29	true		false	false	false	false		true	false		false	false	false	false			false	false	false		5	0.38381849927969314	190.13089155728065
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-03	false	Other Category	false	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15363613298180573	87.73903494369289
+2a107f53b87cbf27454486a40fb24be2	2020-11-25	false	Other Category	false	false	false	true		false	false		false	false	false	false			false	false	false		9	0.6733515614040416	268.288149619896
+8ba2bcb78154e69daa00508b8c872574	2020-09-13	false		true	false	false	false		false	false		false	false	false	false			false	false	false		83	6.353353681749912	2637.4349915456314
+8ba2bcb78154e69daa00508b8c872574	2016-06-23	true		false	false	false	false		false	false		false	false	false	false			false	false	false		105	8.021717118897634	2424.294956821873
+8ba2bcb78154e69daa00508b8c872574	2020-07-28	true		false	false	false	false		false	false		false	false	false	false			false	false	false		668	51.03315933067811	16424.067233009522
+8ba2bcb78154e69daa00508b8c872574	2017-05-08	true		false	false	false	false		true	false		false	false	false	false			false	false	false		1	0.0765273773350651	17.25692358905718
+8ba2bcb78154e69daa00508b8c872574	2015-08-24	true		false	false	false	true		true	false		false	false	false	false			false	false	false		3	0.22956516052516057	62.28838470031072
+8ba2bcb78154e69daa00508b8c872574	2015-11-11	false		true	false	false	true		false	false		false	false	false	false			false	false	false		6	0.45926750498674707	181.72959554184453
+fe3c726cd9a3afa98656edcf184f359a	2019-08-18	true		false	false	false	true		false	false		false	false	false	false			false	false	false		3216	247.39847901888794	124735.26540509764
+fe3c726cd9a3afa98656edcf184f359a	2017-05-16	true		false	true	true	true		false	false		false	false	false	false			false	false	false		4	0.30772620530715045	113.82023052563675
+fe3c726cd9a3afa98656edcf184f359a	2019-05-31	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	false		15	1.1539712833727949	746.2476050783102
+fe3c726cd9a3afa98656edcf184f359a	2019-07-16	true		false	false	false	false		false	false		false	false	false	false			false	false	false		9	0.6921774348325745	248.15872861624973
+97a7d08876b0fd705d336c031cfc549d	2019-08-11	true		true	false	true	false		false	false		false	false	false	false			false	false	false		2	0.14153570996309958	47.22574855768756
+fe3c726cd9a3afa98656edcf184f359a	2019-08-26	true		true	false	false	false		false	false		false	false	false	false			false	false	false		2651	203.93475649689597	127233.01882001467
+fe3c726cd9a3afa98656edcf184f359a	2020-04-22	true		false	false	false	false		false	false		false	false	false	false			false	false	false		1961	150.85696477903008	75038.67585777518
+fe3c726cd9a3afa98656edcf184f359a	2017-12-10	true	Other Category	true	false	true	false		false	false		false	false	false	false			false	false	true		2	0.1538505506821827	95.05399848467914
+fe3c726cd9a3afa98656edcf184f359a	2017-08-13	true		false	false	false	true		false	false		false	false	false	false			false	false	false		7	0.5385199661709206	240.8979316150978
+2a107f53b87cbf27454486a40fb24be2	2018-03-16	true		false	false	false	false		false	false		false	false	false	false			false	false	false		31	2.3105420841503865	578.2401136333648
+2a107f53b87cbf27454486a40fb24be2	2018-05-29	true		false	false	true	true		false	false		false	false	false	false			false	false	false		16	1.197884115817585	362.2186110382928
+aed5d0d61ddfe919589f8ea08a0565d8	2020-01-27	true	Other Category	true	false	true	false		false	true		false	false	false	false			true	false	false		1	0.07682843495430891	41.69223070187164
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-06	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		1	0.07678054195189993	31.108916247511456
+c35f0c5368a38bb60dd08c49b25479be	2018-08-25	true		true	false	false	true		false	false		false	false	false	false			false	false	true		15	1.143727254813596	649.319584828846
+8ba2bcb78154e69daa00508b8c872574	2017-06-26	true		false	false	false	true		true	false		false	false	false	false			false	false	false		1	0.0764521003078841	15.978488964347775
+70d285eeb5a9312dcad21b5c16daf6e3	2018-09-01	true		true	false	false	false		false	false		false	false	false	false	Other Utilization Area		false	false	false		16	1.2298441171869268	695.016027329199
+b1684c1eb7d394d308599bd603a773e8	2020-07-09	false		true	false	true	true		false	false		false	false	false	false			false	false	false		20	1.4619590833604708	470.231752146703
+b1684c1eb7d394d308599bd603a773e8	2019-05-11	true		false	false	false	true		false	false		false	false	false	false			false	false	false		75	5.479831198894001	1203.4213261305981
+b1684c1eb7d394d308599bd603a773e8	2020-09-18	false	Other Category	true	false	false	true		false	false		false	false	false	false			false	false	false		1	0.0731749273697875	21.19633729478178
+8ba2bcb78154e69daa00508b8c872574	2018-09-24	true		false	false	false	false		true	false		false	false	false	false			false	false	false		9	0.6888307684572851	205.5668212813587
+8ba2bcb78154e69daa00508b8c872574	2019-08-11	true		true	true	true	false		true	false		false	false	false	false			false	false	false		4	0.3059883507820791	128.9008165658981
+8ba2bcb78154e69daa00508b8c872574	2017-05-25	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	true		2	0.15255260754909072	60.131208981022795
+aed5d0d61ddfe919589f8ea08a0565d8	2020-10-15	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15343956365916028	58.65227309611626
+aed5d0d61ddfe919589f8ea08a0565d8	2015-04-01	false		false	false	false	false		false	false		false	false	false	true			false	false	false		1	0.07680489409005109	27.457749637193263
+c35f0c5368a38bb60dd08c49b25479be	2017-05-02	true		true	false	false	false		false	false		false	false	false	false			false	false	true		2	0.15251313889377388	90.03355272497188
+2a107f53b87cbf27454486a40fb24be2	2020-01-26	true		false	false	false	false		false	false		false	false	false	false			false	false	false		310	23.22580191599653	9157.30476961346
+2a107f53b87cbf27454486a40fb24be2	2018-05-12	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		169	12.637453276343397	5874.80275840549
+2a107f53b87cbf27454486a40fb24be2	2018-03-25	true		false	false	false	true		false	false		false	false	false	false			false	false	false		942	70.50649736951296	21921.83646594224
+2a107f53b87cbf27454486a40fb24be2	2018-02-21	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		2	0.14972151881184043	35.134528679417485
+53d8ea7b9aae794b5cf67e801cee1dfd	2018-08-13	true		false	false	false	false		false	false		false	false	false	false			false	false	false		4	0.2824105857562773	22.651776737838517
+2a107f53b87cbf27454486a40fb24be2	2019-09-04	true	Other Category	true	false	false	false		false	false		false	false	false	false			false	false	false		567	42.38309803667782	20068.855112261925
+aed5d0d61ddfe919589f8ea08a0565d8	2020-11-15	false	Other Category	false	false	false	false		true	false		false	false	false	false			false	false	false		1	0.07656120113850476	26.247731790317378
+aed5d0d61ddfe919589f8ea08a0565d8	2016-01-30	true		true	false	false	false		false	true		false	false	false	false			true	false	false		9	0.6893573337363974	299.2682086141934
+aed5d0d61ddfe919589f8ea08a0565d8	2015-07-22	true		true	false	false	false		false	false		false	false	false	false			false	false	false		6	0.4595004877658594	204.40725647162571
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-07	true		true	false	false	false		false	false		false	false	false	false			false	true	false		1	0.07678087378743052	25.05615847929816
+aed5d0d61ddfe919589f8ea08a0565d8	2017-10-23	true		false	false	true	false		false	false		false	false	false	false			false	false	false		3	0.2295279177340907	54.00269802709994
+8ba2bcb78154e69daa00508b8c872574	2020-11-17	false		true	false	false	false		false	false		false	false	false	false			false	false	false		2421	184.98554039037782	78268.74427911574
+8ba2bcb78154e69daa00508b8c872574	2015-09-25	false		false	false	false	false		false	false		false	false	false	false			false	false	false		181	13.835737964686466	4272.249191545863
+8ba2bcb78154e69daa00508b8c872574	2019-04-05	true	Category Ia/b or II	true	false	true	false		false	false		false	false	false	false			false	false	true		23	1.7547052872365103	638.2168669940515
+8ba2bcb78154e69daa00508b8c872574	2018-11-03	true		true	false	true	false		false	false		false	false	false	false			false	false	false		2	0.15308298269612847	54.44666597708925
+8ba2bcb78154e69daa00508b8c872574	2020-09-07	false		true	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		119	9.086414123909714	4510.341792173255
+b1684c1eb7d394d308599bd603a773e8	2018-07-28	true		false	false	false	true		false	false		false	false	false	false			false	false	false		32	2.33791168623383	404.37706635155206
+b1684c1eb7d394d308599bd603a773e8	2019-06-12	true		true	false	false	true		false	false		false	false	false	false			false	false	false		5	0.36529785141490984	69.65017019948569
+8ba2bcb78154e69daa00508b8c872574	2017-06-18	true		false	false	false	false		false	false		false	false	false	false		Timber Concession	false	false	false		2	0.15273843752985244	48.30353086881584
+2a107f53b87cbf27454486a40fb24be2	2019-07-18	true		false	false	true	true		false	false		false	false	false	false			false	false	false		198	14.824200823851537	4189.457812983763
+2a107f53b87cbf27454486a40fb24be2	2019-08-28	true		false	false	false	true		false	false		false	false	false	false			false	false	false		602	45.12935568405972	14438.648794098153
+2a107f53b87cbf27454486a40fb24be2	2020-11-25	false		true	false	false	false		false	false		false	false	false	false			false	false	false		44	3.297037077749113	1300.1335889817717
+aed5d0d61ddfe919589f8ea08a0565d8	2017-08-28	true		true	false	false	false		true	false		false	false	false	false			false	false	false		53	4.063090759452722	1734.483537758774
+aed5d0d61ddfe919589f8ea08a0565d8	2019-12-07	true		false	false	false	false	Unknown	true	false		false	false	false	false			false	false	false		2	0.15342596936386932	53.16210414962082
+b1684c1eb7d394d308599bd603a773e8	2019-09-01	true	Other Category	false	false	true	true		false	false		false	false	false	false			false	false	false		3	0.21905863949980167	66.3992053710137
