@@ -27,9 +27,16 @@ if [ "${BUILD}" = true ]; then
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
 fi
 
-docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
-docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
-docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
+if [ -z "$DUMP_TO_STDOUT" ]
+then
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs
+else
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
+fi
+
 docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test down
 
 # delete if exists, otherwise localstack might have issues with EMR on next run
