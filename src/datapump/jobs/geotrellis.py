@@ -180,7 +180,7 @@ class GeotrellisJob(Job):
         try:
             cols = id_col_constructor[(self.feature_type, feature_agg)]
         except KeyError:
-            cols = ["feature_id"]
+            cols = ["feature__id"]
 
         analysis_col_constructor = {
             (Analysis.tcl, "change"): [
