@@ -38,12 +38,9 @@ jobs:
         AWS_SECRET_ACCESS_KEY: test
         AWS_DEFAULT_REGION: ${{ secrets.aws_region_dev }}
         LOCALSTACK_API_KEY: ${{ secrets.localstack_api_key }}
-        CC_TEST_REPORTER_ID: ${{ secrets.test_report_id }}
         DUMP_TO_STDOUT: true
       run: |
-        ./cc-test-reporter before-build
         ./scripts/test
-        ./cc-test-reporter after-build -t coverage.py -p ${PWD} --exit-code $?
     - name: Deploy production
       if: success() && contains(github.ref, 'master')
       env:
