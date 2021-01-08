@@ -5,7 +5,7 @@ from ..globals import GLOBALS
 
 from botocore.config import Config
 
-config = Config(retries=dict(max_attempts=1), read_timeout=300)
+config = Config(retries=dict(max_attempts=0), read_timeout=300)
 
 
 def client_constructor(service: str):
