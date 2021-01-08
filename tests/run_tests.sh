@@ -11,4 +11,4 @@ cd /app/tests/terraform
 terraform init && terraform plan -var-file="/app/tests/terraform/terraform-test.tfvars" && terraform apply -auto-approve -var-file="/app/tests/terraform/terraform-test.tfvars"
 cd /app/tests
 
-pytest -vv --cov-report term --cov-report xml:/app/tests/cobertura.xml --cov=app
+pytest tests
