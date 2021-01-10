@@ -26,6 +26,9 @@ class DatapumpConfig(BaseModel):
 
 class DatapumpStore:
     def __init__(self):
+        self.conn = None
+
+    def __enter__(self):
         try:
             get_s3_client().download_file(DB_BUCKET, DB_KEY, LOCAL_DB_PATH)
             self.conn = sqlite3.connect(LOCAL_DB_PATH)
@@ -46,6 +49,8 @@ class DatapumpStore:
             """
             self.conn.execute(create_sql)
             self.conn.commit()
+
+        return self
 
     def add(
         self, config_row: DatapumpConfig
@@ -98,6 +103,6 @@ class DatapumpStore:
             for row in rows
         ]
 
-    def close(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.conn.close()
         get_s3_client().upload_file(LOCAL_DB_PATH, DB_BUCKET, DB_KEY)

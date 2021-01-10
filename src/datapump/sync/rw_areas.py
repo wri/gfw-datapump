@@ -46,22 +46,20 @@ def get_virutal_1x1_tsv() -> Optional[bytes]:
     try:
         areas: List[Any] = get_pending_areas()
         geostore_ids: List[str] = get_geostore_ids(areas)
-        if geostore_ids:
-            geostore: Dict[str, Any] = get_geostore(geostore_ids)
-            geostore = filter_geostores(geostore)
+        if not geostore_ids:
+            raise EmptyResponseException
 
-            if geostore:
-                with geostore_to_wkb(geostore) as (wkb, geom_count):
-                    if geom_count == 0:
-                        return None
-                    else:
-                        return str.encode(wkb.getvalue())
-            else:
-                slack_webhook("INFO", "No new user areas found. Doing nothing.")
-                return None
-        else:
-            slack_webhook("INFO", "No new user areas found. Doing nothing.")
-            return None
+        geostore: Dict[str, Any] = get_geostore(geostore_ids)
+        geostore = filter_geostores(geostore)
+
+        if not geostore:
+            raise EmptyResponseException
+
+        with geostore_to_wkb(geostore) as (wkb, geom_count):
+            if geom_count == 0:
+                raise EmptyResponseException
+
+            return str.encode(wkb.getvalue())
     except EmptyResponseException:
         slack_webhook("INFO", "No new user areas found. Doing nothing.")
         return None
