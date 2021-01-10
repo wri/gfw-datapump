@@ -2,6 +2,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Type
 from uuid import uuid1
+from abc import ABC, abstractmethod
 import dateutil.tz as tz
 
 from ..globals import GLOBALS
@@ -18,19 +19,21 @@ from ..jobs.geotrellis import (
 )
 
 
-class Sync:
+class Sync(ABC):
+    @abstractmethod
     def __init__(self, sync_version: str):
-        pass
+        ...
 
+    @abstractmethod
     def build_job(self, config: DatapumpConfig) -> Optional[Job]:
-        return None
+        ...
 
 
 class FireAlertsSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version: str = sync_version
-        self.fire_alerts_type: SyncType = None
-        self.fire_alerts_uri: str = None
+        self.fire_alerts_type: Optional[SyncType] = None
+        self.fire_alerts_uri: Optional[str] = None
 
     def build_job(self, config: DatapumpConfig) -> Optional[Job]:
         return FireAlertsGeotrellisJob(
@@ -53,7 +56,7 @@ class FireAlertsSync(Sync):
 
 class ViirsSync(FireAlertsSync):
     def __init__(self, sync_version: str):
-        self.sync_version = sync_version
+        super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
         # TODO use version name?
         self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
@@ -61,7 +64,7 @@ class ViirsSync(FireAlertsSync):
 
 class ModisSync(FireAlertsSync):
     def __init__(self, sync_version: str):
-        self.sync_version = sync_version
+        super(ModisSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.modis
         self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
 
@@ -100,11 +103,10 @@ class GladSync(Sync):
         status = response["Body"].read().strip().decode("utf-8")
         one_day_ago = datetime.now(tz.UTC) - timedelta(hours=24)
 
-        if status in ["COMPLETED", "SAVED", "HADOOP RUNNING", "HADOOP FAILED"]:
-            if one_day_ago <= last_modified_datetime <= datetime.now(tz.UTC):
-                return True
-
-        return False
+        stati = ["COMPLETED", "SAVED", "HADOOP RUNNING", "HADOOP FAILED"]
+        return (status in stati) and (
+            one_day_ago <= last_modified_datetime <= datetime.now(tz.UTC)
+        )
 
 
 class RWAreasSync(Sync):
@@ -150,7 +152,7 @@ class Syncer:
     def _get_latest_version():
         return f"v{datetime.now().strftime('%Y%m%d')}"
 
-    def build_job(self, config: DatapumpConfig) -> Job:
+    def build_job(self, config: DatapumpConfig) -> Optional[Job]:
         """
         Build Job model based on sync type
         :param config: sync configuration
