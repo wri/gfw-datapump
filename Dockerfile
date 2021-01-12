@@ -2,6 +2,7 @@ FROM hashicorp/terraform:0.13.3
 
 ENV PYTHONUNBUFFERED=1
 RUN apk update
+RUN apk add --update --no-cache docker
 RUN apk --no-cache add openjdk11 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 ENV MAVEN_VERSION 3.5.4
