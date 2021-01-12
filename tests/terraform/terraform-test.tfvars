@@ -1,9 +1,9 @@
 environment = "test"
 
-step_functions_path = "../../src/step_functions"
-lambdas_path = "../../src/lambdas"
+step_functions_path = "/app/src/step_functions"
+lambdas_path = "/app/src/lambdas"
 policies_path = "../../terraform/modules/datapump/policies"
-lambda_layers_path = "../../src/docker"
+lambda_layers_path = "/app/src/"
 
 data_api_uri = "http://mock_server:1080"
 

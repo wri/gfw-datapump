@@ -9,7 +9,7 @@ resource "aws_lambda_function" "dispatcher" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_arn, var.rasterio_lambda_layer_arn]
+  layers           = [module.py37_datapump_020.layer_arn, var.rasterio_lambda_layer_arn]
   environment {
     variables = {
       ENV                           = var.environment
@@ -32,7 +32,7 @@ resource "aws_lambda_function" "analyzer" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_arn]
+  layers           = [module.py37_datapump_020.layer_arn]
   environment {
     variables = {
       ENV                            = var.environment
@@ -58,7 +58,7 @@ resource "aws_lambda_function" "uploader" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_arn]
+  layers           = [module.py37_datapump_020.layer_arn]
   environment {
     variables = {
       ENV                            = var.environment
@@ -79,7 +79,7 @@ resource "aws_lambda_function" "postprocessor" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_arn, var.rasterio_lambda_layer_arn]
+  layers           = [module.py37_datapump_020.layer_arn, var.rasterio_lambda_layer_arn]
   environment {
     variables = {
       ENV                            = var.environment

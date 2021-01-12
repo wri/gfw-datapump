@@ -1,15 +1,12 @@
 FROM lambci/lambda:build-python3.7
 
-WORKDIR /var/task
-ENV WORKDIR /var/task
-
+ENV WORKDIR /opt
 WORKDIR $WORKDIR
-RUN mkdir -p python
+
+RUN mkdir -p /opt/python
 
 # Make the dir and to install all packages into packages/
-COPY src/datapump/ datapump/
-COPY src/setup.py .
-COPY src/docker/datapump/.lambdaignore .
+COPY . $WORKDIR
 
 # installing dependencies to build package
 RUN pip install . -t python
