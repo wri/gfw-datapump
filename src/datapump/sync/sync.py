@@ -49,7 +49,7 @@ class FireAlertsSync(Sync):
             features_1x1=config.metadata["features_1x1"],
             geotrellis_version=config.metadata["geotrellis_version"],
             alert_type=self.fire_alerts_type,
-            alert_source=self.fire_alerts_uri,
+            alert_sources=self.fire_alerts_uri,
             change_only=True,
         )
 

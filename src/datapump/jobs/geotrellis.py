@@ -69,19 +69,7 @@ class GeotrellisJob(Job):
     result_tables: List[AnalysisResultTable] = []
 
     def start_analysis(self):
-        name = f"{self.table.dataset}_{self.table.analysis}_{self.analysis_version}__{self.id}"
-        self.feature_type = self._get_feature_type()
-
-        steps = [self._get_step()]
-
-        worker_count = 5  # self._calculate_worker_count()
-        instances = self._instances(worker_count)
-        applications = self._applications()
-        configurations = self._configurations(worker_count)
-
-        self.emr_job_id = self._run_job_flow(
-            name, instances, steps, applications, configurations
-        )
+        self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
         self.status = JobStatus.analyzing
 
     def update_status(self) -> None:
@@ -117,6 +105,19 @@ class GeotrellisJob(Job):
             self.status = JobStatus.failed
         else:
             self.status = JobStatus.analyzing
+
+    def _get_emr_inputs(self):
+        name = f"{self.table.dataset}_{self.table.analysis}_{self.analysis_version}__{self.id}"
+        self.feature_type = self._get_feature_type()
+
+        steps = [self._get_step()]
+
+        worker_count = self._calculate_worker_count()
+        instances = self._instances(worker_count)
+        applications = self._applications()
+        configurations = self._configurations(worker_count)
+
+        return name, instances, steps, applications, configurations
 
     def _get_feature_type(self) -> GeotrellisFeatureType:
         if self.table.dataset == "wdpa_protected_areas":
@@ -316,7 +317,7 @@ class GeotrellisJob(Job):
             "--features",
             self.features_1x1,
             "--feature_type",
-            self.feature_type,
+            self.feature_type.value.split("_")[0],
             "--analysis",
             GeotrellisAnalysis[self.table.analysis].value,
         ]
@@ -326,6 +327,10 @@ class GeotrellisJob(Job):
             step_args.append("--tcl")
         elif self.table.analysis == Analysis.glad:
             step_args.append("--glad")
+        # elif self.table.analysis == Analysis.viirs:
+        #     step_args.append("--fire_alert_type", "viirs")
+        # elif self.table.analysis == Analysis.modis:
+        #     step_args.append("--fire_alert_type", "modis")
 
         if self.change_only:
             step_args.append("--change_only")
@@ -500,4 +505,17 @@ class GeotrellisJob(Job):
 
 class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
-    alert_source: List[str]
+    alert_sources: List[str]
+
+    def _get_step(self):
+        step = super()._get_step()
+        step_args = step["HadoopJarStep"]["Args"]
+
+        step_args.append("--fire_alert_type")
+        step_args.append(GeotrellisAnalysis[self.alert_type])
+
+        for src in self.alert_sources:
+            step_args.append("--fire_alert_source")
+            step_args.append(src)
+
+        return step
