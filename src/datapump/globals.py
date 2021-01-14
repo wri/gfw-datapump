@@ -22,13 +22,14 @@ class EnvSettings(BaseSettings):
 
 
 class Globals(EnvSettings):
-    env: str = Field(env="ENV")
+    env: Optional[str] = Field("dev", env="ENV")
 
     token_secret_id: str = Field("gfw-api/token")
     data_api_uri: Optional[str] = Field(env="DATA_API_URI")
 
     aws_region: Optional[str] = Field("us-east-1", env="AWS_REGION")
     s3_bucket_pipeline: Optional[str] = Field("", env="S3_BUCKET_PIPELINE")
+    s3_data_lake_pipeline: Optional[str] = Field("", env="S3_DATA_LAKE_PIPELINE")
     s3_glad_path: Optional[str] = Field(env="S3_GLAD_PATH")
     ec2_key_name: Optional[str] = Field("", env="EC2_KEY_NAME")
     public_subnet_ids: List[str] = Field(
@@ -48,12 +49,16 @@ class Globals(EnvSettings):
 
     # if LOCALSTACK_HOSTNAME is set, it means we're running in a mock environment
     # and should use that as the endpoint URI
-    # localstack_hostname: Optional[str] = Field(None, env="LOCALSTACK_HOSTNAME")
     aws_endpoint_uri: Optional[str] = Field(
         f"http://{os.environ['LOCALSTACK_HOSTNAME']}:4566"
         if "LOCALSTACK_HOSTNAME" in os.environ
         else None
     )
+
+    fire_source_paths = {
+        "viirs": f"s3://{s3_data_lake_pipeline}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
+        "modis": f"s3://{s3_data_lake_pipeline}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
+    }
 
 
 GLOBALS = Globals()

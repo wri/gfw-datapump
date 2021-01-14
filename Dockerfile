@@ -20,4 +20,8 @@ RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 RUN pip3 install pytest pytest-cov boto3
 
+RUN mkdir datapump
+COPY ./src src
+RUN pip3 install ./src
+
 RUN apk add git
