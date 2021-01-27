@@ -1,11 +1,15 @@
+from typing import Union
+
+from pydantic import parse_obj_as
+
 from datapump.globals import LOGGER
-from datapump.jobs.geotrellis import GeotrellisJob
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
 
 
 def handler(event, context):
     try:
-        job = GeotrellisJob(**event)
+        job = parse_obj_as(Union[FireAlertsGeotrellisJob, GeotrellisJob], event)
 
         LOGGER.info(f"Running analysis job:\n{job.dict()}")
         if job.status == JobStatus.starting:

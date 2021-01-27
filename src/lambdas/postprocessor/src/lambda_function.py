@@ -6,14 +6,17 @@ from pydantic import parse_obj_as
 
 from datapump.globals import LOGGER
 from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob
+from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob
 from datapump.clients.datapump_store import DatapumpStore, DatapumpConfig
-from datapump.commands import SyncType
+from datapump.commands import SyncType, Analysis
 
 
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
-    jobs = parse_obj_as(Union[List[GeotrellisJob]], event["jobs"])
+    jobs = parse_obj_as(
+        List[Union[FireAlertsGeotrellisJob, GeotrellisJob]], event["jobs"]
+    )
+    failed_jobs = []
 
     for job in jobs:
         LOGGER.info(f"Postprocessing job: {pformat(job.dict())}")
@@ -22,7 +25,9 @@ def handler(event, context):
             cast(job, GeotrellisJob)
 
             # add any results with sync enabled to the config table
-            if job.status == JobStatus.complete and job.sync:
+            if job.status == JobStatus.failed:
+                failed_jobs.append(job)
+            elif job.status == JobStatus.complete and job.sync:
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
                 sync_types = SyncType.get_sync_types(
@@ -33,12 +38,21 @@ def handler(event, context):
                 )
 
                 with DatapumpStore() as config_client:
-                    for sync_type in SyncType.get_sync_types(
-                        job.table.dataset, job.table.analysis
-                    ):
+                    for sync_type in sync_types:
+                        if job.table.analysis == Analysis.glad and job.sync_version:
+                            analysis_version = job.sync_version
+                            config_client.remove(
+                                analysis_version,
+                                job.table.dataset,
+                                job.table.version,
+                                job.table.analysis.value,
+                            )
+                        else:
+                            analysis_version = job.analysis_version
+
                         config_client.add(
                             DatapumpConfig(
-                                analysis_version=job.analysis_version,
+                                analysis_version=analysis_version,
                                 dataset=job.table.dataset,
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
@@ -50,3 +64,10 @@ def handler(event, context):
                                 },
                             )
                         )
+
+    if failed_jobs:
+        LOGGER.error("The following jobs failed: ")
+        for job in failed_jobs:
+            LOGGER.error(pformat(job.dict()))
+
+        raise Exception("One or more jobs failed. See logs for details.")

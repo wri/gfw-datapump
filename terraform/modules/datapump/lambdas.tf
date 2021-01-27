@@ -65,7 +65,7 @@ resource "aws_lambda_function" "uploader" {
     variables = {
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
-      S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
+      S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
       DATA_API_URI                   = var.data_api_uri
     }
   }

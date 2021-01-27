@@ -37,7 +37,7 @@ def test_datapump():
 
         sync_input = {
             "command": "sync",
-            "parameters": {"types": ["glad"]},
+            "parameters": {"types": ["glad"], "sync_version": "v20210122"},
         }
 
         status = _run_datapump(sync_input)

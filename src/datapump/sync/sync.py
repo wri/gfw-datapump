@@ -5,7 +5,7 @@ from uuid import uuid1
 from abc import ABC, abstractmethod
 import dateutil.tz as tz
 
-from ..globals import GLOBALS
+from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import JobStatus
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..sync.fire_alerts import process_active_fire_alerts
@@ -48,7 +48,7 @@ class FireAlertsSync(Sync):
             ),
             features_1x1=config.metadata["features_1x1"],
             geotrellis_version=config.metadata["geotrellis_version"],
-            alert_type=self.fire_alerts_type,
+            alert_type=self.fire_alerts_type.value,
             alert_sources=self.fire_alerts_uri,
             change_only=True,
         )

@@ -24,7 +24,7 @@ GEOSTORE_PAGE_SIZE = 100
 
 
 def create_1x1_tsv(version: str) -> Optional[str]:
-    tsv = get_virutal_1x1_tsv()
+    tsv = get_virtual_1x1_tsv()
 
     if tsv:
         geostore_path = f"geotrellis/features/geostore/{version}.tsv"
@@ -36,7 +36,7 @@ def create_1x1_tsv(version: str) -> Optional[str]:
         return None
 
 
-def get_virutal_1x1_tsv() -> Optional[bytes]:
+def get_virtual_1x1_tsv() -> Optional[bytes]:
     """
     Main Lambda function
     """
