@@ -36,8 +36,11 @@ lambda.zip
 layer.zip
 .mypy_cache/
 .pytest_cache/
-venv/
+venvpy/
 pyenv/
-test/test_data/*
 .github/
 terraform/.terraform
+python/
+tools/
+terraform/
+.github/

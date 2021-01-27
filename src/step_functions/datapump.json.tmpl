@@ -1,0 +1,90 @@
+{
+  "StartAt": "dispatcher",
+  "States": {
+    "dispatcher": {
+      "Type": "Task",
+      "Resource": "${lambda_dispatcher_arn}",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "run_jobs"
+    },
+    "run_jobs": {
+      "Type": "Map",
+      "InputPath": "$",
+      "ItemsPath": "$.jobs",
+      "ResultPath": "$.jobs",
+      "Next": "postprocessor",
+      "Iterator": {
+        "StartAt": "status_checker",
+        "States": {
+          "status_checker": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "starting",
+                "Next": "analyzer"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "analyzing",
+                "Next": "analyzer"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "analyzed",
+                "Next": "uploader"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "uploading",
+                "Next": "uploader"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "complete",
+                "Next": "success"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "failed",
+                "Next": "failed"
+              }
+            ]
+          },
+          "waiter": {
+            "Type": "Wait",
+            "Seconds": ${wait_time},
+            "Next": "status_checker"
+          },
+          "analyzer": {
+            "Type": "Task",
+            "Resource": "${lambda_analyzer_arn}",
+            "InputPath": "$",
+            "ResultPath": "$",
+            "Next": "waiter"
+          },
+          "uploader": {
+            "Type": "Task",
+            "Resource": "${lambda_uploader_arn}",
+            "InputPath": "$",
+            "ResultPath": "$",
+            "Next": "waiter"
+          },
+          "failed": {
+            "Type": "Succeed"
+          },
+          "success": {
+            "Type": "Succeed"
+          }
+        }
+      }
+    },
+    "postprocessor": {
+      "Type": "Task",
+      "Resource": "${lambda_postprocessor_arn}",
+      "InputPath": "$",
+      "End": true
+    }
+  }
+}
