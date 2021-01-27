@@ -1,9 +1,8 @@
 import os
 import logging
 import json
-from typing import Optional, List
+from typing import Optional, List, Dict
 
-import pydantic
 from pydantic import BaseSettings
 from pydantic import Field, PositiveInt
 
@@ -28,8 +27,12 @@ class Globals(EnvSettings):
     data_api_uri: Optional[str] = Field(env="DATA_API_URI")
 
     aws_region: Optional[str] = Field("us-east-1", env="AWS_REGION")
-    s3_bucket_pipeline: Optional[str] = Field("", env="S3_BUCKET_PIPELINE")
-    s3_data_lake_pipeline: Optional[str] = Field("", env="S3_DATA_LAKE_PIPELINE")
+    s3_bucket_pipeline: Optional[str] = Field(
+        "gfw-pipelines-dev", env="S3_BUCKET_PIPELINE"
+    )
+    s3_data_lake_pipeline: Optional[str] = Field(
+        "gfw-data-lake-dev", env="S3_DATA_LAKE_PIPELINE"
+    )
     s3_glad_path: Optional[str] = Field(env="S3_GLAD_PATH")
     ec2_key_name: Optional[str] = Field("", env="EC2_KEY_NAME")
     public_subnet_ids: List[str] = Field(
@@ -43,9 +46,11 @@ class Globals(EnvSettings):
 
     emr_version: str = Field("emr-6.1.0")
 
-    geotrellis_jar_path = Field("", env="GEOTRELLIS_JAR_PATH")
+    geotrellis_jar_path = Field(
+        "s3://gfw-pipelines-dev/geotrellis/jars", env="GEOTRELLIS_JAR_PATH"
+    )
     worker_count_min: PositiveInt = Field(5)
-    worker_count_per_gb_features: PositiveInt = Field(50)
+    worker_count_per_gb_features: PositiveInt = Field(25)
 
     # if LOCALSTACK_HOSTNAME is set, it means we're running in a mock environment
     # and should use that as the endpoint URI
@@ -55,10 +60,7 @@ class Globals(EnvSettings):
         else None
     )
 
-    fire_source_paths = {
-        "viirs": f"s3://{s3_data_lake_pipeline}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
-        "modis": f"s3://{s3_data_lake_pipeline}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
-    }
+    max_versions: Optional[int] = Field(2, env="MAX_VERSIONS")
 
 
 GLOBALS = Globals()

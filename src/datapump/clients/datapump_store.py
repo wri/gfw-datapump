@@ -76,6 +76,21 @@ class DatapumpStore:
         self.conn.execute("INSERT INTO datapump VALUES(?,?,?,?,?,?,?)", row_values)
         self.conn.commit()
 
+    def remove(
+        self, analysis_version: str, dataset: str, dataset_version: str, analysis: str
+    ):
+        self.conn.execute(
+            """
+            DELETE FROM datapump
+            WHERE analysis_version = ?
+                AND dataset = ?
+                AND dataset_version = ?
+                AND analysis = ?
+        """,
+            [analysis_version, dataset, dataset_version, analysis],
+        )
+        self.conn.commit()
+
     def get(self, **kwargs) -> List[DatapumpConfig]:
         sql = "SELECT * FROM datapump"
 

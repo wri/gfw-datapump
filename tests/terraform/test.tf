@@ -32,6 +32,14 @@ resource "aws_s3_bucket_object" "geotrellis_results" {
   source = "../files/geotrellis_results/${each.value}"
 }
 
+resource "aws_s3_bucket_object" "geotrellis_results_sync" {
+  for_each = fileset("../files/geotrellis_results", "**/{daily,weekly}_alerts/*.csv")
+
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "geotrellis/results/v20210122/test_zonal_stats/${each.value}"
+  source = "../files/geotrellis_results/${each.value}"
+}
+
 resource "aws_s3_bucket_object" "geotrellis_jar" {
   bucket = aws_s3_bucket.pipelines_test.id
   key    = "geotrellis-mock.jar"

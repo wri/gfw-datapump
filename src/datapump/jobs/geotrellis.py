@@ -16,8 +16,8 @@ from ..jobs.jobs import (
     JobStatus,
 )
 
-WORKER_INSTANCE_TYPES = ["r4.2xlarge", "r5.2xlarge"]
-MASTER_INSTANCE_TYPE = "r4.2xlarge"
+WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge", "r6g.2xlarge"]
+MASTER_INSTANCE_TYPE = "r5.2xlarge"
 
 
 class GeotrellisAnalysis(str, Enum):
@@ -112,7 +112,7 @@ class GeotrellisJob(Job):
 
         steps = [self._get_step()]
 
-        worker_count = self._calculate_worker_count()
+        worker_count = self._calculate_worker_count(self.features_1x1)
         instances = self._instances(worker_count)
         applications = self._applications()
         configurations = self._configurations(worker_count)
@@ -122,7 +122,7 @@ class GeotrellisJob(Job):
     def _get_feature_type(self) -> GeotrellisFeatureType:
         if self.table.dataset == "wdpa_protected_areas":
             return GeotrellisFeatureType.wdpa
-        elif self.table.dataset == "global_administrative_areas":
+        elif self.table.dataset == "gadm":
             return GeotrellisFeatureType.gadm
         elif "geostore" in self.table.dataset:
             return GeotrellisFeatureType.geostore
@@ -156,12 +156,13 @@ class GeotrellisJob(Job):
         if self.feature_type == "gadm":
             result_dataset += f"__{feature_agg}_{analysis_agg}"
         else:
+            feature_agg = None
             result_dataset += f"__{analysis_agg}"
 
         sources = [f"s3://{bucket}/{file}" for file in files]
         return AnalysisResultTable(
             dataset=result_dataset,
-            version=self.analysis_version,
+            version=self.sync_version if self.sync_version else self.analysis_version,
             source_uri=sources,
             index_columns=self._get_index_cols(analysis_agg, feature_agg),
             table_schema=self._get_table_schema(sources[0]),
@@ -176,12 +177,14 @@ class GeotrellisJob(Job):
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
             ("wdpa", None): ["wdpa_protected_area__id"],
             ("geostore", None): ["geostore__id"],
+            ("feature", None): ["feature__id"],
         }
 
         try:
             cols = id_col_constructor[(self.feature_type, feature_agg)]
-        except KeyError:
-            cols = ["feature__id"]
+        except KeyError as e:
+            LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
+            raise e
 
         analysis_col_constructor = {
             (Analysis.tcl, "change"): [
@@ -264,8 +267,8 @@ class GeotrellisJob(Job):
                 or field.endswith("__perc")
                 or field.endswith("__year")
                 or field.endswith("__week")
-                or field == "adm1"
-                or field == "adm2"
+                # or field == "adm1"
+                # or field == "adm2"
             ):
                 return "integer"
             elif field.startswith("is__"):
@@ -273,7 +276,7 @@ class GeotrellisJob(Job):
             else:
                 return "text"
 
-    def _calculate_worker_count(self) -> int:
+    def _calculate_worker_count(self, limiting_src) -> int:
         """
         Calculate a heuristic for number of workers appropriate for job based on the size
         of the input features.
@@ -286,7 +289,11 @@ class GeotrellisJob(Job):
         :param job: input job
         :return: calculate number of works appropriate for job size
         """
-        bucket, key = get_s3_path_parts(self.features_1x1)
+        # if using a wildcard for a folder, just use hardcoded value
+        if "*.tsv" in limiting_src:
+            return 50
+
+        bucket, key = get_s3_path_parts(limiting_src)
         resp = get_s3_client().head_object(Bucket=bucket, Key=key)
         byte_size = resp["ContentLength"]
 
@@ -319,7 +326,7 @@ class GeotrellisJob(Job):
             "--feature_type",
             self.feature_type.value.split("_")[0],
             "--analysis",
-            GeotrellisAnalysis[self.table.analysis].value,
+            GeotrellisAnalysis[self.table.analysis].value.split("_")[0],
         ]
 
         # These limit the extent to look at for certain types of analyses
@@ -327,10 +334,6 @@ class GeotrellisJob(Job):
             step_args.append("--tcl")
         elif self.table.analysis == Analysis.glad:
             step_args.append("--glad")
-        # elif self.table.analysis == Analysis.viirs:
-        #     step_args.append("--fire_alert_type", "viirs")
-        # elif self.table.analysis == Analysis.modis:
-        #     step_args.append("--fire_alert_type", "modis")
 
         if self.change_only:
             step_args.append("--change_only")
@@ -342,7 +345,8 @@ class GeotrellisJob(Job):
         }
 
     def _get_result_path(self, include_analysis=False) -> str:
-        result_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/results/{self.analysis_version}/{self.table.dataset}"
+        version = self.sync_version if self.sync_version else self.analysis_version
+        result_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/results/{version}/{self.table.dataset}"
         if include_analysis:
             result_path += f"/{GeotrellisAnalysis[self.table.analysis].value}"
 
@@ -505,17 +509,34 @@ class GeotrellisJob(Job):
 
 class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
-    alert_sources: List[str]
+    alert_sources: Optional[List[str]] = []
+
+    FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
+        "viirs": f"s3://{GLOBALS.s3_data_lake_pipeline}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
+        "modis": f"s3://{GLOBALS.s3_data_lake_pipeline}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
+    }
 
     def _get_step(self):
         step = super()._get_step()
         step_args = step["HadoopJarStep"]["Args"]
 
         step_args.append("--fire_alert_type")
-        step_args.append(GeotrellisAnalysis[self.alert_type])
+        step_args.append(self.alert_type)
+
+        if not self.alert_sources:
+            self.alert_sources = [
+                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/scientific/*.tsv",
+                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/near_real_time/*.tsv",
+            ]
 
         for src in self.alert_sources:
             step_args.append("--fire_alert_source")
             step_args.append(src)
 
         return step
+
+    def _calculate_worker_count(self, limiting_src: str) -> int:
+        if self.sync_version and len(self.alert_sources) == 1:
+            return super()._calculate_worker_count(self.alert_sources[0])
+        else:
+            return super()._calculate_worker_count(limiting_src)
