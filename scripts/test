@@ -2,5 +2,46 @@
 
 set -e
 
-pytest --cov-report term --cov-report xml --cov=lambdas --cov=datapump_utils tests/test_environment_tests/
-pytest --cov-report term --cov-report xml --cov=lambdas --cov=datapump_utils tests/mocked_environment_tests/
+# Default values
+POSITIONAL=()
+BUILD=true
+# extracting cmd line arguments
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+
+  case $key in
+      --no_build)
+      BUILD=false
+      shift # past argument
+      ;;
+      *)    # unknown option
+      POSITIONAL+=("$1") # save it in an array for later
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+if [ "${BUILD}" = true ]; then
+    # pre-download bigdata image, otherwise localstack try to download it when you make your first EMR request,
+    # and cause boto3 to timeout because it's a ~2.5 GB image
+    docker pull localstack/bigdata
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
+fi
+
+if [ "${DUMP_TO_STDOUT}" = true ]; then
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test || failed=yes
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs -t
+else
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
+    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
+fi
+
+docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test down
+
+# delete if exists, otherwise localstack might have issues with EMR on next run
+docker rm -f localstack_bigdata || true
+rm tests/terraform/terraform.tfstate*
+[[ -z "${failed:-}" ]] || exit 1

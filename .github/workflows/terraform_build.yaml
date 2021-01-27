@@ -31,17 +31,13 @@ jobs:
     - name: Test with pytest
       env:
         ENV: test
-        AWS_ACCESS_KEY_ID: ${{ secrets.aws_key_dev }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_dev }}
+        AWS_ACCESS_KEY_ID: test
+        AWS_SECRET_ACCESS_KEY: test
         AWS_DEFAULT_REGION: ${{ secrets.aws_region_dev }}
-        CC_TEST_REPORTER_ID: ${{ secrets.test_report_id }}
+        LOCALSTACK_API_KEY: ${{ secrets.localstack_api_key }}
+        DUMP_TO_STDOUT: true
       run: |
-        ./cc-test-reporter before-build
         ./scripts/test
-        ./cc-test-reporter after-build -t coverage.py -p ${PWD} --exit-code $?
-    - name: Build Lambda layers
-      if: success()
-      run: ./scripts/cibuild
     - name: Deploy production
       if: success() && contains(github.ref, 'master')
       env:
