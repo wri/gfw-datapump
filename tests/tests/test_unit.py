@@ -27,6 +27,20 @@ def test_geotrellis_fires():
     step = job._get_step()
     assert step == EXPECTED
 
+    job_default = FireAlertsGeotrellisJob(
+        id="test",
+        status=JobStatus.starting,
+        analysis_version="vtest",
+        sync_version="vtestsync",
+        table=AnalysisInputTable(
+            dataset="test_dataset", version="vtestds", analysis=Analysis.viirs
+        ),
+        features_1x1="s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
+        geotrellis_version="1.3.0",
+        alert_type="viirs",
+    )
+    assert job_default
+
 
 EXPECTED = {
     "Name": "viirs",
@@ -39,17 +53,17 @@ EXPECTED = {
             "cluster",
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
-            "/treecoverloss-assembly-1.3.0.jar",
+            "s3://gfw-pipelines-dev/geotrellis/jars/treecoverloss-assembly-1.3.0.jar",
             "--output",
-            "s3:///geotrellis/results/vtest/test_dataset",
+            "s3://gfw-pipelines-dev/geotrellis/results/vtestsync/test_dataset",
             "--features",
             "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
             "--feature_type",
             "feature",
             "--analysis",
-            "firealerts_viirs",
+            "firealerts",
             "--fire_alert_type",
-            "firealerts_viirs",
+            "viirs",
             "--fire_alert_source",
             "s3://gfw-data-lake-test/viirs/test1.tsv",
             "--fire_alert_source",

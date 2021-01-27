@@ -51,10 +51,6 @@ def _analysis(command: AnalysisCommand, client: DataApiClient):
                 sync=command.parameters.sync,
                 geotrellis_version=command.parameters.geotrellis_version,
                 alert_type=table.analysis.value,
-                alert_sources=[
-                    f"{GLOBALS.fire_source_paths[table.analysis.value]}/scientific/*.tsv",
-                    f"{GLOBALS.fire_source_paths[table.analysis.value]}/near_real_time/*.tsv",
-                ],
             )
         else:
             job = GeotrellisJob(

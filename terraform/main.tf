@@ -2,7 +2,7 @@
 terraform {
   required_version = ">=0.13"
   backend "s3" {
-    key     = "wri__gfw_datapump.tfstate"
+    key     = "user-aoi-batch.tfstate"
     region  = "us-east-1"
     encrypt = true
   }
