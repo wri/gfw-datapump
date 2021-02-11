@@ -6,8 +6,9 @@ from datapump.commands import Analysis
 
 
 def handler(event, context):
+    job = GeotrellisJob(**event)
+
     try:
-        job = GeotrellisJob(**event)
         client = DataApiClient()
 
         if job.status == JobStatus.analyzed:
