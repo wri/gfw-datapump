@@ -25,12 +25,14 @@ def create_1x1_tsv(version: str) -> Optional[str]:
     tsv = get_virtual_1x1_tsv()
 
     if tsv:
+        LOGGER.info("Geostores processed, uploading and analyzing")
         geostore_path = f"geotrellis/features/geostore/{version}.tsv"
         get_s3_client.put_object(
             Body=tsv, Bucket=GLOBALS.s3_bucket_pipeline, Key=geostore_path,
         )
         return geostore_path
     else:
+        LOGGER.info("No geostores to process")
         return None
 
 
@@ -74,8 +76,8 @@ def get_pending_areas() -> List[Any]:
     Request to GFW API to get list of user areas which were recently submitted and need to be added to nightly updates
     """
 
-    LOGGER.debug("Get pending Areas")
-    LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
+    LOGGER.info("Get pending Areas")
+    LOGGER.info(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
     # Area sync
@@ -114,18 +116,18 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     Extract Geostore ID from user area
     """
 
-    LOGGER.debug("Get Geostore IDs")
+    LOGGER.info("Get Geostore IDs")
     geostore_ids: List[str] = list()
     for area in areas:
         if "attributes" in area.keys() and "geostore" in area["attributes"].keys():
-            LOGGER.debug(
+            LOGGER.info(
                 f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
             )
             geostore_ids.append(area["attributes"]["geostore"])
         else:
             LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip")
 
-    LOGGER.debug(f"IDS: {geostore_ids}")
+    LOGGER.info(f"IDS: {geostore_ids}")
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out
@@ -137,7 +139,7 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     Get Geostore Geometry using list of geostore IDs
     """
 
-    LOGGER.debug("Get Geostore Geometries by IDs")
+    LOGGER.info("Get Geostore Geometries by IDs")
 
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
     url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
@@ -211,12 +213,12 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
     Convert Geojson to WKB. Slice geometries into 1x1 degree tiles
     """
 
-    LOGGER.debug("Convert Geometries to WKB")
+    LOGGER.info("Convert Geometries to WKB")
 
     extent_1x1: List[Tuple[Polygon, bool, bool]] = _get_extent_1x1()
     wkb: io.StringIO = io.StringIO()
 
-    LOGGER.debug("Start writing to virtual TSV file")
+    LOGGER.info("Start writing to virtual TSV file")
     # Column Header
     wkb.write("geostore_id\tgeom\ttcl\tglad\n")
     count: int = 0
@@ -249,7 +251,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
 
                 for tile in extent_1x1:
                     if geom.intersects(tile[0]):
-                        LOGGER.debug(
+                        LOGGER.info(
                             f"Feature {g['geostoreId']} intersects with bounds {tile[0].bounds} -> add to WKB"
                         )
                         intersecting_polygon = _get_intersecting_polygon(geom, tile[0])
@@ -296,7 +298,7 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
     """
     Fetch 1x1 degree extent file
     """
-    LOGGER.debug("Fetch Extent File")
+    LOGGER.info("Fetch Extent File")
     result_bucket = os.environ["S3_BUCKET_PIPELINE"]
     response: Dict[str, Any] = get_s3_client().get_object(
         Bucket=result_bucket, Key="geotrellis/features/extent_1x1.geojson",
@@ -306,7 +308,7 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
 
     extent_1x1: List[Tuple[Polygon, bool, bool]] = list()
 
-    LOGGER.debug("Read Extent Features")
+    LOGGER.info("Read Extent Features")
 
     for feature in glad_tiles["features"]:
         geom: Polygon = shape(feature["geometry"])
