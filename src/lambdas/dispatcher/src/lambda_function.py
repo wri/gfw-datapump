@@ -7,7 +7,7 @@ from pprint import pformat
 from datapump.globals import LOGGER, GLOBALS
 from datapump.clients.data_api import DataApiClient
 from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob
+from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob, ContinueGeotrellisJobsCommand
 from datapump.sync.sync import Syncer
 from datapump.clients.datapump_store import DatapumpStore
 from datapump.commands import AnalysisCommand, SyncCommand, Analysis
@@ -15,7 +15,7 @@ from datapump.commands import AnalysisCommand, SyncCommand, Analysis
 
 def handler(event, context):
     try:
-        command = parse_obj_as(Union[AnalysisCommand, SyncCommand], event)
+        command = parse_obj_as(Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand], event)
         client = DataApiClient()
 
         jobs = []
@@ -26,6 +26,9 @@ def handler(event, context):
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
+        elif isinstance(command, ContinueGeotrellisJobsCommand):
+            cast(ContinueGeotrellisJobsCommand, command)
+            jobs += command.parameters.dict()["jobs"]
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
         return {"jobs": jobs}

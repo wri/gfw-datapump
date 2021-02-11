@@ -27,7 +27,7 @@ def handler(event, context):
             # add any results with sync enabled to the config table
             if job.status == JobStatus.failed:
                 failed_jobs.append(job)
-            elif job.status == JobStatus.complete and job.sync:
+            elif job.status == JobStatus.complete:
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
                 sync_types = SyncType.get_sync_types(
@@ -39,31 +39,30 @@ def handler(event, context):
 
                 with DatapumpStore() as config_client:
                     for sync_type in sync_types:
-                        if job.table.analysis == Analysis.glad and job.sync_version:
-                            analysis_version = job.sync_version
-                            config_client.remove(
-                                analysis_version,
-                                job.table.dataset,
-                                job.table.version,
-                                job.table.analysis.value,
-                            )
-                        else:
-                            analysis_version = job.analysis_version
-
-                        config_client.add(
-                            DatapumpConfig(
-                                analysis_version=analysis_version,
+                        if job.sync_version:
+                            config_client.update_sync_version(
+                                job.sync_version,
+                                analysis_version=job.analysis_version,
+                                analysis=job.table.analysis,
                                 dataset=job.table.dataset,
                                 dataset_version=job.table.version,
-                                analysis=job.table.analysis,
-                                sync=job.sync,
-                                sync_type=sync_type,
-                                metadata={
-                                    "geotrellis_version": job.geotrellis_version,
-                                    "features_1x1": job.features_1x1,
-                                },
                             )
-                        )
+                        elif job.sync:
+                            config_client.add(
+                                DatapumpConfig(
+                                    analysis_version=job.analysis_version,
+                                    dataset=job.table.dataset,
+                                    dataset_version=job.table.version,
+                                    analysis=job.table.analysis,
+                                    sync=job.sync,
+                                    sync_type=sync_type,
+                                    sync_version=None,
+                                    metadata={
+                                        "geotrellis_version": job.geotrellis_version,
+                                        "features_1x1": job.features_1x1,
+                                    },
+                                )
+                            )
 
     if failed_jobs:
         LOGGER.error("The following jobs failed: ")
