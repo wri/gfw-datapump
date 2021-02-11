@@ -1,4 +1,4 @@
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
@@ -7,16 +7,18 @@ import urllib
 import csv
 import io
 
+from pydantic import BaseModel
+
 from ..globals import GLOBALS, LOGGER
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
-from ..commands import Analysis, AnalysisInputTable
+from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand
 from ..jobs.jobs import (
     AnalysisResultTable,
     Job,
-    JobStatus,
+    JobStatus
 )
 
-WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge", "r6g.2xlarge"]
+WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
 
 
@@ -137,7 +139,9 @@ class GeotrellisJob(Job):
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
         keys = [
-            item["Key"] for item in resp["Contents"] if item["Key"].endswith(".csv")
+            item["Key"]
+            for item in resp["Contents"]
+            if item["Key"].endswith(".csv") and "download" not in item["Key"]
         ]
 
         result_tables = [
@@ -152,17 +156,25 @@ class GeotrellisJob(Job):
     ) -> AnalysisResultTable:
         analysis_agg, feature_agg = (path.parts[-1], path.parts[-2])
 
-        result_dataset = f"{self.table.dataset}__{self.table.analysis}"
-        if self.feature_type == "gadm":
-            result_dataset += f"__{feature_agg}_{analysis_agg}"
-        else:
+        if self.table.dataset == "gadm" and self.table.analysis == Analysis.viirs and analysis_agg == "all":
+            result_dataset = "nasa_viirs_fire_alerts"
             feature_agg = None
-            result_dataset += f"__{analysis_agg}"
+        else:
+            result_dataset = f"{self.table.dataset}__{self.table.analysis}"
+            if self.feature_type == "gadm":
+                result_dataset += f"__{feature_agg}_{analysis_agg}"
+            else:
+                feature_agg = None
+                result_dataset += f"__{analysis_agg}"
 
         sources = [f"s3://{bucket}/{file}" for file in files]
+        version = self.analysis_version
+        if self.sync_version and self.table.analysis == Analysis.glad:
+            version = self.sync_version
+
         return AnalysisResultTable(
             dataset=result_dataset,
-            version=self.sync_version if self.sync_version else self.analysis_version,
+            version=version,
             source_uri=sources,
             index_columns=self._get_index_cols(analysis_agg, feature_agg),
             table_schema=self._get_table_schema(sources[0]),
@@ -175,6 +187,7 @@ class GeotrellisJob(Job):
             ("gadm", "iso"): ["iso"],
             ("gadm", "adm1"): ["iso", "adm1"],
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
+            ("gadm", None): ["iso", "adm1", "adm2"],
             ("wdpa", None): ["wdpa_protected_area__id"],
             ("geostore", None): ["geostore__id"],
             ("feature", None): ["feature__id"],
@@ -188,10 +201,10 @@ class GeotrellisJob(Job):
 
         analysis_col_constructor = {
             (Analysis.tcl, "change"): [
-                "umd_tree_cover_density_2000__threshold",
+                "umd_tree_cover_density__threshold",
                 "umd_tree_cover_loss__year",
             ],
-            (Analysis.tcl, "summary"): ["umd_tree_cover_density_2000__threshold"],
+            (Analysis.tcl, "summary"): ["umd_tree_cover_density__threshold"],
             (Analysis.glad, "daily_alerts"): ["is__confirmed_alert", "alert__date"],
             (Analysis.glad, "weekly_alerts"): [
                 "is__confirmed_alert",
@@ -199,12 +212,14 @@ class GeotrellisJob(Job):
                 "alert__week",
             ],
             (Analysis.viirs, "daily_alerts"): ["confidence__cat", "alert__date"],
+            (Analysis.viirs, "all"): ["confidence__cat", "alert__date"],
             (Analysis.viirs, "weekly_alerts"): [
                 "confidence__cat",
                 "alert__year",
                 "alert__week",
             ],
             (Analysis.modis, "daily_alerts"): ["confidence__cat", "alert__date"],
+            (Analysis.modis, "all"): ["confidence__cat", "alert__date"],
             (Analysis.modis, "weekly_alerts"): [
                 "confidence__cat",
                 "alert__year",
@@ -300,9 +315,11 @@ class GeotrellisJob(Job):
         analysis_weight = 1.0
         if self.table.analysis == Analysis.tcl:
             analysis_weight *= 1.25
-
         if self.change_only:
             analysis_weight *= 0.75
+        # wdpa just has very  complex geometries
+        if self.table.dataset == "wdpa_protected_areas":
+            analysis_weight *= 0.25
 
         worker_count = round(
             (byte_size / 1000000000)
@@ -312,6 +329,10 @@ class GeotrellisJob(Job):
         return max(worker_count, GLOBALS.worker_count_min)
 
     def _get_step(self) -> Dict[str, Any]:
+        analysis = GeotrellisAnalysis[self.table.analysis].value
+        if "firealerts" in analysis:
+            analysis = "firealerts"
+
         step_args = [
             "spark-submit",
             "--deploy-mode",
@@ -326,7 +347,7 @@ class GeotrellisJob(Job):
             "--feature_type",
             self.feature_type.value.split("_")[0],
             "--analysis",
-            GeotrellisAnalysis[self.table.analysis].value.split("_")[0],
+            analysis,
         ]
 
         # These limit the extent to look at for certain types of analyses
@@ -337,6 +358,11 @@ class GeotrellisJob(Job):
 
         if self.change_only:
             step_args.append("--change_only")
+
+        # TODO: Remove before committing
+        if self.feature_type == GeotrellisFeatureType.gadm:
+            step_args.append("--iso")
+            step_args.append("BRA")
 
         return {
             "Name": self.table.analysis.value,
@@ -472,26 +498,26 @@ class GeotrellisJob(Job):
             {
                 "Classification": "spark-defaults",
                 "Properties": {
-                    "spark.executor.memory": "5G",
-                    "spark.driver.memory": "5G",
-                    "spark.driver.cores": "1",
+                    # "spark.executor.memory": "5G",
+                    # "spark.driver.memory": "5G",
+                    # "spark.driver.cores": "1",
                     "spark.driver.maxResultSize": "3G",
                     "spark.yarn.appMasterEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
                     "spark.rdd.compress": "true",
-                    "spark.executor.cores": "1",
+                    # "spark.executor.cores": "1",
                     "spark.executorEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
-                    "spark.sql.shuffle.partitions": str(
-                        (70 * worker_instance_count) - 1
-                    ),
+                    # "spark.sql.shuffle.partitions": str(
+                    #     (70 * worker_instance_count) - 1
+                    # ),
                     "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
                     "spark.shuffle.spill.compress": "true",
                     "spark.shuffle.compress": "true",
-                    "spark.default.parallelism": str((70 * worker_instance_count) - 1),
-                    "spark.executor.memoryOverhead": "2G",
+                    # "spark.default.parallelism": str((70 * worker_instance_count) - 1),
+                    # "spark.executor.memoryOverhead": "2G",
                     "spark.shuffle.service.enabled": "true",
                     "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
-                    "spark.executor.instances": str((7 * worker_instance_count) - 1),
-                    "spark.dynamicAllocation.enabled": "false",
+                    # "spark.executor.instances": str((7 * worker_instance_count) - 1),
+                    "spark.dynamicAllocation.enabled": "true",  # "false",
                 },
                 "Configurations": [],
             },
@@ -540,3 +566,12 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
             return super()._calculate_worker_count(self.alert_sources[0])
         else:
             return super()._calculate_worker_count(limiting_src)
+
+
+class ContinueGeotrellisJobsCommand(ContinueJobsCommand):
+    command: str
+
+    class ContinueGeotrellisJobsParameters(BaseModel):
+        jobs: List[Union[FireAlertsGeotrellisJob, GeotrellisJob]]
+
+    parameters: ContinueGeotrellisJobsParameters
