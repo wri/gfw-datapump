@@ -17,9 +17,7 @@ from ..clients.rw_api import update_area_statuses, token
 from ..clients.aws import get_s3_client
 from ..globals import GLOBALS, LOGGER
 
-SUMMARIZE_NEW_AOIS_NAME = "new-user-areas"
 DIRNAME = os.path.dirname(__file__)
-DATASETS = json.loads(os.environ["DATASETS"]) if "DATASETS" in os.environ else dict()
 GEOSTORE_PAGE_SIZE = 100
 
 
