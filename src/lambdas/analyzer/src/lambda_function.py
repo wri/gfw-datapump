@@ -8,9 +8,9 @@ from datapump.jobs.jobs import JobStatus
 
 
 def handler(event, context):
-    try:
-        job = parse_obj_as(Union[FireAlertsGeotrellisJob, GeotrellisJob], event)
+    job = parse_obj_as(Union[FireAlertsGeotrellisJob, GeotrellisJob], event)
 
+    try:
         LOGGER.info(f"Running analysis job:\n{job.dict()}")
         if job.status == JobStatus.starting:
             LOGGER.info(f"Starting job {job.id}")
@@ -19,7 +19,8 @@ def handler(event, context):
             LOGGER.info(f"Job {job.id} still analyzing...")
             job.update_status()
 
-        return job.dict()
     except Exception as e:
         LOGGER.exception(e)
-        return {"status": "failed"}
+        job.status = JobStatus.failed
+
+    return job.dict()
