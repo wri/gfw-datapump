@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import os
 import json
 
@@ -21,6 +21,7 @@ class DatapumpConfig(BaseModel):
     analysis: str
     sync: bool
     sync_type: str
+    sync_version: Optional[str] = None
     metadata: Dict[str, Any] = {}
 
 
@@ -44,6 +45,7 @@ class DatapumpStore:
                 analysis varchar(255),
                 sync boolean,
                 sync_type varchar(255),
+                sync_version varchar(255),
                 metadata json
             )
             """
@@ -54,7 +56,7 @@ class DatapumpStore:
 
     def add(
         self, config_row: DatapumpConfig
-    ) -> None:  # analysis_version: str, dataset: str, dataset_version: str, analysis: str, sync: bool, metadata: Dict[str, Any] = {}
+    ) -> None:
         """
         Create entries for each table in new version
         :param version: New version
@@ -65,15 +67,20 @@ class DatapumpStore:
         # check if entry already exists
         existing_row = self.get(**config_row.dict())
         if existing_row:
-            LOGGER.debug(f"Row already exists, skipping write: {existing_row}")
+            LOGGER.info(f"Row already exists, skipping write: {existing_row}")
             return
 
-        row_values = [
-            str(val).lower() if key != "metadata" else json.dumps(val)
-            for key, val in config_row.dict().items()
-        ]
+        row_values = []
+        for key, val in config_row.dict().items():
+            if not val:
+                row_values.append(None)
+            elif key == "metadata":
+                row_values.append(json.dumps(val))
+            else:
+                row_values.append(str(val).lower())
 
-        self.conn.execute("INSERT INTO datapump VALUES(?,?,?,?,?,?,?)", row_values)
+        LOGGER.info(f"Executing add query with row values: {row_values}")
+        self.conn.execute("INSERT INTO datapump VALUES(?,?,?,?,?,?,?,?)", row_values)
         self.conn.commit()
 
     def remove(
@@ -91,6 +98,18 @@ class DatapumpStore:
         )
         self.conn.commit()
 
+    def update_sync_version(self, sync_version: str,  **kwargs) -> None:
+        sql = f"UPDATE datapump SET sync_version = '{sync_version}'"
+
+        if kwargs:
+            sql += " WHERE " + " AND ".join(
+                f"{k} = '{v}'" for k, v in kwargs.items() if k != "metadata"
+            )
+
+        LOGGER.info(f"Executing update query: {sql}")
+        self.conn.execute(sql)
+        self.conn.commit()
+
     def get(self, **kwargs) -> List[DatapumpConfig]:
         sql = "SELECT * FROM datapump"
 
@@ -99,7 +118,7 @@ class DatapumpStore:
                 f"{k} = '{v}'" for k, v in kwargs.items() if k != "metadata"
             )
 
-        LOGGER.debug(f"Executing select query: {sql}")
+        LOGGER.info(f"Executing select query: {sql}")
         cursor = self.conn.execute(sql)
         columns = [desc[0] for desc in cursor.description]
         rows = cursor.fetchall()

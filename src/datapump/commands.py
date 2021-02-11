@@ -1,7 +1,9 @@
-from typing import List
+from typing import List, Union
 from enum import Enum
 
 from pydantic import BaseModel
+
+from datapump.jobs.jobs import Job
 
 
 class Analysis(str, Enum):
@@ -76,3 +78,12 @@ class SyncCommand(BaseModel):
         tables: List[AnalysisTable] = []
 
     parameters: SyncParameters
+
+
+class ContinueJobsCommand(BaseModel):
+    command: str
+
+    class ContinueJobsParameters(BaseModel):
+        jobs: List[Job]
+
+    parameters: ContinueJobsParameters
