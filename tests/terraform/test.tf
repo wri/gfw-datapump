@@ -71,7 +71,7 @@ resource "aws_lambda_layer_version" "rasterio" {
 }
 
 module "api_token_secret" {
-  source        = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  source        = "git::https://github.com/wri/gfw-terraform-modules.git//terraform/modules/secrets?ref=master"
   project       = "test_proj"
   name          = "gfw-api/token"
   secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" })
@@ -79,7 +79,7 @@ module "api_token_secret" {
 
 
 module "slack_secret" {
-  source        = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  source        = "git::https://github.com/wri/gfw-terraform-modules.git//terraform/modules/secrets?ref=master"
   project       = "test_proj"
   name          = "slack/gfw-sync"
   secret_string = jsonencode({ "data-updates" = "test_hook" })
