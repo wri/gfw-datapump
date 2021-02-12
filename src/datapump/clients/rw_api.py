@@ -16,7 +16,8 @@ TOKEN = None
 def token() -> str:
     global TOKEN
     if TOKEN is None:
-        TOKEN = _get_token()
+        TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NzUwYTU2ZGZjNjQzNzIyYmRkMDJhYiIsInJvbGUiOiJBRE1JTiIsInByb3ZpZGVyIjoibG9jYWwiLCJlbWFpbCI6InRtYXNjaGxlckB3cmkub3JnIiwiZXh0cmFVc2VyRGF0YSI6eyJhcHBzIjpbImZvcmVzdC1hdGxhcyIsImdmdy1wcm8iLCJtYXBidWlsZGVyIiwiZ2Z3Il19LCJjcmVhdGVkQXQiOjE1NzQ4NjkyMjkzNzAsImlhdCI6MTU3NDg2OTIyOX0.5IgCcts8YazV-xi5uKw1L5idvizb4WmqahlSFtL9JpY"
+        # TOKEN = _get_token()
 
     return TOKEN
 
