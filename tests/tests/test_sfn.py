@@ -1,11 +1,11 @@
-import boto3
-from botocore.exceptions import ClientError
 import json
-import time
-import sys
 import os
+import sys
+import time
 from pprint import pprint
 
+import boto3
+from botocore.exceptions import ClientError
 
 LOCALSTACK_URI = "http://localstack:4566"
 DATAPUMP_SFN_ARN = (

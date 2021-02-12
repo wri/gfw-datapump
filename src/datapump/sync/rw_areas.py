@@ -1,21 +1,21 @@
 import io
 import json
 import os
-from contextlib import contextmanager
-from typing import Any, Dict, Iterator, List, Tuple, Set, Optional
 import traceback
+from contextlib import contextmanager
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import requests
 from requests import Response
+from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.wkb import dumps
-from shapely.geometry import shape, Polygon, MultiPolygon
 
-from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
-from ..util.util import api_prefix
-from ..util.slack import slack_webhook
-from ..clients.rw_api import update_area_statuses, token
 from ..clients.aws import get_s3_client
+from ..clients.rw_api import token, update_area_statuses
 from ..globals import GLOBALS, LOGGER
+from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
+from ..util.slack import slack_webhook
+from ..util.util import api_prefix
 
 DIRNAME = os.path.dirname(__file__)
 GEOSTORE_PAGE_SIZE = 100

@@ -1,20 +1,19 @@
+from pprint import pformat
 from typing import Union, cast
 from uuid import uuid1
 
-from pydantic import parse_obj_as, ValidationError
-from pprint import pformat
-
-from datapump.globals import LOGGER
 from datapump.clients.data_api import DataApiClient
-from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import (
-    GeotrellisJob,
-    FireAlertsGeotrellisJob,
-    ContinueGeotrellisJobsCommand,
-)
-from datapump.sync.sync import Syncer
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import AnalysisCommand, SyncCommand, Analysis
+from datapump.commands import Analysis, AnalysisCommand, SyncCommand
+from datapump.globals import LOGGER
+from datapump.jobs.geotrellis import (
+    ContinueGeotrellisJobsCommand,
+    FireAlertsGeotrellisJob,
+    GeotrellisJob,
+)
+from datapump.jobs.jobs import JobStatus
+from datapump.sync.sync import Syncer
+from pydantic import ValidationError, parse_obj_as
 
 
 def handler(event, context):
