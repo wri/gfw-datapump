@@ -79,7 +79,7 @@ module "api_token_secret" {
 
 
 module "slack_secret" {
-  source        = "git::https://github.com/wri/gfw-aws-core-infrastructure.git//terraform/modules/secrets?ref=feature/rds_instance_count"
+  source        = "git::https://github.com/wri/gfw-terraform-modules.git//terraform/modules/secrets?ref=v0.4.0"
   project       = "test_proj"
   name          = "slack/gfw-sync"
   secret_string = jsonencode({ "data-updates" = "test_hook" })
