@@ -1,14 +1,15 @@
-import requests
-import json
-import urllib.request
 import csv
 import io
+import json
+import urllib.request
 
-from .aws import get_secrets_manager_client
-from ..util.util import api_prefix, get_date_string
+import requests
+
+from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import UnexpectedResponseError
-from ..globals import LOGGER, GLOBALS
 from ..util.slack import slack_webhook
+from ..util.util import api_prefix, get_date_string
+from .aws import get_secrets_manager_client
 
 TOKEN = None
 

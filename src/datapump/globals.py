@@ -1,10 +1,9 @@
-import os
-import logging
 import json
-from typing import Optional, List
+import logging
+import os
+from typing import List, Optional
 
-from pydantic import BaseSettings
-from pydantic import Field, PositiveInt
+from pydantic import BaseSettings, Field, PositiveInt
 
 LOGGER = logging.getLogger("datapump")
 LOGGER.setLevel(logging.DEBUG)
@@ -60,7 +59,7 @@ class Globals(EnvSettings):
         else None
     )
 
-    max_versions: Optional[int] = Field(2, env="MAX_VERSIONS")
+    max_versions: int = Field(2, env="MAX_VERSIONS")
 
 
 GLOBALS = Globals()

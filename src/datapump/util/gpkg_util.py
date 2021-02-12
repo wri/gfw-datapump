@@ -1,9 +1,9 @@
-import subprocess
 import csv
-import sqlite3
 import os
+import sqlite3
+import subprocess
+from datetime import datetime, timedelta
 
-from datetime import timedelta, datetime
 import boto3
 
 

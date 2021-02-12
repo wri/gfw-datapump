@@ -1,13 +1,12 @@
-from typing import Union, cast, List
 from pprint import pformat
+from typing import List, Union, cast
 
-from pydantic import parse_obj_as
-
-from datapump.globals import LOGGER
-from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob
-from datapump.clients.datapump_store import DatapumpStore, DatapumpConfig
+from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
 from datapump.commands import SyncType
+from datapump.globals import LOGGER
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
+from datapump.jobs.jobs import JobStatus
+from pydantic import parse_obj_as
 
 
 def handler(event, context):
