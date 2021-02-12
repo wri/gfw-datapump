@@ -1,11 +1,10 @@
-from enum import Enum
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Type
 from uuid import uuid1
 from abc import ABC, abstractmethod
 import dateutil.tz as tz
 
-from ..globals import GLOBALS, LOGGER
+from ..globals import GLOBALS
 from ..jobs.jobs import JobStatus
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..sync.fire_alerts import process_active_fire_alerts
@@ -142,7 +141,9 @@ class Syncer:
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
-        self.sync_version: str = sync_version if sync_version else self._get_latest_version()
+        self.sync_version: str = (
+            sync_version if sync_version else self._get_latest_version()
+        )
         self.syncers: Dict[SyncType, Sync] = {
             sync_type: self.SYNCERS[sync_type](self.sync_version)
             for sync_type in sync_types

@@ -1,7 +1,7 @@
 import os
 import logging
 import json
-from typing import Optional, List, Dict
+from typing import Optional, List
 
 from pydantic import BaseSettings
 from pydantic import Field, PositiveInt

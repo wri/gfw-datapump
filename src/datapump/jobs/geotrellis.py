@@ -12,11 +12,7 @@ from pydantic import BaseModel
 from ..globals import GLOBALS, LOGGER
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand
-from ..jobs.jobs import (
-    AnalysisResultTable,
-    Job,
-    JobStatus
-)
+from ..jobs.jobs import AnalysisResultTable, Job, JobStatus
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -156,7 +152,11 @@ class GeotrellisJob(Job):
     ) -> AnalysisResultTable:
         analysis_agg, feature_agg = (path.parts[-1], path.parts[-2])
 
-        if self.table.dataset == "gadm" and self.table.analysis == Analysis.viirs and analysis_agg == "all":
+        if (
+            self.table.dataset == "gadm"
+            and self.table.analysis == Analysis.viirs
+            and analysis_agg == "all"
+        ):
             result_dataset = "nasa_viirs_fire_alerts"
             feature_agg = None
         else:

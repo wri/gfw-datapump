@@ -1,4 +1,3 @@
-import os
 from typing import Union, cast, List
 from pprint import pformat
 
@@ -8,7 +7,7 @@ from datapump.globals import LOGGER
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob
 from datapump.clients.datapump_store import DatapumpStore, DatapumpConfig
-from datapump.commands import SyncType, Analysis
+from datapump.commands import SyncType
 
 
 def handler(event, context):

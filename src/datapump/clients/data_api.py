@@ -1,6 +1,6 @@
 import json
 import requests
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 from pprint import pformat
 from enum import Enum
 

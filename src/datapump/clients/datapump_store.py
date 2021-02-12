@@ -54,9 +54,7 @@ class DatapumpStore:
 
         return self
 
-    def add(
-        self, config_row: DatapumpConfig
-    ) -> None:
+    def add(self, config_row: DatapumpConfig) -> None:
         """
         Create entries for each table in new version
         :param version: New version
@@ -70,7 +68,7 @@ class DatapumpStore:
             LOGGER.info(f"Row already exists, skipping write: {existing_row}")
             return
 
-        row_values = []
+        row_values: List[Optional[str]] = []
         for key, val in config_row.dict().items():
             if not val:
                 row_values.append(None)
@@ -98,7 +96,7 @@ class DatapumpStore:
         )
         self.conn.commit()
 
-    def update_sync_version(self, sync_version: str,  **kwargs) -> None:
+    def update_sync_version(self, sync_version: str, **kwargs) -> None:
         sql = f"UPDATE datapump SET sync_version = '{sync_version}'"
 
         if kwargs:
