@@ -4,10 +4,14 @@ from uuid import uuid1
 from pydantic import parse_obj_as, ValidationError
 from pprint import pformat
 
-from datapump.globals import LOGGER, GLOBALS
+from datapump.globals import LOGGER
 from datapump.clients.data_api import DataApiClient
 from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob, ContinueGeotrellisJobsCommand
+from datapump.jobs.geotrellis import (
+    GeotrellisJob,
+    FireAlertsGeotrellisJob,
+    ContinueGeotrellisJobsCommand,
+)
 from datapump.sync.sync import Syncer
 from datapump.clients.datapump_store import DatapumpStore
 from datapump.commands import AnalysisCommand, SyncCommand, Analysis
@@ -15,7 +19,9 @@ from datapump.commands import AnalysisCommand, SyncCommand, Analysis
 
 def handler(event, context):
     try:
-        command = parse_obj_as(Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand], event)
+        command = parse_obj_as(
+            Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand], event
+        )
         client = DataApiClient()
 
         jobs = []

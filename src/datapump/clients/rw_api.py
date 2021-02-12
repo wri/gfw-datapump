@@ -40,7 +40,9 @@ def update_area_statuses(geostore_ids, status):
     errors = False
     for gid in geostore_ids:
         r = requests.post(
-            url, json=_update_aoi_statuses_payload([gid], status), headers=headers,
+            url,
+            json=_update_aoi_statuses_payload([gid], status),
+            headers=headers,
         )
 
         if r.status_code != 200:

@@ -83,7 +83,8 @@ def _dump_logs():
             "logStreams"
         ]:
             log_events = log_client.get_log_events(
-                logGroupName=log_group_name, logStreamName=log_stream["logStreamName"],
+                logGroupName=log_group_name,
+                logStreamName=log_stream["logStreamName"],
             )["events"]
 
             for event in log_events:

@@ -28,7 +28,9 @@ def create_1x1_tsv(version: str) -> Optional[str]:
         LOGGER.info("Geostores processed, uploading and analyzing")
         geostore_path = f"geotrellis/features/geostore/{version}.tsv"
         get_s3_client.put_object(
-            Body=tsv, Bucket=GLOBALS.s3_bucket_pipeline, Key=geostore_path,
+            Body=tsv,
+            Bucket=GLOBALS.s3_bucket_pipeline,
+            Key=geostore_path,
         )
         return geostore_path
     else:
@@ -142,7 +144,9 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
     LOGGER.info("Get Geostore Geometries by IDs")
 
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
-    url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
+    url: str = (
+        f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
+    )
     geostores: Dict[str, Any] = {"data": []}
 
     for i in range(0, len(geostore_ids), GEOSTORE_PAGE_SIZE):
@@ -301,7 +305,8 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
     LOGGER.info("Fetch Extent File")
     result_bucket = os.environ["S3_BUCKET_PIPELINE"]
     response: Dict[str, Any] = get_s3_client().get_object(
-        Bucket=result_bucket, Key="geotrellis/features/extent_1x1.geojson",
+        Bucket=result_bucket,
+        Key="geotrellis/features/extent_1x1.geojson",
     )
 
     glad_tiles: Dict[str, Any] = json.load(response["Body"])
