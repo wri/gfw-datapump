@@ -7,4 +7,4 @@ lambda_layers_path = "../src"
 
 data_api_uri = "https://data-api.globalforestwatch.org"
 
-geotrellis_jar_path = "s3://gfw-pipelines-test/geotrellis/jars"
+geotrellis_jar_path = "s3://gfw-pipelines/geotrellis/jars"
