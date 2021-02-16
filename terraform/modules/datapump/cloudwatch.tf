@@ -12,7 +12,7 @@ resource "aws_cloudwatch_event_rule" "everyday-9-pm-est" {
 
 resource "aws_cloudwatch_event_target" "nightly-sync-areas" {
   rule      = aws_cloudwatch_event_rule.everyday-9-pm-est.name
-  target_id = substr("${local.project}-nightly-sync-areas{local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync-areas${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"rw_areas\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -20,7 +20,7 @@ resource "aws_cloudwatch_event_target" "nightly-sync-areas" {
 
 resource "aws_cloudwatch_event_target" "nightly-sync" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
-  target_id = substr("${local.project}-nightly-sync{local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\", \"viirs\", \"modis\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
