@@ -29,7 +29,7 @@ def _upload(job: GeotrellisJob, client: DataApiClient):
             # temporarily just appending sync versions to analysis version instead of using version inheritance
             if job.table.analysis == Analysis.glad:
                 client.copy_version(
-                    table.dataset, job.analysis_version, table.version, table.source_uri
+                    table.dataset, job.sync_version, table.version, table.source_uri
                 )
             else:
                 client.append(table.dataset, table.version, table.source_uri)
