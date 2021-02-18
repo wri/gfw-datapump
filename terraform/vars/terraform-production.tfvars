@@ -30,7 +30,7 @@ lambda_get_latest_fire_alerts_timeout     = 900
 
 data_api_viirs_version = "v202010"
 
-geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.3.0.jar"
+geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.4.1.jar"
 
 datasets = {
   "geostore": {
