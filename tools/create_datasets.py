@@ -89,20 +89,21 @@ def pump_data(
         }
 
     input = json.dumps(request)  # double dump because sfn client requires escaped JSON
+    print(input)
 
-    session = boto3.session.Session(profile_name=f"gfw-{env}")
-    sfn_client = session.client("stepfunctions")
-    if env == "production":
-        arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
-    else:
-        arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
-
-    execution_id = uuid.uuid4().hex
-    response = sfn_client.start_execution(
-        stateMachineArn=arn, name=execution_id, input=input,
-    )
-
-    print(f"Running job with execution arn {response['executionArn']}")
+    # session = boto3.session.Session(profile_name=f"gfw-{env}")
+    # sfn_client = session.client("stepfunctions")
+    # if env == "production":
+    #     arn = "arn:aws:states:us-east-1:401951483516:stateMachine:datapump-geotrellis_dataset-default"
+    # else:
+    #     arn = "arn:aws:states:us-east-1:274931322839:stateMachine:datapump-geotrellis_dataset-default"
+    #
+    # execution_id = uuid.uuid4().hex
+    # response = sfn_client.start_execution(
+    #     stateMachineArn=arn, name=execution_id, input=input,
+    # )
+    #
+    # print(f"Running job with execution arn {response['executionArn']}")
 
 
 def get_fire_src(fire_alert_type):
