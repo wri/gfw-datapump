@@ -78,7 +78,7 @@ resource "aws_lambda_function" "check_new_aoi" {
   timeout          = var.lambda_check_new_aoi_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_shapely_pyyaml_arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.py37_shapely_164_arn]
   environment {
     variables = {
       ENV                = var.environment
@@ -142,7 +142,7 @@ resource "aws_lambda_function" "get_latest_fire_alerts" {
   timeout          = var.lambda_get_latest_fire_alerts_timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.lambda_layer_rasterio_arn]
+  layers           = [module.lambda_layers.datapump_utils_arn, data.terraform_remote_state.lambda-layers.outputs.py37_rasterio_115_arn]
   environment {
     variables = {
       ENV                 = var.environment
