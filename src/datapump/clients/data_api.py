@@ -1,8 +1,9 @@
 import json
-import requests
-from typing import List, Dict, Any, Union
-from pprint import pformat
 from enum import Enum
+from pprint import pformat
+from typing import Any, Dict, List, Optional
+
+import requests
 
 from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import DataApiResponseError
@@ -53,8 +54,8 @@ class DataApiClient:
         dataset: str,
         version: str,
         source_uris: List[str],
-        indices: List[str],
-        cluster: List[str],
+        indices: Optional[List[str]],
+        cluster: Optional[List[str]],
         table_schema: List[Dict[str, Any]],
         metadata: Dict[str, Any] = {},
     ) -> Dict[str, Any]:
@@ -80,8 +81,8 @@ class DataApiClient:
         dataset: str,
         version: str,
         source_uris: List[str],
-        indices: List[str],
-        cluster: List[str],
+        indices: Optional[List[str]],
+        cluster: Optional[List[str]],
         table_schema: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         payload = {

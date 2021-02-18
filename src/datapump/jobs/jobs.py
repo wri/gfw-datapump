@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -28,6 +28,6 @@ class AnalysisResultTable(BaseModel):
     dataset: str
     version: str
     source_uri: List[str]
-    index_columns: List[str] = None
-    partitions: PartitionSchema = None
+    index_columns: Optional[List[str]] = None
+    partitions: Optional[PartitionSchema] = None
     table_schema: List[Dict[str, Any]] = []

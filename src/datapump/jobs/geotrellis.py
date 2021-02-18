@@ -1,22 +1,18 @@
-from typing import Dict, Any, List, Optional, Union
+import csv
+import io
+import urllib
+from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from enum import Enum
-import urllib
-import csv
-import io
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
-from ..globals import GLOBALS, LOGGER
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand
-from ..jobs.jobs import (
-    AnalysisResultTable,
-    Job,
-    JobStatus
-)
+from ..globals import GLOBALS, LOGGER
+from ..jobs.jobs import AnalysisResultTable, Job, JobStatus
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -62,12 +58,12 @@ class GeotrellisJob(Job):
     status: JobStatus
     analysis_version: str
     features_1x1: str
-    sync_version: str = None
+    sync_version: Optional[str] = None
     feature_type: GeotrellisFeatureType = GeotrellisFeatureType.feature
     geotrellis_version: str
     sync: bool = False
     change_only: bool = False
-    emr_job_id: str = None
+    emr_job_id: Optional[str] = None
     result_tables: List[AnalysisResultTable] = []
 
     def start_analysis(self):
@@ -154,9 +150,14 @@ class GeotrellisJob(Job):
     def _get_result_table(
         self, bucket: str, path: Path, files: List[str]
     ) -> AnalysisResultTable:
+        feature_agg: Optional[str]
         analysis_agg, feature_agg = (path.parts[-1], path.parts[-2])
 
-        if self.table.dataset == "gadm" and self.table.analysis == Analysis.viirs and analysis_agg == "all":
+        if (
+            self.table.dataset == "gadm"
+            and self.table.analysis == Analysis.viirs
+            and analysis_agg == "all"
+        ):
             result_dataset = "nasa_viirs_fire_alerts"
             feature_agg = None
         else:
@@ -562,7 +563,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
         return step
 
     def _calculate_worker_count(self, limiting_src: str) -> int:
-        if self.sync_version and len(self.alert_sources) == 1:
+        if self.sync_version and self.alert_sources and len(self.alert_sources) == 1:
             return super()._calculate_worker_count(self.alert_sources[0])
         else:
             return super()._calculate_worker_count(limiting_src)
