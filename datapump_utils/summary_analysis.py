@@ -278,7 +278,7 @@ def _run_job_flow(name, instances, steps, applications, configurations):
     client = boto3.client("emr", region_name="us-east-1")
     response = client.run_job_flow(
         Name=name,
-        ReleaseLabel="emr-5.24.0",
+        ReleaseLabel="emr-6.1.0",
         LogUri=f"s3://{RESULT_BUCKET}/geotrellis/logs",  # TODO should this be param?
         Instances=instances,
         Steps=steps,
@@ -287,6 +287,15 @@ def _run_job_flow(name, instances, steps, applications, configurations):
         VisibleToAllUsers=True,
         JobFlowRole=os.environ["EMR_INSTANCE_PROFILE"],
         ServiceRole=os.environ["EMR_SERVICE_ROLE"],
+        BootstrapActions=[
+            {
+                "Name": "Install GDAL",
+                "ScriptBootstrapAction": {
+                    "Path": f"s3://{RESULT_BUCKET}/geotrellis/bootstrap/gdal.sh",
+                    "Args": ["3.1.2"],
+                },
+            },
+        ],
         Tags=[
             {"Key": "Project", "Value": "Global Forest Watch"},
             {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
