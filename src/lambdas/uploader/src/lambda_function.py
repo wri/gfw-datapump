@@ -2,7 +2,6 @@ from datapump.globals import LOGGER, GLOBALS
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.clients.data_api import DataApiClient
-from datapump.clients.datapump_store import DatapumpStore
 from datapump.commands import Analysis
 
 
