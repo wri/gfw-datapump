@@ -36,7 +36,6 @@ def _upload(job: GeotrellisJob, client: DataApiClient):
                     table.index_columns,
                     table.table_schema,
                 )
-                client.set_latest(table.dataset, table.version)
             else:
                 client.append(table.dataset, table.version, table.source_uri)
         else:
@@ -65,13 +64,12 @@ def _check_upload(job: GeotrellisJob, client: DataApiClient):
     if all_saved:
         if job.table.analysis == Analysis.glad and job.sync_version:
             for table in job.result_tables:
+                client.set_latest(table.dataset, job.sync_version)
                 dataset = client.get_dataset(table.dataset)
                 versions = dataset["versions"]
                 versions_to_delete = versions[: -GLOBALS.max_versions]
                 for version in versions_to_delete:
                     client.delete_version(table.dataset, version)
-
-                client.set_latest(table.dataset, job.sync_version)
 
         job.status = JobStatus.complete
 
