@@ -263,7 +263,10 @@ class GeotrellisJob(Job):
         if is_whitelist:
             # if whitelist, everything but ID fields should be bool
             if field in GeotrellisFeatureType.get_feature_fields(self.feature_type):
-                return "text"
+                if field == "adm1" or "adm2":
+                    return "integer"
+                else:
+                    return "text"
             else:
                 return "boolean"
         else:
@@ -282,8 +285,8 @@ class GeotrellisJob(Job):
                 or field.endswith("__perc")
                 or field.endswith("__year")
                 or field.endswith("__week")
-                # or field == "adm1"
-                # or field == "adm2"
+                or field == "adm1"
+                or field == "adm2"
             ):
                 return "integer"
             elif field.startswith("is__"):
