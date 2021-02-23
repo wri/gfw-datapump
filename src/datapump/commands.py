@@ -87,3 +87,12 @@ class ContinueJobsCommand(BaseModel):
         jobs: List[Job]
 
     parameters: ContinueJobsParameters
+
+
+class SetLatestCommand(BaseModel):
+    command: str
+
+    class SetLatestParameters(BaseModel):
+        analysis_version: str
+
+    parameters: SetLatestParameters
