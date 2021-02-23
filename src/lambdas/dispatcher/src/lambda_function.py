@@ -10,12 +10,12 @@ from datapump.jobs.jobs import JobStatus
 from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob, ContinueGeotrellisJobsCommand
 from datapump.sync.sync import Syncer
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import AnalysisCommand, SyncCommand, Analysis
+from datapump.commands import AnalysisCommand, SyncCommand, SetLatestCommand, Analysis
 
 
 def handler(event, context):
     try:
-        command = parse_obj_as(Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand], event)
+        command = parse_obj_as(Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand, SetLatestCommand], event)
         client = DataApiClient()
 
         jobs = []
@@ -29,6 +29,9 @@ def handler(event, context):
         elif isinstance(command, ContinueGeotrellisJobsCommand):
             cast(ContinueGeotrellisJobsCommand, command)
             jobs += command.parameters.dict()["jobs"]
+        elif isinstance(command, SetLatestCommand):
+            cast(SetLatestCommand, command)
+            _set_latest(command)
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
         return {"jobs": jobs}
@@ -84,3 +87,10 @@ def _sync(command: SyncCommand):
                     jobs.append(job.dict())
 
     return jobs
+
+
+def _set_latest(command: SetLatestCommand):
+    with DatapumpStore() as config_client:
+        rows = config_client.get(analysis_version=command.parameters.analysis_version)
+        for row in rows:
+            _set_latest(row.dataset, row.analysis_version)
