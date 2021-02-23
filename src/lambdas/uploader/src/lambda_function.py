@@ -36,6 +36,7 @@ def _upload(job: GeotrellisJob, client: DataApiClient):
                     table.index_columns,
                     table.table_schema,
                 )
+                client.set_latest(table.dataset, table.version)
             else:
                 client.append(table.dataset, table.version, table.source_uri)
         else:
