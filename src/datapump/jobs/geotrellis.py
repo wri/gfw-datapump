@@ -263,7 +263,7 @@ class GeotrellisJob(Job):
         if is_whitelist:
             # if whitelist, everything but ID fields should be bool
             if field in GeotrellisFeatureType.get_feature_fields(self.feature_type):
-                if field == "adm1" or "adm2":
+                if field == "adm1" or field == "adm2":
                     return "integer"
                 else:
                     return "text"
