@@ -31,7 +31,7 @@ def handler(event, context):
             jobs += command.parameters.dict()["jobs"]
         elif isinstance(command, SetLatestCommand):
             cast(SetLatestCommand, command)
-            _set_latest(command)
+            _set_latest(command, client)
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
         return {"jobs": jobs}
@@ -89,8 +89,8 @@ def _sync(command: SyncCommand):
     return jobs
 
 
-def _set_latest(command: SetLatestCommand):
+def _set_latest(command: SetLatestCommand,  data_api_client: DataApiClient):
     with DatapumpStore() as config_client:
         rows = config_client.get(analysis_version=command.parameters.analysis_version)
         for row in rows:
-            _set_latest(row.dataset, row.analysis_version)
+            data_api_client.set_latest(row.dataset, row.analysis_version)
