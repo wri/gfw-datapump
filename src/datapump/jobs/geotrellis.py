@@ -362,11 +362,6 @@ class GeotrellisJob(Job):
         if self.change_only:
             step_args.append("--change_only")
 
-        # TODO: Remove before committing
-        if self.feature_type == GeotrellisFeatureType.gadm:
-            step_args.append("--iso")
-            step_args.append("BRA")
-
         return {
             "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
