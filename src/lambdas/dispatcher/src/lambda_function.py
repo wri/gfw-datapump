@@ -92,5 +92,10 @@ def _sync(command: SyncCommand):
 def _set_latest(command: SetLatestCommand,  data_api_client: DataApiClient):
     with DatapumpStore() as config_client:
         rows = config_client.get(analysis_version=command.parameters.analysis_version)
+        datasets = data_api_client.get_datasets()
         for row in rows:
-            data_api_client.set_latest(row.dataset, row.analysis_version)
+            ds_prefix = f"{row.dataset}__{row.analysis}__"
+            analysis_datasets = [ds["dataset"] for ds in datasets if ds["dataset"].startswith(ds_prefix)]
+
+            for ds in analysis_datasets:
+                data_api_client.set_latest(ds, row.analysis_version)

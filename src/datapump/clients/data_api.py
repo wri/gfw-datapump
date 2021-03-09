@@ -136,6 +136,10 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}"
         return self._send_request(ValidMethods.get, uri)["data"]
 
+    def get_datasets(self) -> Dict[str, Any]:
+        uri = f"{GLOBALS.data_api_uri}/datasets"
+        return self._send_request(ValidMethods.get, uri)["data"]
+
     def delete_version(self, dataset: str, version: str) -> None:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         self._send_request(ValidMethods.delete, uri)
