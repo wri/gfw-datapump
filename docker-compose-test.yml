@@ -33,12 +33,13 @@ services:
       - '8055:8080'
       - '${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}'
     environment:
-      - SERVICES=iam,lambda,stepfunctions,sts,cloudwatch,emr,events,ec2,cloudformation,s3,secretsmanager
+      - SERVICES=iam,lambda,stepfunctions,sts,cloudwatch,emr,events,ec2,cloudformation,s3,secretsmanager,dynamodb
       - DEBUG=1
       - DISABLE_EVENTS=1
       - LAMBDA_DOCKER_NETWORK=gfw-datapump_test_default
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
-      - DNS_ADDRESS=22.22.22.22
+      - HOSTNAME_EXTERNAL=localstack
+      #- DNS_ADDRESS=22.22.22.22
       - LAMBDA_REMOTE_DOCKER=1
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
