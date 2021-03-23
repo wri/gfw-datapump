@@ -11,6 +11,8 @@ from botocore.exceptions import ClientError
 from ..clients.aws import get_s3_path_parts
 from ..globals import LOGGER, GLOBALS
 
+# Key - had of analysis_analysis_version_dataset_dataset_version
+
 class DatapumpConfig(BaseModel):
     analysis_version: str
     dataset: str
@@ -31,7 +33,7 @@ class DatapumpStore:
     def __init__(self):
         # use table resource API since it makes putting items much easier
         dynamodb = boto3.resource('dynamodb', endpoint_url=GLOBALS.aws_endpoint_uri)
-        self._client = dynamodb.Table(GLOBALS.datapump_table_name)
+        self._client = dynamodb.Table(GLOBALS.dynamodb_table_name)
 
     def put(
         self, config_row: DatapumpConfig
@@ -55,5 +57,5 @@ class DatapumpStore:
         items = response["Items"]
 
         return [
-            DatapumpConfig(**item) for item in items
+            DatapumpConfig(**item for item in items)
         ]

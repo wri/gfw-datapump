@@ -61,6 +61,7 @@ class Globals(EnvSettings):
     )
 
     max_versions: Optional[int] = Field(2, env="MAX_VERSIONS")
+    datapump_table_name: Optional[str] = Field(env="DATAPUMP_TABLE_NAME")
 
 
 GLOBALS = Globals()

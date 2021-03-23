@@ -14,9 +14,9 @@ resource "aws_lambda_function" "dispatcher" {
     variables = {
       ENV                           = var.environment
       DATA_API_URI                  = var.data_api_uri
-      S3_BUCKET_PIPELINE             = var.pipelines_bucket
+      S3_BUCKET_PIPELINE            = var.pipelines_bucket
       S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
-      DATAPUMP_DB_S3_PATH           = local.config_db_s3_path
+      DATAPUMP_TABLE_NAME           = aws_dynamodb_table.datapump.name
       S3_GLAD_PATH                  = var.glad_path
     }
   }
@@ -87,9 +87,9 @@ resource "aws_lambda_function" "postprocessor" {
     variables = {
       ENV                            = var.environment
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
-      S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
+      S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
       DATA_API_URI                   = var.data_api_uri
-      DATAPUMP_DB_S3_PATH           = local.config_db_s3_path
+      DATAPUMP_TABLE_NAME            = aws_dynamodb_table.datapump.name
     }
   }
 }

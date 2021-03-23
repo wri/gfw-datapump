@@ -92,13 +92,13 @@ def _dump_logs():
                 message = event["message"].replace("\r", "\n")
                 print(f"{log_stream['logStreamName']}: {message}", file=lambda_stream)
 
-    if not DUMP_TO_STDOUT:
-        try:
-            s3_client.download_file(
-                "gfw-pipelines-test", "datapump/config.db", "/app/tests/logs/config.db"
-            )
-        except ClientError:
-            print("config.db not available")
+    # if not DUMP_TO_STDOUT:
+    #     try:
+    #         s3_client.download_file(
+    #             "gfw-pipelines-test", "datapump/config.db", "/app/tests/logs/config.db"
+    #         )
+    #     except ClientError:
+    #         print("config.db not available")
 
 
 def _run_datapump(input):

@@ -77,25 +77,25 @@ def _analysis(command: AnalysisCommand, client: DataApiClient):
 def _sync(command: SyncCommand):
     jobs = []
     syncer = Syncer(command.parameters.types, command.parameters.sync_version)
+    config_client = DatapumpStore()
 
-    with DatapumpStore() as config_client:
-        for sync_type in command.parameters.types:
-            sync_config = config_client.get(sync="true", sync_type=sync_type)
-            for row in sync_config:
-                job = syncer.build_job(row)
-                if job:
-                    jobs.append(job.dict())
+    for sync_type in command.parameters.types:
+        sync_config = config_client.get(sync="true", sync_type=sync_type)
+        for row in sync_config:
+            job = syncer.build_job(row)
+            if job:
+                jobs.append(job.dict())
 
     return jobs
 
 
 def _set_latest(command: SetLatestCommand,  data_api_client: DataApiClient):
-    with DatapumpStore() as config_client:
-        rows = config_client.get(analysis_version=command.parameters.analysis_version)
-        datasets = data_api_client.get_datasets()
-        for row in rows:
-            ds_prefix = f"{row.dataset}__{row.analysis}__"
-            analysis_datasets = [ds["dataset"] for ds in datasets if ds["dataset"].startswith(ds_prefix)]
+    config_client = DatapumpStore()
+    rows = config_client.get(analysis_version=command.parameters.analysis_version)
+    datasets = data_api_client.get_datasets()
+    for row in rows:
+        ds_prefix = f"{row.dataset}__{row.analysis}__"
+        analysis_datasets = [ds["dataset"] for ds in datasets if ds["dataset"].startswith(ds_prefix)]
 
-            for ds in analysis_datasets:
-                data_api_client.set_latest(ds, row.analysis_version)
+        for ds in analysis_datasets:
+            data_api_client.set_latest(ds, row.analysis_version)
