@@ -4,7 +4,7 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, SyncCommand, SetLatestCommand
+from datapump.commands import Analysis, AnalysisCommand, SetLatestCommand, SyncCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,
@@ -13,7 +13,7 @@ from datapump.jobs.geotrellis import (
 )
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer
-from pydantic import parse_obj_as, ValidationError
+from pydantic import ValidationError, parse_obj_as
 
 
 def handler(event, context):
@@ -91,7 +91,7 @@ def _sync(command: SyncCommand):
     config_client = DatapumpStore()
 
     for sync_type in command.parameters.types:
-        sync_config = config_client.get(sync="true", sync_type=sync_type)
+        sync_config = config_client.get(sync=True, sync_type=sync_type)
         for row in sync_config:
             job = syncer.build_job(row)
             if job:

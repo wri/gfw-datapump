@@ -137,7 +137,7 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}"
         return self._send_request(ValidMethods.get, uri)["data"]
 
-    def get_datasets(self) -> Dict[str, Any]:
+    def get_datasets(self) -> List[Dict[str, Any]]:
         uri = f"{GLOBALS.data_api_uri}/datasets"
         return self._send_request(ValidMethods.get, uri)["data"]
 

@@ -1,11 +1,14 @@
 from pprint import pformat
 from typing import List, Union, cast
 
+from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
+from datapump.clients.rw_api import update_area_statuses
 from datapump.commands import SyncType
-from datapump.globals import LOGGER
+from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
+from datapump.sync.rw_areas import get_aoi_geostore_ids
 from pydantic import parse_obj_as
 
 
@@ -15,6 +18,7 @@ def handler(event, context):
         List[Union[FireAlertsGeotrellisJob, GeotrellisJob]], event["jobs"]
     )
     failed_jobs = []
+    rw_area_jobs = []
 
     for job in jobs:
         LOGGER.info(f"Postprocessing job: {pformat(job.dict())}")
@@ -37,6 +41,9 @@ def handler(event, context):
                 )
 
                 for sync_type in sync_types:
+                    if sync_type == SyncType.rw_areas:
+                        rw_area_jobs.append(job)
+
                     if job.sync_version:
                         config_client.put(
                             DatapumpConfig(
@@ -56,7 +63,6 @@ def handler(event, context):
                                 analysis=job.table.analysis,
                                 sync=job.sync,
                                 sync_type=sync_type,
-                                sync_version=None,
                                 metadata={
                                     "geotrellis_version": job.geotrellis_version,
                                     "features_1x1": job.features_1x1,
@@ -69,4 +75,14 @@ def handler(event, context):
         for job in failed_jobs:
             LOGGER.error(pformat(job.dict()))
 
+        if rw_area_jobs:
+            # delete AOI tsv file to rollback from failed update
+            bucket, key = get_s3_path_parts(rw_area_jobs[0].features_1x1)
+            get_s3_client().delete_object(Bucket=bucket, Key=key)
+
         raise Exception("One or more jobs failed. See logs for details.")
+
+    if rw_area_jobs and GLOBALS.env == "production":
+        # update AOIs on RW but only on production
+        geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
+        update_area_statuses(geostore_ids)

@@ -10,7 +10,7 @@ from requests import Response
 from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.wkb import dumps
 
-from ..clients.aws import get_s3_client
+from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.rw_api import token, update_area_statuses
 from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
@@ -322,3 +322,23 @@ def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
         )
 
     return extent_1x1
+
+
+def get_aoi_geostore_ids(aoi_src: str) -> Set[str]:
+    geostore_ids = set()
+    aoi_bucket, aoi_key = get_s3_path_parts(aoi_src)
+
+    with io.BytesIO() as data:
+        get_s3_client().download_fileobj(aoi_bucket, aoi_key, data)
+
+        rows = data.getvalue().decode("utf-8").split("\n")
+
+    first = True
+    for row in rows:
+        geostore_id = row.split("\t")[0]
+        if first:
+            first = False
+        elif geostore_id:
+            geostore_ids.add(geostore_id)
+
+    return geostore_ids

@@ -37,7 +37,7 @@ def api_prefix() -> str:
     """
     Get environment prefix for API
     """
-    if GLOBALS.env == "production":
+    if GLOBALS.env == "production" or GLOBALS.env == "staging":
         suffix: str = "production"
     else:
         suffix = "staging"
