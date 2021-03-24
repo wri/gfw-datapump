@@ -1,22 +1,18 @@
-from enum import Enum
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Type
-from uuid import uuid1
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Type
+from uuid import uuid1
+
 import dateutil.tz as tz
 
-from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import JobStatus
 from ..clients.aws import get_s3_client, get_s3_path_parts
+from ..clients.datapump_store import DatapumpConfig
+from ..commands import AnalysisInputTable, SyncType
+from ..globals import GLOBALS
+from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
+from ..jobs.jobs import JobStatus
 from ..sync.fire_alerts import process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
-from ..clients.datapump_store import DatapumpConfig
-from ..commands import SyncType, AnalysisInputTable
-from ..jobs.geotrellis import (
-    GeotrellisJob,
-    FireAlertsGeotrellisJob,
-    Job,
-)
 
 
 class Sync(ABC):
@@ -36,6 +32,9 @@ class FireAlertsSync(Sync):
         self.fire_alerts_uri: Optional[str] = None
 
     def build_job(self, config: DatapumpConfig) -> Optional[Job]:
+        if self.fire_alerts_type is None:
+            raise RuntimeError("No Alert type set")
+
         return FireAlertsGeotrellisJob(
             id=str(uuid1()),
             status=JobStatus.starting,
@@ -142,7 +141,9 @@ class Syncer:
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
-        self.sync_version: str = sync_version if sync_version else self._get_latest_version()
+        self.sync_version: str = (
+            sync_version if sync_version else self._get_latest_version()
+        )
         self.syncers: Dict[SyncType, Sync] = {
             sync_type: self.SYNCERS[sync_type](self.sync_version)
             for sync_type in sync_types

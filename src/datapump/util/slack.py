@@ -1,8 +1,8 @@
 import json
 import os
-import requests
 
 import boto3
+import requests
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
