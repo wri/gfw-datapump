@@ -1,11 +1,8 @@
 from functools import wraps
 from typing import Callable
 
-from ..util.exceptions import (
-    EmptyResponseException,
-    UnexpectedResponseError,
-)
 from ..globals import LOGGER
+from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
 
 
 def api_response_checker(endpoint: str):

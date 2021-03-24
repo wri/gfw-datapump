@@ -18,6 +18,7 @@ provider "aws" {
     sts = "http://localstack:4566"
     cloudwatchevents = "http://localstack:4566"
     secretsmanager = "http://localstack:4566"
+    dynamodb = "http://localstack:4566"
   }
 }
 

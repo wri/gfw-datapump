@@ -1,17 +1,11 @@
-from typing import Dict, Any, List, Optional
-import os
-import json
+from hashlib import blake2b
+from typing import Any, Dict, List, Optional
 
+import boto3
+from boto3.dynamodb.conditions import And, Attr
 from pydantic import BaseModel
-import sqlite3
-from botocore.exceptions import ClientError
 
-from ..clients.aws import get_s3_client, get_s3_path_parts
-from ..globals import LOGGER
-
-DB_PATH = os.environ["DATAPUMP_DB_S3_PATH"]
-DB_BUCKET, DB_KEY = get_s3_path_parts(DB_PATH)
-LOCAL_DB_PATH = "/tmp/datapump.db"
+from ..globals import GLOBALS
 
 
 class DatapumpConfig(BaseModel):
@@ -24,119 +18,31 @@ class DatapumpConfig(BaseModel):
     sync_version: Optional[str] = None
     metadata: Dict[str, Any] = {}
 
+    def get_id(self):
+        id_str = f"{self.analysis}_{self.analysis_version}_{self.dataset}_{self.dataset_version}"
+        id_hash = blake2b(id_str.encode(), digest_size=10).hexdigest()
+        return id_hash
+
 
 class DatapumpStore:
     def __init__(self):
-        self.conn = None
+        # use table resource API since it makes putting items much easier
+        dynamodb = boto3.resource("dynamodb", endpoint_url=GLOBALS.aws_endpoint_uri)
+        self._client = dynamodb.Table(GLOBALS.datapump_table_name)
 
-    def __enter__(self):
-        try:
-            get_s3_client().download_file(DB_BUCKET, DB_KEY, LOCAL_DB_PATH)
-            self.conn = sqlite3.connect(LOCAL_DB_PATH)
-        except ClientError:
-            LOGGER.info("Unable to find config db, creating new one.")
-            self.conn = sqlite3.connect(LOCAL_DB_PATH)
+    def put(self, config_row: DatapumpConfig) -> None:
+        # query for hash
+        attributes = config_row.dict()
+        attributes["id"] = config_row.get_id()
 
-            create_sql = """
-            CREATE TABLE datapump (
-                analysis_version varchar(255),
-                dataset varchar(255),
-                dataset_version varchar(255),
-                analysis varchar(255),
-                sync boolean,
-                sync_type varchar(255),
-                sync_version varchar(255),
-                metadata json
-            )
-            """
-            self.conn.execute(create_sql)
-            self.conn.commit()
+        self._client.put_item(Item=attributes)
 
-        return self
-
-    def add(
-        self, config_row: DatapumpConfig
-    ) -> None:
-        """
-        Create entries for each table in new version
-        :param version: New version
-        :param tables: List of all tables to include in version
-        :return: None
-        """
-
-        # check if entry already exists
-        existing_row = self.get(**config_row.dict())
-        if existing_row:
-            LOGGER.info(f"Row already exists, skipping write: {existing_row}")
-            return
-
-        row_values = []
-        for key, val in config_row.dict().items():
-            if not val:
-                row_values.append(None)
-            elif key == "metadata":
-                row_values.append(json.dumps(val))
-            else:
-                row_values.append(str(val).lower())
-
-        LOGGER.info(f"Executing add query with row values: {row_values}")
-        self.conn.execute("INSERT INTO datapump VALUES(?,?,?,?,?,?,?,?)", row_values)
-        self.conn.commit()
-
-    def remove(
-        self, analysis_version: str, dataset: str, dataset_version: str, analysis: str
-    ):
-        self.conn.execute(
-            """
-            DELETE FROM datapump
-            WHERE analysis_version = ?
-                AND dataset = ?
-                AND dataset_version = ?
-                AND analysis = ?
-        """,
-            [analysis_version, dataset, dataset_version, analysis],
-        )
-        self.conn.commit()
-
-    def update_sync_version(self, sync_version: str,  **kwargs) -> None:
-        sql = f"UPDATE datapump SET sync_version = '{sync_version}'"
-
-        if kwargs:
-            sql += " WHERE " + " AND ".join(
-                f"{k} = '{v}'" for k, v in kwargs.items() if k != "metadata"
-            )
-
-        LOGGER.info(f"Executing update query: {sql}")
-        self.conn.execute(sql)
-        self.conn.commit()
+    def remove(self, config_row: DatapumpConfig):
+        self._client.delete_item(Key={"id": config_row.get_id()})
 
     def get(self, **kwargs) -> List[DatapumpConfig]:
-        sql = "SELECT * FROM datapump"
+        filter_expr = And(*[Attr(key).eq(value) for key, value in kwargs.items()])
+        response = self._client.scan(FilterExpression=filter_expr)
+        items = response["Items"]
 
-        if kwargs:
-            sql += " WHERE " + " AND ".join(
-                f"{k} = '{v}'" for k, v in kwargs.items() if k != "metadata"
-            )
-
-        LOGGER.info(f"Executing select query: {sql}")
-        cursor = self.conn.execute(sql)
-        columns = [desc[0] for desc in cursor.description]
-        rows = cursor.fetchall()
-
-        return [
-            DatapumpConfig(
-                **dict(
-                    [
-                        (col, row_val)
-                        if col != "metadata"
-                        else (col, json.loads(row_val))
-                        for col, row_val in zip(columns, row)
-                    ]
-                )
-            )
-            for row in rows
-        ]
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.conn.close()
-        get_s3_client().upload_file(LOCAL_DB_PATH, DB_BUCKET, DB_KEY)
+        return [DatapumpConfig(**item) for item in items]

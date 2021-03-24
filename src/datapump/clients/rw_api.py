@@ -1,14 +1,15 @@
-import requests
-import json
-import urllib.request
 import csv
 import io
+import json
+import urllib.request
 
-from .aws import get_secrets_manager_client
-from ..util.util import api_prefix, get_date_string
+import requests
+
+from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import UnexpectedResponseError
-from ..globals import LOGGER, GLOBALS
 from ..util.slack import slack_webhook
+from ..util.util import api_prefix, get_date_string
+from .aws import get_secrets_manager_client
 
 TOKEN = None
 
@@ -16,8 +17,7 @@ TOKEN = None
 def token() -> str:
     global TOKEN
     if TOKEN is None:
-        TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4NzUwYTU2ZGZjNjQzNzIyYmRkMDJhYiIsInJvbGUiOiJBRE1JTiIsInByb3ZpZGVyIjoibG9jYWwiLCJlbWFpbCI6InRtYXNjaGxlckB3cmkub3JnIiwiZXh0cmFVc2VyRGF0YSI6eyJhcHBzIjpbImZvcmVzdC1hdGxhcyIsImdmdy1wcm8iLCJtYXBidWlsZGVyIiwiZ2Z3Il19LCJjcmVhdGVkQXQiOjE1NzQ4NjkyMjkzNzAsImlhdCI6MTU3NDg2OTIyOX0.5IgCcts8YazV-xi5uKw1L5idvizb4WmqahlSFtL9JpY"
-        # TOKEN = _get_token()
+        TOKEN = _get_token()
 
     return TOKEN
 
@@ -41,7 +41,9 @@ def update_area_statuses(geostore_ids, status):
     errors = False
     for gid in geostore_ids:
         r = requests.post(
-            url, json=_update_aoi_statuses_payload([gid], status), headers=headers,
+            url,
+            json=_update_aoi_statuses_payload([gid], status),
+            headers=headers,
         )
 
         if r.status_code != 200:
