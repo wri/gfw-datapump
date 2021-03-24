@@ -1,14 +1,10 @@
 from typing import Dict, Any, List, Optional
 from hashlib import blake2b
-import os
-import json
 
 import boto3
 from boto3.dynamodb.conditions import Attr, And
 from pydantic import BaseModel
-from botocore.exceptions import ClientError
 
-from ..clients.aws import get_s3_path_parts
 from ..globals import LOGGER, GLOBALS
 
 class DatapumpConfig(BaseModel):
@@ -50,7 +46,7 @@ class DatapumpStore:
         })
 
     def get(self, **kwargs) -> List[DatapumpConfig]:
-        filter_expr = And(*[Attr(key).eq(value) for key, value in kwargs.items])
+        filter_expr = And(*[Attr(key).eq(value) for key, value in kwargs.items()])
         response = self._client.scan(FilterExpression=filter_expr)
         items = response["Items"]
 
