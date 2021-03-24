@@ -1,10 +1,11 @@
-import requests
 import csv
-import os
-import zipfile
 import io
-import shapefile
+import os
 import shutil
+import zipfile
+
+import requests
+import shapefile
 
 from ..clients.aws import get_s3_client
 from ..globals import LOGGER

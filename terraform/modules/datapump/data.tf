@@ -29,7 +29,3 @@ module "py37_datapump_020" {
   runtime        = "python3.7"
   layer_path     = "${var.lambda_layers_path}/"
 }
-
-locals {
-  config_db_s3_path = "s3://${var.pipelines_bucket}/datapump/config.db"
-}

@@ -1,9 +1,9 @@
-import boto3
 from urllib.parse import urlparse
 
-from ..globals import GLOBALS
-
+import boto3
 from botocore.config import Config
+
+from ..globals import GLOBALS
 
 config = Config(retries=dict(max_attempts=0), read_timeout=300)
 

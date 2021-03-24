@@ -1,8 +1,8 @@
-from datapump.globals import LOGGER, GLOBALS
-from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.clients.data_api import DataApiClient
 from datapump.commands import Analysis
+from datapump.globals import GLOBALS, LOGGER
+from datapump.jobs.geotrellis import GeotrellisJob
+from datapump.jobs.jobs import JobStatus
 
 
 def handler(event, context):
@@ -67,6 +67,7 @@ def _check_upload(job: GeotrellisJob, client: DataApiClient):
                 client.set_latest(table.dataset, job.sync_version)
                 dataset = client.get_dataset(table.dataset)
                 versions = dataset["versions"]
+
                 versions_to_delete = versions[: -GLOBALS.max_versions]
                 for version in versions_to_delete:
                     client.delete_version(table.dataset, version)
