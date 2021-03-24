@@ -1,6 +1,6 @@
 from datetime import date
 
-from ..globals import LOGGER, GLOBALS
+from ..globals import GLOBALS, LOGGER
 from ..util.slack import slack_webhook
 
 

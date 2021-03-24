@@ -1,11 +1,10 @@
-import boto3
-from botocore.exceptions import ClientError
 import json
-import time
-import sys
 import os
+import sys
+import time
 from pprint import pprint
 
+import boto3
 
 LOCALSTACK_URI = "http://localstack:4566"
 DATAPUMP_SFN_ARN = (
@@ -50,7 +49,7 @@ def _dump_logs():
     sfn_client = boto3.client("stepfunctions", endpoint_url=LOCALSTACK_URI)
     log_client = boto3.client("logs", endpoint_url=LOCALSTACK_URI)
     emr_client = boto3.client("emr", endpoint_url=LOCALSTACK_URI)
-    s3_client = boto3.client("s3", endpoint_url=LOCALSTACK_URI)
+    # s3_client = boto3.client("s3", endpoint_url=LOCALSTACK_URI)
 
     if DUMP_TO_STDOUT:
         sfn_stream, emr_stream, lambda_stream = sys.stdout, sys.stdout, sys.stdout
@@ -83,7 +82,8 @@ def _dump_logs():
             "logStreams"
         ]:
             log_events = log_client.get_log_events(
-                logGroupName=log_group_name, logStreamName=log_stream["logStreamName"],
+                logGroupName=log_group_name,
+                logStreamName=log_stream["logStreamName"],
             )["events"]
 
             for event in log_events:

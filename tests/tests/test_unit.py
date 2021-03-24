@@ -1,9 +1,8 @@
 #############
 ## Test some specific code paths without having to test the entire step function
 #############
-from datapump.jobs.geotrellis import FireAlertsGeotrellisJob
-from datapump.jobs.geotrellis import JobStatus
-from datapump.commands import AnalysisInputTable, Analysis
+from datapump.commands import Analysis, AnalysisInputTable
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, JobStatus
 
 
 def test_geotrellis_fires():

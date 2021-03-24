@@ -1,21 +1,32 @@
+from pprint import pformat
 from typing import Union, cast
 from uuid import uuid1
 
-from pydantic import parse_obj_as, ValidationError
-from pprint import pformat
-
-from datapump.globals import LOGGER, GLOBALS
 from datapump.clients.data_api import DataApiClient
-from datapump.jobs.jobs import JobStatus
-from datapump.jobs.geotrellis import GeotrellisJob, FireAlertsGeotrellisJob, ContinueGeotrellisJobsCommand
-from datapump.sync.sync import Syncer
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import AnalysisCommand, SyncCommand, SetLatestCommand, Analysis
+from datapump.commands import Analysis, AnalysisCommand, SyncCommand, SetLatestCommand
+from datapump.globals import LOGGER
+from datapump.jobs.geotrellis import (
+    ContinueGeotrellisJobsCommand,
+    FireAlertsGeotrellisJob,
+    GeotrellisJob,
+)
+from datapump.jobs.jobs import JobStatus
+from datapump.sync.sync import Syncer
+from pydantic import parse_obj_as, ValidationError
 
 
 def handler(event, context):
     try:
-        command = parse_obj_as(Union[AnalysisCommand, SyncCommand, ContinueGeotrellisJobsCommand, SetLatestCommand], event)
+        command = parse_obj_as(
+            Union[
+                AnalysisCommand,
+                SyncCommand,
+                ContinueGeotrellisJobsCommand,
+                SetLatestCommand,
+            ],
+            event,
+        )
         client = DataApiClient()
 
         jobs = []
@@ -89,13 +100,15 @@ def _sync(command: SyncCommand):
     return jobs
 
 
-def _set_latest(command: SetLatestCommand,  data_api_client: DataApiClient):
+def _set_latest(command: SetLatestCommand, data_api_client: DataApiClient):
     config_client = DatapumpStore()
     rows = config_client.get(analysis_version=command.parameters.analysis_version)
     datasets = data_api_client.get_datasets()
     for row in rows:
         ds_prefix = f"{row.dataset}__{row.analysis}__"
-        analysis_datasets = [ds["dataset"] for ds in datasets if ds["dataset"].startswith(ds_prefix)]
+        analysis_datasets = [
+            ds["dataset"] for ds in datasets if ds["dataset"].startswith(ds_prefix)
+        ]
 
         for ds in analysis_datasets:
             data_api_client.set_latest(ds, row.analysis_version)
