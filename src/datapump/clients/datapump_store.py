@@ -1,5 +1,5 @@
 from hashlib import blake2b
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import boto3
 from boto3.dynamodb.conditions import And, Attr
@@ -15,7 +15,7 @@ class DatapumpConfig(BaseModel):
     analysis: str
     sync: bool
     sync_type: str
-    sync_version: Optional[str] = None
+    sync_version: str = ""
     metadata: Dict[str, Any] = {}
 
     def get_id(self):
