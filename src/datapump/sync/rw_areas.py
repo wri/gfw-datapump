@@ -27,7 +27,7 @@ def create_1x1_tsv(version: str) -> Optional[str]:
     if tsv:
         LOGGER.info("Geostores processed, uploading and analyzing")
         geostore_path = f"geotrellis/features/geostore/{version}.tsv"
-        get_s3_client.put_object(
+        get_s3_client().put_object(
             Body=tsv,
             Bucket=GLOBALS.s3_bucket_pipeline,
             Key=geostore_path,
