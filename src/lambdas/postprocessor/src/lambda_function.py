@@ -26,6 +26,13 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
+            sync_types = SyncType.get_sync_types(
+                job.table.dataset, job.table.analysis
+            )
+
+            if SyncType.rw_areas in sync_types:
+                rw_area_jobs.append(job)
+
             # add any results with sync enabled to the config table
             if job.status == JobStatus.failed:
                 failed_jobs.append(job)
@@ -33,17 +40,11 @@ def handler(event, context):
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
                 config_client = DatapumpStore()
-                sync_types = SyncType.get_sync_types(
-                    job.table.dataset, job.table.analysis
-                )
                 LOGGER.debug(
                     f"Writing entries for {job.table.dataset} - {job.table.analysis} - {sync_types}"
                 )
 
                 for sync_type in sync_types:
-                    if sync_type == SyncType.rw_areas:
-                        rw_area_jobs.append(job)
-
                     if job.sync_version:
                         config_client.put(
                             DatapumpConfig(
@@ -52,6 +53,8 @@ def handler(event, context):
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
                                 sync_version=job.sync_version,
+                                sync=job.sync,
+                                sync_type=sync_type,
                             )
                         )
                     elif job.sync:
@@ -77,6 +80,7 @@ def handler(event, context):
 
         if rw_area_jobs:
             # delete AOI tsv file to rollback from failed update
+            LOGGER.info(f"Rolling back AOI input file: {rw_area_jobs[0].features_1x1}")
             bucket, key = get_s3_path_parts(rw_area_jobs[0].features_1x1)
             get_s3_client().delete_object(Bucket=bucket, Key=key)
 

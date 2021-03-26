@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
-from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand
+from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import AnalysisResultTable, Job, JobStatus
 
@@ -22,7 +22,6 @@ class GeotrellisAnalysis(str, Enum):
     """
     Supported analyses to run on datasets
     """
-
     tcl = "annualupdate_minimal"
     glad = "gladalerts"
     viirs = "firealerts_viirs"
@@ -62,6 +61,7 @@ class GeotrellisJob(Job):
     feature_type: GeotrellisFeatureType = GeotrellisFeatureType.feature
     geotrellis_version: str
     sync: bool = False
+    sync_type: Optional[SyncType] = None
     change_only: bool = False
     emr_job_id: Optional[str] = None
     result_tables: List[AnalysisResultTable] = []
