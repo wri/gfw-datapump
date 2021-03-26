@@ -7,7 +7,7 @@ import dateutil.tz as tz
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.datapump_store import DatapumpConfig
-from ..commands import AnalysisInputTable, SyncType
+from ..commands import AnalysisInputTable, SyncType, Analysis
 from ..globals import GLOBALS
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
@@ -40,6 +40,7 @@ class FireAlertsSync(Sync):
             status=JobStatus.starting,
             analysis_version=config.analysis_version,
             sync_version=self.sync_version,
+            sync_type=config.sync_type,
             table=AnalysisInputTable(
                 dataset=config.dataset,
                 version=config.dataset_version,
@@ -80,6 +81,7 @@ class GladSync(Sync):
                 status=JobStatus.starting,
                 analysis_version=config.analysis_version,
                 sync_version=self.sync_version,
+                sync_type=config.sync_type,
                 table=AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
@@ -115,19 +117,26 @@ class RWAreasSync(Sync):
 
     def build_job(self, config: DatapumpConfig) -> Optional[Job]:
         if self.features_1x1:
-            return GeotrellisJob(
-                id=str(uuid1()),
-                status=JobStatus.starting,
-                analysis_version=config.analysis_version,
-                sync_version=self.sync_version,
-                table=AnalysisInputTable(
+            kwargs = {
+                "id": str(uuid1()),
+                "status": JobStatus.starting,
+                "analysis_version": config.analysis_version,
+                "sync_version":  self.sync_version,
+                "table": AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
                     analysis=config.analysis,
                 ),
-                features_1x1=self.features_1x1,
-                geotrellis_version=config.metadata["geotrellis_version"],
-            )
+                "features_1x1": self.features_1x1,
+                "geotrellis_version": config.metadata["geotrellis_version"],
+                "sync_type": config.sync_type,
+            }
+
+            if config.analysis in [Analysis.viirs, Analysis.modis]:
+               kwargs["alert_type"] = config.analysis
+               return FireAlertsGeotrellisJob(**kwargs)
+            else:
+                return GeotrellisJob(**kwargs)
         else:
             return None
 

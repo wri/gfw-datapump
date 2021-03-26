@@ -1,5 +1,5 @@
 from datapump.clients.data_api import DataApiClient
-from datapump.commands import Analysis
+from datapump.commands import Analysis, SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import GeotrellisJob
 from datapump.jobs.jobs import JobStatus
@@ -26,8 +26,8 @@ def handler(event, context):
 def _upload(job: GeotrellisJob, client: DataApiClient):
     for table in job.result_tables:
         if job.sync_version:
-            # temporarily just appending sync versions to analysis version instead of using version inheritance
-            if job.table.analysis == Analysis.glad:
+            # temporarily just appending sync versio  ns to analysis version instead of using version inheritance
+            if job.table.analysis == Analysis.glad and job.sync_type != SyncType.rw_areas:
                 client.create_version(
                     table.dataset,
                     table.version,

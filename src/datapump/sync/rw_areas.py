@@ -10,7 +10,7 @@ from requests import Response
 from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.wkb import dumps
 
-from ..clients.aws import get_s3_client, get_s3_path_parts
+from ..clients.aws import get_s3_client, get_s3_path_parts, get_s3_path
 from ..clients.rw_api import token, update_area_statuses
 from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
@@ -32,7 +32,7 @@ def create_1x1_tsv(version: str) -> Optional[str]:
             Bucket=GLOBALS.s3_bucket_pipeline,
             Key=geostore_path,
         )
-        return geostore_path
+        return get_s3_path(GLOBALS.s3_bucket_pipeline, geostore_path)
     else:
         LOGGER.info("No geostores to process")
         return None
