@@ -62,7 +62,7 @@ def _check_upload(job: GeotrellisJob, client: DataApiClient):
         all_saved &= status == "saved"
 
     if all_saved:
-        if job.table.analysis == Analysis.glad and job.sync_version:
+        if job.table.analysis == Analysis.glad and job.sync_version and job.sync_type != SyncType.rw_areas:
             for table in job.result_tables:
                 client.set_latest(table.dataset, job.sync_version)
                 dataset = client.get_dataset(table.dataset)
