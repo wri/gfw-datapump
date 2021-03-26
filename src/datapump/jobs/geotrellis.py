@@ -311,6 +311,8 @@ class GeotrellisJob(Job):
         # if using a wildcard for a folder, just use hardcoded value
         if "*.tsv" in limiting_src:
             return 50
+        elif self.sync_type == SyncType.rw_areas and self.table.analysis in [Analysis.viirs, Analysis.modis]:
+            return 15
 
         bucket, key = get_s3_path_parts(limiting_src)
         resp = get_s3_client().head_object(Bucket=bucket, Key=key)
