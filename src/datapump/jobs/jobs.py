@@ -18,7 +18,7 @@ class JobStep(str, Enum):
 
 class Job(BaseModel, ABC):
     id: str
-    step: JobStep
+    step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
 
     @abstractmethod

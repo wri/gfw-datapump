@@ -14,8 +14,7 @@ data "template_file" "sfn_datapump" {
   template = file("${var.step_functions_path}/datapump.json.tmpl")
   vars = {
     lambda_dispatcher_arn = aws_lambda_function.dispatcher.arn,
-    lambda_analyzer_arn = aws_lambda_function.analyzer.arn,
-    lambda_uploader_arn = aws_lambda_function.uploader.arn,
+    lambda_executor_arn = aws_lambda_function.executor.arn,
     lambda_postprocessor_arn = aws_lambda_function.postprocessor.arn,
     wait_time = var.sfn_wait_time
   }
