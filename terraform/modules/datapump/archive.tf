@@ -4,16 +4,10 @@ data "archive_file" "lambda_dispatcher" {
   output_path = "${var.lambdas_path}/dispatcher/lambda.zip"
 }
 
-data "archive_file" "lambda_analyzer" {
+data "archive_file" "lambda_executor" {
   type        = "zip"
-  source_dir  = "${var.lambdas_path}/analyzer/src"
-  output_path = "${var.lambdas_path}/analyzer/lambda.zip"
-}
-
-data "archive_file" "lambda_uploader" {
-  type        = "zip"
-  source_dir  = "${var.lambdas_path}/uploader/src"
-  output_path = "${var.lambdas_path}/uploader/lambda.zip"
+  source_dir  = "${var.lambdas_path}/executor/src"
+  output_path = "${var.lambdas_path}/executor/lambda.zip"
 }
 
 data "archive_file" "lambda_postprocessor" {

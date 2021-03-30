@@ -53,7 +53,8 @@ class GeotrellisFeatureType(str, Enum):
             return ["feature__id"]
 
 
-class GeotrellisJobStep(JobStep):
+class GeotrellisJobStep(str, Enum):
+    starting = "starting"
     analyzing = "analyzing"
     uploading = "uploading"
 
@@ -89,7 +90,6 @@ class GeotrellisJob(Job):
 
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
-        self.status = JobStatus.analyzing
 
     def check_analysis(self) -> JobStatus:
         cluster_description = get_emr_client().describe_cluster(
