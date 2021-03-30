@@ -365,6 +365,12 @@ class GeotrellisJob(Job):
         if self.change_only:
             step_args.append("--change_only")
 
+        if GLOBALS.env != "production" and self.feature_type == GeotrellisFeatureType.gadm:
+            step_args.append("--iso_start")
+            step_args.append("BRA")
+            step_args.append("--iso_end")
+            step_args.append("COK")
+
         return {
             "Name": self.table.analysis.value,
             "ActionOnFailure": "TERMINATE_CLUSTER",
