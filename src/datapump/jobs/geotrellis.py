@@ -10,9 +10,10 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
+from ..clients.data_api import DataApiClient
 from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
 from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import AnalysisResultTable, Job, JobStatus
+from ..jobs.jobs import AnalysisResultTable, Job, JobStatus, JobStep
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -52,6 +53,12 @@ class GeotrellisFeatureType(str, Enum):
             return ["feature__id"]
 
 
+class GeotrellisJobStep(str, Enum):
+    starting = "starting"
+    analyzing = "analyzing"
+    uploading = "uploading"
+
+
 class GeotrellisJob(Job):
     table: AnalysisInputTable
     status: JobStatus
@@ -66,11 +73,25 @@ class GeotrellisJob(Job):
     emr_job_id: Optional[str] = None
     result_tables: List[AnalysisResultTable] = []
 
+    def next_step(self):
+        if self.step == JobStep.starting:
+            self.start_analysis()
+            self.status = JobStatus.executing
+            self.step = GeotrellisJobStep.analyzing
+        elif self.step == GeotrellisJobStep.analyzing:
+            status = self.check_analysis()
+            if status == JobStatus.complete:
+                self.upload()
+                self.step = GeotrellisJobStep.uploading
+            elif status == JobStatus.failed:
+                self.status = JobStatus.failed
+        elif self.step == GeotrellisJobStep.uploading:
+            self.status = self.check_upload()
+
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
-        self.status = JobStatus.analyzing
 
-    def update_status(self) -> None:
+    def check_analysis(self) -> JobStatus:
         cluster_description = get_emr_client().describe_cluster(
             ClusterId=self.emr_job_id
         )
@@ -83,26 +104,80 @@ class GeotrellisJob(Job):
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED"
         ):
-            self.status = JobStatus.analyzed
             self.result_tables = self._get_result_tables()
+            return JobStatus.complete
         elif (
             GLOBALS.env == "test"
             and status["State"] == "WAITING"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
-            self.status = JobStatus.analyzed
             self.result_tables = self._get_result_tables()
+            return JobStatus.complete
         elif status["State"] == "TERMINATED_WITH_ERRORS":
-            self.status = JobStatus.failed
+            return JobStatus.failed
         elif (
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
             # this can happen if someone manually terminates the EMR job, which means the step function should stop
             # since we can't know if it completed correctly
-            self.status = JobStatus.failed
+            return JobStatus.failed
         else:
-            self.status = JobStatus.analyzing
+            return JobStatus.executing
+
+    def upload(self):
+        client = DataApiClient()
+
+        for table in self.result_tables:
+            if self.sync_version:
+                # temporarily just appending sync versio  ns to analysis version instead of using version inheritance
+                if self.table.analysis == Analysis.glad and self.sync_type != SyncType.rw_areas:
+                    client.create_version(
+                        table.dataset,
+                        table.version,
+                        table.source_uri,
+                        table.index_columns,
+                        table.index_columns,
+                        table.table_schema,
+                    )
+                else:
+                    client.append(table.dataset, table.version, table.source_uri)
+            else:
+                client.create_dataset_and_version(
+                    table.dataset,
+                    table.version,
+                    table.source_uri,
+                    table.index_columns,
+                    table.index_columns,
+                    table.table_schema,
+                )
+
+    def check_upload(self) -> JobStatus:
+        client = DataApiClient()
+
+        all_saved = True
+        for table in self.result_tables:
+            status = client.get_version(table.dataset, table.version)["status"]
+            if status == "failed":
+                return JobStatus.failed
+
+            all_saved &= status == "saved"
+
+        if all_saved:
+            if self.table.analysis == Analysis.glad and self.sync_version and self.sync_type != SyncType.rw_areas:
+                for table in self.result_tables:
+                    client.set_latest(table.dataset, self.sync_version)
+                    dataset = client.get_dataset(table.dataset)
+                    versions = dataset["versions"]
+
+                    versions_to_delete = versions[: -GLOBALS.max_versions]
+                    for version in versions_to_delete:
+                        client.delete_version(table.dataset, version)
+
+            return JobStatus.complete
+
+        return JobStatus.executing
+
 
     def _get_emr_inputs(self):
         name = f"{self.table.dataset}_{self.table.analysis}_{self.analysis_version}__{self.id}"

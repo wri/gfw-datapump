@@ -10,14 +10,8 @@ def handler(event, context):
     job = parse_obj_as(Union[FireAlertsGeotrellisJob, GeotrellisJob], event)
 
     try:
-        LOGGER.info(f"Running analysis job:\n{job.dict()}")
-        if job.status == JobStatus.starting:
-            LOGGER.info(f"Starting job {job.id}")
-            job.start_analysis()
-        elif job.status == JobStatus.analyzing:
-            LOGGER.info(f"Job {job.id} still analyzing...")
-            job.update_status()
-
+        LOGGER.info(f"Running next for job:\n{job.dict()}")
+        job.next_step()
     except Exception as e:
         LOGGER.exception(e)
         job.status = JobStatus.failed
