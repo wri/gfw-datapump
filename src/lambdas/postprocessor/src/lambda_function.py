@@ -46,16 +46,13 @@ def handler(event, context):
 
                 for sync_type in sync_types:
                     if job.sync_version:
-                        config_client.put(
+                        config_client.update_sync_version(
                             DatapumpConfig(
                                 analysis_version=job.analysis_version,
                                 dataset=job.table.dataset,
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
-                                sync_version=job.sync_version,
-                                sync=True,
-                                sync_type=sync_type,
-                            )
+                            ), job.sync_version
                         )
                     elif job.sync:
                         config_client.put(

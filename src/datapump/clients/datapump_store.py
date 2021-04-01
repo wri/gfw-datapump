@@ -37,6 +37,13 @@ class DatapumpStore:
 
         self._client.put_item(Item=attributes)
 
+    def update_sync_version(self, config_row: DatapumpConfig, sync_version: str) -> None:
+        self._client.update_item(
+            Key={'id': config_row.get_id()},
+            UpdateExpression="SET sync_version = :sync_version",
+            ExpressionAttributeValues={':sync_version': sync_version}
+        )
+
     def remove(self, config_row: DatapumpConfig):
         self._client.delete_item(Key={"id": config_row.get_id()})
 
