@@ -52,6 +52,8 @@ def handler(event, context):
                                 dataset=job.table.dataset,
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
+                                sync=True,
+                                sync_type=job.sync_type
                             ), job.sync_version
                         )
                     elif job.sync:
