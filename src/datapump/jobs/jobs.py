@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -6,16 +7,23 @@ from pydantic import BaseModel
 
 class JobStatus(str, Enum):
     starting = "starting"
-    analyzing = "analyzing"
-    analyzed = "analyzed"
-    uploading = "uploading"
+    executing = "executing"
     complete = "complete"
     failed = "failed"
 
 
-class Job(BaseModel):
+class JobStep(str, Enum):
+    starting = "starting"
+
+
+class Job(BaseModel, ABC):
     id: str
+    step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
+
+    @abstractmethod
+    def next_step(self):
+        ...
 
 
 class PartitionSchema(BaseModel):

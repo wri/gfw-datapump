@@ -23,22 +23,12 @@
               {
                 "Variable": "$.status",
                 "StringEquals": "starting",
-                "Next": "analyzer"
+                "Next": "executor"
               },
               {
                 "Variable": "$.status",
-                "StringEquals": "analyzing",
-                "Next": "analyzer"
-              },
-              {
-                "Variable": "$.status",
-                "StringEquals": "analyzed",
-                "Next": "uploader"
-              },
-              {
-                "Variable": "$.status",
-                "StringEquals": "uploading",
-                "Next": "uploader"
+                "StringEquals": "executing",
+                "Next": "executor"
               },
               {
                 "Variable": "$.status",
@@ -57,16 +47,9 @@
             "Seconds": ${wait_time},
             "Next": "status_checker"
           },
-          "analyzer": {
+          "executor": {
             "Type": "Task",
-            "Resource": "${lambda_analyzer_arn}",
-            "InputPath": "$",
-            "ResultPath": "$",
-            "Next": "waiter"
-          },
-          "uploader": {
-            "Type": "Task",
-            "Resource": "${lambda_uploader_arn}",
+            "Resource": "${lambda_executor_arn}",
             "InputPath": "$",
             "ResultPath": "$",
             "Next": "waiter"

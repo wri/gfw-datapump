@@ -53,7 +53,7 @@ def handler(event, context):
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
                                 sync_version=job.sync_version,
-                                sync=job.sync,
+                                sync=True,
                                 sync_type=sync_type,
                             )
                         )
