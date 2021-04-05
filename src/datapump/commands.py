@@ -10,7 +10,7 @@ class Analysis(str, Enum):
     Supported analyses to run on datasets
     """
 
-    tcl = ("tcl",)
+    tcl = "tcl"
     glad = "glad"
     viirs = "viirs"
     modis = "modis"
