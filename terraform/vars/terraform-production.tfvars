@@ -30,14 +30,14 @@ lambda_get_latest_fire_alerts_timeout     = 900
 
 data_api_viirs_version = "v202010"
 
-geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.4.4.jar"
+geotrellis_jar = "s3://gfw-pipelines/geotrellis/jars/treecoverloss-assembly-1.4.5.jar"
 
 datasets = {
   "geostore": {
     "annualupdate_minimal": {
-      "change" = ["eb5d50f5-7219-4638-a72d-802d4b163523"]
-      "summary" = ["d0f64f57-a3e2-4362-8dae-ba8f6480bc41"]
-      "whitelist" = ["64d80e29-2e7f-4b9c-bef2-dde2241d363e"]
+      "change" = ["4a1888f4-3a0e-46e0-9bf8-ed59ce05057e"]
+      "summary" = ["b6e7c856-1751-4abe-a5aa-f61bed3bc5b8"]
+      "whitelist" = ["3b43735f-5b78-4222-9c01-95ef918a9a42"]
     }
     "gladalerts": {
       "daily_alerts" = ["f914e18d-732d-4b24-a8f6-68a4a8d1c266"]
