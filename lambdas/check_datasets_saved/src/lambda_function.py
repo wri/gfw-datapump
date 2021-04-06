@@ -88,7 +88,7 @@ def check_for_upload_issues(
         raise StatusMismatchException(mismatched_status_error(status_mismatches))
 
     # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
-    retry_stuck_datasets(datasets, dataset_result_paths, tasks, upload_type, retries)
+    # retry_stuck_datasets(datasets, dataset_result_paths, tasks, upload_type, retries)
 
 
 def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
