@@ -83,9 +83,9 @@ def check_for_upload_issues(
     if failed_datasets:
         raise FailedDatasetUploadException(failed_datasets_error(name, failed_datasets))
 
-    status_mismatches = find_status_mismatches(datasets, tasks)
-    if status_mismatches:
-        raise StatusMismatchException(mismatched_status_error(status_mismatches))
+    # status_mismatches = find_status_mismatches(datasets, tasks)
+    # if status_mismatches:
+    #     raise StatusMismatchException(mismatched_status_error(status_mismatches))
 
     # no errors yet - see if any datasets are stuck and need a retry before going back to wait loop
     # retry_stuck_datasets(datasets, dataset_result_paths, tasks, upload_type, retries)
