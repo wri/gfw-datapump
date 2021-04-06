@@ -16,7 +16,10 @@ import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
 from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.summary_analysis import JobStatus, _instances
 
+import pytest
 
+
+@pytest.mark.skip(reason="Temporarily removed certain functionality")
 @mock_s3
 @mock_emr
 @mock_secretsmanager
