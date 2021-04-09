@@ -245,7 +245,7 @@ class GeotrellisJob(Job):
 
         sources = [f"s3://{bucket}/{file}" for file in files]
         version = self.analysis_version
-        if self.sync_version and self.table.analysis == Analysis.glad:
+        if self.sync_version and self.table.analysis == Analysis.glad and "alerts" in analysis_agg:
             version = self.sync_version
 
         return AnalysisResultTable(
@@ -455,6 +455,8 @@ class GeotrellisJob(Job):
     def _get_result_path(self, include_analysis=False) -> str:
         version = self.sync_version if self.sync_version else self.analysis_version
         result_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/results/{version}/{self.table.dataset}"
+        if self.sync_type:
+            result_path += f"/{self.sync_type.value}"
         if include_analysis:
             result_path += f"/{GeotrellisAnalysis[self.table.analysis].value}"
 

@@ -19,7 +19,7 @@ class DatapumpConfig(BaseModel):
     metadata: Dict[str, Any] = {}
 
     def get_id(self):
-        id_str = f"{self.analysis}_{self.analysis_version}_{self.dataset}_{self.dataset_version}"
+        id_str = f"{self.analysis}_{self.analysis_version}_{self.dataset}_{self.dataset_version}_{self.sync_type}"
         id_hash = blake2b(id_str.encode(), digest_size=10).hexdigest()
         return id_hash
 

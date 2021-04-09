@@ -9,6 +9,7 @@ from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.rw_areas import get_aoi_geostore_ids
+from datapump.util.slack import slack_webhook
 from pydantic import parse_obj_as
 
 
@@ -33,10 +34,20 @@ def handler(event, context):
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
 
+            job_type_slack = "Sync" if job.sync_version else "Job"
             # add any results with sync enabled to the config table
             if job.status == JobStatus.failed:
+                slack_webhook(
+                    "error",
+                    f"{job_type_slack} failed for analysis {job.table.analysis} on dataset {job.table.dataset}"
+                )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
+                slack_webhook(
+                    "info",
+                    f"{job_type_slack} succeeded for analysis {job.table.analysis} on dataset {job.table.dataset}!"
+                )
+
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
                 config_client = DatapumpStore()
