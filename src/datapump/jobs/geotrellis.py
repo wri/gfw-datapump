@@ -141,7 +141,12 @@ class GeotrellisJob(Job):
                         table.table_schema,
                     )
                 else:
-                    client.append(table.dataset, table.version, table.source_uri)
+                    if self.sync_type == SyncType.rw_areas:
+                        version = client.get_latest_version(table.dataset)
+                    else:
+                        version = table.version
+
+                    client.append(table.dataset, version, table.source_uri)
             else:
                 client.create_dataset_and_version(
                     table.dataset,
@@ -157,7 +162,12 @@ class GeotrellisJob(Job):
 
         all_saved = True
         for table in self.result_tables:
-            status = client.get_version(table.dataset, table.version)["status"]
+            if self.sync_type == SyncType.rw_areas:
+                version = client.get_latest_version(table.dataset)
+            else:
+                version = table.version
+
+            status = client.get_version(table.dataset, version)["status"]
             if status == "failed":
                 return JobStatus.failed
 

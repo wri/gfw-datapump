@@ -22,8 +22,13 @@ class DataApiClient:
     def __init__(self):
         LOGGER.info(f"Create data API client at URI: {GLOBALS.data_api_uri}")
 
-    def get_latest(self):
-        pass
+    def get_latest_version(self, dataset: str) -> str:
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/latest"
+        resp = self._send_request(ValidMethods.get, uri)
+        if resp["status"] == "success":
+            return resp["data"]["version"]
+        else:
+            raise ValueError(f"No latest version set for dataset {dataset}")
 
     def get_assets(self, dataset: str, version: str) -> List[Dict[str, Any]]:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
