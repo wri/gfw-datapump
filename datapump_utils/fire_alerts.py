@@ -72,7 +72,7 @@ def process_active_fire_alerts(alert_type):
     tsv_writer = csv.DictWriter(tsv_file, fieldnames=fields, delimiter="\t")
     tsv_writer.writeheader()
 
-    nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time/"
+    nrt_s3_directory = f"nasa_{alert_type.lower()}_fire_alerts/{VERSIONS[alert_type]}/vector/epsg-4326/tsv/near_real_time"
     last_saved_date, last_saved_min = _get_last_saved_alert_time(nrt_s3_directory)
     LOGGER.info(f"Last saved row datetime: {last_saved_date} {last_saved_min}")
 
@@ -121,7 +121,7 @@ def get_tmp_result_path(alert_type):
 
 def _get_last_saved_alert_time(nrt_s3_directory):
     response = s3_client().list_objects(
-        Bucket=DATA_LAKE_BUCKET, Prefix=nrt_s3_directory
+        Bucket=DATA_LAKE_BUCKET, Prefix=f"{nrt_s3_directory}/"
     )
 
     if "Contents" in response:
