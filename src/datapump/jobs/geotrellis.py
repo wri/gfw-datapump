@@ -395,7 +395,7 @@ class GeotrellisJob(Job):
         """
         # if using a wildcard for a folder, just use hardcoded value
         if "*.tsv" in limiting_src:
-            return 50
+            return 200 if GLOBALS.env == "production" else 50
         elif self.sync_type == SyncType.rw_areas and self.table.analysis in [Analysis.viirs, Analysis.modis]:
             return 15
 
