@@ -178,7 +178,7 @@ class GeotrellisJob(Job):
                 for table in self.result_tables:
                     client.set_latest(table.dataset, self.sync_version)
                     dataset = client.get_dataset(table.dataset)
-                    versions = dataset["versions"]
+                    versions = sorted(dataset["versions"])
 
                     versions_to_delete = versions[: -GLOBALS.max_versions]
                     for version in versions_to_delete:
