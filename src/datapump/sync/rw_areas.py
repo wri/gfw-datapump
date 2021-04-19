@@ -133,7 +133,11 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out
-    return list(set(geostore_ids))[:1500]
+    remaining_ids = list(set(geostore_ids))[:1500]
+    if None in remaining_ids:
+        remaining_ids.remove(None)
+
+    return remaining_ids
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
@@ -159,12 +163,11 @@ def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
             r: Response = requests.post(url, json=payload, headers=headers)
 
             if r.status_code != 200:
+                retries += 1
                 if retries > 1:
                     raise UnexpectedResponseError(
                         f"geostore/find-by-ids returned response {r.status_code} on block {i}"
                     )
-                else:
-                    retries += 1
             else:
                 geostores["data"] += r.json()["data"]
                 break
