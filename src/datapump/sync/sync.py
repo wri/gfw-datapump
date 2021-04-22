@@ -7,7 +7,7 @@ import dateutil.tz as tz
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.datapump_store import DatapumpConfig
-from ..commands import AnalysisInputTable, SyncType, Analysis
+from ..commands import Analysis, AnalysisInputTable, SyncType
 from ..globals import GLOBALS
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
@@ -121,7 +121,7 @@ class RWAreasSync(Sync):
                 "id": str(uuid1()),
                 "status": JobStatus.starting,
                 "analysis_version": config.analysis_version,
-                "sync_version":  self.sync_version,
+                "sync_version": self.sync_version,
                 "table": AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
@@ -133,8 +133,8 @@ class RWAreasSync(Sync):
             }
 
             if config.analysis in [Analysis.viirs, Analysis.modis]:
-               kwargs["alert_type"] = config.analysis
-               return FireAlertsGeotrellisJob(**kwargs)
+                kwargs["alert_type"] = config.analysis
+                return FireAlertsGeotrellisJob(**kwargs)
             else:
                 return GeotrellisJob(**kwargs)
         else:

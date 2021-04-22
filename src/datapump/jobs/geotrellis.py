@@ -23,6 +23,7 @@ class GeotrellisAnalysis(str, Enum):
     """
     Supported analyses to run on datasets
     """
+
     tcl = "annualupdate_minimal"
     glad = "gladalerts"
     viirs = "firealerts_viirs"
@@ -131,7 +132,10 @@ class GeotrellisJob(Job):
         for table in self.result_tables:
             if self.sync_version:
                 # temporarily just appending sync versio  ns to analysis version instead of using version inheritance
-                if self.table.analysis == Analysis.glad and self.sync_type != SyncType.rw_areas:
+                if (
+                    self.table.analysis == Analysis.glad
+                    and self.sync_type != SyncType.rw_areas
+                ):
                     client.create_version(
                         table.dataset,
                         table.version,
@@ -174,7 +178,11 @@ class GeotrellisJob(Job):
             all_saved &= status == "saved"
 
         if all_saved:
-            if self.table.analysis == Analysis.glad and self.sync_version and self.sync_type != SyncType.rw_areas:
+            if (
+                self.table.analysis == Analysis.glad
+                and self.sync_version
+                and self.sync_type != SyncType.rw_areas
+            ):
                 for table in self.result_tables:
                     client.set_latest(table.dataset, self.sync_version)
                     dataset = client.get_dataset(table.dataset)
@@ -187,7 +195,6 @@ class GeotrellisJob(Job):
             return JobStatus.complete
 
         return JobStatus.executing
-
 
     def _get_emr_inputs(self):
         name = f"{self.table.dataset}_{self.table.analysis}_{self.analysis_version}__{self.id}"
@@ -255,7 +262,11 @@ class GeotrellisJob(Job):
 
         sources = [f"s3://{bucket}/{file}" for file in files]
         version = self.analysis_version
-        if self.sync_version and self.table.analysis == Analysis.glad and "alerts" in analysis_agg:
+        if (
+            self.sync_version
+            and self.table.analysis == Analysis.glad
+            and "alerts" in analysis_agg
+        ):
             version = self.sync_version
 
         return AnalysisResultTable(
@@ -396,7 +407,10 @@ class GeotrellisJob(Job):
         # if using a wildcard for a folder, just use hardcoded value
         if "*.tsv" in limiting_src:
             return 200 if GLOBALS.env == "production" else 50
-        elif self.sync_type == SyncType.rw_areas and self.table.analysis in [Analysis.viirs, Analysis.modis]:
+        elif self.sync_type == SyncType.rw_areas and self.table.analysis in [
+            Analysis.viirs,
+            Analysis.modis,
+        ]:
             return 15
 
         bucket, key = get_s3_path_parts(limiting_src)
@@ -450,7 +464,10 @@ class GeotrellisJob(Job):
         if self.change_only:
             step_args.append("--change_only")
 
-        if GLOBALS.env != "production" and self.feature_type == GeotrellisFeatureType.gadm:
+        if (
+            GLOBALS.env != "production"
+            and self.feature_type == GeotrellisFeatureType.gadm
+        ):
             step_args.append("--iso_start")
             step_args.append("BRA")
             step_args.append("--iso_end")
