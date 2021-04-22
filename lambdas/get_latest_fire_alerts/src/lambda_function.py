@@ -1,8 +1,8 @@
-import os
 import json
+import os
 import traceback
 
-from datapump_utils.fire_alerts import process_active_fire_alerts, get_tmp_result_path
+from datapump_utils.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from datapump_utils.gpkg_util import update_geopackage
 from datapump_utils.logger import get_logger
 from datapump_utils.slack import slack_webhook

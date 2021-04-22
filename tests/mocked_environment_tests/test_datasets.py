@@ -1,19 +1,19 @@
 import pytest
-from moto import mock_secretsmanager, mock_s3
-from requests_mock.exceptions import NoMockAddress
 from mock import patch
+from moto import mock_s3, mock_secretsmanager
+from requests_mock.exceptions import NoMockAddress
 
 from datapump_utils.dataset import (
-    upload_dataset,
-    get_dataset,
-    get_task,
-    delete_task,
-    recover_dataset,
     _get_headers,
     _get_upload_dataset_payload,
+    delete_task,
+    get_dataset,
+    get_task,
+    recover_dataset,
+    upload_dataset,
 )
-from datapump_utils.secrets import token
 from datapump_utils.exceptions import UnexpectedResponseError
+from datapump_utils.secrets import token
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,

@@ -2,24 +2,28 @@ resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
   name                = substr("everyday-11-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 11 pm EST"
   schedule_expression = "cron(0 4 ? * * *)" // -5 to EST
+  tags                = local.tags
 }
 
 resource "aws_cloudwatch_event_rule" "everyday-9-pm-est" {
   name                = substr("everyday-11-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 11 pm EST"
   schedule_expression = "cron(0 2 ? * * *)" // -5 to EST
+  tags                = local.tags
 }
 
 resource "aws_cloudwatch_event_rule" "everyday-9-pm" {
   name                = substr("everyday-9-pm${local.name_suffix}", 0, 64)
   description         = "Run everyday at 9 pm EST"
   schedule_expression = "cron(0 0 ? * * *)" // -5 to EST
+  tags                = local.tags
 }
 
 resource "aws_cloudwatch_event_rule" "every-3-hours" {
   name                = substr("every-3-hours${local.name_suffix}", 0, 64)
   description         = "Run every 3 hours"
   schedule_expression = "rate(3 hours)"
+  tags                = local.tags
 }
 
 
@@ -27,6 +31,7 @@ resource "aws_cloudwatch_event_rule" "everyday-3-am-est" {
   name                = substr("everyday-3-am-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 3 am EST"
   schedule_expression = "cron(0 8 ? * * *)" // -5 to EST
+  tags                = local.tags
 }
 
 //We only want to schedule this event in production

@@ -1,17 +1,10 @@
-import logging
 import os
-import traceback
-
-from botocore.exceptions import ClientError
 
 from datapump_utils.summary_analysis import (
     get_summary_analysis_steps,
     submit_summary_batch_job,
 )
-from datapump_utils.util import get_date_string, bucket_suffix
-from datapump_utils.slack import slack_webhook
-from datapump_utils.util import error
-
+from datapump_utils.util import error, get_date_string
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:

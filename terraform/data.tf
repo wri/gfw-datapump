@@ -31,17 +31,17 @@ data "template_file" "sfn_summarize_new_aoi" {
 data "template_file" "sfn_summarize_new_glad_alerts" {
   template = file("../step_functions/new_glad_alerts.json")
   vars = {
-    lambda_check_new_glad_alerts_arn  = aws_lambda_function.check_new_glad_alerts.arn,
-    state_machine_arn                 =  aws_sfn_state_machine.geotrellis_dataset.id
+    lambda_check_new_glad_alerts_arn = aws_lambda_function.check_new_glad_alerts.arn,
+    state_machine_arn                = aws_sfn_state_machine.geotrellis_dataset.id
   }
 }
 
 data "template_file" "sfn_summarize_new_fire_alerts" {
   template = file("../step_functions/new_fire_alerts.json")
   vars = {
-    lambda_get_latest_fire_alerts_arn  = aws_lambda_function.get_latest_fire_alerts.arn,
+    lambda_get_latest_fire_alerts_arn = aws_lambda_function.get_latest_fire_alerts.arn,
     lambda_inject_fires_data_arn      = aws_lambda_function.inject_fires_data.arn,
-    state_machine_arn                 =  aws_sfn_state_machine.geotrellis_dataset.id
+    state_machine_arn                 = aws_sfn_state_machine.geotrellis_dataset.id
   }
 }
 

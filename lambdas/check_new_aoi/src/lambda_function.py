@@ -1,24 +1,24 @@
 import io
 import json
+import math
 import os
+import traceback
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Tuple, Set
-import math
-import traceback
+from typing import Any, Dict, Iterator, List, Set, Tuple
 
 import requests
 from requests import Response
+from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.wkb import dumps
-from shapely.geometry import shape, Polygon, MultiPolygon
+
+from datapump_utils.dataset import update_aoi_statuses
 from datapump_utils.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump_utils.logger import get_logger
-from datapump_utils.secrets import token
-from datapump_utils.util import bucket_suffix, api_prefix
 from datapump_utils.s3 import get_s3_path, s3_client
+from datapump_utils.secrets import token
 from datapump_utils.slack import slack_webhook
-from datapump_utils.dataset import update_aoi_statuses
-
+from datapump_utils.util import api_prefix, bucket_suffix
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
@@ -34,9 +34,7 @@ GEOSTORE_PAGE_SIZE = 100
 
 
 def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Main Lambda function
-    """
+    """Main Lambda function."""
 
     LOGGER.info("Check for pending areas")
 
@@ -110,9 +108,8 @@ def handler(event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_pending_areas() -> List[Any]:
-    """
-    Request to GFW API to get list of user areas which were recently submitted and need to be added to nightly updates
-    """
+    """Request to GFW API to get list of user areas which were recently
+    submitted and need to be added to nightly updates."""
 
     LOGGER.debug("Get pending Areas")
     LOGGER.debug(f"Using token {token()} for {api_prefix()} API")
@@ -150,9 +147,7 @@ def get_pending_areas() -> List[Any]:
 
 
 def get_geostore_ids(areas: List[Any]) -> List[str]:
-    """
-    Extract Geostore ID from user area
-    """
+    """Extract Geostore ID from user area."""
 
     LOGGER.debug("Get Geostore IDs")
     geostore_ids: List[str] = list()
@@ -173,14 +168,14 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
 
 def get_geostore(geostore_ids: List[str]) -> Dict[str, Any]:
-    """
-    Get Geostore Geometry using list of geostore IDs
-    """
+    """Get Geostore Geometry using list of geostore IDs."""
 
     LOGGER.debug("Get Geostore Geometries by IDs")
 
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
-    url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
+    url: str = (
+        f"https://{api_prefix()}-api.globalforestwatch.org/v2/geostore/find-by-ids"
+    )
     geostores: Dict[str, Any] = {"data": []}
 
     for i in range(0, len(geostore_ids), GEOSTORE_PAGE_SIZE):
@@ -247,8 +242,9 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
 
 @contextmanager
 def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int]]:
-    """
-    Convert Geojson to WKB. Slice geometries into 1x1 degree tiles
+    """Convert Geojson to WKB.
+
+    Slice geometries into 1x1 degree tiles
     """
 
     LOGGER.debug("Convert Geometries to WKB")
@@ -258,7 +254,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
 
     LOGGER.debug("Start writing to virtual TSV file")
     # Column Header
-    wkb.write(f"geostore_id\tgeom\ttcl\tglad\n")
+    wkb.write("geostore_id\tgeom\ttcl\tglad\n")
     count: int = 0
 
     # Body
@@ -310,10 +306,9 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
 
 
 def _get_intersecting_polygon(feature_geom, tile_geom):
-    """
-    Get intersection of feature and tile, and ensure the result is either a Polygon or MultiPolygon,
-    or returns None if the intersection contains no polygons.
-    """
+    """Get intersection of feature and tile, and ensure the result is either a
+    Polygon or MultiPolygon, or returns None if the intersection contains no
+    polygons."""
 
     intersection = feature_geom.intersection(tile_geom)
 
@@ -333,13 +328,12 @@ def _get_intersecting_polygon(feature_geom, tile_geom):
 
 
 def _get_extent_1x1() -> List[Tuple[Polygon, bool, bool]]:
-    """
-    Fetch 1x1 degree extent file
-    """
+    """Fetch 1x1 degree extent file."""
     LOGGER.debug("Fetch Extent File")
     result_bucket = os.environ["S3_BUCKET_PIPELINE"]
     response: Dict[str, Any] = s3_client().get_object(
-        Bucket=result_bucket, Key="geotrellis/features/extent_1x1.geojson",
+        Bucket=result_bucket,
+        Key="geotrellis/features/extent_1x1.geojson",
     )
 
     glad_tiles: Dict[str, Any] = json.load(response["Body"])

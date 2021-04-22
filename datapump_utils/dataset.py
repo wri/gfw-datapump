@@ -1,14 +1,15 @@
-import requests
-import json
-import urllib.request
 import csv
 import io
+import json
+import urllib.request
 
-from datapump_utils.secrets import token
-from datapump_utils.util import api_prefix, get_date_string
+import requests
+
 from datapump_utils.exceptions import UnexpectedResponseError
 from datapump_utils.logger import get_logger
+from datapump_utils.secrets import token
 from datapump_utils.slack import slack_webhook
+from datapump_utils.util import api_prefix, get_date_string
 
 LOGGER = get_logger(__name__)
 
@@ -24,7 +25,9 @@ def update_aoi_statuses(geostore_ids, status):
     errors = False
     for gid in geostore_ids:
         r = requests.post(
-            url, json=_update_aoi_statuses_payload([gid], status), headers=headers,
+            url,
+            json=_update_aoi_statuses_payload([gid], status),
+            headers=headers,
         )
 
         if r.status_code != 200:
@@ -132,9 +135,7 @@ def delete_task(task_path):
 
 
 def recover_dataset(dataset_id):
-    """
-    Resets dataset if stuck on a write.
-    """
+    """Resets dataset if stuck on a write."""
     url = f"https://{api_prefix()}-api.globalforestwatch.org/v1/dataset/{dataset_id}/recover"
     response = requests.post(url, headers=_get_headers())
 

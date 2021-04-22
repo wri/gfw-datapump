@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
-from copy import deepcopy
-import dateutil.tz as tz
-import os
 import json
+import os
+from copy import deepcopy
+from datetime import datetime, timedelta
 
-from datapump_utils.s3 import s3_client, get_s3_path_parts
+import dateutil.tz as tz
+
+from datapump_utils.s3 import get_s3_path_parts, s3_client
 
 GLAD_STATUS_PATH = os.environ["GLAD_STATUS_PATH"]
 DATASETS = json.loads(os.environ["DATASETS"])

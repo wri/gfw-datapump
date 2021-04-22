@@ -1,15 +1,16 @@
-from moto import mock_s3, mock_secretsmanager
-from mock import patch
 from datetime import datetime, timedelta
-import pytz
 
-from tests.mock_environment.mock_environment import mock_environment
+import pytz
+from mock import patch
+from moto import mock_s3, mock_secretsmanager
+
 from datapump_utils.util import bucket_suffix
 from lambdas.check_new_glad_alerts.src.lambda_function import (
     check_for_new_glad_alerts_in_past_day,
     get_dataset_ids,
     handler,
 )
+from tests.mock_environment.mock_environment import mock_environment
 
 
 @mock_s3

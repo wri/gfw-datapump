@@ -1,20 +1,18 @@
-import csv
+# TODO Figure out how to mock with shapefiles instead of CSV
+"""import csv import os.
+
 import pytest
-import os
-from moto import mock_s3, mock_secretsmanager
 from mock import patch
+from moto import mock_s3, mock_secretsmanager
 
-from tests.mock_environment.mock_environment import mock_environment
-
-from datapump_utils.s3 import s3_client
 from datapump_utils.fire_alerts import (
-    process_active_fire_alerts,
     ACTIVE_FIRE_ALERTS_48HR_CSV_URLS,
     VERSIONS,
+    process_active_fire_alerts,
 )
+from datapump_utils.s3 import s3_client
+from tests.mock_environment.mock_environment import mock_environment
 
-# TODO Figure out how to mock with shapefiles instead of CSV
-"""
 @mock_secretsmanager
 @mock_s3
 @patch("datapump_utils.fire_alerts.get_tmp_result_path")

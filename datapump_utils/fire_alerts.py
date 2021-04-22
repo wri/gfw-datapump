@@ -1,13 +1,14 @@
-import requests
 import csv
-import os
-import zipfile
 import io
-import shapefile
+import os
 import shutil
+import zipfile
 
-from datapump_utils.s3 import s3_client
+import requests
+import shapefile
+
 from datapump_utils.logger import get_logger
+from datapump_utils.s3 import s3_client
 
 ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
     "MODIS": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/shapes/zips/MODIS_C6_Global_7d.zip",
@@ -37,7 +38,7 @@ def process_active_fire_alerts(alert_type):
             f"Unable to get active {alert_type} fire alerts, FIRMS returned status code {response.status_code}"
         )
 
-    LOGGER.info(f"Successfully download alerts from NASA")
+    LOGGER.info("Successfully download alerts from NASA")
 
     zip = zipfile.ZipFile(io.BytesIO(response.content))
     shp_dir = f"{TEMP_DIR}/fire_alerts_{alert_type}"
@@ -95,7 +96,7 @@ def process_active_fire_alerts(alert_type):
             _write_row(row, fields, tsv_writer)
 
     LOGGER.info(f"Last row datetime: {last_row['ACQ_DATE']} {last_row['ACQ_TIME']}")
-    LOGGER.info(f"Successfully wrote TSV")
+    LOGGER.info("Successfully wrote TSV")
 
     tsv_file.close()
 

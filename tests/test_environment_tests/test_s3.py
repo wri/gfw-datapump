@@ -1,8 +1,4 @@
-from datapump_utils.s3 import (
-    get_s3_path_parts,
-    get_s3_path,
-    s3_directory_exists,
-)
+from datapump_utils.s3 import get_s3_path, get_s3_path_parts, s3_directory_exists
 
 PATH = "s3://gfw-pipelines-test/geotrellis/features/geostore/test_areas.tsv"
 BUCKET = "gfw-pipelines-test"

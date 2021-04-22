@@ -5,8 +5,8 @@ import boto3
 
 CURDIR = os.path.dirname(__file__)
 
-from datapump_utils.util import get_date_string, bucket_suffix  # noqa: E402
-from datapump_utils.s3 import s3_client, get_s3_path_parts  # noqa: E402
+from datapump_utils.s3 import get_s3_path_parts, s3_client  # noqa: E402
+from datapump_utils.util import bucket_suffix, get_date_string  # noqa: E402
 
 GLAD_ALERTS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/10x10"
 GLAD_STATUS_PATH = f"s3://gfw-data-lake{bucket_suffix()}/gladalerts/events/status"
@@ -188,7 +188,9 @@ def _mock_s3_setup():
         Key=f"{results_viirs}/change/results1.csv",
     )
     s3_client().upload_fileobj(
-        open(success, "r"), Bucket=pipeline_bucket, Key=f"{results_viirs}/all/_SUCCESS",
+        open(success, "r"),
+        Bucket=pipeline_bucket,
+        Key=f"{results_viirs}/all/_SUCCESS",
     )
     s3_client().upload_fileobj(
         open(results1, "rb"),
@@ -201,7 +203,9 @@ def _mock_s3_setup():
 
     s3_client().create_bucket(Bucket=glad_alerts_bucket)
     s3_client().upload_fileobj(
-        open(status_file, "rb"), Bucket=glad_alerts_bucket, Key=glad_status_path,
+        open(status_file, "rb"),
+        Bucket=glad_alerts_bucket,
+        Key=glad_status_path,
     )
 
     s3_client().upload_fileobj(
@@ -209,7 +213,7 @@ def _mock_s3_setup():
             os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
         ),
         Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-20-0030_2020-01-20-0040.tsv",
+        Key="nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-20-0030_2020-01-20-0040.tsv",
     )
 
     s3_client().upload_fileobj(
@@ -217,7 +221,7 @@ def _mock_s3_setup():
             os.path.join(CURDIR, "mock_files/2020-01-21-0010_2020-01-21-0028.tsv"), "r"
         ),
         Bucket=os.environ["S3_BUCKET_DATA_LAKE"],
-        Key=f"nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-21-0010_2020-01-21-0028.tsv",
+        Key="nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv/near_real_time/2020-01-21-0010_2020-01-21-0028.tsv",
     )
 
 

@@ -1,7 +1,8 @@
-import click
-import boto3
 import json
 import pprint
+
+import boto3
+import click
 
 
 @click.command()
@@ -16,7 +17,7 @@ def pump_data(execution_arn):
             f"FAILURE: Step function failed. Look on S3 to debug. Input for reference:\n{json.loads(response['input'])}"
         )
     elif response["status"] == "SUCCEEDED":
-        print(f"SUCCESS: Step function completed with results:")
+        print("SUCCESS: Step function completed with results:")
         pprint.pprint(json.loads(response["output"])["dataset_ids"])
     else:
         print(f"Unexpected status {response['status']}")

@@ -1,22 +1,20 @@
 from copy import deepcopy
-from mock import patch
 
-from moto import mock_s3, mock_emr, mock_secretsmanager
+import pytest
 import requests_mock
+from mock import patch
+from moto import mock_emr, mock_s3, mock_secretsmanager
 
+import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
+import lambdas.submit_job.src.lambda_function as submit_job
+import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
+from datapump_utils.summary_analysis import JobStatus, _instances
+from datapump_utils.util import get_date_string
 from tests.mock_environment.mock_environment import mock_environment
 from tests.mock_environment.mock_responses import (
     TEST_DATASET_RESPONSE,
     TEST_TASK_RESPONSE,
 )
-
-import lambdas.submit_job.src.lambda_function as submit_job
-import lambdas.upload_results_to_datasets.src.lambda_function as upload_results_to_datasets
-import lambdas.check_datasets_saved.src.lambda_function as check_datasets_saved
-from datapump_utils.util import get_date_string, bucket_suffix
-from datapump_utils.summary_analysis import JobStatus, _instances
-
-import pytest
 
 
 @pytest.mark.skip(reason="Temporarily removed certain functionality")
@@ -136,7 +134,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
         resp_body["data"]["attributes"]["name"] = datasets[0][0]
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            "https://staging-api.globalforestwatch.org/v1/dataset",
             status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[0][0]),
@@ -148,7 +146,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
         resp_body["data"]["attributes"]["name"] = datasets[1][0]
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            "https://staging-api.globalforestwatch.org/v1/dataset",
             status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[1][0]),
@@ -160,7 +158,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
         resp_body["data"]["attributes"]["name"] = datasets[2][0]
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            "https://staging-api.globalforestwatch.org/v1/dataset",
             status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[2][0]),
@@ -172,7 +170,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
         resp_body["data"]["attributes"]["name"] = datasets[3][0]
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            "https://staging-api.globalforestwatch.org/v1/dataset",
             status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[3][0]),
@@ -184,7 +182,7 @@ def _test_upload_results_to_datasets_create(input_params, mock_get_job_status):
         resp_body["data"]["attributes"]["name"] = datasets[4][0]
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset",
+            "https://staging-api.globalforestwatch.org/v1/dataset",
             status_code=200,
             json=resp_body,
             additional_matcher=(lambda rq: rq.json()["name"] == datasets[4][0]),
@@ -237,17 +235,17 @@ def _test_check_datasets_saved(input_params):
             )
 
         request_mocker.delete(
-            f"https://staging-api.globalforestwatch.org/v1/doc-importer/task/testid_change_tcl_task",
+            "https://staging-api.globalforestwatch.org/v1/doc-importer/task/testid_change_tcl_task",
             status_code=200,
         )
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl/recover",
+            "https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl/recover",
             status_code=200,
         )
 
         request_mocker.post(
-            f"https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl/concat",
+            "https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl/concat",
             status_code=204,
         )
 
@@ -261,12 +259,12 @@ def _test_check_datasets_saved(input_params):
         retry_task_response["data"]["attributes"]["writes"] = 5
 
         request_mocker.get(
-            f"https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl",
+            "https://staging-api.globalforestwatch.org/v1/dataset/testid_change_tcl",
             status_code=200,
             json=retry_ds_response,
         )
         request_mocker.get(
-            f"https://staging-api.globalforestwatch.org/v1/doc-importer/task/testid_change_tcl_task",
+            "https://staging-api.globalforestwatch.org/v1/doc-importer/task/testid_change_tcl_task",
             status_code=200,
             json=retry_task_response,
         )

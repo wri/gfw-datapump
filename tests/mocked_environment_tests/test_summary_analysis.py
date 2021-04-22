@@ -1,23 +1,22 @@
-from tests.mock_environment.mock_environment import mock_environment
-
 import os
 
 import boto3
 from moto import mock_emr, mock_s3, mock_secretsmanager
 
-from datapump_utils.util import get_date_string, bucket_suffix
 from datapump_utils.summary_analysis import (
-    get_summary_analysis_steps,
-    get_analysis_result_paths,
+    _applications,
+    _configurations,
+    _instances,
+    _run_job_flow,
     check_analysis_success,
+    get_analysis_result_paths,
+    get_dataset_result_keys,
     get_dataset_result_paths,
     get_dataset_sources,
-    get_dataset_result_keys,
-    _run_job_flow,
-    _instances,
-    _configurations,
-    _applications,
+    get_summary_analysis_steps,
 )
+from datapump_utils.util import bucket_suffix, get_date_string
+from tests.mock_environment.mock_environment import mock_environment
 
 CURDIR = os.path.dirname(__file__)
 

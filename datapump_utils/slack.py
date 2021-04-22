@@ -1,8 +1,8 @@
 import json
 import os
-import requests
 
 import boto3
+import requests
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
@@ -13,7 +13,7 @@ else:
 
 def slack_webhook(level, message):
     if ENV == "production":
-        app = f"GFW SYNC - DATAPUMP - DATASET UPDATE"
+        app = "GFW SYNC - DATAPUMP - DATASET UPDATE"
 
         if level.upper() == "WARNING":
             color = "#E2AC37"

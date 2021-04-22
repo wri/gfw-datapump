@@ -1,7 +1,6 @@
 import logging
 import os
 
-
 if "ENV" in os.environ:
     ENV: str = os.environ["ENV"]
 else:

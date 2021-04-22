@@ -1,25 +1,23 @@
 import os
-
 from typing import Dict
 
-from datapump_utils.slack import slack_webhook
-from datapump_utils.exceptions import (
-    MaxRetriesHitException,
-    StatusMismatchException,
-    FailedDatasetUploadException,
-    UnexpectedResponseError,
-)
-from datapump_utils.summary_analysis import get_dataset_sources
-from datapump_utils.util import error
-from datapump_utils.logger import get_logger
 from datapump_utils.dataset import (
+    delete_task,
     get_dataset,
     get_task,
-    upload_dataset,
-    delete_task,
     recover_dataset,
+    upload_dataset,
 )
-
+from datapump_utils.exceptions import (
+    FailedDatasetUploadException,
+    MaxRetriesHitException,
+    StatusMismatchException,
+    UnexpectedResponseError,
+)
+from datapump_utils.logger import get_logger
+from datapump_utils.slack import slack_webhook
+from datapump_utils.summary_analysis import get_dataset_sources
+from datapump_utils.util import error
 
 # environment should be set via environment variable. This can be done when deploying the lambda function.
 if "ENV" in os.environ:
@@ -92,9 +90,7 @@ def check_for_upload_issues(
 
 
 def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
-    """
-    Check if dataset upload is stuck on writing for various reasons.
-    """
+    """Check if dataset upload is stuck on writing for various reasons."""
     # look for bug where elasticsearch has jammed writers
     # we can tell this has happened if the # of reads < # of writes
     if dataset["status"] == "pending" and task["reads"] < task["writes"]:
@@ -106,7 +102,7 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
     # this means the write never actually happened
     elif dataset["status"] == "saved" and task is None:
         LOGGER.warning(
-            f"Saved dataset's corresponding task doesn't exist, so upload may have not occurred.'"
+            "Saved dataset's corresponding task doesn't exist, so upload may have not occurred.'"
         )
         return True
     elif dataset["status"] == "failed":
@@ -120,9 +116,7 @@ def is_dataset_stuck_on_write(dataset: Dict, task: Dict) -> bool:
 
 
 def reset_stuck_dataset(dataset: Dict, task=None) -> None:
-    """
-    Recover dataset and delete corresponding task if it exists.
-    """
+    """Recover dataset and delete corresponding task if it exists."""
     if task:
         delete_task(dataset["taskId"])
 

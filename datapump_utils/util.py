@@ -1,5 +1,5 @@
-from datetime import date
 import os
+from datetime import date
 
 from datapump_utils.logger import get_logger
 from datapump_utils.slack import slack_webhook
@@ -16,9 +16,7 @@ def get_date_string():
 
 
 def secret_suffix() -> str:
-    """
-    Get environment suffix for secret token
-    """
+    """Get environment suffix for secret token."""
     if ENV == "production":
         suffix: str = "prod"
     else:
@@ -27,9 +25,7 @@ def secret_suffix() -> str:
 
 
 def bucket_suffix() -> str:
-    """
-    Get environment suffix for bucket
-    """
+    """Get environment suffix for bucket."""
     if ENV is None:
         suffix: str = "-dev"
     elif ENV == "production":
@@ -41,13 +37,11 @@ def bucket_suffix() -> str:
 
 
 def api_prefix() -> str:
-    """
-    Get environment prefix for API
-    """
+    """Get environment prefix for API."""
     if ENV == "production":
         suffix: str = "production"
     else:
-        suffix = f"staging"
+        suffix = "staging"
 
     return suffix
 

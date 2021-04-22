@@ -1,9 +1,7 @@
-import click
-import boto3
-from datetime import date, datetime
 import json
-import uuid
-from collections import defaultdict
+from datetime import date
+
+import click
 
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type viirs --env production
 # python ./tools/create_datasets.py --features s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv --feature_type gadm --worker_count 100 --analysis firealerts --version v20200807 --fire_alert_type modis --env production
@@ -45,10 +43,13 @@ from collections import defaultdict
     help="Tree cover loss year, required if running tcl analysis",
 )
 @click.option(
-    "--fire_alert_type", type=click.Choice(["modis", "viirs"]), default=None,
+    "--fire_alert_type",
+    type=click.Choice(["modis", "viirs"]),
+    default=None,
 )
 @click.option(
-    "--geotrellis_jar", default=None,
+    "--geotrellis_jar",
+    default=None,
 )
 def pump_data(
     env,

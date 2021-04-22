@@ -3,14 +3,13 @@ import traceback
 
 from datapump_utils.dataset import upload_dataset
 from datapump_utils.logger import get_logger
-from datapump_utils.util import error
 from datapump_utils.summary_analysis import (
     JobStatus,
-    get_job_status,
-    check_analysis_success,
     get_dataset_result_paths,
     get_dataset_sources,
+    get_job_status,
 )
+from datapump_utils.util import error
 
 if "ENV" in os.environ:
     ENV = os.environ["ENV"]

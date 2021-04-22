@@ -1,11 +1,11 @@
-import os
 import json
+import os
 
-from tests.mock_environment.mock_environment import mock_environment
 from moto import mock_s3, mock_secretsmanager
 
-from lambdas.inject_fires_data.src.lambda_function import handler
 from datapump_utils.util import get_date_string
+from lambdas.inject_fires_data.src.lambda_function import handler
+from tests.mock_environment.mock_environment import mock_environment
 
 
 @mock_s3
@@ -14,7 +14,7 @@ def test_inject_fires(requests_mock):
     mock_environment()
     os.environ["DATA_API_VIIRS_VERSION"] = "vtest"
 
-    uri = f"https://staging-data-api.globalforestwatch.org/dataset/nasa_viirs_fire_alerts/vtest"
+    uri = "https://staging-data-api.globalforestwatch.org/dataset/nasa_viirs_fire_alerts/vtest"
     pending_resp = {"data": [{"status": "pending"}]}
 
     requests_mock.post(f"{uri}/append", json=pending_resp)

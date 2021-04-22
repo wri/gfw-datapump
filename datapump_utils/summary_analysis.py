@@ -1,14 +1,12 @@
-import os
 import json
-import random
-from enum import Enum
+import os
 from copy import deepcopy
+from enum import Enum
 
 import boto3
 from botocore.exceptions import ClientError
-from datapump_utils.logger import get_logger
-from datapump_utils.dataset import upload_dataset
 
+from datapump_utils.logger import get_logger
 from datapump_utils.s3 import get_s3_path, s3_client
 
 RESULT_BUCKET = os.environ["S3_BUCKET_PIPELINE"]
@@ -156,11 +154,9 @@ def get_job_status(job_flow_id: str) -> JobStatus:
 def get_analysis_result_paths(
     result_bucket, result_directory, analysis_names, fire_alert_types=[]
 ):
-    """
-    Analysis result directories are named as <analysis>_<date>_<time>
-    This creates a map of each analysis to its directory name so we know where to find
-    the results for each analysis.
-    """
+    """Analysis result directories are named as <analysis>_<date>_<time> This
+    creates a map of each analysis to its directory name so we know where to
+    find the results for each analysis."""
     # adding '/' to result directory and listing with delimiter '/' will make boto list all the subdirectory
     # prefixes instead of all the actual objects
     response = s3_client().list_objects(
@@ -187,7 +183,8 @@ def check_analysis_success(result_dir):
     try:
         # this will throw exception if success file isn't present
         s3_client().head_object(
-            Bucket=RESULT_BUCKET, Key=f"{result_dir}/_SUCCESS",
+            Bucket=RESULT_BUCKET,
+            Key=f"{result_dir}/_SUCCESS",
         )
 
         return True
@@ -299,6 +296,7 @@ def _run_job_flow(name, instances, steps, applications, configurations):
         Tags=[
             {"Key": "Project", "Value": "Global Forest Watch"},
             {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
+            {"Key": "Dataset", "Value": name},
         ],  # flake8 --ignore
     )
 

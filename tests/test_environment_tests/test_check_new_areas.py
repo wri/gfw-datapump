@@ -1,10 +1,10 @@
-import os
 import json
-import shapely.wkb
+import os
 from copy import deepcopy
 
-from datapump_utils.util import secret_suffix, bucket_suffix
+import shapely.wkb
 
+from datapump_utils.util import bucket_suffix, secret_suffix
 from lambdas.check_new_aoi.src.lambda_function import (
     filter_geostores,
     geostore_to_wkb,
@@ -579,11 +579,11 @@ def test_get_pending_areas(requests_mock):
 
     requests_mock.post("https://staging-api.globalforestwatch.org/v2/area/sync")
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=100",
+        "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=1&page[size]=100",
         json=result_1,
     )
     requests_mock.get(
-        f"http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=100",
+        "http://staging-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]=2&page[size]=100",
         json=result_2,
     )
     areas = get_pending_areas()
@@ -598,7 +598,7 @@ def test_get_geostore_ids():
 
 def test_get_geostore(requests_mock):
     requests_mock.post(
-        f"https://staging-api.globalforestwatch.org/v2/geostore/find-by-ids",
+        "https://staging-api.globalforestwatch.org/v2/geostore/find-by-ids",
         json=GEOSTORE,
     )
     geostore = get_geostore(GEOSTORE_IDS)

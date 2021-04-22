@@ -1,10 +1,7 @@
 from functools import wraps
 from typing import Callable
 
-from datapump_utils.exceptions import (
-    EmptyResponseException,
-    UnexpectedResponseError,
-)
+from datapump_utils.exceptions import EmptyResponseException, UnexpectedResponseError
 from datapump_utils.logger import get_logger
 
 LOGGER = get_logger(__name__)
