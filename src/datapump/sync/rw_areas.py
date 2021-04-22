@@ -10,7 +10,7 @@ from requests import Response
 from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.wkb import dumps
 
-from ..clients.aws import get_s3_client, get_s3_path_parts, get_s3_path
+from ..clients.aws import get_s3_client, get_s3_path, get_s3_path_parts
 from ..clients.rw_api import token, update_area_statuses
 from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import EmptyResponseException, UnexpectedResponseError
@@ -133,10 +133,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out
-    remaining_ids = list(set(geostore_ids))[:1500]
-    if None in remaining_ids:
-        remaining_ids.remove(None)
-
+    remaining_ids: List[Any] = list(set(geostore_ids) - {None})[:1500]
     return remaining_ids
 
 

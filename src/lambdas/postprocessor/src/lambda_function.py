@@ -27,9 +27,7 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
-            sync_types = SyncType.get_sync_types(
-                job.table.dataset, job.table.analysis
-            )
+            sync_types = SyncType.get_sync_types(job.table.dataset, job.table.analysis)
 
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
@@ -39,13 +37,13 @@ def handler(event, context):
             if job.status == JobStatus.failed:
                 slack_webhook(
                     "error",
-                    f"{job_type_slack} failed for analysis {job.table.analysis} on dataset {job.table.dataset}"
+                    f"{job_type_slack} failed for analysis {job.table.analysis} on dataset {job.table.dataset}",
                 )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
                 slack_webhook(
                     "info",
-                    f"{job_type_slack} succeeded for analysis {job.table.analysis} on dataset {job.table.dataset}!"
+                    f"{job_type_slack} succeeded for analysis {job.table.analysis} on dataset {job.table.dataset}!",
                 )
 
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
@@ -64,8 +62,9 @@ def handler(event, context):
                                 dataset_version=job.table.version,
                                 analysis=job.table.analysis,
                                 sync=True,
-                                sync_type=job.sync_type
-                            ), job.sync_version
+                                sync_type=job.sync_type,
+                            ),
+                            job.sync_version,
                         )
                     elif job.sync:
                         config_client.put(
