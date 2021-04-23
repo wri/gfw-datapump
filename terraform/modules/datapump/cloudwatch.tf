@@ -18,6 +18,7 @@ resource "aws_cloudwatch_event_target" "nightly-sync-areas" {
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"rw_areas\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
+  count     = var.environment == "production" ? 1 : 0
 }
 
 resource "aws_cloudwatch_event_target" "nightly-sync" {
@@ -26,4 +27,5 @@ resource "aws_cloudwatch_event_target" "nightly-sync" {
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\", \"viirs\", \"modis\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
+  count     = var.environment == "production" ? 1 : 0
 }
