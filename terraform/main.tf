@@ -58,7 +58,9 @@ module "datapump" {
 locals {
   bucket_suffix               = var.environment == "production" ? "" : "-${var.environment}"
   tf_state_bucket             = "gfw-terraform${local.bucket_suffix}"
-  tags                        = data.terraform_remote_state.core.outputs.tags
+  tags                        = merge({
+      Job = "Data Pump",
+  }, data.terraform_remote_state.core.outputs.tags)
   name_suffix                 = "-${terraform.workspace}"
   project                     = "datapump"
   glad_path                   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod"

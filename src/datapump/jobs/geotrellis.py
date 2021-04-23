@@ -489,9 +489,18 @@ class GeotrellisJob(Job):
 
         return result_path
 
-    @staticmethod
-    def _run_job_flow(name, instances, steps, applications, configurations):
+    def _run_job_flow(self, name, instances, steps, applications, configurations):
         client = get_emr_client()
+
+        tags = [
+            {"Key": "Project", "Value": "Global Forest Watch"},
+            {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
+            {"Key": "Dataset", "Value": self.table.dataset},
+            {"Key": "Analysis", "Value": self.table.analysis},
+        ]
+
+        if self.sync_type:
+            tags.append({"Key": "Sync Type", "Value": self.sync_type})
 
         request = {
             "Name": name,
@@ -511,10 +520,7 @@ class GeotrellisJob(Job):
                     },
                 },
             ],
-            "Tags": [
-                {"Key": "Project", "Value": "Global Forest Watch"},
-                {"Key": "Job", "Value": "GeoTrellis Summary Statistics"},
-            ],
+            "Tags": tags,
         }
 
         if GLOBALS.emr_instance_profile:
