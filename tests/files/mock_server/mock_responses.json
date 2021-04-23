@@ -1986,6 +1986,21 @@
     },
     {
         "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210121",
+            "method": "DELETE"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "status": "success"
+              }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
             "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210122",
             "method": "PATCH",
             "body": {
