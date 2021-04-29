@@ -26,16 +26,30 @@ class Job(BaseModel, ABC):
         ...
 
 
-class PartitionSchema(BaseModel):
+class Partition(BaseModel):
+    partition_suffix: str
+    start_value: str
+    end_value: str
+
+
+class Partitions(BaseModel):
     partition_type: str
     partition_column: str
-    partition_values: List[str]
+    partition_schema: List[Partition]
+
+
+class Index(BaseModel):
+    index_type: str
+    column_names: List[str]
 
 
 class AnalysisResultTable(BaseModel):
     dataset: str
     version: str
     source_uri: List[str]
-    index_columns: Optional[List[str]] = None
-    partitions: Optional[PartitionSchema] = None
+    indices: Optional[List[Index]] = None
+    cluster: Optional[Index] = None
+    partitions: Optional[Partitions] = None
     table_schema: List[Dict[str, Any]] = []
+    latitude_field: str = ""
+    longitude_field: str = ""

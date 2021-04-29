@@ -21,7 +21,7 @@ data "template_file" "sfn_datapump" {
 }
 
 module "py37_datapump_020" {
-  source         = "git::https://github.com/wri/gfw-lambda-layers.git//terraform/modules/lambda_layer?ref=develop"
+  source         = "git::https://github.com/wri/gfw-lambda-layers.git//terraform/modules/lambda_layer"
   bucket         = var.pipelines_bucket
   name           = "datapump"
   module_version = "0.2.0"

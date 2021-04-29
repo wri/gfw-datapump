@@ -59,7 +59,7 @@ class DataApiClient:
         dataset: str,
         version: str,
         source_uris: List[str],
-        indices: Optional[List[str]],
+        indices: List[Dict[str, Any]],
         cluster: Optional[List[str]],
         table_schema: List[Dict[str, Any]],
         metadata: Dict[str, Any] = {},
@@ -86,21 +86,32 @@ class DataApiClient:
         dataset: str,
         version: str,
         source_uris: List[str],
-        indices: Optional[List[str]],
-        cluster: Optional[List[str]],
+        indices: List[Dict[str, Any]],
+        cluster: Dict[str, Any],
         table_schema: List[Dict[str, Any]],
+        partitions: Optional[Dict[str, Any]] = None,
+        latitude_field: Optional[str] = None,
+        longitude_field: Optional[str] = None,
     ) -> Dict[str, Any]:
+        creation_options = {
+            "source_type": "table",
+            "source_driver": "text",
+            "source_uri": source_uris,
+            "delimiter": "\t",
+            "has_header": True,
+            "indices": indices,
+            "cluster": cluster,
+            "table_schema": table_schema,
+        }
+
+        if partitions:
+            creation_options["partitions"] = partitions
+        if latitude_field and longitude_field:
+            creation_options["latitude"] = latitude_field
+            creation_options["longitude"] = longitude_field
+
         payload = {
-            "creation_options": {
-                "source_type": "table",
-                "source_driver": "text",
-                "source_uri": source_uris,
-                "delimiter": "\t",
-                "has_header": True,
-                "indices": [{"index_type": "btree", "column_names": indices}],
-                "cluster": {"index_type": "btree", "column_names": cluster},
-                "table_schema": table_schema,
-            }
+            "creation_options": creation_options
         }
 
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
@@ -124,14 +135,16 @@ class DataApiClient:
             "data"
         ]
 
-        column_names = creation_options["indices"][0]["column_names"]
         return self.create_version(
             dataset,
             new_version,
             source_uris,
-            column_names,
-            column_names,
+            creation_options["indices"],
+            creation_options["cluster"],
             creation_options["table_schema"],
+            creation_options["partitions"],
+            creation_options["latitude"],
+            creation_options["longitude"],
         )
 
     def get_version(self, dataset: str, version: str) -> Dict[str, Any]:

@@ -1,11 +1,12 @@
 import csv
 import io
 import urllib
+from datetime import date
 from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 
 from pydantic import BaseModel
 
@@ -13,7 +14,7 @@ from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
 from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
 from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import AnalysisResultTable, Job, JobStatus, JobStep
+from ..jobs.jobs import AnalysisResultTable, Index, Partition, Partitions, Job, JobStatus, JobStep
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -140,9 +141,12 @@ class GeotrellisJob(Job):
                         table.dataset,
                         table.version,
                         table.source_uri,
-                        table.index_columns,
-                        table.index_columns,
+                        table.indices,
+                        table.cluster,
                         table.table_schema,
+                        table.partitions,
+                        table.longitude_field,
+                        table.latitude_field,
                     )
                 else:
                     if self.sync_type == SyncType.rw_areas:
@@ -156,8 +160,8 @@ class GeotrellisJob(Job):
                     table.dataset,
                     table.version,
                     table.source_uri,
-                    table.index_columns,
-                    table.index_columns,
+                    table.indices,
+                    table.indices,
                     table.table_schema,
                 )
 
@@ -269,29 +273,49 @@ class GeotrellisJob(Job):
         ):
             version = self.sync_version
 
-        return AnalysisResultTable(
-            dataset=result_dataset,
-            version=version,
-            source_uri=sources,
-            index_columns=self._get_index_cols(analysis_agg, feature_agg),
-            table_schema=self._get_table_schema(sources[0]),
-        )
+        indices, cluster = self._get_indices_and_cluster(analysis_agg, feature_agg)
+        partitions = self._get_partitions(analysis_agg, feature_agg)
+        table_schema = self._get_table_schema(sources[0])
 
-    def _get_index_cols(
+        result_table = {
+            "dataset": result_dataset,
+            "version": version,
+            "source_uri": sources,
+            "indices": indices,
+            "cluster": cluster,
+            "table_schema": table_schema,
+        }
+
+        if partitions:
+            result_table["partitions"] = partitions
+        if analysis_agg == "all":
+            result_table["latitude_field"] = "latitude"
+            result_table["longitude_field"] = "longitude"
+
+        return AnalysisResultTable(**result_table)
+
+    def _get_indices_and_cluster(
         self, analysis_agg: str, feature_agg: Optional[str] = None
-    ) -> List[str]:
+    ) -> Tuple[List[Index], Index]:
+        indices = []
+
         id_col_constructor = {
             ("gadm", "iso"): ["iso"],
             ("gadm", "adm1"): ["iso", "adm1"],
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
             ("gadm", None): ["iso", "adm1", "adm2"],
+            ("all", None): [],
             ("wdpa", None): ["wdpa_protected_area__id"],
             ("geostore", None): ["geostore__id"],
             ("feature", None): ["feature__id"],
         }
 
         try:
-            cols = id_col_constructor[(self.feature_type, feature_agg)]
+            if analysis_agg != "all":
+                cols = id_col_constructor[(self.feature_type, feature_agg)]
+            else:
+                # disaggregated points have no ID
+                cols = []
         except KeyError as e:
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
@@ -329,7 +353,31 @@ class GeotrellisJob(Job):
         except KeyError:
             pass
 
-        return cols
+        cluster = Index(index_type="btree", column_names=cols)
+        indices.append(cluster)
+
+        if analysis_agg == "all":
+            cluster = Index(index_type="gist", column_names=["geom_wm"])
+            indices += [Index(index_type="gist", column_names=["geom"]), cluster]
+
+        return indices, cluster
+
+    def _get_partitions(self, analysis_agg: str, feature_agg: Optional[str] = None) -> Optional[Partitions]:
+        if analysis_agg == "all":
+            # for all points, partition by month
+            partition_schema = []
+            for year in range(2012, 2023):
+                for month in range(1, 13):
+                    start_value = date(year, month, 1).strftime("%Y-%m-%d")
+                    end_month = month + 1 if month < 12 else 1
+                    end_year = year if month < 12 else year + 1
+                    end_value = date(end_year, end_month, 1).strftime("%Y-%m-%d")
+                    partition_suffix = f"y{year}_m{month}"
+                    partition_schema.append(Partition(partition_suffix=partition_suffix, start_value=start_value, end_value=end_value))
+
+            return Partitions(partition_type="range", partition_column="alert__date", partition_schema=partition_schema)
+
+        return None
 
     def _get_table_schema(self, source_uri: str) -> List[Dict[str, Any]]:
         bucket, key = get_s3_path_parts(source_uri)
@@ -406,7 +454,13 @@ class GeotrellisJob(Job):
         """
         # if using a wildcard for a folder, just use hardcoded value
         if "*.tsv" in limiting_src:
-            return 200 if GLOBALS.env == "production" else 50
+            if GLOBALS.env == "production":
+                if self.table.analysis == Analysis.tcl:
+                    return 200
+                else:
+                    return 100
+            else:
+                return 50
         elif self.sync_type == SyncType.rw_areas and self.table.analysis in [
             Analysis.viirs,
             Analysis.modis,
