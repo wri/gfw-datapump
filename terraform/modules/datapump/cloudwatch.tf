@@ -1,14 +1,14 @@
 resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
   name                = substr("everyday-11-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 11 pm EST"
-  schedule_expression = "cron(0 4 ? * * *)" // -5 to EST
+  schedule_expression = "cron(0 2 ? * * *)" // -5 to EST
   tags                = local.tags
 }
 
 resource "aws_cloudwatch_event_rule" "everyday-9-pm-est" {
   name                = substr("everyday-9-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 9 pm EST"
-  schedule_expression = "cron(0 2 ? * * *)" // -5 to EST
+  schedule_expression = "cron(0 0 ? * * *)" // -5 to EST
   tags                = local.tags
 }
 
