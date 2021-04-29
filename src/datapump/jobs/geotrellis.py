@@ -142,9 +142,9 @@ class GeotrellisJob(Job):
                         table.version,
                         table.source_uri,
                         [index.dict() for index in table.indices] if table.indices else table.indices,
-                        table.cluster.dict(),
+                        table.cluster.dict() if table.cluster else table.cluster,
                         table.table_schema,
-                        table.partitions.dict(),
+                        table.partitions.dict() if table.partitions else table.partitions,
                         table.longitude_field,
                         table.latitude_field,
                     )
@@ -161,9 +161,9 @@ class GeotrellisJob(Job):
                     table.version,
                     table.source_uri,
                     [index.dict() for index in table.indices] if table.indices else table.indices,
-                    table.cluster.dict(),
+                    table.cluster.dict() if table.cluster else table.cluster,
                     table.table_schema,
-                    table.partitions.dict(),
+                    table.partitions.dict() if table.partitions else table.partitions,
                     table.longitude_field,
                     table.latitude_field,
                 )
