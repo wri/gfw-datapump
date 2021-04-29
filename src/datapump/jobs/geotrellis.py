@@ -141,10 +141,10 @@ class GeotrellisJob(Job):
                         table.dataset,
                         table.version,
                         table.source_uri,
-                        table.indices,
-                        table.cluster,
+                        table.indices.dict(),
+                        table.cluster.dict(),
                         table.table_schema,
-                        table.partitions,
+                        table.partitions.dict(),
                         table.longitude_field,
                         table.latitude_field,
                     )
@@ -160,9 +160,12 @@ class GeotrellisJob(Job):
                     table.dataset,
                     table.version,
                     table.source_uri,
-                    table.indices,
-                    table.indices,
+                    table.indices.dict(),
+                    table.cluster.dict(),
                     table.table_schema,
+                    table.partitions.dict(),
+                    table.longitude_field,
+                    table.latitude_field,
                 )
 
     def check_upload(self) -> JobStatus:

@@ -62,6 +62,9 @@ class DataApiClient:
         indices: List[Dict[str, Any]],
         cluster: Optional[List[str]],
         table_schema: List[Dict[str, Any]],
+        partitions: Optional[Dict[str, Any]] = None,
+        latitude_field: Optional[str] = None,
+        longitude_field: Optional[str] = None,
         metadata: Dict[str, Any] = {},
     ) -> Dict[str, Any]:
         try:
@@ -70,7 +73,7 @@ class DataApiClient:
             self.create_dataset(dataset, metadata)
 
         return self.create_version(
-            dataset, version, source_uris, indices, cluster, table_schema
+            dataset, version, source_uris, indices, cluster, table_schema, partitions, latitude_field, longitude_field
         )
 
     def create_dataset(
