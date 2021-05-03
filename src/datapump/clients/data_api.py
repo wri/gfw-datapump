@@ -60,7 +60,7 @@ class DataApiClient:
         version: str,
         source_uris: List[str],
         indices: List[Dict[str, Any]],
-        cluster: Optional[List[str]],
+        cluster: Dict[str, Any],
         table_schema: List[Dict[str, Any]],
         partitions: Optional[Dict[str, Any]] = None,
         latitude_field: Optional[str] = None,
@@ -73,7 +73,15 @@ class DataApiClient:
             self.create_dataset(dataset, metadata)
 
         return self.create_version(
-            dataset, version, source_uris, indices, cluster, table_schema, partitions, latitude_field, longitude_field
+            dataset,
+            version,
+            source_uris,
+            indices,
+            cluster,
+            table_schema,
+            partitions,
+            latitude_field,
+            longitude_field,
         )
 
     def create_dataset(
@@ -113,9 +121,7 @@ class DataApiClient:
             creation_options["latitude"] = latitude_field
             creation_options["longitude"] = longitude_field
 
-        payload = {
-            "creation_options": creation_options
-        }
+        payload = {"creation_options": creation_options}
 
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         return self._send_request(ValidMethods.put, uri, payload)["data"]
