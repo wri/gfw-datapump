@@ -73,6 +73,7 @@ class GeotrellisJob(Job):
     sync_type: Optional[SyncType] = None
     change_only: bool = False
     emr_job_id: Optional[str] = None
+    version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
@@ -268,13 +269,17 @@ class GeotrellisJob(Job):
                 result_dataset += f"__{analysis_agg}"
 
         sources = [f"s3://{bucket}/{file}" for file in files]
-        version = self.analysis_version
-        if (
+
+        if analysis_agg in self.version_overrides:
+            version = self.version_overrides[analysis_agg]
+        elif (
             self.sync_version
             and self.table.analysis == Analysis.glad
             and "alerts" in analysis_agg
         ):
             version = self.sync_version
+        else:
+            version = self.analysis_version
 
         indices, cluster = self._get_indices_and_cluster(analysis_agg, feature_agg)
         partitions = self._get_partitions(analysis_agg, feature_agg)
