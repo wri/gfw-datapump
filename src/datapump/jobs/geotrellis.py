@@ -6,7 +6,7 @@ from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel
 
@@ -14,7 +14,15 @@ from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
 from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
 from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import AnalysisResultTable, Index, Partition, Partitions, Job, JobStatus, JobStep
+from ..jobs.jobs import (
+    AnalysisResultTable,
+    Index,
+    Job,
+    JobStatus,
+    JobStep,
+    Partition,
+    Partitions,
+)
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -73,6 +81,7 @@ class GeotrellisJob(Job):
     sync_type: Optional[SyncType] = None
     change_only: bool = False
     emr_job_id: Optional[str] = None
+    version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
@@ -141,10 +150,14 @@ class GeotrellisJob(Job):
                         table.dataset,
                         table.version,
                         table.source_uri,
-                        [index.dict() for index in table.indices] if table.indices else table.indices,
+                        [index.dict() for index in table.indices]
+                        if table.indices
+                        else table.indices,
                         table.cluster.dict() if table.cluster else table.cluster,
                         table.table_schema,
-                        table.partitions.dict() if table.partitions else table.partitions,
+                        table.partitions.dict()
+                        if table.partitions
+                        else table.partitions,
                         table.longitude_field,
                         table.latitude_field,
                     )
@@ -160,7 +173,9 @@ class GeotrellisJob(Job):
                     table.dataset,
                     table.version,
                     table.source_uri,
-                    [index.dict() for index in table.indices] if table.indices else table.indices,
+                    [index.dict() for index in table.indices]
+                    if table.indices
+                    else table.indices,
                     table.cluster.dict() if table.cluster else table.cluster,
                     table.table_schema,
                     table.partitions.dict() if table.partitions else table.partitions,
@@ -268,13 +283,17 @@ class GeotrellisJob(Job):
                 result_dataset += f"__{analysis_agg}"
 
         sources = [f"s3://{bucket}/{file}" for file in files]
-        version = self.analysis_version
-        if (
+
+        if analysis_agg in self.version_overrides:
+            version = self.version_overrides[analysis_agg]
+        elif (
             self.sync_version
             and self.table.analysis == Analysis.glad
             and "alerts" in analysis_agg
         ):
             version = self.sync_version
+        else:
+            version = self.analysis_version
 
         indices, cluster = self._get_indices_and_cluster(analysis_agg, feature_agg)
         partitions = self._get_partitions(analysis_agg, feature_agg)
@@ -302,7 +321,7 @@ class GeotrellisJob(Job):
     ) -> Tuple[List[Index], Index]:
         indices = []
 
-        id_col_constructor = {
+        id_col_constructor: Dict[Tuple[str, Optional[str]], List[str]] = {
             ("gadm", "iso"): ["iso"],
             ("gadm", "adm1"): ["iso", "adm1"],
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
@@ -323,7 +342,7 @@ class GeotrellisJob(Job):
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
 
-        analysis_col_constructor = {
+        analysis_col_constructor: Dict[Tuple[Analysis, str], List[str]] = {
             (Analysis.tcl, "change"): [
                 "umd_tree_cover_density__threshold",
                 "umd_tree_cover_loss__year",
@@ -365,7 +384,9 @@ class GeotrellisJob(Job):
 
         return indices, cluster
 
-    def _get_partitions(self, analysis_agg: str, feature_agg: Optional[str] = None) -> Optional[Partitions]:
+    def _get_partitions(
+        self, analysis_agg: str, feature_agg: Optional[str] = None
+    ) -> Optional[Partitions]:
         if analysis_agg == "all":
             # for all points, partition by month
             partition_schema = []
@@ -376,9 +397,19 @@ class GeotrellisJob(Job):
                     end_year = year if month < 12 else year + 1
                     end_value = date(end_year, end_month, 1).strftime("%Y-%m-%d")
                     partition_suffix = f"y{year}_m{month}"
-                    partition_schema.append(Partition(partition_suffix=partition_suffix, start_value=start_value, end_value=end_value))
+                    partition_schema.append(
+                        Partition(
+                            partition_suffix=partition_suffix,
+                            start_value=start_value,
+                            end_value=end_value,
+                        )
+                    )
 
-            return Partitions(partition_type="range", partition_column="alert__date", partition_schema=partition_schema)
+            return Partitions(
+                partition_type="range",
+                partition_column="alert__date",
+                partition_schema=partition_schema,
+            )
 
         return None
 
