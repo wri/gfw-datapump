@@ -51,6 +51,7 @@ class FireAlertsSync(Sync):
             alert_type=self.fire_alerts_type.value,
             alert_sources=[self.fire_alerts_uri],
             change_only=True,
+            version_overrides=config.metadata.get("version_overrides", {}),
         )
 
 
@@ -90,6 +91,7 @@ class GladSync(Sync):
                 features_1x1=config.metadata["features_1x1"],
                 geotrellis_version=config.metadata["geotrellis_version"],
                 change_only=True,
+                version_overrides=config.metadata.get("version_overrides", {}),
             )
         else:
             return None
@@ -130,6 +132,7 @@ class RWAreasSync(Sync):
                 "features_1x1": self.features_1x1,
                 "geotrellis_version": config.metadata["geotrellis_version"],
                 "sync_type": config.sync_type,
+                "version_overrides": config.metadata.get("version_overrides", {}),
             }
 
             if config.analysis in [Analysis.viirs, Analysis.modis]:
