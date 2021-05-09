@@ -4,13 +4,14 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, SetLatestCommand, SyncCommand
+from datapump.commands import Analysis, AnalysisCommand, ImportCommand, SetLatestCommand, SyncCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,
     FireAlertsGeotrellisJob,
     GeotrellisJob,
 )
+from datapump.jobs.radd import RADDJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
@@ -21,6 +22,7 @@ def handler(event, context):
         command = parse_obj_as(
             Union[
                 AnalysisCommand,
+                ImportCommand,
                 SyncCommand,
                 ContinueGeotrellisJobsCommand,
                 SetLatestCommand,
@@ -34,6 +36,9 @@ def handler(event, context):
         if isinstance(command, AnalysisCommand):
             cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
+        elif isinstance(command, ImportCommand):
+            cast(ImportCommand, command)
+            jobs += _import(command)
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
@@ -83,6 +88,19 @@ def _analysis(command: AnalysisCommand, client: DataApiClient):
         jobs.append(job.dict())
 
     return jobs
+
+
+def _import(command: ImportCommand, client: DataApiClient):
+    return [
+        RADDJob(
+            id=str(uuid1()),
+            status=JobStatus.starting,
+            dataset=command.parameters.dataset,
+            version=command.parameters.version,
+            source_uri=command.parameters.source_uri,
+            calc=command.parameters.calc
+        )
+    ]
 
 
 def _sync(command: SyncCommand):

@@ -141,7 +141,7 @@ class GeotrellisJob(Job):
 
         for table in self.result_tables:
             if self.sync_version:
-                # temporarily just appending sync versio  ns to analysis version instead of using version inheritance
+                # temporarily just appending sync versions to analysis version instead of using version inheritance
                 if (
                     self.table.analysis == Analysis.glad
                     and self.sync_type != SyncType.rw_areas

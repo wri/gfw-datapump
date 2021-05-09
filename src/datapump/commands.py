@@ -68,6 +68,20 @@ class AnalysisCommand(BaseModel):
     parameters: AnalysisParameters
 
 
+class ImportCommand(BaseModel):
+    command: str
+
+    class ImportParameters(BaseModel):
+        dataset: str
+        version: str
+        source_uri: List[str]
+        calc: str
+        grid: str
+        max_zoom: int
+
+    parameters: ImportParameters
+
+
 class SyncCommand(BaseModel):
     command: str
 
