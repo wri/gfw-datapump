@@ -131,9 +131,9 @@ class RADDJob(Job):
         client = DataApiClient()
 
         rtc_asset = client.get_asset(self.dataset, self.version, "Raster tile cache")
-        if rts_asset["status"] == "saved":
+        if rtc_asset["status"] == "saved":
             return JobStatus.complete
-        elif rts_asset["status"] == "pending":
+        elif rtc_asset["status"] == "pending":
             return JobStatus.executing
         else:
             return JobStatus.failed
