@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from ..clients.data_api import DataApiClient
-from ..commands import Import
+from ..commands import ImportCommand
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import AnalysisResultTable, Job, JobStatus, JobStep
 from ..util.exceptions import DataApiResponseError
@@ -38,6 +38,7 @@ class RADDJob(Job):
             self.status = JobStatus.executing
             self.step = RADDJobStep.creating_tile_set
             self._create_tile_set()
+
         elif self.step == RADDJobStep.creating_tile_set:
             status = self._check_tile_set_status()
             if status == JobStatus.complete:
@@ -45,6 +46,7 @@ class RADDJob(Job):
                 self._create_tile_cache()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
+
         elif self.step == RADDJobStep.creating_tile_cache:
             status = self._check_tile_cache_status()
             if status == JobStatus.complete:
@@ -52,6 +54,7 @@ class RADDJob(Job):
                 self._create_aux_assets()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
+
         elif self.step == RADDJobStep.creating_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
@@ -59,6 +62,7 @@ class RADDJob(Job):
                 self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
+
         elif self.step == RADDJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
@@ -85,7 +89,8 @@ class RADDJob(Job):
                 "data_type": "uint16",
                 "no_data": 0,
                 "pixel_meaning": "date_conf",
-                "grid": "10/100000",
+                # "grid": "10/100000",
+                "grid": self.grid,
                 "calc": self.calc
             },
             # "metadata": get_metadata(),
