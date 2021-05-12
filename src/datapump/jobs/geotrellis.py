@@ -92,6 +92,9 @@ class GeotrellisJob(Job):
         elif self.step == GeotrellisJobStep.analyzing:
             status = self.check_analysis()
             if status == JobStatus.complete:
+                if not self.result_tables:
+                    self.result_tables = self._get_result_tables()
+
                 self.upload()
                 self.step = GeotrellisJobStep.uploading
             elif status == JobStatus.failed:
@@ -115,14 +118,12 @@ class GeotrellisJob(Job):
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED"
         ):
-            self.result_tables = self._get_result_tables()
             return JobStatus.complete
         elif (
             GLOBALS.env == "test"
             and status["State"] == "WAITING"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
-            self.result_tables = self._get_result_tables()
             return JobStatus.complete
         elif status["State"] == "TERMINATED_WITH_ERRORS":
             return JobStatus.failed
