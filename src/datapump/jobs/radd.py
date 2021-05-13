@@ -1,10 +1,3 @@
-import csv
-import io
-import urllib
-from enum import Enum
-from itertools import groupby
-from pathlib import Path
-from pprint import pformat
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
@@ -12,7 +5,7 @@ from pydantic import BaseModel
 from ..clients.data_api import DataApiClient
 from ..commands import ImportCommand
 from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import AnalysisResultTable, Job, JobStatus, JobStep
+from ..jobs.jobs import Job, JobStatus, JobStep
 from ..util.exceptions import DataApiResponseError
 
 
@@ -70,7 +63,6 @@ class RADDJob(Job):
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-
     def _create_tile_set(self):
         client = DataApiClient()
 
@@ -95,9 +87,7 @@ class RADDJob(Job):
             },
             # "metadata": get_metadata(),
         }
-
         _ = client.create_raster_version(self.dataset, self.version, payload)
-
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
@@ -114,7 +104,6 @@ class RADDJob(Job):
         client = DataApiClient()
 
         resp = client.get_asset(self.dataset, self.version, "Raster tile set")
-
         rts_asset_id = resp["asset_id"]
 
         payload = {
@@ -128,9 +117,7 @@ class RADDJob(Job):
                 "symbology": {"type": "date_conf_intensity"}
             }
         }
-
         _ = client.create_aux_asset(self.dataset, self.version, payload)
-
 
     def _check_tile_cache_status(self) -> JobStatus:
         client = DataApiClient()
@@ -145,9 +132,6 @@ class RADDJob(Job):
 
     def _create_aux_assets(self) -> JobStatus:
         # TODO
-        # client = DataApiClient()
-        #
-        # all_assets = client.get_assets(self.dataset, self.version, "Raster tile cache")
         pass
 
     def _check_aux_assets_status(self) -> JobStatus:
@@ -155,18 +139,16 @@ class RADDJob(Job):
         return JobStatus.complete
 
     def _mark_latest(self):
-        # TODO
-        pass
+        client = DataApiClient()
+
+        client.set_latest(self.dataset, self.version)
 
     def _check_latest_status(self) -> JobStatus:
-        # TODO
-        # client = DataApiClient()
-        #
-        # rtc_asset = client.get_asset(self.dataset, self.version, "Raster tile cache")
-        # if rts_asset["status"] == "saved":
-        #     return JobStatus.complete
-        # elif rts_asset["status"] == "pending":
-        #     return JobStatus.executing
-        # else:
-        #     return JobStatus.failed
-        return JobStatus.complete
+        client = DataApiClient()
+
+        version_data = client.get_version(self.dataset, self.version)
+
+        if version_data["version"] == self.version:
+            return JobStatus.complete
+        else:
+            return JobStatus.failed
