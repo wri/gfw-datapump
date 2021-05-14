@@ -31,7 +31,7 @@ This will run a supported analysis on a dataset version in the gfw-data-api, and
 
 #### Sync Command
 
-This will attempt to ingest new data for each listed sync type, and will update appropriate analyses if sync was set to true when they were created.
+TThis will attempt to ingest new data for each listed sync type, and will update appropriate analyses if sync was set to true when they were created.
 
 ```json
 {
