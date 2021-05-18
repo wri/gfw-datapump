@@ -120,8 +120,8 @@ def get_tmp_result_path(alert_type):
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):
-    response = get_s3_client().list_objects(
-        Bucket=DATA_LAKE_BUCKET, Prefix=nrt_s3_directory
+    response = s3_client().list_objects(
+        Bucket=DATA_LAKE_BUCKET, Prefix=f"{nrt_s3_directory}/"
     )
 
     if "Contents" in response:
