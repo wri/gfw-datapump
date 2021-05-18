@@ -1,11 +1,10 @@
-import csv
-import io
-import os
-import shutil
-import zipfile
-
 import requests
+import csv
+import os
+import zipfile
+import io
 import shapefile
+import shutil
 
 from ..clients.aws import get_s3_client
 from ..globals import LOGGER
@@ -19,7 +18,7 @@ BRIGHTNESS_FIELDS = {
     "modis": ["brightness", "bright_t31"],
     "viirs": ["bright_ti4", "bright_ti5"],
 }
-VERSIONS = {"modis": "v6", "viirs": "v1"}
+VERSIONS = {"MODIS": "v6", "VIIRS": "v1"}
 SHP_NAMES = {
     "viirs": "SUOMI_VIIRS_C2_Global_7d.shp",
     "modis": "MODIS_C6_Global_7d.shp",
