@@ -1,5 +1,5 @@
 from pprint import pformat
-from typing import Union, cast
+from typing import Any, Dict, List, Union, cast
 from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
@@ -53,34 +53,36 @@ def handler(event, context):
         raise e
 
 
-def _analysis(command: AnalysisCommand, client: DataApiClient):
+def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str, Any]]:
     jobs = []
 
     for table in command.parameters.tables:
         asset_uri = client.get_1x1_asset(table.dataset, table.version)
         if table.analysis in [Analysis.viirs, Analysis.modis]:
-            job = FireAlertsGeotrellisJob(
-                id=str(uuid1()),
-                status=JobStatus.starting,
-                analysis_version=command.parameters.analysis_version,
-                table=table,
-                features_1x1=asset_uri,
-                sync=command.parameters.sync,
-                geotrellis_version=command.parameters.geotrellis_version,
-                alert_type=table.analysis.value,
+            jobs.append(
+                FireAlertsGeotrellisJob(
+                    id=str(uuid1()),
+                    status=JobStatus.starting,
+                    analysis_version=command.parameters.analysis_version,
+                    table=table,
+                    features_1x1=asset_uri,
+                    sync=command.parameters.sync,
+                    geotrellis_version=command.parameters.geotrellis_version,
+                    alert_type=table.analysis.value,
+                ).dict()
             )
         else:
-            job = GeotrellisJob(
-                id=str(uuid1()),
-                status=JobStatus.starting,
-                analysis_version=command.parameters.analysis_version,
-                table=table,
-                features_1x1=asset_uri,
-                sync=command.parameters.sync,
-                geotrellis_version=command.parameters.geotrellis_version,
+            jobs.append(
+                GeotrellisJob(
+                    id=str(uuid1()),
+                    status=JobStatus.starting,
+                    analysis_version=command.parameters.analysis_version,
+                    table=table,
+                    features_1x1=asset_uri,
+                    sync=command.parameters.sync,
+                    geotrellis_version=command.parameters.geotrellis_version,
+                ).dict()
             )
-
-        jobs.append(job.dict())
 
     return jobs
 

@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
+from ..commands import Analysis, AnalysisInputTable, SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
     AnalysisResultTable,
@@ -774,7 +774,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
             return super()._calculate_worker_count(limiting_src)
 
 
-class ContinueGeotrellisJobsCommand(ContinueJobsCommand):
+class ContinueGeotrellisJobsCommand(BaseModel):
     command: str
 
     class ContinueGeotrellisJobsParameters(BaseModel):
