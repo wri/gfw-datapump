@@ -3,122 +3,46 @@ variable "environment" {
   description = "An environment namespace for the infrastructure."
 }
 
-variable "lambda_submit_job_runtime" {
+variable "data_api_uri" {
+  type        = string
+  description = "URI for data API."
+}
+
+variable "policies_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_upload_results_runtime" {
+variable "lambdas_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_check_datasets_runtime" {
+variable "lambda_layers_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_check_new_aoi_runtime" {
+variable "step_functions_path" {
   type        = string
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_check_new_glad_alerts_runtime" {
-  type        = string
-  description = "Runtime version for AWS Lambda"
+variable "lambda_params" {
+  type        = object({
+    runtime     = string
+    memory_size = number
+    timeout     = number
+  })
+  description = "Lambda parameters"
+  default = {
+    runtime = "python3.7"
+    memory_size = 3048
+    timeout = 300
+  }
 }
 
-variable "lambda_update_new_aoi_statuses_runtime" {
-  type        = string
-  description = "Runtime version for AWS Lambda"
-}
-
-variable "lambda_get_latest_fire_alerts_runtime" {
-  type        = string
-  description = "Runtime version for AWS Lambda"
-}
-
-variable "lambda_submit_job_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_upload_results_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_check_datasets_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_check_new_aoi_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_check_new_glad_alerts_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_update_new_aoi_statuses_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-variable "lambda_get_latest_fire_alerts_memory_size" {
-  type        = number
-  description = "Memory limit in MB for AWS Lambda function"
-}
-
-
-variable "lambda_submit_job_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_upload_results_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_check_datasets_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_check_new_aoi_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_check_new_glad_alerts_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_update_new_aoi_statuses_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "lambda_get_latest_fire_alerts_timeout" {
-  type        = number
-  description = "Timeout in sec for AWS Lambda function"
-}
-
-variable "data_api_viirs_version" {
-  type        = string
-  description = "Data API version for VIIRS fire alerts datasets"
-}
-
-variable "geotrellis_jar" {
+variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
-}
-
-variable "datasets" {
-  description = "Dataset IDs in Resource Watch API for storing results of different analyses."
 }

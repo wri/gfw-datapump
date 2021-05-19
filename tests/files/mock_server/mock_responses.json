@@ -1,0 +1,2065 @@
+[
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats/vtest1/assets",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "body": {
+            "data": [
+                {
+                    "created_on": "2020-09-25T14:06:19.785933",
+                    "updated_on": "2020-09-25T15:36:50.896076",
+                    "asset_id": "d37a5693-5966-4522-9f1b-ceb11461d906",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "Geo database table",
+                    "asset_uri": "https://data-api.globalforestwatch.org/dataset/wdpa_protected_areas/v202010/query",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-09-25T15:36:50.932466",
+                    "updated_on": "2020-09-25T15:36:51.125873",
+                    "asset_id": "4baabf2b-7f5f-47d1-bfa1-196d38e3d916",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "Dynamic vector tile cache",
+                    "asset_uri": "https://tiles.globalforestwatch.org/wdpa_protected_areas/v202010/dynamic/{z}/{x}/{y}.pbf",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-10-19T16:34:43.736373",
+                    "updated_on": "2020-10-19T17:21:27.710618",
+                    "asset_id": "14612a4f-f7cb-4adf-a45e-6130388c92de",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "Static vector tile cache",
+                    "asset_uri": "https://tiles.globalforestwatch.org/wdpa_protected_areas/v202010/default/{z}/{x}/{y}.pbf",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-10-19T16:34:43.832188",
+                    "updated_on": "2020-10-19T17:05:02.000976",
+                    "asset_id": "5d65c2dc-426b-4965-8830-801bba9a455e",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "ndjson",
+                    "asset_uri": "s3://gfw-data-lake/wdpa_protected_areas/v202010/vector/epsg-4326/wdpa_protected_areas_v202010.ndjson",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-10-26T15:53:35.856553",
+                    "updated_on": "2020-10-26T16:04:01.339776",
+                    "asset_id": "175678e6-0cd5-40ad-85ab-c8f31ced7c29",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "Geopackage",
+                    "asset_uri": "s3://gfw-data-lake/wdpa_protected_areas/v202010/vector/epsg-4326/wdpa_protected_areas_v202010.gpkg",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-10-26T16:40:30.524561",
+                    "updated_on": "2020-10-26T16:52:45.810001",
+                    "asset_id": "14a55c0b-57f2-48bb-986f-4ed95b1148f0",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "ESRI Shapefile",
+                    "asset_uri": "s3://gfw-data-lake/wdpa_protected_areas/v202010/vector/epsg-4326/wdpa_protected_areas_v202010.shp.zip",
+                    "status": "failed",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                },
+                {
+                    "created_on": "2020-10-27T20:34:10.964237",
+                    "updated_on": "2020-10-27T21:36:53.837673",
+                    "asset_id": "ad991b63-16c2-4143-a3a8-d0f30cfdad76",
+                    "dataset": "wdpa_protected_areas",
+                    "version": "v202010",
+                    "asset_type": "1x1 grid",
+                    "asset_uri": "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
+                    "status": "saved",
+                    "is_managed": true,
+                    "metadata": {
+                        "title": "Protected areas",
+                        "subtitle": null,
+                        "function": "Displays areas that are legally protected according to various designations (e.g., national parks, state reserves, and wildlife reserves) and managed to achieve conservation objectives",
+                        "resolution": null,
+                        "geographic_coverage": "Global",
+                        "source": "The World Database on Protected Areas, which compiles protected area data from governments, NGOs, and international secretariats",
+                        "update_frequency": "Quarterly",
+                        "cautions": "Boundaries come from a variety of sources, with varying accuracy, up-to-dateness, and resolution. Data for some countries may be imprecise, miss some protected areas, or include boundaries that have since been cancelled.\nProtected area designations, such as “National Park,” can be applied differently in different countries and may be associated with different IUCN categories. Only areas that meet the IUCN [definition of protected areas](http://www.iucn.org/theme/protected-areas/about) are collected by WDPA, and thus the data may differ from national-level data on protected areas.\nProtected areas with no boundary data are displayed as boxes which represent the reported protected area size. The box is centered around a single point location and the borders do not indicate the real boundary of the protected area.",
+                        "license": "[Terms of Use](http://www.protectedplanet.net/terms/)",
+                        "overview": "The World Database on Protected Areas (WDPA) is the most comprehensive global spatial data set on marine and terrestrial protected areas available. Protected area data are provided via [Protected Planet](http://protectedplanet.net), the online interface for the World Database on Protected Areas (WDPA). The WDPA is a joint initiative of the IUCN and UNEP-WCMC to compile spatially referenced information about protected areas.\n**[IUCN Management Categories](http://www.iucn.org/theme/protected-areas/about/categories)**\nNot all protected areas receive the same degree of protection. While some have strict guidelines designed to preserve intact ecosystems, others allow for sustainable land use, often including limited resource extraction. In addition, not all countries use the same terminology when designating a protected area. Accordingly, the [International Union for Conservation of Nature](http://www.iucn.org/) defined universal management categories that stipulate the level of protection for most protected areas.\nAs you click through protected areas in this layer, note the “legal designation” and the explanations below to better understand the degree to which an area is protected.\n- **Ia. Strict Nature Reserves.** Protected areas designed to preserve biodiversity and all geological features. Limited human use (e.g., scientific study, education) is allowed and carefully monitored. Strict Nature Reserves are often used to understand the impact of indirect human disturbance (e.g., burning fossil fuels) because of the area’s high level of preservation. Other common designations: Biological Reserve, Botanical Reserve\n- **Ib. Wilderness Areas.** Protected areas managed to preserve ecosystem processes with limited human use. Wilderness Areas cannot contain modern infrastructure (e.g., a visitor’s center), but they allow for local indigenous groups to maintain subsistence lifestyles. These areas are often established to restore disturbed environments. Other common designations: Wilderness Reserve, Wildlife Area\n- **II. National Parks.** Protected areas designed to preserve large-scale ecosystems and support human visitation. With conservation as a priority, these areas allow infrastructure and contribute to the local economy by providing opportunities for environmental educational and recreation. Other common designations: State Park, Class A Park, Park Reserve, Provincial Park\n- **III. National Monuments or Features.** Areas established to protect a specific natural feature (e.g., cave, grove) or human-made monument with significant historical, spiritual, or environmental importance and the immediate surroundings. Accordingly, Natural Monuments or Features are typically smaller in area and have high human impact resulting from visitor traffic. Other common designations: Natural Features Reserve, Nature Monument, Botanical Garden\n- **IV. Habitat and Species Management Areas.** Areas designed to conserve specific wildlife populations and/or habitats. Habitat and Species Management Areas often exist within a larger ecosystem or protected area and are carefully managed (e.g., through hunting abatement or habitat restoration) to conserve a target species or habitat. Other common designations: National Wildlife Refuge, State Wildlife Management Area, Faunal Reserve, Zakaznik (Russia), Provincial Reserve, Wildlife Sanctuary\n- **V. Protected Landscapes and Seascapes.** Protected areas with ecological, biological, or cultural importance that have been shaped by human use of the landscape. Protected landscapes and seascapes typically cover entire bodies of land or ocean and allow for a number of for-profit activities (e.g., ecotourism) in accordance with the region’s management plan. Other common designations: National Forest, State Natural Area, Environmental Protection Area, Protected Area, Quasi National Park (Japan), Nature Reserve, State Natural Area\n- **VI. Protected Areas with Sustainable Use of Natural Resources.** Areas designed to manage natural resources and uphold the livelihoods of surrounding communities. These regions have a low level of human occupation, small-scale developments (i.e., not industrial), and part of the landscape in its natural condition. Other common designations: Wildlife Reserve, Biosphere Reserve, Forest Reserve, Protective Zone, National Forest, Natural and National Reserves, Reserve, Multiple Use Reserve, Municipal Reserve\n- [UNESCO-MAP Biosphere Reserves](http://www.unesco.org/new/en/natural-sciences/environment/ecological-sciences/biosphere-reserves/): areas under UNESCO’s Man and the Biosphere Programme designated to “promote sustainable development based on local community efforts and sound science.”\n- [World Heritage Sites](http://whc.unesco.org/): areas considered to have “outstanding universal value” and meet at least one of ten criteria, as described [here](http://whc.unesco.org/en/criteria/).\n- [Ramsar Sites—Wetlands of International Importance](http://www.ramsar.org/): wetlands that hold significant value designated under the Ramsar Convention on Wetlands.",
+                        "citation": "IUCN and UNEP-WCMC (2020), The World Database on Protected Areas (WDPA) [On-line], Cambridge, UK: UNEP-WCMC. Available at: www.protectedplanet.net. Accessed through Global Forest Watch in March, 2020. www.globalforestwatch.org",
+                        "tags": [
+                            "Conservation"
+                        ],
+                        "data_language": "English",
+                        "key_restrictions": "No commercial use without permission - defined as ”use for profit, or any use by an individual or entity operating within or on behalf of or to the benefit of or to assist the activities of any entity other than a not-for-profit organisation”. Email business-support@unep-wcmc.org for permissions.\nNo redistribution, including WMS.",
+                        "scale": null,
+                        "added_date": "2014-02-01",
+                        "why_added": null,
+                        "other": null,
+                        "learn_more": null,
+                        "version_number": null,
+                        "content_date": null,
+                        "last_update": null,
+                        "download": null,
+                        "analysis": null,
+                        "data_updates": null
+                    }
+                }
+            ],
+            "status": "success"
+          }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "success"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "method": "PUT",
+            "body": {
+              "creation_options":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00000-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00001-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00002-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00003-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00004-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00005-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00006-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00007-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00008-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00009-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00010-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__date"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__date"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__date",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "method": "PUT",
+            "body": {
+              "creation_options":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00000-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00001-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00002-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00003-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00004-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00005-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__year",
+                          "alert__week"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__year",
+                       "alert__week"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__year",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert__week",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
+            "method": "PUT",
+            "body": {
+              "creation_options":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00000-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00001-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00002-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00003-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00004-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00005-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"area__ha",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
+            "method": "PUT",
+            "body": {
+               "creation_options":{
+                  "source_type":"table",
+                  "source_driver":"text",
+                  "source_uri":[
+                     "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/whitelist/part-00000-5a2d0565-2ca4-45a2-ac75-b5c22b3621b8-c000.csv"
+                  ],
+                  "delimiter":"\t",
+                  "has_header":true,
+                  "indices":[
+                     {
+                        "index_type":"btree",
+                        "column_names":[
+                           "feature__id"
+                        ]
+                     }
+                  ],
+                  "cluster":{
+                     "index_type":"btree",
+                     "column_names":[
+                        "feature__id"
+                     ]
+                  },
+                  "table_schema":[
+                     {
+                        "field_name":"feature__id",
+                        "field_type":"text"
+                     },
+                     {
+                        "field_name":"wdpa_protected_area__iucn_cat",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__umd_regional_primary_forest_2001",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__birdlife_key_biodiversity_area",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__landmark_land_right",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"gfw_plantation__type",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gfw_mining",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gfw_managed_forest",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"rspo_oil_palm__certification_status",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gfw_wood_fiber",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__peatland",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__idn_forest_moratorium",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gfw_oil_palm",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"idn_forest_area__type",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"per_forest_concession__type",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gfw_oil_gas",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__gmw_mangroves_2016",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"is__ifl_intact_forest_landscape_2016",
+                        "field_type":"boolean"
+                     },
+                     {
+                        "field_name":"bra_biome__name",
+                        "field_type":"boolean"
+                     }
+                  ]
+               }
+            }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1/append",
+            "method": "POST",
+            "body": {
+                "creation_options":{
+                    "source_uri": [
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00000-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00001-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00002-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00003-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00004-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00005-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00006-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00007-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00008-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00009-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/daily_alerts/part-00010-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv"
+                    ]
+                }
+            }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+        {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1/append",
+            "method": "POST",
+            "body": {
+                "creation_options":{
+                    "source_uri": [
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00000-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00001-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00002-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00003-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00004-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/weekly_alerts/part-00005-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv"
+                   ]
+                }
+            }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1/append",
+            "method": "POST",
+            "body": {
+                "creation_options": {
+                    "source_uri": [
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00000-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00001-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00002-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00003-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00004-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv",
+                      "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/summary/part-00005-e1213223-7b82-4e5d-ac68-af1de21a6a88-c000.csv"
+                   ]
+                }
+            }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1/append",
+            "method": "POST",
+            "body": {
+                "creation_options": {
+                    "source_uri": [
+                       "s3://gfw-pipelines-test/geotrellis/results/vteststats1/test_zonal_stats/gladalerts/feature/whitelist/part-00000-5a2d0565-2ca4-45a2-ac75-b5c22b3621b8-c000.csv"
+                    ]
+                }
+            }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__summary/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__whitelist/vteststats1",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                }
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1",
+            "method": "DELETE"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "status": "success"
+              }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1",
+            "method": "DELETE"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "status": "success"
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210122",
+            "method": "PUT",
+            "body": {
+              "creation_options":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00000-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00001-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00002-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00003-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00004-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00005-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00006-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00007-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00008-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00009-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00010-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__date"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__date"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__date",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210122",
+            "method": "PUT",
+            "body": {
+              "creation_options":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00000-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00001-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00002-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00003-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00004-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00005-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__year",
+                          "alert__week"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__year",
+                       "alert__week"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__year",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert__week",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        },
+        "httpResponse": {
+            "statusCode": 201,
+             "body": {
+                "data": {
+                    "status": "pending"
+                }
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/asset/test_daily/creation_options",
+            "method": "GET"
+
+        },
+        "httpResponse": {
+            "statusCode": 200,
+             "body": {
+              "data":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00000-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00001-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00002-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00003-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00004-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00005-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00006-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00007-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00008-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00009-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/daily_alerts/part-00010-b7be8615-21b6-48f3-b80e-ec5dbb8a7da9-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__date"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__date"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__date",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/asset/test_weekly/creation_options",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+             "body": {
+              "data":{
+                 "source_type":"table",
+                 "source_driver":"text",
+                 "source_uri":[
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00000-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00001-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00002-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00003-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00004-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv",
+                    "s3://gfw-pipelines-test/geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/feature/weekly_alerts/part-00005-2d29ec80-590d-4f15-a929-06f585a8eeb3-c000.csv"
+                 ],
+                 "delimiter":"\t",
+                 "has_header":true,
+                 "indices":[
+                    {
+                       "index_type":"btree",
+                       "column_names":[
+                          "feature__id",
+                          "is__confirmed_alert",
+                          "alert__year",
+                          "alert__week"
+                       ]
+                    }
+                 ],
+                 "cluster":{
+                    "index_type":"btree",
+                    "column_names":[
+                       "feature__id",
+                       "is__confirmed_alert",
+                       "alert__year",
+                       "alert__week"
+                    ]
+                 },
+                 "table_schema":[
+                    {
+                       "field_name":"feature__id",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__year",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert__week",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"is__confirmed_alert",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"wdpa_protected_area__iucn_cat",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__umd_regional_primary_forest_2001",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_alliance_for_zero_extinction_site",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__birdlife_key_biodiversity_area",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__landmark_land_right",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"gfw_plantation__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_mining",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_managed_forest",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"rspo_oil_palm__certification_status",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_wood_fiber",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__peatland",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__idn_forest_moratorium",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_palm",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"idn_forest_area__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"per_forest_concession__type",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"is__gfw_oil_gas",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__gmw_mangroves_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"is__ifl_intact_forest_landscape_2016",
+                       "field_type":"boolean"
+                    },
+                    {
+                       "field_name":"bra_biome__name",
+                       "field_type":"text"
+                    },
+                    {
+                       "field_name":"alert__count",
+                       "field_type":"integer"
+                    },
+                    {
+                       "field_name":"alert_area__ha",
+                       "field_type":"double precision"
+                    },
+                    {
+                       "field_name":"whrc_aboveground_co2_emissions__Mg",
+                       "field_type":"double precision"
+                    }
+                 ]
+              }
+           }
+        }
+    },
+  {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/vteststats1/assets",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": [
+                  {
+                    "asset_type": "Database table",
+                    "asset_id": "test_daily"
+                  }
+                ]
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/vteststats1/assets",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": [
+                  {
+                    "asset_type": "Database table",
+                    "asset_id": "test_weekly"
+                  }
+                ]
+            }
+        }
+    },
+  {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210122",
+            "method": "PATCH",
+            "body": {
+              "is_latest": true
+            }
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "status": "success"
+              }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts/v20210121",
+            "method": "DELETE"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "status": "success"
+              }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+      {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210121",
+            "method": "DELETE"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "status": "success"
+              }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts/v20210122",
+            "method": "PATCH",
+            "body": {
+              "is_latest": true
+            }
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "status": "success"
+            }
+        },
+        "times": {
+            "remainingTimes": 1
+        }
+    },
+      {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__daily_alerts",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                  "versions": ["vteststats1", "v20210121", "v20210122"]
+                },
+                "status": "success"
+              }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__glad__weekly_alerts",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "versions": ["vteststats1", "v20210121", "v20210122"]
+              },
+              "status": "success"
+            }
+        }
+    }
+]

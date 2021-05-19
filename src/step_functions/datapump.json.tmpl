@@ -1,0 +1,73 @@
+{
+  "StartAt": "dispatcher",
+  "States": {
+    "dispatcher": {
+      "Type": "Task",
+      "Resource": "${lambda_dispatcher_arn}",
+      "InputPath": "$",
+      "ResultPath": "$",
+      "Next": "run_jobs"
+    },
+    "run_jobs": {
+      "Type": "Map",
+      "InputPath": "$",
+      "ItemsPath": "$.jobs",
+      "ResultPath": "$.jobs",
+      "Next": "postprocessor",
+      "Iterator": {
+        "StartAt": "status_checker",
+        "States": {
+          "status_checker": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "starting",
+                "Next": "executor"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "executing",
+                "Next": "executor"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "complete",
+                "Next": "success"
+              },
+              {
+                "Variable": "$.status",
+                "StringEquals": "failed",
+                "Next": "failed"
+              }
+            ]
+          },
+          "waiter": {
+            "Type": "Wait",
+            "Seconds": ${wait_time},
+            "Next": "status_checker"
+          },
+          "executor": {
+            "Type": "Task",
+            "Resource": "${lambda_executor_arn}",
+            "InputPath": "$",
+            "ResultPath": "$",
+            "Next": "waiter"
+          },
+          "failed": {
+            "Type": "Succeed"
+          },
+          "success": {
+            "Type": "Succeed"
+          }
+        }
+      }
+    },
+    "postprocessor": {
+      "Type": "Task",
+      "Resource": "${lambda_postprocessor_arn}",
+      "InputPath": "$",
+      "End": true
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 set -e
 
-pip install -e .
+pip install -e src/.
 pip install -r requirements-dev.txt
 
 detect-secrets scan > .secrets.baseline
