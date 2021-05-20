@@ -122,7 +122,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     geostore_ids: List[str] = list()
     error_ids = list()
     for area in areas:
-        if "attributes" in area.keys() and "geostore" in area["attributes"].keys():
+        if "attributes" in area.keys() and "geostore" in area["attributes"].keys() and area["attributes"]["geostore"] != None:
             LOGGER.info(
                 f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
             )
