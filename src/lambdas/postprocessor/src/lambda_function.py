@@ -27,7 +27,7 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
-            sync_types = SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            sync_types = [job.sync_type] if job.sync_type else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
 
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
