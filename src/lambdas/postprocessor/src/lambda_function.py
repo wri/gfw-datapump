@@ -98,4 +98,4 @@ def handler(event, context):
     if rw_area_jobs and GLOBALS.env == "production":
         # update AOIs on RW but only on production
         geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
-        update_area_statuses(geostore_ids)
+        update_area_statuses(geostore_ids, "saved")
