@@ -23,7 +23,7 @@ class RADDJob(Job):
     dataset: str
     version: str
     source_uri: List[str]
-    calc: str
+    calc: Optional[str]
     grid: str
     max_zoom: int
 

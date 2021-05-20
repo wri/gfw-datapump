@@ -146,7 +146,6 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
         return self._send_request(ValidMethods.post, uri, payload)["data"]
 
-
     def append(
         self, dataset: str, version: str, source_uris: List[str]
     ) -> Dict[str, Any]:

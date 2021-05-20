@@ -2,7 +2,12 @@ from enum import Enum
 from typing import List, Optional
 
 from datapump.jobs.jobs import Job
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
+
+
+class StrictBaseModel(BaseModel):
+    class Config:
+        extra = Extra.forbid
 
 
 class Analysis(str, Enum):
@@ -16,7 +21,7 @@ class Analysis(str, Enum):
     modis = "modis"
 
 
-class AnalysisInputTable(BaseModel):
+class AnalysisInputTable(StrictBaseModel):
     """
     Input used to generate analysis table by running an analysis on an existing dataset/version.
     """
@@ -26,7 +31,7 @@ class AnalysisInputTable(BaseModel):
     analysis: Analysis
 
 
-class AnalysisTable(BaseModel):
+class AnalysisTable(StrictBaseModel):
     """
     Metadata of analysis result table that already exists.
     """
@@ -56,10 +61,10 @@ class SyncType(str, Enum):
         return sync_types
 
 
-class AnalysisCommand(BaseModel):
+class AnalysisCommand(StrictBaseModel):
     command: str
 
-    class AnalysisParameters(BaseModel):
+    class AnalysisParameters(StrictBaseModel):
         analysis_version: str
         sync: bool
         geotrellis_version: str
@@ -68,24 +73,24 @@ class AnalysisCommand(BaseModel):
     parameters: AnalysisParameters
 
 
-class ImportCommand(BaseModel):
+class ImportCommand(StrictBaseModel):
     command: str
 
-    class ImportParameters(BaseModel):
+    class ImportParameters(StrictBaseModel):
         dataset: str
         version: str
         source_uri: List[str]
-        calc: str
+        calc: Optional[str]
         grid: str
         max_zoom: int
 
     parameters: ImportParameters
 
 
-class SyncCommand(BaseModel):
+class SyncCommand(StrictBaseModel):
     command: str
 
-    class SyncParameters(BaseModel):
+    class SyncParameters(StrictBaseModel):
         types: List[SyncType]
         sync_version: Optional[str] = None
         tables: List[AnalysisTable] = []
@@ -93,19 +98,19 @@ class SyncCommand(BaseModel):
     parameters: SyncParameters
 
 
-class ContinueJobsCommand(BaseModel):
+class ContinueJobsCommand(StrictBaseModel):
     command: str
 
-    class ContinueJobsParameters(BaseModel):
+    class ContinueJobsParameters(StrictBaseModel):
         jobs: List[Job]
 
     parameters: ContinueJobsParameters
 
 
-class SetLatestCommand(BaseModel):
+class SetLatestCommand(StrictBaseModel):
     command: str
 
-    class SetLatestParameters(BaseModel):
+    class SetLatestParameters(StrictBaseModel):
         analysis_version: str
 
     parameters: SetLatestParameters

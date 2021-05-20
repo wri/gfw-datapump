@@ -38,7 +38,7 @@ def handler(event, context):
             jobs += _analysis(command, client)
         elif isinstance(command, ImportCommand):
             cast(ImportCommand, command)
-            jobs += _import(command)
+            jobs += _import(command, client)
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
@@ -98,8 +98,10 @@ def _import(command: ImportCommand, client: DataApiClient):
             dataset=command.parameters.dataset,
             version=command.parameters.version,
             source_uri=command.parameters.source_uri,
-            calc=command.parameters.calc
-        )
+            calc=command.parameters.calc,
+            grid=command.parameters.grid,
+            max_zoom=command.parameters.max_zoom
+        ).dict()
     ]
 
 

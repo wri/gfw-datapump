@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class JobStatus(str, Enum):
@@ -20,6 +20,9 @@ class Job(BaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
+
+    class Config:
+        extra = Extra.forbid
 
     @abstractmethod
     def next_step(self):
