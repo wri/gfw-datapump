@@ -120,16 +120,24 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
 
     LOGGER.info("Get Geostore IDs")
     geostore_ids: List[str] = list()
+    error_ids = list()
     for area in areas:
-        if "attributes" in area.keys() and "geostore" in area["attributes"].keys():
+        if "attributes" in area.keys() and "geostore" in area["attributes"].keys() and area["attributes"]["geostore"] != None:
             LOGGER.info(
                 f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
             )
-            geostore_ids.append(area["attributes"]["geostore"])
+            if len(area["attributes"]["geostore"]) != 32:
+                error_ids.append(area["attributes"]["geostore"])
+            else:
+                geostore_ids.append(area["attributes"]["geostore"])
         else:
             LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip")
 
     LOGGER.info(f"IDS: {geostore_ids}")
+
+    if error_ids:
+        LOGGER.info(f"Setting invalid geostore IDs to error: {error_ids}")
+        update_area_statuses(error_ids, "error")
 
     # only return unique geostore ids
     # Return max 2000 at a time, otherwise the lambda might time out

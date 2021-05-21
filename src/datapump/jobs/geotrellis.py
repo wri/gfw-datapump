@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands import Analysis, AnalysisInputTable, ContinueJobsCommand, SyncType
+from ..commands import Analysis, AnalysisInputTable, SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
     AnalysisResultTable,
@@ -92,6 +92,9 @@ class GeotrellisJob(Job):
         elif self.step == GeotrellisJobStep.analyzing:
             status = self.check_analysis()
             if status == JobStatus.complete:
+                if not self.result_tables:
+                    self.result_tables = self._get_result_tables()
+
                 self.upload()
                 self.step = GeotrellisJobStep.uploading
             elif status == JobStatus.failed:
@@ -115,14 +118,12 @@ class GeotrellisJob(Job):
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "ALL_STEPS_COMPLETED"
         ):
-            self.result_tables = self._get_result_tables()
             return JobStatus.complete
         elif (
             GLOBALS.env == "test"
             and status["State"] == "WAITING"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
-            self.result_tables = self._get_result_tables()
             return JobStatus.complete
         elif status["State"] == "TERMINATED_WITH_ERRORS":
             return JobStatus.failed
@@ -773,7 +774,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
             return super()._calculate_worker_count(limiting_src)
 
 
-class ContinueGeotrellisJobsCommand(ContinueJobsCommand):
+class ContinueGeotrellisJobsCommand(BaseModel):
     command: str
 
     class ContinueGeotrellisJobsParameters(BaseModel):

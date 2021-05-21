@@ -28,7 +28,7 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
-            sync_types = SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            sync_types = [job.sync_type] if job.sync_type else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
 
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
@@ -99,4 +99,4 @@ def handler(event, context):
     if rw_area_jobs and GLOBALS.env == "production":
         # update AOIs on RW but only on production
         geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
-        update_area_statuses(geostore_ids)
+        update_area_statuses(geostore_ids, "saved")
