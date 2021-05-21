@@ -7,8 +7,11 @@ from pprint import pprint
 import boto3
 
 LOCALSTACK_URI = "http://localstack:4566"
+
+WORKSPACE = os.popen("terraform workspace show").read().strip()
+
 DATAPUMP_SFN_ARN = (
-    "arn:aws:states:us-east-1:000000000000:stateMachine:datapump-datapump-default"
+    f"arn:aws:states:us-east-1:000000000000:stateMachine:datapump-datapump-{WORKSPACE}"
 )
 DUMP_TO_STDOUT = os.environ.get("DUMP_TO_STDOUT", None)
 
