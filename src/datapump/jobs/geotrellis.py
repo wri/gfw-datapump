@@ -147,7 +147,7 @@ class GeotrellisJob(Job):
                     self.table.analysis == Analysis.glad
                     and self.sync_type != SyncType.rw_areas
                 ):
-                    client.create_version(
+                    client.create_vector_version(
                         table.dataset,
                         table.version,
                         table.source_uri,

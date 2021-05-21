@@ -1,9 +1,18 @@
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union, Dict
+
+from pydantic import StrictInt
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
+
+
+class NonNumericFloat(str, Enum):
+    nan = "nan"
+
+
+NoDataType = Union[StrictInt, NonNumericFloat]
 
 
 class VersionUpdateJobStep(str, Enum):
@@ -21,6 +30,10 @@ class VersionUpdateJob(Job):
     calc: Optional[str]
     grid: str
     max_zoom: int
+    data_type: str
+    no_data: Optional[Union[List[NoDataType], NoDataType]]
+    pixel_meaning: str
+    tile_cache_symbology: Optional[Dict[str, str]]
 
     def next_step(self):
         if self.step == VersionUpdateJobStep.starting:
@@ -73,15 +86,15 @@ class VersionUpdateJob(Job):
                 "source_type": "raster",
                 "source_uri": self.source_uri,
                 "source_driver": "GeoTIFF",
-                "data_type": "uint16",
-                "no_data": 0,
-                "pixel_meaning": "date_conf",
+                "data_type": self.data_type,
+                "no_data": self.no_data,
+                "pixel_meaning": self.pixel_meaning,
                 "grid": self.grid,
                 "calc": self.calc
             },
             # "metadata": get_metadata(),
         }
-        _ = client.create_raster_version(self.dataset, self.version, payload)
+        _ = client.create_version(self.dataset, self.version, payload)
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
@@ -108,7 +121,7 @@ class VersionUpdateJob(Job):
                 "min_zoom": 0,
                 "max_zoom": self.max_zoom,
                 "max_static_zoom": 9,
-                "symbology": {"type": "date_conf_intensity"}
+                "symbology": self.tile_cache_symbology
             }
         }
         _ = client.create_aux_asset(self.dataset, self.version, payload)
@@ -152,8 +165,16 @@ class UpdateGLADS2Job(VersionUpdateJob):
     grid = "10/100000"
     max_zoom = 14
     calc = "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
+    data_type = "uint16"
+    no_data = 0
+    pixel_meaning = "date_conf"
+    tile_cache_symbology = {"type": "date_conf_intensity"}
 
 
 class UpdateRADDJob(VersionUpdateJob):
     grid = "10/100000"
     max_zoom = 14
+    data_type = "uint16"
+    no_data = 0
+    pixel_meaning = "date_conf"
+    tile_cache_symbology = {"type": "date_conf_intensity"}
