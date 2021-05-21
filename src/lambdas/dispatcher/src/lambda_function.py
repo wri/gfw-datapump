@@ -95,6 +95,7 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
 
 def _version_update(command: VersionUpdateCommand):
     ds = command.parameters.dataset
+    # TODO: Put datasets/functions in a dictionary?
     if ds == UpdatableDatasets.wur_radd_alerts:
         job = UpdateRADDJob(
             id=str(uuid1()),

@@ -161,20 +161,24 @@ class VersionUpdateJob(Job):
             return JobStatus.failed
 
 
+# Re-asserting the types of the inherited nested fields is currently necessary because
+# of a limitation of Pydantic (see https://github.com/samuelcolvin/pydantic/issues/1296)
 class UpdateGLADS2Job(VersionUpdateJob):
     grid = "10/100000"
     max_zoom = 14
     calc = "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
     data_type = "uint16"
-    no_data = StrictInt(0)
+    no_data: Optional[Union[List[NoDataType], NoDataType]] = 0
     pixel_meaning = "date_conf"
-    tile_cache_symbology = {"type": "date_conf_intensity"}
+    tile_cache_symbology: Optional[Dict[str, str]] = {"type": "date_conf_intensity"}
 
 
+# Re-asserting the types of the inherited nested fields is currently necessary because
+# of a limitation of Pydantic (see https://github.com/samuelcolvin/pydantic/issues/1296)
 class UpdateRADDJob(VersionUpdateJob):
     grid = "10/100000"
     max_zoom = 14
     data_type = "uint16"
-    no_data = StrictInt(0)
+    no_data: Optional[Union[List[NoDataType], NoDataType]] = 0
     pixel_meaning = "date_conf"
-    tile_cache_symbology = {"type": "date_conf_intensity"}
+    tile_cache_symbology: Optional[Dict[str, str]] = {"type": "date_conf_intensity"}
