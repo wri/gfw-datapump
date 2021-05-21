@@ -4,15 +4,21 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, VersionUpdateCommand, SetLatestCommand, SyncCommand, \
-    UpdatableDatasets
+from datapump.commands import (
+    Analysis,
+    AnalysisCommand,
+    SetLatestCommand,
+    SyncCommand,
+    UpdatableDatasets,
+    VersionUpdateCommand
+)
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,
     FireAlertsGeotrellisJob,
     GeotrellisJob,
 )
-from datapump.jobs.version_update import UpdateRADDJob, UpdateGLADS2Job
+from datapump.jobs.version_update import UpdateGLADS2Job, UpdateRADDJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as

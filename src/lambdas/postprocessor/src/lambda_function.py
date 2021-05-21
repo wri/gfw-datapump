@@ -17,7 +17,11 @@ from pydantic import parse_obj_as
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
     jobs = parse_obj_as(
-        List[Union[FireAlertsGeotrellisJob, GeotrellisJob, VersionUpdateJob]], event["jobs"]
+        List[Union[
+            FireAlertsGeotrellisJob,
+            GeotrellisJob,
+            VersionUpdateJob
+        ]], event["jobs"]
     )
     failed_jobs = []
     rw_area_jobs = []
@@ -28,7 +32,10 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
-            sync_types = [job.sync_type] if job.sync_type else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            sync_types = (
+                [job.sync_type] if job.sync_type
+                else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            )
 
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
