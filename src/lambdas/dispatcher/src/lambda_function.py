@@ -4,7 +4,8 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, VersionUpdateCommand, SetLatestCommand, SyncCommand
+from datapump.commands import Analysis, AnalysisCommand, VersionUpdateCommand, SetLatestCommand, SyncCommand, \
+    UpdatableDatasets
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,
@@ -94,7 +95,7 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
 
 def _version_update(command: VersionUpdateCommand):
     ds = command.parameters.dataset
-    if ds == "wur_radd_alerts":
+    if ds == UpdatableDatasets.wur_radd_alerts:
         job = UpdateRADDJob(
             id=str(uuid1()),
             status=JobStatus.starting,
@@ -102,7 +103,7 @@ def _version_update(command: VersionUpdateCommand):
             version=command.parameters.version,
             source_uri=command.parameters.source_uri,
         )
-    elif ds == "umd_glad_sentinel2_alerts":
+    elif ds == UpdatableDatasets.umd_glad_sentinel2_alerts:
         job = UpdateGLADS2Job(
             id=str(uuid1()),
             status=JobStatus.starting,

@@ -61,6 +61,11 @@ class SyncType(str, Enum):
         return sync_types
 
 
+class UpdatableDatasets(str, Enum):
+    wur_radd_alerts = "wur_radd_alerts"
+    umd_glad_sentinel2_alerts = "umd_glad_sentinel2_alerts"
+
+
 class AnalysisCommand(StrictBaseModel):
     command: str
 

@@ -166,7 +166,7 @@ class UpdateGLADS2Job(VersionUpdateJob):
     max_zoom = 14
     calc = "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
     data_type = "uint16"
-    no_data = 0
+    no_data = StrictInt(0)
     pixel_meaning = "date_conf"
     tile_cache_symbology = {"type": "date_conf_intensity"}
 
@@ -175,6 +175,6 @@ class UpdateRADDJob(VersionUpdateJob):
     grid = "10/100000"
     max_zoom = 14
     data_type = "uint16"
-    no_data = 0
+    no_data = StrictInt(0)
     pixel_meaning = "date_conf"
     tile_cache_symbology = {"type": "date_conf_intensity"}
