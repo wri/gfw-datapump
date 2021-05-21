@@ -1,12 +1,8 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-
-from pydantic import BaseModel
+from typing import List, Optional
 
 from ..clients.data_api import DataApiClient
-from ..commands import ImportCommand
-from ..globals import GLOBALS, LOGGER
-from ..jobs.jobs import Job, JobStatus, JobStep
+from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
 
 
