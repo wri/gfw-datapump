@@ -3,13 +3,14 @@ from typing import Union
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
-from datapump.jobs.radd import RADDJob
+from datapump.jobs.version_update import UpdateRADDJob, UpdateGLADS2Job
 from pydantic import parse_obj_as
 
 
-
 def handler(event, context):
-    job = parse_obj_as(Union[FireAlertsGeotrellisJob, GeotrellisJob, RADDJob], event)
+    job = parse_obj_as(Union[
+        FireAlertsGeotrellisJob, GeotrellisJob, UpdateGLADS2Job, UpdateRADDJob
+    ], event)
 
     try:
         LOGGER.info(f"Running next for job:\n{job.dict()}")

@@ -73,18 +73,15 @@ class AnalysisCommand(StrictBaseModel):
     parameters: AnalysisParameters
 
 
-class ImportCommand(StrictBaseModel):
+class VersionUpdateCommand(StrictBaseModel):
     command: str
 
-    class ImportParameters(StrictBaseModel):
+    class VersionUpdateParameters(StrictBaseModel):
         dataset: str
         version: str
         source_uri: List[str]
-        calc: Optional[str]
-        grid: str
-        max_zoom: int
 
-    parameters: ImportParameters
+    parameters: VersionUpdateParameters
 
 
 class SyncCommand(StrictBaseModel):

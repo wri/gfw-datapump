@@ -6,7 +6,7 @@ from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
 
 
-class RADDJobStep(str, Enum):
+class VersionUpdateJobStep(str, Enum):
     starting = "starting"
     creating_tile_set = "creating_tile_set"
     creating_tile_cache = "creating_tile_cache"
@@ -14,8 +14,7 @@ class RADDJobStep(str, Enum):
     mark_latest = "mark_latest"
 
 
-class RADDJob(Job):
-    status: JobStatus
+class VersionUpdateJob(Job):
     dataset: str
     version: str
     source_uri: List[str]
@@ -24,36 +23,36 @@ class RADDJob(Job):
     max_zoom: int
 
     def next_step(self):
-        if self.step == RADDJobStep.starting:
+        if self.step == VersionUpdateJobStep.starting:
             self.status = JobStatus.executing
-            self.step = RADDJobStep.creating_tile_set
+            self.step = VersionUpdateJobStep.creating_tile_set
             self._create_tile_set()
 
-        elif self.step == RADDJobStep.creating_tile_set:
+        elif self.step == VersionUpdateJobStep.creating_tile_set:
             status = self._check_tile_set_status()
             if status == JobStatus.complete:
-                self.step = RADDJobStep.creating_tile_cache
+                self.step = VersionUpdateJobStep.creating_tile_cache
                 self._create_tile_cache()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == RADDJobStep.creating_tile_cache:
+        elif self.step == VersionUpdateJobStep.creating_tile_cache:
             status = self._check_tile_cache_status()
             if status == JobStatus.complete:
-                self.step = RADDJobStep.creating_aux_assets
+                self.step = VersionUpdateJobStep.creating_aux_assets
                 self._create_aux_assets()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == RADDJobStep.creating_aux_assets:
+        elif self.step == VersionUpdateJobStep.creating_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
-                self.step = RADDJobStep.mark_latest
+                self.step = VersionUpdateJobStep.mark_latest
                 self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == RADDJobStep.mark_latest:
+        elif self.step == VersionUpdateJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
                 self.status = JobStatus.complete
@@ -72,13 +71,11 @@ class RADDJob(Job):
         payload = {
             "creation_options": {
                 "source_type": "raster",
-                # "source_uri": [f"s3://{GLOBALS.s3_data_lake_pipeline}/{dataset}/{version}/raw/tiles.geojson"],
                 "source_uri": self.source_uri,
                 "source_driver": "GeoTIFF",
                 "data_type": "uint16",
                 "no_data": 0,
                 "pixel_meaning": "date_conf",
-                # "grid": "10/100000",
                 "grid": self.grid,
                 "calc": self.calc
             },
@@ -149,3 +146,14 @@ class RADDJob(Job):
             return JobStatus.complete
         else:
             return JobStatus.failed
+
+
+class UpdateGLADS2Job(VersionUpdateJob):
+    grid = "10/100000"
+    max_zoom = 14
+    calc = "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
+
+
+class UpdateRADDJob(VersionUpdateJob):
+    grid = "10/100000"
+    max_zoom = 14

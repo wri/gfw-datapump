@@ -4,14 +4,14 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, ImportCommand, SetLatestCommand, SyncCommand
+from datapump.commands import Analysis, AnalysisCommand, VersionUpdateCommand, SetLatestCommand, SyncCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,
     FireAlertsGeotrellisJob,
     GeotrellisJob,
 )
-from datapump.jobs.radd import RADDJob
+from datapump.jobs.version_update import UpdateRADDJob, UpdateGLADS2Job
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
@@ -22,7 +22,7 @@ def handler(event, context):
         command = parse_obj_as(
             Union[
                 AnalysisCommand,
-                ImportCommand,
+                VersionUpdateCommand,
                 SyncCommand,
                 ContinueGeotrellisJobsCommand,
                 SetLatestCommand,
@@ -36,9 +36,9 @@ def handler(event, context):
         if isinstance(command, AnalysisCommand):
             cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
-        elif isinstance(command, ImportCommand):
-            cast(ImportCommand, command)
-            jobs += _import(command, client)
+        elif isinstance(command, VersionUpdateCommand):
+            cast(VersionUpdateCommand, command)
+            jobs += _version_update(command)
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
@@ -92,19 +92,27 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
     return jobs
 
 
-def _import(command: ImportCommand, client: DataApiClient):
-    return [
-        RADDJob(
+def _version_update(command: VersionUpdateCommand):
+    ds = command.parameters.dataset
+    if ds == "wur_radd_alerts":
+        job = UpdateRADDJob(
             id=str(uuid1()),
             status=JobStatus.starting,
-            dataset=command.parameters.dataset,
+            dataset=ds,
             version=command.parameters.version,
             source_uri=command.parameters.source_uri,
-            calc=command.parameters.calc,
-            grid=command.parameters.grid,
-            max_zoom=command.parameters.max_zoom
-        ).dict()
-    ]
+        )
+    elif ds == "umd_glad_sentinel2_alerts":
+        job = UpdateGLADS2Job(
+            id=str(uuid1()),
+            status=JobStatus.starting,
+            dataset=ds,
+            version=command.parameters.version,
+            source_uri=command.parameters.source_uri,
+        )
+    else:
+        raise Exception(f"Unknown dataset {ds}")
+    return [job.dict()]
 
 
 def _sync(command: SyncCommand):
