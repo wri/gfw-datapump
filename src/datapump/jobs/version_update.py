@@ -1,6 +1,6 @@
 from enum import Enum
 
-from datapump.commands.version_update import RasterTileSetParameters, RasterTileCacheParameters
+from datapump.commands.version_update import RasterTileCacheParameters, RasterTileSetParameters
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
@@ -38,14 +38,6 @@ class RasterVersionUpdateJob(Job):
 
         elif self.step == VersionUpdateJobStep.creating_tile_cache:
             status = self._check_tile_cache_status()
-            if status == JobStatus.complete:
-                self.step = VersionUpdateJobStep.creating_aux_assets
-                self._create_aux_assets()
-            elif status == JobStatus.failed:
-                self.status = JobStatus.failed
-
-        elif self.step == VersionUpdateJobStep.creating_aux_assets:
-            status = self._check_aux_assets_status()
             if status == JobStatus.complete:
                 self.step = VersionUpdateJobStep.mark_latest
                 self._mark_latest()
@@ -125,14 +117,6 @@ class RasterVersionUpdateJob(Job):
             return JobStatus.executing
         else:
             return JobStatus.failed
-
-    def _create_aux_assets(self) -> JobStatus:
-        # TODO
-        pass
-
-    def _check_aux_assets_status(self) -> JobStatus:
-        # TODO
-        return JobStatus.complete
 
     def _mark_latest(self):
         client = DataApiClient()
