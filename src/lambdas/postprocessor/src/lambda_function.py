@@ -7,7 +7,7 @@ from datapump.clients.rw_api import update_area_statuses
 from datapump.commands import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.version_update import VersionUpdateJob
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.rw_areas import get_aoi_geostore_ids
 from datapump.util.slack import slack_webhook
@@ -20,7 +20,7 @@ def handler(event, context):
         List[Union[
             FireAlertsGeotrellisJob,
             GeotrellisJob,
-            VersionUpdateJob
+            RasterVersionUpdateJob
         ]], event["jobs"]
     )
     failed_jobs = []

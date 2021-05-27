@@ -1,18 +1,10 @@
 from enum import Enum
-from typing import List, Optional, Union, Dict
 
-from pydantic import StrictInt
+from datapump.models.version_update import RasterTileSetParameters, RasterTileCacheParameters
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
-
-
-class NonNumericFloat(str, Enum):
-    nan = "nan"
-
-
-NoDataType = Union[StrictInt, NonNumericFloat]
 
 
 class VersionUpdateJobStep(str, Enum):
@@ -23,17 +15,12 @@ class VersionUpdateJobStep(str, Enum):
     mark_latest = "mark_latest"
 
 
-class VersionUpdateJob(Job):
+class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
-    source_uri: List[str]
-    calc: Optional[str]
-    grid: str
-    max_zoom: int
-    data_type: str
-    no_data: Optional[Union[List[NoDataType], NoDataType]]
-    pixel_meaning: str
-    tile_cache_symbology: Optional[Dict[str, str]]
+
+    tile_set_parameters: RasterTileSetParameters
+    tile_cache_parameters: RasterTileCacheParameters
 
     def next_step(self):
         if self.step == VersionUpdateJobStep.starting:
@@ -75,7 +62,9 @@ class VersionUpdateJob(Job):
     def _create_tile_set(self):
         client = DataApiClient()
 
-        # Create dataset if doesn't exist
+        co = self.tile_set_parameters
+
+        # Create the dataset if it doesn't exist
         try:
             _ = client.create_dataset(self.dataset)
         except DataApiResponseError:
@@ -84,13 +73,13 @@ class VersionUpdateJob(Job):
         payload = {
             "creation_options": {
                 "source_type": "raster",
-                "source_uri": self.source_uri,
+                "source_uri": co.source_uri,
                 "source_driver": "GeoTIFF",
-                "data_type": self.data_type,
-                "no_data": self.no_data,
-                "pixel_meaning": self.pixel_meaning,
-                "grid": self.grid,
-                "calc": self.calc
+                "data_type": co.data_type,
+                "no_data": co.no_data,
+                "pixel_meaning": co.pixel_meaning,
+                "grid": co.grid,
+                "calc": co.calc
             },
             # "metadata": get_metadata(),
         }
@@ -119,9 +108,9 @@ class VersionUpdateJob(Job):
             "creation_options": {
                 "source_asset_id": rts_asset_id,
                 "min_zoom": 0,
-                "max_zoom": self.max_zoom,
+                "max_zoom": self.tile_cache_parameters.max_zoom,
                 "max_static_zoom": 9,
-                "symbology": self.tile_cache_symbology
+                "symbology": self.tile_cache_parameters.symbology
             }
         }
         _ = client.create_aux_asset(self.dataset, self.version, payload)
@@ -153,34 +142,9 @@ class VersionUpdateJob(Job):
     def _check_latest_status(self) -> JobStatus:
         client = DataApiClient()
 
-        version_data = client.get_version(self.dataset, self.version)
+        latest_version = client.get_latest_version(self.dataset)
 
-        if version_data["version"] == self.version:
+        if latest_version == self.version:
             return JobStatus.complete
         else:
             return JobStatus.failed
-
-
-# Re-asserting the types of the inherited nested fields is currently necessary
-# because of a limitation of Pydantic
-# see https://github.com/samuelcolvin/pydantic/issues/1296
-class UpdateGLADS2Job(VersionUpdateJob):
-    grid = "10/100000"
-    max_zoom = 14
-    calc = "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"  # noqa
-    data_type = "uint16"
-    no_data: Optional[Union[List[NoDataType], NoDataType]] = 0
-    pixel_meaning = "date_conf"
-    tile_cache_symbology: Optional[Dict[str, str]] = {"type": "date_conf_intensity"}
-
-
-# Re-asserting the types of the inherited nested fields is currently necessary
-# because of a limitation of Pydantic
-# see https://github.com/samuelcolvin/pydantic/issues/1296
-class UpdateRADDJob(VersionUpdateJob):
-    grid = "10/100000"
-    max_zoom = 14
-    data_type = "uint16"
-    no_data: Optional[Union[List[NoDataType], NoDataType]] = 0
-    pixel_meaning = "date_conf"
-    tile_cache_symbology: Optional[Dict[str, str]] = {"type": "date_conf_intensity"}

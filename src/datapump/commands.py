@@ -2,12 +2,8 @@ from enum import Enum
 from typing import List, Optional
 
 from datapump.jobs.jobs import Job
-from pydantic import BaseModel, Extra
-
-
-class StrictBaseModel(BaseModel):
-    class Config:
-        extra = Extra.forbid
+from datapump.models.base import StrictBaseModel
+from datapump.models.version_update import RasterTileSetParameters, RasterTileCacheParameters
 
 
 class Analysis(str, Enum):
@@ -78,15 +74,16 @@ class AnalysisCommand(StrictBaseModel):
     parameters: AnalysisParameters
 
 
-class VersionUpdateCommand(StrictBaseModel):
+class RasterVersionUpdateCommand(StrictBaseModel):
     command: str
 
-    class VersionUpdateParameters(StrictBaseModel):
+    class RasterVersionUpdateParameters(StrictBaseModel):
         dataset: str
         version: str
-        source_uri: List[str]
+        tile_set_parameters: RasterTileSetParameters
+        tile_cache_parameters: RasterTileCacheParameters
 
-    parameters: VersionUpdateParameters
+    parameters: RasterVersionUpdateParameters
 
 
 class SyncCommand(StrictBaseModel):

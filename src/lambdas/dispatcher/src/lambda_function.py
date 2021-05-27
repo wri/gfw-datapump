@@ -9,8 +9,7 @@ from datapump.commands import (
     AnalysisCommand,
     SetLatestCommand,
     SyncCommand,
-    UpdatableDatasets,
-    VersionUpdateCommand
+    RasterVersionUpdateCommand
 )
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
@@ -18,7 +17,7 @@ from datapump.jobs.geotrellis import (
     FireAlertsGeotrellisJob,
     GeotrellisJob,
 )
-from datapump.jobs.version_update import UpdateGLADS2Job, UpdateRADDJob
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
@@ -29,7 +28,7 @@ def handler(event, context):
         command = parse_obj_as(
             Union[
                 AnalysisCommand,
-                VersionUpdateCommand,
+                RasterVersionUpdateCommand,
                 SyncCommand,
                 ContinueGeotrellisJobsCommand,
                 SetLatestCommand,
@@ -43,9 +42,9 @@ def handler(event, context):
         if isinstance(command, AnalysisCommand):
             cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
-        elif isinstance(command, VersionUpdateCommand):
-            cast(VersionUpdateCommand, command)
-            jobs += _version_update(command)
+        elif isinstance(command, RasterVersionUpdateCommand):
+            cast(RasterVersionUpdateCommand, command)
+            jobs += _raster_version_update(command)
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
@@ -99,27 +98,15 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
     return jobs
 
 
-def _version_update(command: VersionUpdateCommand):
-    ds = command.parameters.dataset
-    # TODO: Put datasets/functions in a dictionary?
-    if ds == UpdatableDatasets.wur_radd_alerts:
-        job = UpdateRADDJob(
-            id=str(uuid1()),
-            status=JobStatus.starting,
-            dataset=ds,
-            version=command.parameters.version,
-            source_uri=command.parameters.source_uri,
-        )
-    elif ds == UpdatableDatasets.umd_glad_sentinel2_alerts:
-        job = UpdateGLADS2Job(
-            id=str(uuid1()),
-            status=JobStatus.starting,
-            dataset=ds,
-            version=command.parameters.version,
-            source_uri=command.parameters.source_uri,
-        )
-    else:
-        raise Exception(f"Unknown dataset {ds}")
+def _raster_version_update(command: RasterVersionUpdateCommand):
+    job = RasterVersionUpdateJob(
+        id=str(uuid1()),
+        status=JobStatus.starting,
+        dataset=command.parameters.dataset,
+        version=command.parameters.version,
+        tile_set_parameters=command.parameters.tile_set_parameters,
+        tile_cache_parameters=command.parameters.tile_cache_parameters
+    )
     return [job.dict()]
 
 
