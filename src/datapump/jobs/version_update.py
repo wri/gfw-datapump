@@ -1,6 +1,9 @@
 from enum import Enum
 
-from datapump.commands.version_update import RasterTileCacheParameters, RasterTileSetParameters
+from datapump.commands.version_update import (
+    RasterTileCacheParameters,
+    RasterTileSetParameters
+)
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
@@ -73,14 +76,17 @@ class RasterVersionUpdateJob(Job):
                 "grid": co.grid,
                 "calc": co.calc
             },
-            # "metadata": get_metadata(),
         }
         _ = client.create_version(self.dataset, self.version, payload)
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
 
-        rts_asset = client.get_asset(self.dataset, self.version, "Raster tile set")
+        rts_asset = client.get_asset(
+            self.dataset,
+            self.version,
+            "Raster tile set"
+        )
         if rts_asset["status"] == "saved":
             return JobStatus.complete
         elif rts_asset["status"] == "pending":
@@ -91,8 +97,12 @@ class RasterVersionUpdateJob(Job):
     def _create_tile_cache(self):
         client = DataApiClient()
 
-        resp = client.get_asset(self.dataset, self.version, "Raster tile set")
-        rts_asset_id = resp["asset_id"]
+        rts_asset = client.get_asset(
+            self.dataset,
+            self.version,
+            "Raster tile set"
+        )
+        rts_asset_id = rts_asset["asset_id"]
 
         payload = {
             "asset_type": "Raster tile cache",
@@ -110,7 +120,11 @@ class RasterVersionUpdateJob(Job):
     def _check_tile_cache_status(self) -> JobStatus:
         client = DataApiClient()
 
-        rtc_asset = client.get_asset(self.dataset, self.version, "Raster tile cache")
+        rtc_asset = client.get_asset(
+            self.dataset,
+            self.version,
+            "Raster tile cache"
+        )
         if rtc_asset["status"] == "saved":
             return JobStatus.complete
         elif rtc_asset["status"] == "pending":
