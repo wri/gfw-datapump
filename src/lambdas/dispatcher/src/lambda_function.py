@@ -4,13 +4,11 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import (
-    Analysis,
-    AnalysisCommand,
-    SetLatestCommand,
-    SyncCommand,
-    RasterVersionUpdateCommand
-)
+from datapump.commands.analysis import Analysis, AnalysisCommand
+from datapump.commands.set_latest import SetLatestCommand
+from datapump.commands.sync import SyncCommand
+from datapump.commands.version_update import RasterVersionUpdateCommand
+
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import (
     ContinueGeotrellisJobsCommand,

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from datapump.models.version_update import RasterTileSetParameters, RasterTileCacheParameters
+from datapump.commands.version_update import RasterTileSetParameters, RasterTileCacheParameters
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus

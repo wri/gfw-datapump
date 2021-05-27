@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import List, Optional, Any, Dict, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import StrictInt
 
-from datapump.models.base import StrictBaseModel
+from datapump.util.models import StrictBaseModel
 
 
 class NonNumericFloat(str, Enum):
@@ -25,3 +25,15 @@ class RasterTileSetParameters(StrictBaseModel):
 class RasterTileCacheParameters(StrictBaseModel):
     symbology: Optional[Dict[str, Any]]
     max_zoom: int
+
+
+class RasterVersionUpdateCommand(StrictBaseModel):
+    command: str
+
+    class RasterVersionUpdateParameters(StrictBaseModel):
+        dataset: str
+        version: str
+        tile_set_parameters: RasterTileSetParameters
+        tile_cache_parameters: RasterTileCacheParameters
+
+    parameters: RasterVersionUpdateParameters

@@ -12,7 +12,8 @@ from pydantic import BaseModel
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands import Analysis, AnalysisInputTable, SyncType
+from ..commands.analysis import Analysis, AnalysisInputTable
+from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
     AnalysisResultTable,
@@ -484,7 +485,6 @@ class GeotrellisJob(Job):
 
         Multiplies by weights for specific analyses.
 
-        :param job: input job
         :return: calculate number of works appropriate for job size
         """
         # if using a wildcard for a folder, just use hardcoded value
