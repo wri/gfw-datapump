@@ -10,7 +10,7 @@ from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
 
 
-class VersionUpdateJobStep(str, Enum):
+class RasterVersionUpdateJobStep(str, Enum):
     starting = "starting"
     creating_tile_set = "creating_tile_set"
     creating_tile_cache = "creating_tile_cache"
@@ -21,33 +21,32 @@ class VersionUpdateJobStep(str, Enum):
 class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
-
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: RasterTileCacheParameters
 
     def next_step(self):
-        if self.step == VersionUpdateJobStep.starting:
+        if self.step == RasterVersionUpdateJobStep.starting:
             self.status = JobStatus.executing
-            self.step = VersionUpdateJobStep.creating_tile_set
+            self.step = RasterVersionUpdateJobStep.creating_tile_set
             self._create_tile_set()
 
-        elif self.step == VersionUpdateJobStep.creating_tile_set:
+        elif self.step == RasterVersionUpdateJobStep.creating_tile_set:
             status = self._check_tile_set_status()
             if status == JobStatus.complete:
-                self.step = VersionUpdateJobStep.creating_tile_cache
+                self.step = RasterVersionUpdateJobStep.creating_tile_cache
                 self._create_tile_cache()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == VersionUpdateJobStep.creating_tile_cache:
+        elif self.step == RasterVersionUpdateJobStep.creating_tile_cache:
             status = self._check_tile_cache_status()
             if status == JobStatus.complete:
-                self.step = VersionUpdateJobStep.mark_latest
+                self.step = RasterVersionUpdateJobStep.mark_latest
                 self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == VersionUpdateJobStep.mark_latest:
+        elif self.step == RasterVersionUpdateJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
                 self.status = JobStatus.complete
