@@ -35,13 +35,13 @@ class AnalysisTable(StrictBaseModel):
     analysis: Analysis
 
 
+class AnalysisParameters(StrictBaseModel):
+    analysis_version: str
+    sync: bool
+    geotrellis_version: str
+    tables: List[AnalysisInputTable]
+
+
 class AnalysisCommand(StrictBaseModel):
     command: str
-
-    class AnalysisParameters(StrictBaseModel):
-        analysis_version: str
-        sync: bool
-        geotrellis_version: str
-        tables: List[AnalysisInputTable]
-
     parameters: AnalysisParameters

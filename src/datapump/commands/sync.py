@@ -25,12 +25,12 @@ class SyncType(str, Enum):
         return sync_types
 
 
+class SyncParameters(StrictBaseModel):
+    types: List[SyncType]
+    sync_version: Optional[str] = None
+    tables: List[AnalysisTable] = []
+
+
 class SyncCommand(StrictBaseModel):
     command: str
-
-    class SyncParameters(StrictBaseModel):
-        types: List[SyncType]
-        sync_version: Optional[str] = None
-        tables: List[AnalysisTable] = []
-
     parameters: SyncParameters

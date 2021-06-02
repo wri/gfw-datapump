@@ -6,9 +6,7 @@ from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from typing import Any, Dict, List, Optional, Tuple, Union
-
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
@@ -772,12 +770,3 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
             return super()._calculate_worker_count(self.alert_sources[0])
         else:
             return super()._calculate_worker_count(limiting_src)
-
-
-class ContinueGeotrellisJobsCommand(BaseModel):
-    command: str
-
-    class ContinueGeotrellisJobsParameters(BaseModel):
-        jobs: List[Union[FireAlertsGeotrellisJob, GeotrellisJob]]
-
-    parameters: ContinueGeotrellisJobsParameters

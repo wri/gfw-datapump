@@ -5,16 +5,13 @@ from uuid import uuid1
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
 from datapump.commands.analysis import Analysis, AnalysisCommand
+from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
 from datapump.commands.sync import SyncCommand
 from datapump.commands.version_update import RasterVersionUpdateCommand
 
 from datapump.globals import LOGGER
-from datapump.jobs.geotrellis import (
-    ContinueGeotrellisJobsCommand,
-    FireAlertsGeotrellisJob,
-    GeotrellisJob,
-)
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.jobs.jobs import JobStatus
 from datapump.sync.sync import Syncer

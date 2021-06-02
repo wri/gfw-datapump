@@ -27,13 +27,13 @@ class RasterTileCacheParameters(StrictBaseModel):
     max_zoom: int
 
 
+class RasterVersionUpdateParameters(StrictBaseModel):
+    dataset: str
+    version: str
+    tile_set_parameters: RasterTileSetParameters
+    tile_cache_parameters: RasterTileCacheParameters
+
+
 class RasterVersionUpdateCommand(StrictBaseModel):
     command: str
-
-    class RasterVersionUpdateParameters(StrictBaseModel):
-        dataset: str
-        version: str
-        tile_set_parameters: RasterTileSetParameters
-        tile_cache_parameters: RasterTileCacheParameters
-
     parameters: RasterVersionUpdateParameters
