@@ -744,8 +744,8 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_sources: Optional[List[str]] = []
 
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
-        "viirs": f"s3://{GLOBALS.s3_data_lake_pipeline}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
-        "modis": f"s3://{GLOBALS.s3_data_lake_pipeline}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
+        "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
+        "modis": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
     }
 
     def _get_step(self):
