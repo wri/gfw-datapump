@@ -7,7 +7,8 @@ import dateutil.tz as tz
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.datapump_store import DatapumpConfig
-from ..commands import Analysis, AnalysisInputTable, SyncType
+from ..commands.analysis import Analysis, AnalysisInputTable
+from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
