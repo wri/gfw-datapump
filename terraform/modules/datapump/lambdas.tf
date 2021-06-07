@@ -72,3 +72,25 @@ resource "aws_lambda_function" "postprocessor" {
     }
   }
 }
+
+resource "aws_lambda_function" "gateway_lambda" {
+  function_name    = substr("${local.project}-gateway_lambda${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_gateway.output_path
+  source_code_hash = data.archive_file.lambda_gateway.output_base64sha256
+  role             = aws_iam_role.datapump_lambda.arn
+  runtime          = var.lambda_params.runtime
+  handler          = "lambda_function.handler"
+  memory_size      = var.lambda_params.memory_size
+  timeout          = var.lambda_params.timeout
+  publish          = true
+  tags             = local.tags
+  layers           = [module.py37_datapump_020.layer_arn, var.rasterio_lambda_layer_arn]
+  environment {
+    variables = {
+      ENV                            = var.environment
+      S3_BUCKET_PIPELINE             = var.pipelines_bucket
+      S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
+      DATA_API_URI                   = var.data_api_uri
+    }
+  }
+}

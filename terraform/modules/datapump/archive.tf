@@ -15,3 +15,9 @@ data "archive_file" "lambda_postprocessor" {
   source_dir  = "${var.lambdas_path}/postprocessor/src"
   output_path = "${var.lambdas_path}/postprocessor/lambda.zip"
 }
+
+data "archive_file" "lambda_gateway" {
+  type        = "zip"
+  source_dir  = "${var.lambdas_path}/gateway_lambda/src"
+  output_path = "${var.lambdas_path}/gateway_lambda/lambda.zip"
+}
