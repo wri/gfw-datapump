@@ -7,12 +7,15 @@ import dateutil.tz as tz
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.datapump_store import DatapumpConfig
-from ..commands import Analysis, AnalysisInputTable, SyncType
-from ..globals import GLOBALS
+from ..commands.analysis import Analysis, AnalysisInputTable
+from ..commands.sync import SyncType
+from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
-from ..sync.fire_alerts import process_active_fire_alerts
+from ..sync.fire_alerts import process_active_fire_alerts, get_tmp_result_path
 from ..sync.rw_areas import create_1x1_tsv
+from ..util.gpkg_util import update_geopackage
+from ..util.slack import slack_webhook
 
 
 class Sync(ABC):
@@ -59,8 +62,17 @@ class ViirsSync(FireAlertsSync):
     def __init__(self, sync_version: str):
         super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
-        # TODO use version name?
         self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
+
+        # try to update geopackage, but still move on if it fails
+        try:
+            viirs_local_path = get_tmp_result_path("VIIRS")
+            update_geopackage(viirs_local_path)
+        except Exception as e:
+            LOGGER.exception(e)
+            slack_webhook(
+                "ERROR", "Error updating fires geopackage. Check logs for more details."
+            )
 
 
 class ModisSync(FireAlertsSync):

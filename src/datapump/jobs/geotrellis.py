@@ -6,13 +6,12 @@ from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
-from typing import Any, Dict, List, Optional, Tuple, Union
-
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands import Analysis, AnalysisInputTable, SyncType
+from ..commands.analysis import Analysis, AnalysisInputTable
+from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
     AnalysisResultTable,
@@ -142,12 +141,12 @@ class GeotrellisJob(Job):
 
         for table in self.result_tables:
             if self.sync_version:
-                # temporarily just appending sync versio  ns to analysis version instead of using version inheritance
+                # temporarily just appending sync versions to analysis version instead of using version inheritance
                 if (
                     self.table.analysis == Analysis.glad
                     and self.sync_type != SyncType.rw_areas
                 ):
-                    client.create_version(
+                    client.create_vector_version(
                         table.dataset,
                         table.version,
                         table.source_uri,
@@ -484,7 +483,6 @@ class GeotrellisJob(Job):
 
         Multiplies by weights for specific analyses.
 
-        :param job: input job
         :return: calculate number of works appropriate for job size
         """
         # if using a wildcard for a folder, just use hardcoded value
@@ -772,12 +770,3 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
             return super()._calculate_worker_count(self.alert_sources[0])
         else:
             return super()._calculate_worker_count(limiting_src)
-
-
-class ContinueGeotrellisJobsCommand(BaseModel):
-    command: str
-
-    class ContinueGeotrellisJobsParameters(BaseModel):
-        jobs: List[Union[FireAlertsGeotrellisJob, GeotrellisJob]]
-
-    parameters: ContinueGeotrellisJobsParameters
