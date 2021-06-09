@@ -80,11 +80,11 @@ resource "aws_lambda_function" "gateway_lambda" {
   role             = aws_iam_role.datapump_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_params.memory_size
+  memory_size      = 512
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.py37_datapump_020.layer_arn, var.rasterio_lambda_layer_arn]
+  layers           = [data.terraform_remote_state.lambda_layers.outputs.py37_fastapi_0652_arn]
   environment {
     variables = {
       ENV                            = var.environment

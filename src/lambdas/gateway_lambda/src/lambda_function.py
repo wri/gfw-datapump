@@ -1,13 +1,17 @@
-import json
+from fastapi import FastAPI
+from mangum import Mangum
 
-from datapump.globals import LOGGER
+app = FastAPI()
 
 
-def handler(event, context):
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
-    LOGGER.info("Lambda running!")
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"Hello": "world"})
-    }
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q}
+
+
+handler = Mangum(app)
