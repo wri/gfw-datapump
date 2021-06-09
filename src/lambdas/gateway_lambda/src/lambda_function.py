@@ -1,3 +1,5 @@
+import json
+
 from datapump.globals import LOGGER
 
 
@@ -5,4 +7,7 @@ def handler(event, context):
 
     LOGGER.info("Lambda running!")
 
-    return {"Hello": "world"}
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"Hello": "world"})
+    }

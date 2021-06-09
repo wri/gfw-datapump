@@ -65,3 +65,14 @@ locals {
   project                     = "datapump"
   glad_path                   = "s3://gfw2-data/forest_change/umd_landsat_alerts/prod"
 }
+
+resource "aws_lambda_permission" "apigw" {
+   statement_id  = "AllowAPIGatewayInvoke"
+   action        = "lambda:InvokeFunction"
+   function_name = module.datapump.gateway_lambda_name
+   principal     = "apigateway.amazonaws.com"
+
+   # The "/*/*/*" portion grants access from any method on any resource
+   # on any stage within the API Gateway REST API.
+   source_arn = "${module.datapump.rest_api_execution_arn}/*/*/*"
+}
