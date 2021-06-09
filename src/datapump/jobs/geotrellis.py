@@ -356,40 +356,40 @@ class GeotrellisJob(Job):
                 "alert__week",
             ],
             (Analysis.viirs, "daily_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__date",
+                "umd_tree_cover_density__threshold",
                 "confidence__cat",
             ],
             (Analysis.viirs, "all"): [
-                "umd_tree_cover_density__threshold",
                 "alert__date",
+                "umd_tree_cover_density__threshold",
                 "confidence__cat",
             ],
             (Analysis.viirs, "weekly_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__year",
                 "alert__week",
+                "umd_tree_cover_density__threshold",
                 "confidence__cat",
             ],
             (Analysis.modis, "daily_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__date",
+                "umd_tree_cover_density__threshold",
                 "confidence__cat",
             ],
             (Analysis.modis, "weekly_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__year",
                 "alert__week",
+                "umd_tree_cover_density__threshold",
                 "confidence__cat",
             ],
             (Analysis.burned_areas, "daily_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__date",
+                "umd_tree_cover_density__threshold",
             ],
             (Analysis.burned_areas, "weekly_alerts"): [
-                "umd_tree_cover_density__threshold",
                 "alert__year",
                 "alert__week",
+                "umd_tree_cover_density__threshold",
             ],
         }
 
