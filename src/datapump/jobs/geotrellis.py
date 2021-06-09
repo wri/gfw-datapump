@@ -558,6 +558,13 @@ class GeotrellisJob(Job):
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
             f"{GLOBALS.geotrellis_jar_path}/treecoverloss-assembly-{self.geotrellis_version}.jar",
+        ]
+
+        # after 1.5, analysis is an argument instead of an option
+        if self.geotrellis_version < "1.5.0":
+            step_args.append("--analysis")
+
+        step_args += [
             analysis,
             "--output",
             self._get_result_path(),
