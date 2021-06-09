@@ -12,7 +12,7 @@ from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
-from ..sync.fire_alerts import process_active_fire_alerts, get_tmp_result_path
+from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
 from ..util.gpkg_util import update_geopackage
 from ..util.slack import slack_webhook
@@ -147,7 +147,11 @@ class RWAreasSync(Sync):
                 "version_overrides": config.metadata.get("version_overrides", {}),
             }
 
-            if config.analysis in [Analysis.viirs, Analysis.modis]:
+            if config.analysis in [
+                Analysis.viirs,
+                Analysis.modis,
+                Analysis.burned_areas,
+            ]:
                 kwargs["alert_type"] = config.analysis
                 return FireAlertsGeotrellisJob(**kwargs)
             else:

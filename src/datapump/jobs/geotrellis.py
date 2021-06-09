@@ -36,6 +36,7 @@ class GeotrellisAnalysis(str, Enum):
     glad = "gladalerts"
     viirs = "firealerts_viirs"
     modis = "firealerts_modis"
+    burned_areas = "firealerts_burned_areas"
 
 
 class GeotrellisFeatureType(str, Enum):
@@ -354,17 +355,39 @@ class GeotrellisJob(Job):
                 "alert__year",
                 "alert__week",
             ],
-            (Analysis.viirs, "daily_alerts"): ["confidence__cat", "alert__date"],
-            (Analysis.viirs, "all"): ["confidence__cat", "alert__date"],
-            (Analysis.viirs, "weekly_alerts"): [
+            (Analysis.viirs, "daily_alerts"): [
+                "umd_tree_cover_density__threshold",
+                "alert__date",
                 "confidence__cat",
+            ],
+            (Analysis.viirs, "all"): [
+                "umd_tree_cover_density__threshold",
+                "alert__date",
+                "confidence__cat",
+            ],
+            (Analysis.viirs, "weekly_alerts"): [
+                "umd_tree_cover_density__threshold",
                 "alert__year",
                 "alert__week",
-            ],
-            (Analysis.modis, "daily_alerts"): ["confidence__cat", "alert__date"],
-            (Analysis.modis, "all"): ["confidence__cat", "alert__date"],
-            (Analysis.modis, "weekly_alerts"): [
                 "confidence__cat",
+            ],
+            (Analysis.modis, "daily_alerts"): [
+                "umd_tree_cover_density__threshold",
+                "alert__date",
+                "confidence__cat",
+            ],
+            (Analysis.modis, "weekly_alerts"): [
+                "umd_tree_cover_density__threshold",
+                "alert__year",
+                "alert__week",
+                "confidence__cat",
+            ],
+            (Analysis.burned_areas, "daily_alerts"): [
+                "umd_tree_cover_density__threshold",
+                "alert__date",
+            ],
+            (Analysis.burned_areas, "weekly_alerts"): [
+                "umd_tree_cover_density__threshold",
                 "alert__year",
                 "alert__week",
             ],
@@ -457,7 +480,7 @@ class GeotrellisJob(Job):
                 or field == "latitude"
                 or field == "longitude"
             ):
-                return "double precision"
+                return "numeric"
             elif (
                 field.endswith("__threshold")
                 or field.endswith("__count")
@@ -470,6 +493,8 @@ class GeotrellisJob(Job):
                 return "integer"
             elif field.startswith("is__"):
                 return "boolean"
+            elif field.endswith("__date"):
+                return "date"
             else:
                 return "text"
 
@@ -486,7 +511,7 @@ class GeotrellisJob(Job):
         :return: calculate number of works appropriate for job size
         """
         # if using a wildcard for a folder, just use hardcoded value
-        if "*.tsv" in limiting_src:
+        if "*" in limiting_src:
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
@@ -497,6 +522,7 @@ class GeotrellisJob(Job):
         elif self.sync_type == SyncType.rw_areas and self.table.analysis in [
             Analysis.viirs,
             Analysis.modis,
+            Analysis.burned_areas,
         ]:
             return 15
 
@@ -532,14 +558,13 @@ class GeotrellisJob(Job):
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
             f"{GLOBALS.geotrellis_jar_path}/treecoverloss-assembly-{self.geotrellis_version}.jar",
+            analysis,
             "--output",
             self._get_result_path(),
             "--features",
             self.features_1x1,
             "--feature_type",
             self.feature_type.value.split("_")[0],
-            "--analysis",
-            analysis,
         ]
 
         # These limit the extent to look at for certain types of analyses
@@ -702,26 +727,18 @@ class GeotrellisJob(Job):
             {
                 "Classification": "spark-defaults",
                 "Properties": {
-                    # "spark.executor.memory": "5G",
-                    # "spark.driver.memory": "5G",
-                    # "spark.driver.cores": "1",
                     "spark.driver.maxResultSize": "3G",
                     "spark.yarn.appMasterEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
                     "spark.rdd.compress": "true",
-                    # "spark.executor.cores": "1",
                     "spark.executorEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
-                    # "spark.sql.shuffle.partitions": str(
-                    #     (70 * worker_instance_count) - 1
-                    # ),
                     "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
                     "spark.shuffle.spill.compress": "true",
                     "spark.shuffle.compress": "true",
-                    # "spark.default.parallelism": str((70 * worker_instance_count) - 1),
-                    # "spark.executor.memoryOverhead": "2G",
                     "spark.shuffle.service.enabled": "true",
                     "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
-                    # "spark.executor.instances": str((7 * worker_instance_count) - 1),
-                    "spark.dynamicAllocation.enabled": "true",  # "false",
+                    "spark.dynamicAllocation.enabled": "true",
+                    "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
+                    "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
                 },
                 "Configurations": [],
             },
@@ -744,6 +761,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
         "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
         "modis": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
+        "burned_areas": f"s3://{GLOBALS.s3_bucket_data_lake}/umd_modis_burned_areas/raw",
     }
 
     def _get_step(self):
@@ -754,16 +772,24 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
         step_args.append(self.alert_type)
 
         if not self.alert_sources:
-            self.alert_sources = [
-                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/scientific/*.tsv",
-                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/near_real_time/*.tsv",
-            ]
+            self.alert_sources = self._get_default_alert_sources()
 
         for src in self.alert_sources:
             step_args.append("--fire_alert_source")
             step_args.append(src)
 
         return step
+
+    def _get_default_alert_sources(self):
+        if self.alert_type == "burned_areas":
+            return [
+                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/*.csv",
+            ]
+        else:
+            return [
+                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/scientific/*.tsv",
+                f"{self.FIRE_SOURCE_DEFAULT_PATHS[self.alert_type]}/near_real_time/*.tsv",
+            ]
 
     def _calculate_worker_count(self, limiting_src: str) -> int:
         if self.sync_version and self.alert_sources and len(self.alert_sources) == 1:

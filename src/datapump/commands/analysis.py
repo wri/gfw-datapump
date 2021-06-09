@@ -13,6 +13,7 @@ class Analysis(str, Enum):
     glad = "glad"
     viirs = "viirs"
     modis = "modis"
+    burned_areas = "burned_areas"
 
 
 class AnalysisInputTable(StrictBaseModel):
