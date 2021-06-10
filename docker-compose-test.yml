@@ -24,7 +24,7 @@ services:
       - mock_server
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:0.12.11
     container_name: localstack
     ports:
 #      - '53:53'
