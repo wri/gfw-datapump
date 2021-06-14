@@ -73,10 +73,10 @@ resource "aws_lambda_function" "postprocessor" {
   }
 }
 
-resource "aws_lambda_function" "gateway_lambda" {
-  function_name    = substr("${local.project}-gateway_lambda${local.name_suffix}", 0, 64)
-  filename         = data.archive_file.lambda_gateway.output_path
-  source_code_hash = data.archive_file.lambda_gateway.output_base64sha256
+resource "aws_lambda_function" "fastapi" {
+  function_name    = substr("${local.project}-fastapi${local.name_suffix}", 0, 64)
+  filename         = data.archive_file.lambda_fastapi.output_path
+  source_code_hash = data.archive_file.lambda_fastapi.output_base64sha256
   role             = aws_iam_role.datapump_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"

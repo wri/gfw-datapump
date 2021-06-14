@@ -16,8 +16,8 @@ data "archive_file" "lambda_postprocessor" {
   output_path = "${var.lambdas_path}/postprocessor/lambda.zip"
 }
 
-data "archive_file" "lambda_gateway" {
+data "archive_file" "lambda_fastapi" {
   type        = "zip"
-  source_dir  = "${var.lambdas_path}/gateway_lambda/src"
-  output_path = "${var.lambdas_path}/gateway_lambda/lambda.zip"
+  source_dir  = "${var.lambdas_path}/fastapi/src"
+  output_path = "${var.lambdas_path}/fastapi/lambda.zip"
 }
