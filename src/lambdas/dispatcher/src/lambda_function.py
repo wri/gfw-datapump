@@ -4,7 +4,7 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands.analysis import Analysis, AnalysisCommand
+from datapump.commands.analysis import AnalysisCommand
 from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
 from datapump.commands.sync import SyncCommand
@@ -15,6 +15,8 @@ from datapump.jobs.jobs import JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
+
+from src.datapump.commands.analysis import FIRES_ANALYSES
 
 
 def handler(event, context):
@@ -63,7 +65,7 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
 
     for table in command.parameters.tables:
         asset_uri = client.get_1x1_asset(table.dataset, table.version)
-        if table.analysis in [Analysis.viirs, Analysis.modis, Analysis.burned_areas]:
+        if table.analysis in FIRES_ANALYSES:
             jobs.append(
                 FireAlertsGeotrellisJob(
                     id=str(uuid1()),

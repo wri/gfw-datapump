@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands.analysis import Analysis, AnalysisInputTable
+from ..commands.analysis import FIRES_ANALYSES, Analysis, AnalysisInputTable
 from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
@@ -228,7 +228,7 @@ class GeotrellisJob(Job):
         worker_count = self._calculate_worker_count(self.features_1x1)
         instances = self._instances(worker_count)
         applications = self._applications()
-        configurations = self._configurations(worker_count)
+        configurations = self._configurations()
 
         return name, instances, steps, applications, configurations
 
@@ -519,11 +519,10 @@ class GeotrellisJob(Job):
                     return 100
             else:
                 return 50
-        elif self.sync_type == SyncType.rw_areas and self.table.analysis in [
-            Analysis.viirs,
-            Analysis.modis,
-            Analysis.burned_areas,
-        ]:
+        elif (
+            self.sync_type == SyncType.rw_areas
+            and self.table.analysis in FIRES_ANALYSES
+        ):
             return 15
 
         bucket, key = get_s3_path_parts(limiting_src)
@@ -724,7 +723,7 @@ class GeotrellisJob(Job):
         ]
 
     @staticmethod
-    def _configurations(worker_instance_count: int) -> List[Dict[str, Any]]:
+    def _configurations() -> List[Dict[str, Any]]:
         return [
             {
                 "Classification": "spark",
@@ -747,6 +746,11 @@ class GeotrellisJob(Job):
                     "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
                     "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
                 },
+                "Configurations": [],
+            },
+            {
+                "Classification": " emrfs-site",
+                "Properties": {"fs.s3.useRequesterPaysHeader": "true"},
                 "Configurations": [],
             },
             {

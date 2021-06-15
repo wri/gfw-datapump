@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
 
-from datapump.util.models import StrictBaseModel
+from ..util.models import StrictBaseModel
 
 
 class Analysis(str, Enum):
@@ -14,6 +14,9 @@ class Analysis(str, Enum):
     viirs = "viirs"
     modis = "modis"
     burned_areas = "burned_areas"
+
+
+FIRES_ANALYSES = [Analysis.viirs, Analysis.modis, Analysis.burned_areas]
 
 
 class AnalysisInputTable(StrictBaseModel):
