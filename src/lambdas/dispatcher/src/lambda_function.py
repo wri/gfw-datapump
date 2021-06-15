@@ -4,7 +4,7 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands.analysis import AnalysisCommand
+from datapump.commands.analysis import AnalysisCommand, FIRES_ANALYSES
 from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
 from datapump.commands.sync import SyncCommand
@@ -15,8 +15,6 @@ from datapump.jobs.jobs import JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
-
-from src.datapump.commands.analysis import FIRES_ANALYSES
 
 
 def handler(event, context):
