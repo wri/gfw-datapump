@@ -1,3 +1,7 @@
+//data "template_file" "sts_assume_role_fastapi_lambda" {
+//  template = file("${var.policies_path}/sts_assume_role_fastapi_lambda.json")
+//}
+
 data "template_file" "sts_assume_role_lambda" {
   template = file("${var.policies_path}/sts_assume_role_lambda.json")
 }

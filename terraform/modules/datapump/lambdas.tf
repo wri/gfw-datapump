@@ -77,7 +77,7 @@ resource "aws_lambda_function" "fastapi" {
   function_name    = substr("${local.project}-fastapi${local.name_suffix}", 0, 64)
   filename         = data.archive_file.lambda_fastapi.output_path
   source_code_hash = data.archive_file.lambda_fastapi.output_base64sha256
-  role             = aws_iam_role.datapump_lambda.arn
+  role             = aws_iam_role.fastapi_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"
   memory_size      = 512
@@ -91,6 +91,7 @@ resource "aws_lambda_function" "fastapi" {
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
       S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
       DATA_API_URI                   = var.data_api_uri
+      SFN_DATAPUMP_ARN               = aws_sfn_state_machine.datapump.arn
     }
   }
 }

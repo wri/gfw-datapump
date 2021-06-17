@@ -2,6 +2,10 @@ output "sfn_datapump" {
   value = aws_sfn_state_machine.datapump.id
 }
 
+//output "sfn_datapump_arn" {
+//  value = aws_sfn_state_machine.datapump.arn
+//}
+
 output "base_url" {
   value = aws_api_gateway_deployment.api_gw_dep.invoke_url
 }

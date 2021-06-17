@@ -1,5 +1,8 @@
+import json
+import os
 from typing import Any
 
+import boto3
 from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 from pydantic import BaseModel, Extra
@@ -87,12 +90,46 @@ async def update_dataset(
 
     try:
         step_fcn_params = known_datasets[dataset]
-        # TODO: Call step function
+
+        step_fcn_params = {
+            "command": "could be anything",
+            "parameters": {
+                "dataset": "wur_radd_alerts",
+                "version": "v20210516.1",
+                "tile_set_parameters": {
+                    "source_uri": [
+                        "s3://gfw-data-lake-dev/gfw_radd_alerts/v20210516.1/raw_subset/geotiff/"
+                    ],
+                    "no_data": 0,
+                    "grid": "10/100000",
+                    "data_type": "uint16",
+                    "pixel_meaning": "data_conf"
+                },
+                "tile_cache_parameters": {
+                    "max_zoom": 14,
+                    "symbology": {"type": "date_conf_intensity"}
+                }
+            }
+        }
+
+        sfn_arn = os.environ.get("SFN_DATAPUMP_ARN")
+
+        client = boto3.client('stepfunctions')
+        response = client.start_execution(
+            stateMachineArn=sfn_arn,
+            name='some_execution',
+            input=json.dumps(step_fcn_params)
+        )
         return {
             "status": "success",
-            "param": request.some_param,
-            "data": step_fcn_params
+            "sfn_resp": response
         }
+        # TODO: Call step function
+    #     return {
+    #         "status": "success",
+    #         "param": request.some_param,
+    #         "data": step_fcn_params
+    #     }
     except KeyError:
         raise HTTPException(
             status_code=400,
