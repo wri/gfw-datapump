@@ -749,7 +749,7 @@ class GeotrellisJob(Job):
                 "Configurations": [],
             },
             {
-                "Classification": " emrfs-site",
+                "Classification": "emrfs-site",
                 "Properties": {"fs.s3.useRequesterPaysHeader": "true"},
                 "Configurations": [],
             },
