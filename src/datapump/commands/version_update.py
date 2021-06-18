@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import StrictInt
-
 from datapump.util.models import StrictBaseModel
+from pydantic import StrictInt
 
 
 class NonNumericFloat(str, Enum):

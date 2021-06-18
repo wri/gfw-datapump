@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
-from datapump.commands.analysis import AnalysisTable, Analysis
+from datapump.commands.analysis import Analysis, AnalysisTable
 from datapump.util.models import StrictBaseModel
 
 

@@ -77,7 +77,16 @@ def update_geopackage(fires_path):
     fires_vrt = create_vrt(new_rows_list)
 
     # append new fires to gpkg
-    cmd = ["/opt/bin/ogr2ogr", "-append", src_gpkg, fires_vrt, "-f", "GPKG", "-nln", "data"]
+    cmd = [
+        "/opt/bin/ogr2ogr",
+        "-append",
+        src_gpkg,
+        fires_vrt,
+        "-f",
+        "GPKG",
+        "-nln",
+        "data",
+    ]
     subprocess.check_call(cmd)
 
     # remove old and duplicate points

@@ -8,9 +8,9 @@ from pydantic import parse_obj_as
 
 
 def handler(event, context):
-    job = parse_obj_as(Union[
-        FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob
-    ], event)
+    job = parse_obj_as(
+        Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob], event
+    )
 
     try:
         LOGGER.info(f"Running next for job:\n{job.dict()}")

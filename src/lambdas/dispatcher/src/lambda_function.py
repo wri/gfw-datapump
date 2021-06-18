@@ -4,7 +4,7 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands.analysis import AnalysisCommand, FIRES_ANALYSES
+from datapump.commands.analysis import FIRES_ANALYSES, AnalysisCommand
 from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
 from datapump.commands.sync import SyncCommand

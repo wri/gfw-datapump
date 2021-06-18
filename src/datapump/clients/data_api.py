@@ -126,20 +126,14 @@ class DataApiClient:
         return self.create_version(dataset, version, payload)
 
     def create_version(
-        self,
-        dataset: str,
-        version: str,
-        payload: Dict[str, Any]
+        self, dataset: str, version: str, payload: Dict[str, Any]
     ) -> Dict[str, Any]:
 
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         return self._send_request(ValidMethods.put, uri, payload)["data"]
 
     def create_aux_asset(
-        self,
-        dataset: str,
-        version: str,
-        payload: Dict[str, Any]
+        self, dataset: str, version: str, payload: Dict[str, Any]
     ) -> Dict[str, Any]:
 
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
