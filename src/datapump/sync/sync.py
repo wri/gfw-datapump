@@ -6,7 +6,6 @@ from uuid import uuid1
 import dateutil.tz as tz
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
-from ..clients.datapump_store import DatapumpConfig
 from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
 from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
