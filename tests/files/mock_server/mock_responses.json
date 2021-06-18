@@ -399,7 +399,7 @@
                     },
                     {
                        "field_name":"alert__date",
-                       "field_type":"text"
+                       "field_type":"date"
                     },
                     {
                        "field_name":"is__confirmed_alert",
@@ -487,11 +487,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -643,11 +643,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -777,7 +777,7 @@
                     },
                     {
                        "field_name":"area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -1367,7 +1367,7 @@
                     },
                     {
                        "field_name":"alert__date",
-                       "field_type":"text"
+                       "field_type":"date"
                     },
                     {
                        "field_name":"is__confirmed_alert",
@@ -1455,11 +1455,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -1611,11 +1611,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -1682,7 +1682,7 @@
                     },
                     {
                        "field_name":"alert__date",
-                       "field_type":"text"
+                       "field_type":"date"
                     },
                     {
                        "field_name":"is__confirmed_alert",
@@ -1770,11 +1770,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }
@@ -1921,11 +1921,11 @@
                     },
                     {
                        "field_name":"alert_area__ha",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     },
                     {
                        "field_name":"whrc_aboveground_co2_emissions__Mg",
-                       "field_type":"double precision"
+                       "field_type":"numeric"
                     }
                  ]
               }

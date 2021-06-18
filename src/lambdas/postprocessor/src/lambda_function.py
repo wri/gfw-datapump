@@ -4,10 +4,11 @@ from typing import List, Union, cast
 from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
 from datapump.clients.rw_api import update_area_statuses
-from datapump.commands import SyncType
+from datapump.commands.sync import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.rw_areas import get_aoi_geostore_ids
 from datapump.util.slack import slack_webhook
 from pydantic import parse_obj_as
@@ -16,7 +17,8 @@ from pydantic import parse_obj_as
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
     jobs = parse_obj_as(
-        List[Union[FireAlertsGeotrellisJob, GeotrellisJob]], event["jobs"]
+        List[Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob]],
+        event["jobs"],
     )
     failed_jobs = []
     rw_area_jobs = []
@@ -27,7 +29,11 @@ def handler(event, context):
         if isinstance(job, GeotrellisJob):
             cast(job, GeotrellisJob)
 
-            sync_types = [job.sync_type] if job.sync_type else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            sync_types = (
+                [job.sync_type]
+                if job.sync_type
+                else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
+            )
 
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)

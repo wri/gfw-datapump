@@ -72,7 +72,7 @@ class DataApiClient:
         except DataApiResponseError:
             self.create_dataset(dataset, metadata)
 
-        return self.create_version(
+        return self.create_vector_version(
             dataset,
             version,
             source_uris,
@@ -92,7 +92,7 @@ class DataApiClient:
 
         return self._send_request(ValidMethods.put, uri, payload)["data"]
 
-    def create_version(
+    def create_vector_version(
         self,
         dataset: str,
         version: str,
@@ -123,8 +123,21 @@ class DataApiClient:
 
         payload = {"creation_options": creation_options}
 
+        return self.create_version(dataset, version, payload)
+
+    def create_version(
+        self, dataset: str, version: str, payload: Dict[str, Any]
+    ) -> Dict[str, Any]:
+
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         return self._send_request(ValidMethods.put, uri, payload)["data"]
+
+    def create_aux_asset(
+        self, dataset: str, version: str, payload: Dict[str, Any]
+    ) -> Dict[str, Any]:
+
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
+        return self._send_request(ValidMethods.post, uri, payload)["data"]
 
     def append(
         self, dataset: str, version: str, source_uris: List[str]
@@ -144,7 +157,7 @@ class DataApiClient:
             "data"
         ]
 
-        return self.create_version(
+        return self.create_vector_version(
             dataset,
             new_version,
             source_uris,

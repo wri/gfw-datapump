@@ -7,7 +7,7 @@ os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
 os.environ["GEOTRELLIS_JAR_PATH"] = "s3://gfw-pipelines-test/geotrellis/jars"
 
-from datapump.commands import Analysis, AnalysisInputTable
+from datapump.commands.analysis import Analysis, AnalysisInputTable
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, JobStatus
 
 
@@ -59,14 +59,14 @@ EXPECTED = {
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
             "s3://gfw-pipelines-test/geotrellis/jars/treecoverloss-assembly-1.3.0.jar",
+            "--analysis",
+            "firealerts",
             "--output",
             "s3://gfw-pipelines-test/geotrellis/results/vtestsync/test_dataset",
             "--features",
             "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
             "--feature_type",
             "feature",
-            "--analysis",
-            "firealerts",
             "--fire_alert_type",
             "viirs",
             "--fire_alert_source",

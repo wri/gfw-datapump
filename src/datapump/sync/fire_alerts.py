@@ -102,7 +102,6 @@ def process_active_fire_alerts(alert_type):
     # upload both files to s3
     file_name = f"{first_row['ACQ_DATE']}-{first_row['ACQ_TIME']}_{last_row['ACQ_DATE']}-{last_row['ACQ_TIME']}.tsv"
 
-
     with open(result_path, "rb") as tsv_result:
         pipeline_key = f"{nrt_s3_directory}/{file_name}"
         get_s3_client().upload_fileobj(

@@ -4,14 +4,15 @@ from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
-from datapump.commands import Analysis, AnalysisCommand, SetLatestCommand, SyncCommand
+from datapump.commands.analysis import FIRES_ANALYSES, AnalysisCommand
+from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
+from datapump.commands.set_latest import SetLatestCommand
+from datapump.commands.sync import SyncCommand
+from datapump.commands.version_update import RasterVersionUpdateCommand
 from datapump.globals import LOGGER
-from datapump.jobs.geotrellis import (
-    ContinueGeotrellisJobsCommand,
-    FireAlertsGeotrellisJob,
-    GeotrellisJob,
-)
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
 from pydantic import ValidationError, parse_obj_as
 
@@ -21,6 +22,7 @@ def handler(event, context):
         command = parse_obj_as(
             Union[
                 AnalysisCommand,
+                RasterVersionUpdateCommand,
                 SyncCommand,
                 ContinueGeotrellisJobsCommand,
                 SetLatestCommand,
@@ -34,6 +36,9 @@ def handler(event, context):
         if isinstance(command, AnalysisCommand):
             cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
+        elif isinstance(command, RasterVersionUpdateCommand):
+            cast(RasterVersionUpdateCommand, command)
+            jobs += _raster_version_update(command)
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
@@ -58,7 +63,7 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
 
     for table in command.parameters.tables:
         asset_uri = client.get_1x1_asset(table.dataset, table.version)
-        if table.analysis in [Analysis.viirs, Analysis.modis]:
+        if table.analysis in FIRES_ANALYSES:
             jobs.append(
                 FireAlertsGeotrellisJob(
                     id=str(uuid1()),
@@ -85,6 +90,18 @@ def _analysis(command: AnalysisCommand, client: DataApiClient) -> List[Dict[str,
             )
 
     return jobs
+
+
+def _raster_version_update(command: RasterVersionUpdateCommand):
+    job = RasterVersionUpdateJob(
+        id=str(uuid1()),
+        status=JobStatus.starting,
+        dataset=command.parameters.dataset,
+        version=command.parameters.version,
+        tile_set_parameters=command.parameters.tile_set_parameters,
+        tile_cache_parameters=command.parameters.tile_cache_parameters,
+    )
+    return [job.dict()]
 
 
 def _sync(command: SyncCommand):

@@ -11,9 +11,9 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 4573674343934332254543343344
+# change 457343935569335344884
 
-#Precompile all python packages and remove .py files
+# Precompile all python packages and remove .py files
 RUN find python/ -type f -name '*.pyc' -print0 | xargs -0 rm -rf
 RUN find python/ -type d -a -name '__pycache__' -print0 | xargs -0 rm -rf
 
