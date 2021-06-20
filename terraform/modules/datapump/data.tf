@@ -1,7 +1,3 @@
-//data "template_file" "sts_assume_role_fastapi_lambda" {
-//  template = file("${var.policies_path}/sts_assume_role_fastapi_lambda.json")
-//}
-
 data "template_file" "sts_assume_role_lambda" {
   template = file("${var.policies_path}/sts_assume_role_lambda.json")
 }
@@ -31,13 +27,4 @@ module "py37_datapump_020" {
   module_version = "0.2.0"
   runtime        = "python3.7"
   layer_path     = "${var.lambda_layers_path}/"
-}
-
-data "terraform_remote_state" "lambda_layers" {
-  backend = "s3"
-  config = {
-    bucket = local.tf_state_bucket
-    region = "us-east-1"
-    key    = "lambda-layers.tfstate"
-  }
 }

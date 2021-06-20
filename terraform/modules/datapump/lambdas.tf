@@ -80,18 +80,17 @@ resource "aws_lambda_function" "fastapi" {
   role             = aws_iam_role.fastapi_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"
-  memory_size      = 512
+  memory_size      = 128
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [data.terraform_remote_state.lambda_layers.outputs.py37_fastapi_0652_arn]
+  layers           = [module.py37_datapump_020.layer_arn, var.lambda_layers.outputs.py37_fastapi_0652_arn]
   environment {
     variables = {
       ENV                            = var.environment
-      S3_BUCKET_PIPELINE             = var.pipelines_bucket
-      S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
       DATA_API_URI                   = var.data_api_uri
       SFN_DATAPUMP_ARN               = aws_sfn_state_machine.datapump.arn
+//      GFW_API_TOKEN                  = data.terraform_remote_state.
     }
   }
 }

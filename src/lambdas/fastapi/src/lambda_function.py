@@ -1,9 +1,10 @@
 import json
 import os
+import uuid
 from typing import Any
 
 import boto3
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, logger
 from mangum import Mangum
 from pydantic import BaseModel, Extra
 # from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -55,7 +56,8 @@ class Response(StrictBaseModel):
 
 
 class UpdateDatasetIn(StrictBaseModel):
-    some_param: str
+    version: str
+    source_uri: str
 
 # Error handling
 # @app.exception_handler(StarletteHTTPException)
@@ -76,6 +78,7 @@ class UpdateDatasetIn(StrictBaseModel):
 # Routes
 @app.get("/")
 async def read_root():
+    logger.logger.info("In root route!")
     return {"Hello": "World"}
 
 
@@ -89,16 +92,16 @@ async def update_dataset(
 ):
 
     try:
-        step_fcn_params = known_datasets[dataset]
+        # step_fcn_params = known_datasets[dataset]
 
         step_fcn_params = {
             "command": "could be anything",
             "parameters": {
                 "dataset": "wur_radd_alerts",
-                "version": "v20210516.1",
+                "version": request.version,
                 "tile_set_parameters": {
                     "source_uri": [
-                        "s3://gfw-data-lake-dev/gfw_radd_alerts/v20210516.1/raw_subset/geotiff/"
+                        request.source_uri
                     ],
                     "no_data": 0,
                     "grid": "10/100000",
@@ -114,22 +117,20 @@ async def update_dataset(
 
         sfn_arn = os.environ.get("SFN_DATAPUMP_ARN")
 
+        logger.logger.info("In update route!")
+        logger.logger.info(f"SFN ARN: {sfn_arn}")
+        logger.logger.info("Hold onto your butts!")
+
         client = boto3.client('stepfunctions')
         response = client.start_execution(
             stateMachineArn=sfn_arn,
-            name='some_execution',
+            name=f'execution_{uuid.uuid1()}',
             input=json.dumps(step_fcn_params)
         )
         return {
             "status": "success",
-            "sfn_resp": response
+            "data": response
         }
-        # TODO: Call step function
-    #     return {
-    #         "status": "success",
-    #         "param": request.some_param,
-    #         "data": step_fcn_params
-    #     }
     except KeyError:
         raise HTTPException(
             status_code=400,

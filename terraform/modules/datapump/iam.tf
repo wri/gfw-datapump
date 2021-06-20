@@ -51,16 +51,25 @@ resource "aws_iam_policy" "fastapi_lambda_policy" {
       ],
       "Effect": "Allow",
       "Resource": "*"
+    },
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:logs:*:*:*"
     }
   ]
 }
 EOF
 }
 
-//resource "aws_iam_role_policy_attachment" "fastapi_lambda_attach" {
-//  role       = aws_iam_role.fastapi_lambda.name
-//  policy_arn = aws_iam_policy.fastapi_lambda_policy.arn
-//}
+resource "aws_iam_role_policy_attachment" "fastapi_lambda_attach" {
+  role       = aws_iam_role.fastapi_lambda.name
+  policy_arn = aws_iam_policy.fastapi_lambda_policy.arn
+}
 
 resource "aws_iam_role_policy_attachment" "datapump_lambda" {
   role       = aws_iam_role.datapump_lambda.name

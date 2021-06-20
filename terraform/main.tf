@@ -10,7 +10,7 @@ terraform {
 
 provider "aws" {
   region  = "us-east-1"
-  version = "~> 2.36.0"
+  version = "~> 3.45.0"
 }
 
 data "terraform_remote_state" "core" {
@@ -21,7 +21,6 @@ data "terraform_remote_state" "core" {
     key    = "core.tfstate"
   }
 }
-
 
 data "terraform_remote_state" "lambda-layers" {
   backend = "s3"
@@ -38,6 +37,7 @@ module "datapump" {
   policies_path = var.policies_path
   step_functions_path = var.step_functions_path
   lambdas_path = var.lambdas_path
+  lambda_layers = data.terraform_remote_state.lambda-layers
   lambda_layers_path = var.lambda_layers_path
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = data.terraform_remote_state.core.outputs.pipelines_bucket
