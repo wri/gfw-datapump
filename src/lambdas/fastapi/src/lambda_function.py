@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-from typing import Any
+from typing import Any, List
 
 import boto3
 from fastapi import FastAPI, HTTPException, logger
@@ -57,7 +57,7 @@ class Response(StrictBaseModel):
 
 class UpdateDatasetIn(StrictBaseModel):
     version: str
-    source_uri: str
+    source_uri: List[str]
 
 # Error handling
 # @app.exception_handler(StarletteHTTPException)
@@ -100,9 +100,7 @@ async def update_dataset(
                 "dataset": "wur_radd_alerts",
                 "version": request.version,
                 "tile_set_parameters": {
-                    "source_uri": [
-                        request.source_uri
-                    ],
+                    "source_uri": request.source_uri,
                     "no_data": 0,
                     "grid": "10/100000",
                     "data_type": "uint16",

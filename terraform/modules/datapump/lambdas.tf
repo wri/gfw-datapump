@@ -90,7 +90,6 @@ resource "aws_lambda_function" "fastapi" {
       ENV                            = var.environment
       DATA_API_URI                   = var.data_api_uri
       SFN_DATAPUMP_ARN               = aws_sfn_state_machine.datapump.arn
-//      GFW_API_TOKEN                  = data.terraform_remote_state.
     }
   }
 }
