@@ -78,13 +78,13 @@ resource "aws_lambda_function" "fastapi" {
   filename         = data.archive_file.lambda_fastapi.output_path
   source_code_hash = data.archive_file.lambda_fastapi.output_base64sha256
   role             = aws_iam_role.fastapi_lambda.arn
-  runtime          = var.lambda_params.runtime
+  runtime          = "python3.8"  //var.lambda_params.runtime
   handler          = "lambda_function.handler"
   memory_size      = 128
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.py37_datapump_020.layer_arn, var.lambda_layers.outputs.py37_fastapi_0652_arn]
+  layers           = [module.py37_datapump_020.layer_arn, var.lambda_layers.outputs.py38_fastapi_0652_arn]
   environment {
     variables = {
       ENV                            = var.environment
