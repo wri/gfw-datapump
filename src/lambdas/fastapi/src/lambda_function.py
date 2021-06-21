@@ -1,63 +1,83 @@
 import json
 import os
 import uuid
-from typing import Any, List
+from typing import Any, Dict, List
 
 import boto3
+from datapump.util.models import DATE_REGEX
+from datapump.commands.version_update import RasterVersionUpdateCommand
+from datapump.util.models import StrictBaseModel
 from fastapi import FastAPI, HTTPException, logger
 from mangum import Mangum
-from pydantic import BaseModel, Extra
+from pydantic import Field
 # from starlette.exceptions import HTTPException as StarletteHTTPException
 # from starlette.responses import JSONResponse
 
-app = FastAPI()
+GLAD_START_DATE = "2014-12-31"  # FIXME: Verify this
+GLAD_S2_START_DATE = "2018-12-31"  # FIXME: Verify this
+RADD_START_DATE = "2018-12-31"  # FIXME: Verify this
 
+app = FastAPI()
 
 # Dataset settings
 known_datasets = {
-    "glad": {
-
+    "umd_glad_alerts": {
+        "start_date": GLAD_START_DATE,
+        "tile_set_parameters": {
+            "no_data": 0,
+            "grid": "10/100000",
+            "data_type": "uint16",
+            "pixel_meaning": "date_conf"
+        },
+        "tile_cache_parameters": {
+            "max_zoom": 12,
+            "symbology": {"type": "date_conf_intensity"}
+        }
     },
-    "glad_s2": {
-
+    "umd_glad_sentinel2_alerts": {
+        "start_date": GLAD_S2_START_DATE,
+        "tile_set_parameters": {
+            "no_data": 0,
+            "grid": "10/100000",
+            "data_type": "uint16",
+            "pixel_meaning": "date_conf",
+            "calc": "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
+        },
+        "tile_cache_parameters": {
+            "max_zoom": 14,
+            "symbology": {"type": "date_conf_intensity"}
+        }
     },
-    "radd": {
-        "command": "could be anything",
-        "parameters": {
-            "dataset": "wur_radd_alerts",
-            "version": "v20210516.4",
-            "tile_set_parameters": {
-                "source_uri": [
-                    "s3://gfw-data-lake-dev/gfw_radd_alerts/v20210516/raw_subset/geotiff/"
-                ],
-                "no_data": 0,
-                "grid": "10/100000",
-                "data_type": "uint16",
-                "pixel_meaning": "data_conf"
-            },
-            "tile_cache_parameters": {
-                "max_zoom": 14,
-                "symbology": {"type": "date_conf_intensity"}
-            }
+    "wur_radd_alerts": {
+        "start_date": RADD_START_DATE,
+        "tile_set_parameters": {
+            "no_data": 0,
+            "grid": "10/100000",
+            "data_type": "uint16",
+            "pixel_meaning": "date_conf"
+        },
+        "tile_cache_parameters": {
+            "max_zoom": 14,
+            "symbology": {"type": "date_conf_intensity"}
         }
     }
 }
 
 
 # Models
-class StrictBaseModel(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-
 class Response(StrictBaseModel):
-    data: Any
+    data: Dict[str, Any]
     status: str = "success"
 
 
 class UpdateDatasetIn(StrictBaseModel):
     version: str
     source_uri: List[str]
+    max_date: str = Field(
+        ...,
+        description="End date covered by data",
+        regex=DATE_REGEX,
+    )
 
 # Error handling
 # @app.exception_handler(StarletteHTTPException)
@@ -92,38 +112,36 @@ async def update_dataset(
 ):
 
     try:
-        # step_fcn_params = known_datasets[dataset]
+        logger.logger.info("In update route!")
 
-        step_fcn_params = {
+        dataset_params = known_datasets[dataset]
+
+        command = RasterVersionUpdateCommand(**{
             "command": "could be anything",
             "parameters": {
-                "dataset": "wur_radd_alerts",
+                "dataset": dataset,
                 "version": request.version,
-                "tile_set_parameters": {
-                    "source_uri": request.source_uri,
-                    "no_data": 0,
-                    "grid": "10/100000",
-                    "data_type": "uint16",
-                    "pixel_meaning": "data_conf"
+                "content_date_range": {
+                    "min": dataset_params["start_date"],
+                    "max": request.max_date
                 },
-                "tile_cache_parameters": {
-                    "max_zoom": 14,
-                    "symbology": {"type": "date_conf_intensity"}
-                }
+                "tile_set_parameters": {
+                    **dataset_params["tile_set_parameters"],
+                    "source_uri": request.source_uri
+                },
+                "tile_cache_parameters": dataset_params["tile_cache_parameters"]
             }
-        }
+        })
 
         sfn_arn = os.environ.get("SFN_DATAPUMP_ARN")
 
-        logger.logger.info("In update route!")
-        logger.logger.info(f"SFN ARN: {sfn_arn}")
-        logger.logger.info("Hold onto your butts!")
+        logger.logger.info("Hold on to your butts!")
 
         client = boto3.client('stepfunctions')
         response = client.start_execution(
             stateMachineArn=sfn_arn,
             name=f'execution_{uuid.uuid1()}',
-            input=json.dumps(step_fcn_params)
+            input=json.dumps(command.dict())
         )
         return {
             "status": "success",

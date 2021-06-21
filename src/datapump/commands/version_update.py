@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import StrictInt
 
-from datapump.util.models import StrictBaseModel
+from datapump.util.models import ContentDateRange, StrictBaseModel
 
 
 class NonNumericFloat(str, Enum):
@@ -30,6 +30,7 @@ class RasterTileCacheParameters(StrictBaseModel):
 class RasterVersionUpdateParameters(StrictBaseModel):
     dataset: str
     version: str
+    content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: RasterTileCacheParameters
 

@@ -4,6 +4,7 @@ from datapump.commands.version_update import (
     RasterTileCacheParameters,
     RasterTileSetParameters
 )
+from datapump.util.models import ContentDateRange
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
@@ -21,6 +22,7 @@ class RasterVersionUpdateJobStep(str, Enum):
 class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
+    content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: RasterTileCacheParameters
 
@@ -75,6 +77,14 @@ class RasterVersionUpdateJob(Job):
                 "grid": co.grid,
                 "calc": co.calc
             },
+            "metadata": {
+                "last_update": self.content_date_range.max,
+                "content_date": self.content_date_range.max,
+                "content_date_range": {
+                    "min": self.content_date_range.min,
+                    "max": self.content_date_range.max
+                }
+            }
         }
         _ = client.create_version(self.dataset, self.version, payload)
 
