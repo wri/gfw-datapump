@@ -6,11 +6,16 @@ terraform {
     region  = "us-east-1"
     encrypt = true
   }
+  required_providers {
+    aws = {
+      source   = "hashicorp/aws"
+      version  = "< 4"
+    }
+  }
 }
 
 provider "aws" {
   region  = "us-east-1"
-  version = "~> 2.36.0"
 }
 
 data "terraform_remote_state" "core" {
