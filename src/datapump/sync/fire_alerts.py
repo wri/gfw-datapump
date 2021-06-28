@@ -89,7 +89,7 @@ def process_active_fire_alerts(alert_type):
                 )
 
             # for VIIRS, we only want first letter of confidence category, to make NRT category same as scientific
-            if alert_type == "VIIRS":
+            if alert_type == "viirs":
                 row["CONFIDENCE"] = row["CONFIDENCE"][0]
 
             _write_row(row, fields, tsv_writer)
