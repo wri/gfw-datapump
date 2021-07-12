@@ -133,7 +133,7 @@ def create_vrt(in_rows):
                     <SrcDataSource relativeToVRT="1">{0}.csv</SrcDataSource>
                     <GeometryType>wkbPoint</GeometryType>
                     <LayerSRS>WGS84</LayerSRS>
-                    <GeometryField encoding="PointFromColumns" x="longitude" y="latitude"/>
+                    <GeometryField encoding="PointFromColumns" y="longitude" x="latitude"/>
                   </OGRVRTLayer>
                 </OGRVRTDataSource>""".format(
         lyr_name

@@ -530,7 +530,7 @@ class GeotrellisJob(Job):
         byte_size = resp["ContentLength"]
 
         analysis_weight = 1.0
-        if self.table.analysis == Analysis.tcl:
+        if self.table.analysis == Analysis.tcl or self.table.analysis == Analysis.burned_areas:
             analysis_weight *= 1.25
         if self.change_only:
             analysis_weight *= 0.75
@@ -749,7 +749,7 @@ class GeotrellisJob(Job):
                 "Configurations": [],
             },
             {
-                "Classification": " emrfs-site",
+                "Classification": "emrfs-site",
                 "Properties": {"fs.s3.useRequesterPaysHeader": "true"},
                 "Configurations": [],
             },
