@@ -37,6 +37,7 @@ class GeotrellisAnalysis(str, Enum):
     viirs = "firealerts_viirs"
     modis = "firealerts_modis"
     burned_areas = "firealerts_burned_areas"
+    integrated_alerts = "integrated_alerts"
 
 
 class GeotrellisFeatureType(str, Enum):
@@ -408,7 +409,7 @@ class GeotrellisJob(Job):
                 (self.table.analysis, analysis_agg)
             ]
         except KeyError:
-            pass
+            analysis_cols = []
 
         cluster = Index(index_type="btree", column_names=id_cols + analysis_cols)
         indices.append(cluster)
@@ -416,7 +417,7 @@ class GeotrellisJob(Job):
         if analysis_agg == "all":
             cluster = Index(index_type="gist", column_names=["geom_wm"])
             indices += [Index(index_type="gist", column_names=["geom"]), cluster]
-        elif self.table.analysis == Analysis.integrated_alerts:
+        elif self.table.analysis == Analysis.integrated_alerts and analysis_agg == "daily_alerts":
             # this table is multi-use, so also create indices for individual alerts
             glad_l_cols = [
                 "umd_glad_landsat_alerts__confidence",
