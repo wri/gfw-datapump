@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
@@ -22,7 +23,7 @@ class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
     tile_set_parameters: RasterTileSetParameters
-    tile_cache_parameters: RasterTileCacheParameters
+    tile_cache_parameters: Optional[RasterTileCacheParameters] = None
 
     def next_step(self):
         if self.step == RasterVersionUpdateJobStep.starting:
@@ -33,8 +34,11 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_tile_set:
             status = self._check_tile_set_status()
             if status == JobStatus.complete:
-                self.step = RasterVersionUpdateJobStep.creating_tile_cache
-                self._create_tile_cache()
+                if self.tile_cache_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_tile_cache
+                    self._create_tile_cache()
+                else:
+                    self.step = RasterVersionUpdateJobStep.mark_latest
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 

@@ -30,7 +30,7 @@ class RasterVersionUpdateParameters(StrictBaseModel):
     dataset: str
     version: str
     tile_set_parameters: RasterTileSetParameters
-    tile_cache_parameters: RasterTileCacheParameters
+    tile_cache_parameters: Optional[RasterTileCacheParameters] = None
 
 
 class RasterVersionUpdateCommand(StrictBaseModel):
