@@ -105,6 +105,8 @@ class RasterVersionUpdateJob(Job):
                 "pixel_meaning": co.pixel_meaning,
                 "grid": co.grid,
                 "calc": co.calc,
+                "bands": co.bands,
+                "union_bands": co.union_bands
             }
         }
 

@@ -19,6 +19,8 @@ class RasterTileSetParameters(StrictBaseModel):
     data_type: str
     no_data: Optional[Union[List[NoDataType], NoDataType]]
     pixel_meaning: str
+    bands: int = 1
+    union_bands: bool = False
 
 
 class RasterTileCacheParameters(StrictBaseModel):
