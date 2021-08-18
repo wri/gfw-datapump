@@ -1,4 +1,3 @@
-# Download any stable version in AWS provider of 2.36.1000 or higher in 2.36 train
 terraform {
   required_version = ">=0.13"
 }
@@ -28,6 +27,7 @@ module "datapump" {
   policies_path = var.policies_path
   step_functions_path = var.step_functions_path
   lambdas_path = var.lambdas_path
+  lambda_layers = var.lambda_layers
   lambda_layers_path = var.lambda_layers_path
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = aws_s3_bucket.pipelines_test.id
