@@ -1,4 +1,4 @@
-FROM lambci/lambda:build-python3.7
+FROM lambci/lambda:build-python3.8
 
 ENV WORKDIR /opt
 WORKDIR $WORKDIR
