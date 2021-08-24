@@ -13,9 +13,9 @@ from pydantic import Field
 # from starlette.exceptions import HTTPException as StarletteHTTPException
 # from starlette.responses import JSONResponse
 
-GLAD_START_DATE = "2014-12-31"  # FIXME: Verify this
-GLAD_S2_START_DATE = "2018-12-31"  # FIXME: Verify this
-RADD_START_DATE = "2018-12-31"  # FIXME: Verify this
+GLAD_START_DATE = "2014-12-31"
+GLAD_S2_START_DATE = "2018-12-31"
+RADD_START_DATE = "2018-12-31"
 
 app = FastAPI()
 
