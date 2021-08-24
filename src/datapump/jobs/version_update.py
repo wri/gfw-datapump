@@ -2,7 +2,7 @@ from enum import Enum
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
-    RasterTileSetParameters
+    RasterTileSetParameters,
 )
 from datapump.util.models import ContentDateRange
 
@@ -75,7 +75,7 @@ class RasterVersionUpdateJob(Job):
                 "no_data": co.no_data,
                 "pixel_meaning": co.pixel_meaning,
                 "grid": co.grid,
-                "calc": co.calc
+                "calc": co.calc,
             },
             "metadata": {
                 "last_update": self.content_date_range.max,
@@ -91,11 +91,7 @@ class RasterVersionUpdateJob(Job):
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
 
-        rts_asset = client.get_asset(
-            self.dataset,
-            self.version,
-            "Raster tile set"
-        )
+        rts_asset = client.get_asset(self.dataset, self.version, "Raster tile set")
         if rts_asset["status"] == "saved":
             return JobStatus.complete
         elif rts_asset["status"] == "pending":
@@ -106,11 +102,7 @@ class RasterVersionUpdateJob(Job):
     def _create_tile_cache(self):
         client = DataApiClient()
 
-        rts_asset = client.get_asset(
-            self.dataset,
-            self.version,
-            "Raster tile set"
-        )
+        rts_asset = client.get_asset(self.dataset, self.version, "Raster tile set")
         rts_asset_id = rts_asset["asset_id"]
 
         payload = {
@@ -121,19 +113,15 @@ class RasterVersionUpdateJob(Job):
                 "min_zoom": 0,
                 "max_zoom": self.tile_cache_parameters.max_zoom,
                 "max_static_zoom": 9,
-                "symbology": self.tile_cache_parameters.symbology
-            }
+                "symbology": self.tile_cache_parameters.symbology,
+            },
         }
         _ = client.create_aux_asset(self.dataset, self.version, payload)
 
     def _check_tile_cache_status(self) -> JobStatus:
         client = DataApiClient()
 
-        rtc_asset = client.get_asset(
-            self.dataset,
-            self.version,
-            "Raster tile cache"
-        )
+        rtc_asset = client.get_asset(self.dataset, self.version, "Raster tile cache")
         if rtc_asset["status"] == "saved":
             return JobStatus.complete
         elif rtc_asset["status"] == "pending":

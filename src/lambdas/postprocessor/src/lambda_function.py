@@ -7,8 +7,8 @@ from datapump.clients.rw_api import update_area_statuses
 from datapump.commands.sync import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.jobs.jobs import JobStatus
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.rw_areas import get_aoi_geostore_ids
 from datapump.util.slack import slack_webhook
 from pydantic import parse_obj_as
@@ -17,11 +17,8 @@ from pydantic import parse_obj_as
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
     jobs = parse_obj_as(
-        List[Union[
-            FireAlertsGeotrellisJob,
-            GeotrellisJob,
-            RasterVersionUpdateJob
-        ]], event["jobs"]
+        List[Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob]],
+        event["jobs"],
     )
     failed_jobs = []
     rw_area_jobs = []
@@ -33,7 +30,8 @@ def handler(event, context):
             cast(job, GeotrellisJob)
 
             sync_types = (
-                [job.sync_type] if job.sync_type
+                [job.sync_type]
+                if job.sync_type
                 else SyncType.get_sync_types(job.table.dataset, job.table.analysis)
             )
 

@@ -77,11 +77,16 @@ def update_geopackage(fires_path):
     fires_vrt = create_vrt(new_rows_list)
 
     # append new fires to gpkg
-    path = os.path.dirname(os.path.realpath(__file__))
-    path = os.path.dirname(path)
-    ogr2ogr = os.path.join(path, "../bin/ogr2ogr")
-
-    cmd = [ogr2ogr, "-append", src_gpkg, fires_vrt, "-f", "GPKG", "-nln", "data"]
+    cmd = [
+        "/opt/bin/ogr2ogr",
+        "-append",
+        src_gpkg,
+        fires_vrt,
+        "-f",
+        "GPKG",
+        "-nln",
+        "data",
+    ]
     subprocess.check_call(cmd)
 
     # remove old and duplicate points
@@ -128,7 +133,7 @@ def create_vrt(in_rows):
                     <SrcDataSource relativeToVRT="1">{0}.csv</SrcDataSource>
                     <GeometryType>wkbPoint</GeometryType>
                     <LayerSRS>WGS84</LayerSRS>
-                    <GeometryField encoding="PointFromColumns" x="longitude" y="latitude"/>
+                    <GeometryField encoding="PointFromColumns" y="longitude" x="latitude"/>
                   </OGRVRTLayer>
                 </OGRVRTDataSource>""".format(
         lyr_name
