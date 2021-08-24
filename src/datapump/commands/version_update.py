@@ -1,14 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-<<<<<<< HEAD
-from pydantic import StrictInt
-
 from datapump.util.models import ContentDateRange, StrictBaseModel
-=======
-from datapump.util.models import StrictBaseModel
 from pydantic import StrictInt
->>>>>>> develop
 
 
 class NonNumericFloat(str, Enum):

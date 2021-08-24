@@ -18,7 +18,9 @@ variable "lambdas_path" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_layers" {}
+variable "lambda_layers" {
+  type        = list(string)
+}
 
 variable "lambda_layers_path" {
   type        = string
