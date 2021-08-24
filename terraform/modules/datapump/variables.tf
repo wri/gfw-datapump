@@ -40,7 +40,7 @@ variable "lambda_params" {
   })
   description = "Lambda parameters"
   default = {
-    runtime = "python3.7"
+    runtime = "python3.8"
     memory_size = 3048
     timeout = 300
   }

@@ -51,7 +51,7 @@ module "datapump" {
   sfn_wait_time = 30
   data_api_uri = var.data_api_uri
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket
-  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py37_rasterio_115_arn
+  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_rasterio_126_arn
   glad_path = local.glad_path
   emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name
