@@ -84,7 +84,7 @@ resource "aws_lambda_function" "fastapi" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.py38_datapump_021.layer_arn, var.lambda_layers.outputs.py38_fastapi_0670_arn]
+  layers           = [module.py38_datapump_021.layer_arn, var.lambda_layers.outputs.py38_fastapi_0681_arn]
   environment {
     variables = {
       ENV                            = var.environment
