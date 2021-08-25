@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
@@ -79,23 +79,9 @@ class RasterVersionUpdateJob(Job):
         except DataApiResponseError:
             pass
 
-        payload = self._get_tile_set_payload(self.tile_set_parameters)
-        _ = client.create_version(self.dataset, self.version, payload)
+        co = self.tile_set_parameters
 
-    def _create_aux_tile_set(self, tile_set_parameters) -> str:
-        """
-        Create auxillary tile set and return asset ID
-        """
-        client = DataApiClient()
-
-        payload = self._get_tile_set_payload(tile_set_parameters)
-        data = client.create_aux_asset(self.dataset, self.version, payload)
-
-        return data["asset_id"]
-
-    @staticmethod
-    def _get_tile_set_payload(co: RasterTileSetParameters) -> Dict[str, Any]:
-        return {
+        payload = {
             "creation_options": {
                 "source_type": "raster",
                 "source_uri": co.source_uri,
@@ -105,10 +91,43 @@ class RasterVersionUpdateJob(Job):
                 "pixel_meaning": co.pixel_meaning,
                 "grid": co.grid,
                 "calc": co.calc,
-                "bands": co.bands,
-                "union_bands": co.union_bands
+                "band_count": co.band_count,
+                "union_bands": co.union_bands,
+                "compute_stats": co.compute_stats,
+                "compute_histogram": co.compute_histogram,
+                "timeout_sec": co.timeout_sec,
             }
         }
+
+        _ = client.create_version(self.dataset, self.version, payload)
+
+    def _create_aux_tile_set(self, tile_set_parameters) -> str:
+        """
+        Create auxillary tile set and return asset ID
+        """
+        client = DataApiClient()
+
+        co = tile_set_parameters
+
+        payload = {
+            "asset_type": "Raster tile set",
+            "creation_options": {
+                "data_type": co.data_type,
+                "no_data": co.no_data,
+                "pixel_meaning": co.pixel_meaning,
+                "grid": co.grid,
+                "calc": co.calc,
+                "band_count": co.band_count,
+                "union_bands": co.union_bands,
+                "compute_stats": co.compute_stats,
+                "compute_histogram": co.compute_histogram,
+                "timeout_sec": co.timeout_sec,
+            },
+        }
+
+        data = client.create_aux_asset(self.dataset, self.version, payload)
+
+        return data["asset_id"]
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()

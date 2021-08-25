@@ -10,6 +10,7 @@ class SyncType(str, Enum):
     modis = "modis"
     glad = "glad"
     rw_areas = "rw_areas"
+    integrated_alerts = "integrated_alerts"
 
     @staticmethod
     def get_sync_types(dataset: str, analysis: Analysis):
