@@ -110,6 +110,21 @@ class GladSync(Sync):
                     geotrellis_version=config.metadata["geotrellis_version"],
                     change_only=True,
                     version_overrides=config.metadata.get("version_overrides", {}),
+                ),
+                RasterVersionUpdateJob(
+                    id=str(uuid1()),
+                    status=JobStatus.starting,
+                    dataset=self.DATASET_NAME,
+                    version=self.sync_version,
+                    tile_set_parameters=RasterTileSetParameters(
+                        source_uri=f"{GLOBALS.s3_bucket_data_lake}/umd_glad_landsat_alerts/raw/tiles.geojson",
+                        grid="10/100000",
+                        data_type="uint16",
+                        pixel_meaning="date_conf",
+                        compute_stats=False,
+                        num_processes=24,
+                        timeout_sec=21600,
+                    ),
                 )
             ]
         else:
@@ -143,7 +158,7 @@ class IntegratedAlertsSync(Sync):
         "wur_radd_alerts",
     ]
     MULTI_BAND_CALC = "np.ma.array([(A > 20000) * (A != 30000) * (A < 40000) * (2 * (A - (20000 + (A>30000) * 10000)) + (A<30000) * 1), (B > 20000) * (B != 30000) * (B < 40000) * (2 * (B - (20000 + (B>30000) * 10000)) + (B<30000) * 1), (C > 20000) * (C != 30000) * (C < 40000) * (2 * (C - (20000 + (C>30000) * 10000)) + (C<30000) * 1)])"
-    SINGLE_BAND_CALC = "np.ma.sum([np.clip(np.ma.sum([(np.ma.sum([(np.ma.masked_equal(A,0)>0)*1,(np.ma.masked_equal(B,0)>0)*1,(np.ma.masked_equal(C,0)>0)*1],axis=0)>=2)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==0)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==1)*2],axis=0),None,4).filled(0)*10000,np.ma.min([np.ma.masked_equal(A,0)>>1,np.ma.masked_equal(B,0)>>1,np.ma.masked_equal(C,0)>>1],axis=0)],axis=0).filled(0)"
+    SINGLE_BAND_CALC = "np.ma.sum([np.clip(np.ma.sum([(np.ma.sum([(np.ma.masked_equal(A,0)>0)*1,(np.ma.masked_equal(B,0)>0)*1,(np.ma.masked_equal(C,0)>0)*1],axis=0)>=2)*4,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==0)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==1)*2],axis=0),None,4).filled(0)*10000,np.ma.min([np.ma.masked_equal(A,0)>>1,np.ma.masked_equal(B,0)>>1,np.ma.masked_equal(C,0)>>1],axis=0)],axis=0).filled(0)"
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -281,6 +296,7 @@ class Syncer:
         SyncType.modis: ModisSync,
         SyncType.rw_areas: RWAreasSync,
         SyncType.glad: GladSync,
+        SyncType.integrated_alerts: IntegratedAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
