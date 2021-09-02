@@ -24,6 +24,7 @@ class RasterTileSetParameters(StrictBaseModel):
     compute_stats: bool = True
     compute_histogram: bool = False
     timeout_sec: int = 7200
+    num_processes: Optional[int] = None
 
 
 class RasterTileCacheParameters(StrictBaseModel):

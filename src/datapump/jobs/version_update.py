@@ -101,7 +101,7 @@ class RasterVersionUpdateJob(Job):
 
         _ = client.create_version(self.dataset, self.version, payload)
 
-    def _create_aux_tile_set(self, tile_set_parameters) -> str:
+    def _create_aux_tile_set(self, tile_set_parameters: RasterTileSetParameters) -> str:
         """
         Create auxillary tile set and return asset ID
         """
@@ -122,6 +122,7 @@ class RasterVersionUpdateJob(Job):
                 "compute_stats": co.compute_stats,
                 "compute_histogram": co.compute_histogram,
                 "timeout_sec": co.timeout_sec,
+                "num_processes": co.num_processes,
             },
         }
 

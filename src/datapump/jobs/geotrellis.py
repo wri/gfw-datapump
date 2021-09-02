@@ -253,6 +253,11 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
+        LOGGER.debug(resp)
+
+        if "Contents" not in resp:
+            raise AssertionError("No results found in S3")
+
         keys = [
             item["Key"]
             for item in resp["Contents"]
@@ -417,7 +422,10 @@ class GeotrellisJob(Job):
         if analysis_agg == "all":
             cluster = Index(index_type="gist", column_names=["geom_wm"])
             indices += [Index(index_type="gist", column_names=["geom"]), cluster]
-        elif self.table.analysis == Analysis.integrated_alerts and analysis_agg == "daily_alerts":
+        elif (
+            self.table.analysis == Analysis.integrated_alerts
+            and analysis_agg == "daily_alerts"
+        ):
             # this table is multi-use, so also create indices for individual alerts
             glad_l_cols = [
                 "umd_glad_landsat_alerts__confidence",
@@ -626,13 +634,6 @@ class GeotrellisJob(Job):
             step_args.append("BRA")
             step_args.append("--iso_end")
             step_args.append("COK")
-
-        # FIXME temporary workaround while we sort out versions
-        if self.table.analysis == Analysis.integrated_alerts:
-            step_args.append("--pin_version")
-            step_args.append("umd_glad_landsat_alerts:v20210715")
-            step_args.append("--pin_version")
-            step_args.append("ifl_intact_forest_landscapes:v20180628")
 
         return {
             "Name": self.table.analysis.value,

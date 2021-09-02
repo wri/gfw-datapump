@@ -45,7 +45,7 @@ def test_datapump_basic():
         _dump_logs()
 
 
-def est_integrated_alerts():
+def test_integrated_alerts():
     try:
         _add_sync_config("integrated_alerts", "integrated_alerts")
 
@@ -123,11 +123,11 @@ def _add_sync_config(analysis: str, sync_type: str):
         "metadata": {
             "geotrellis_version": "1.2.1",
             "features_1x1": "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
-        }
-
+        },
     }
 
     client.put_item(Item=attributes)
+
 
 def _run_datapump(input):
     client = boto3.client("stepfunctions", endpoint_url=LOCALSTACK_URI)
@@ -140,7 +140,7 @@ def _run_datapump(input):
     print(execution_arn)
 
     tries = 0
-    while tries < 3000:
+    while tries < 150:
         time.sleep(2)
         tries += 1
 

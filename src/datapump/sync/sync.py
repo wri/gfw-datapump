@@ -37,7 +37,7 @@ class FireAlertsSync(Sync):
         self.fire_alerts_type: Optional[SyncType] = None
         self.fire_alerts_uri: Optional[str] = None
 
-    def build_job(self, config: DatapumpConfig) -> List[Job]:
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.fire_alerts_type is None:
             raise RuntimeError("No Alert type set")
 
@@ -88,11 +88,13 @@ class ModisSync(FireAlertsSync):
 
 
 class GladSync(Sync):
+    DATASET_NAME = "umd_glad_landsat_alerts"
+
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
         self.should_sync_glad = self._check_for_new_glad()
 
-    def build_job(self, config: DatapumpConfig) -> List[Job]:
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.should_sync_glad:
             return [
                 GeotrellisJob(
@@ -117,7 +119,9 @@ class GladSync(Sync):
                     dataset=self.DATASET_NAME,
                     version=self.sync_version,
                     tile_set_parameters=RasterTileSetParameters(
-                        source_uri=f"{GLOBALS.s3_bucket_data_lake}/umd_glad_landsat_alerts/raw/tiles.geojson",
+                        source_uri=[
+                            f"{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
+                        ],
                         grid="10/100000",
                         data_type="uint16",
                         pixel_meaning="date_conf",
@@ -125,7 +129,7 @@ class GladSync(Sync):
                         num_processes=24,
                         timeout_sec=21600,
                     ),
-                )
+                ),
             ]
         else:
             return []
@@ -248,7 +252,10 @@ class IntegratedAlertsSync(Sync):
         versions = [
             client.get_version(ds, latest_versions[ds]) for ds in self.SOURCE_DATASETS
         ]
-        last_updates = [datetime.fromisoformat(v["created_on"]) for v in versions]
+        last_updates = [
+            datetime.fromisoformat(v["created_on"]).replace(tzinfo=tz.UTC)
+            for v in versions
+        ]
 
         one_day_ago = datetime.now(tz.UTC) - timedelta(hours=24)
 

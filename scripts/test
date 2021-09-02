@@ -30,6 +30,8 @@ if [ "${BUILD}" = true ]; then
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
 fi
 
+#docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test restart mock_server
+
 if [ "${DUMP_TO_STDOUT}" = true ]; then
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test || failed=yes
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs -t
