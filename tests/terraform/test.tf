@@ -10,7 +10,6 @@ resource "aws_s3_bucket" "data_lake_test" {
   force_destroy = true
 }
 
-
 resource "aws_s3_bucket" "terraform_test" {
   bucket = "gfw-terraform-test"
   acl    = "private"
@@ -47,12 +46,26 @@ resource "aws_s3_bucket_object" "geotrellis_jar" {
   etag   = filemd5("../files/mock_geotrellis/target/geotrellis-mock-0.1.0-shaded.jar")
 }
 
-
 resource "aws_s3_bucket_object" "glad_status" {
   bucket = aws_s3_bucket.pipelines_test.id
   key    = "glad/events/status"
   source = "../files/status"
   etag   = filemd5("../files/status")
+}
+
+resource "aws_s3_bucket_object" "fastapi" {
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "lambda_layers/fastapi.zip"
+  source = "../files/fastapi.zip"
+  etag   = filemd5("../files/fastapi.zip")
+}
+
+resource "aws_lambda_layer_version" "fastapi" {
+  layer_name          = substr("test-fastapi", 0, 64)
+  s3_bucket           = aws_s3_bucket_object.fastapi.bucket
+  s3_key              = aws_s3_bucket_object.fastapi.key
+  compatible_runtimes = ["python3.8"]
+  source_code_hash    = filebase64sha256("../files/fastapi.zip")
 }
 
 resource "aws_s3_bucket_object" "rasterio" {
@@ -76,7 +89,6 @@ module "api_token_secret" {
   name          = "gfw-api/token"
   secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" })
 }
-
 
 module "slack_secret" {
   source        = "git::https://github.com/wri/gfw-terraform-modules.git//terraform/modules/secrets?ref=master"

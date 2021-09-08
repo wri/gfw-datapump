@@ -1,4 +1,3 @@
-# Download any stable version in AWS provider of 2.36.0 or higher in 2.36 train
 terraform {
   required_version = ">=0.13"
   backend "s3" {
@@ -43,7 +42,8 @@ module "datapump" {
   policies_path = var.policies_path
   step_functions_path = var.step_functions_path
   lambdas_path = var.lambdas_path
-  lambda_layers = data.terraform_remote_state.lambda-layers
+  fastapi_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_fastapi_0681_arn
+  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_rasterio_126_arn
   lambda_layers_path = var.lambda_layers_path
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = data.terraform_remote_state.core.outputs.pipelines_bucket
@@ -51,7 +51,6 @@ module "datapump" {
   sfn_wait_time = 30
   data_api_uri = var.data_api_uri
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket
-  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_rasterio_126_arn
   glad_path = local.glad_path
   emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name

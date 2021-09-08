@@ -18,11 +18,17 @@ variable "lambdas_path" {
   description = "Runtime version for AWS Lambda"
 }
 
-variable "lambda_layers" {}
-
 variable "lambda_layers_path" {
   type        = string
   description = "Path to lambda layers"
+}
+
+variable "fastapi_lambda_layer_arn" {
+  type        = string
+}
+
+variable "rasterio_lambda_layer_arn" {
+  type        = string
 }
 
 variable "step_functions_path" {
@@ -78,7 +84,6 @@ variable "pipelines_bucket" {
   description = "Pipelines bucket to store intermediate results"
 }
 
-
 variable "data_lake_bucket" {
   type        = string
   description = "Data lake bucket to store intermediate results"
@@ -89,11 +94,6 @@ variable "tags" {}
 variable "sfn_wait_time" {
   type        = number
   description = "Time to wait in between steps of step function"
-}
-
-variable "rasterio_lambda_layer_arn" {
-  type        = string
-  description = "Pipelines bucket to store intermediate results"
 }
 
 variable "glad_path" {

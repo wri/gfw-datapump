@@ -24,7 +24,7 @@ module "py38_datapump_021" {
   source         = "git::https://github.com/wri/gfw-lambda-layers.git//terraform/modules/lambda_layer"
   bucket         = var.pipelines_bucket
   name           = "datapump-${terraform.workspace}"
-  module_version = "0.2.0"
+  module_version = "0.2.1"
   runtime        = "python3.8"
   layer_path     = "${var.lambda_layers_path}/"
 }

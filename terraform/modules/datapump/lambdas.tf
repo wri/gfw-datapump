@@ -61,7 +61,10 @@ resource "aws_lambda_function" "postprocessor" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.py38_datapump_021.layer_arn, var.rasterio_lambda_layer_arn]
+  layers           = [
+    module.py38_datapump_021.layer_arn,
+    var.rasterio_lambda_layer_arn
+  ]
   environment {
     variables = {
       ENV                            = var.environment
@@ -86,8 +89,8 @@ resource "aws_lambda_function" "fastapi" {
   tags             = local.tags
   layers           = [
     module.py38_datapump_021.layer_arn,
-    var.rasterio_lambda_layer_arn,
-    var.lambda_layers.outputs.py38_fastapi_0681_arn
+    var.fastapi_lambda_layer_arn,
+    var.rasterio_lambda_layer_arn
   ]
   environment {
     variables = {
