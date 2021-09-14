@@ -37,6 +37,7 @@ class GeotrellisAnalysis(str, Enum):
     viirs = "firealerts_viirs"
     modis = "firealerts_modis"
     burned_areas = "firealerts_burned_areas"
+    integrated_alerts = "integrated_alerts"
 
 
 class GeotrellisFeatureType(str, Enum):
@@ -145,8 +146,8 @@ class GeotrellisJob(Job):
                 # temporarily just appending sync versions to analysis version instead of using version inheritance
                 if (
                     self.table.analysis == Analysis.glad
-                    and self.sync_type != SyncType.rw_areas
-                ):
+                    or self.table.analysis == Analysis.integrated_alerts
+                ) and self.sync_type != SyncType.rw_areas:
                     client.create_vector_version(
                         table.dataset,
                         table.version,
@@ -202,7 +203,10 @@ class GeotrellisJob(Job):
 
         if all_saved:
             if (
-                self.table.analysis == Analysis.glad
+                (
+                    self.table.analysis == Analysis.glad
+                    or self.table.analysis == Analysis.integrated_alerts
+                )
                 and self.sync_version
                 and self.sync_type != SyncType.rw_areas
             ):
@@ -249,6 +253,11 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
+        LOGGER.debug(resp)
+
+        if "Contents" not in resp:
+            raise AssertionError("No results found in S3")
+
         keys = [
             item["Key"]
             for item in resp["Contents"]
@@ -289,7 +298,10 @@ class GeotrellisJob(Job):
             version = self.version_overrides[analysis_agg]
         elif (
             self.sync_version
-            and self.table.analysis == Analysis.glad
+            and (
+                self.table.analysis == Analysis.glad
+                or self.table.analysis == Analysis.integrated_alerts
+            )
             and "alerts" in analysis_agg
         ):
             version = self.sync_version
@@ -335,10 +347,10 @@ class GeotrellisJob(Job):
 
         try:
             if analysis_agg != "all":
-                cols = id_col_constructor[(self.feature_type, feature_agg)]
+                id_cols = id_col_constructor[(self.feature_type, feature_agg)]
             else:
                 # disaggregated points have no ID
-                cols = []
+                id_cols = []
         except KeyError as e:
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
@@ -354,6 +366,10 @@ class GeotrellisJob(Job):
                 "is__confirmed_alert",
                 "alert__year",
                 "alert__week",
+            ],
+            (Analysis.integrated_alerts, "daily_alerts"): [
+                "gfw_integrated_alerts__confidence",
+                "gfw_integrated_alerts__date",
             ],
             (Analysis.viirs, "daily_alerts"): [
                 "alert__date",
@@ -394,16 +410,38 @@ class GeotrellisJob(Job):
         }
 
         try:
-            cols += analysis_col_constructor[(self.table.analysis, analysis_agg)]
+            analysis_cols = analysis_col_constructor[
+                (self.table.analysis, analysis_agg)
+            ]
         except KeyError:
-            pass
+            analysis_cols = []
 
-        cluster = Index(index_type="btree", column_names=cols)
+        cluster = Index(index_type="btree", column_names=id_cols + analysis_cols)
         indices.append(cluster)
 
         if analysis_agg == "all":
             cluster = Index(index_type="gist", column_names=["geom_wm"])
             indices += [Index(index_type="gist", column_names=["geom"]), cluster]
+        elif (
+            self.table.analysis == Analysis.integrated_alerts
+            and analysis_agg == "daily_alerts"
+        ):
+            # this table is multi-use, so also create indices for individual alerts
+            glad_l_cols = [
+                "umd_glad_landsat_alerts__confidence",
+                "umd_glad_landsat_alerts__date",
+            ]
+            glad_s2_cols = [
+                "umd_glad_sentinel2_alerts__confidence",
+                "umd_glad_sentinel2_alerts__date",
+            ]
+            wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
+
+            indices += [
+                Index(index_type="btree", column_names=id_cols + glad_l_cols),
+                Index(index_type="btree", column_names=id_cols + glad_s2_cols),
+                Index(index_type="btree", column_names=id_cols + wur_radd_cols),
+            ]
 
         return indices, cluster
 
@@ -530,7 +568,10 @@ class GeotrellisJob(Job):
         byte_size = resp["ContentLength"]
 
         analysis_weight = 1.0
-        if self.table.analysis == Analysis.tcl or self.table.analysis == Analysis.burned_areas:
+        if (
+            self.table.analysis == Analysis.tcl
+            or self.table.analysis == Analysis.burned_areas
+        ):
             analysis_weight *= 1.25
         if self.change_only:
             analysis_weight *= 0.75
@@ -576,7 +617,10 @@ class GeotrellisJob(Job):
         # These limit the extent to look at for certain types of analyses
         if self.table.analysis == Analysis.tcl:
             step_args.append("--tcl")
-        elif self.table.analysis == Analysis.glad:
+        elif (
+            self.table.analysis == Analysis.glad
+            or self.table.analysis == Analysis.integrated_alerts
+        ):
             step_args.append("--glad")
 
         if self.change_only:

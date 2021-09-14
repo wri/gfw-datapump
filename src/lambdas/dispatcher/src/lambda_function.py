@@ -5,7 +5,7 @@ from uuid import uuid1
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
 from datapump.commands.analysis import FIRES_ANALYSES, AnalysisCommand
-from datapump.commands.geotrellis import ContinueGeotrellisJobsCommand
+from datapump.commands.continue_jobs import ContinueJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
 from datapump.commands.sync import SyncCommand
 from datapump.commands.version_update import RasterVersionUpdateCommand
@@ -24,7 +24,7 @@ def handler(event, context):
                 AnalysisCommand,
                 RasterVersionUpdateCommand,
                 SyncCommand,
-                ContinueGeotrellisJobsCommand,
+                ContinueJobsCommand,
                 SetLatestCommand,
             ],
             event,
@@ -42,8 +42,8 @@ def handler(event, context):
         elif isinstance(command, SyncCommand):
             cast(SyncCommand, command)
             jobs += _sync(command)
-        elif isinstance(command, ContinueGeotrellisJobsCommand):
-            cast(ContinueGeotrellisJobsCommand, command)
+        elif isinstance(command, ContinueJobsCommand):
+            cast(ContinueJobsCommand, command)
             jobs += command.parameters.dict()["jobs"]
         elif isinstance(command, SetLatestCommand):
             cast(SetLatestCommand, command)
@@ -112,9 +112,9 @@ def _sync(command: SyncCommand):
     for sync_type in command.parameters.types:
         sync_config = config_client.get(sync=True, sync_type=sync_type)
         for row in sync_config:
-            job = syncer.build_job(row)
-            if job:
-                jobs.append(job.dict())
+            syncer_jobs = syncer.build_jobs(row)
+            if syncer_jobs:
+                jobs += [job.dict() for job in syncer_jobs]
 
     return jobs
 
