@@ -242,6 +242,8 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
     # Body
     try:
         for g in geostore["data"]:
+            LOGGER.info(f"Processing geostore {g['geostoreId']}")
+
             try:
                 geom: Polygon = shape(
                     g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
