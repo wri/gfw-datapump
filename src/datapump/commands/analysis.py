@@ -14,6 +14,7 @@ class Analysis(str, Enum):
     viirs = "viirs"
     modis = "modis"
     burned_areas = "burned_areas"
+    integrated_alerts = "integrated_alerts"
 
 
 FIRES_ANALYSES = [Analysis.viirs, Analysis.modis, Analysis.burned_areas]

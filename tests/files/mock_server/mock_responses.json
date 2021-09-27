@@ -2061,5 +2061,320 @@
               "status": "success"
             }
         }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {},
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts/v20210122",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                "status": "pending"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts/v20210122/assets",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": [
+                {
+                  "asset_type": "Raster tile set",
+                  "status": "saved"
+                }
+              ],
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts/v20210122",
+            "method": "PATCH"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                "is_latest": true
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts/latest",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_sentinel2_alerts/latest",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/wur_radd_alerts/latest",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+  {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_landsat_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/umd_glad_sentinel2_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/wur_radd_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+      {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {},
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts/v20210122",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                "status": "pending"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts/v20210122/assets",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": [
+                {
+                  "asset_type": "Raster tile set",
+                  "asset_id": "e3b6d19b-a5a3-4e13-8822-4cc547ef5a4d",
+                  "status": "saved"
+                },
+                {
+                  "asset_type": "Raster tile cache",
+                  "asset_id": "53b6d19b-a5a3-4e13-8822-4cc547ef5a4e",
+                  "status": "saved"
+                }
+              ],
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts/v20210122",
+            "method": "PATCH"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                "is_latest": true
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts/v20210122/assets",
+            "method": "POST"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                "asset_id": "e3b6d19b-a5a3-4e13-8822-4cc547ef5a4d"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/gfw_integrated_alerts/latest",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+              "data": {
+                  "created_on": "2050-07-22T18:29:20.598711",
+                  "version": "v20210122"
+              },
+              "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__integrated_alerts__daily_alerts",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                  "versions": ["v20210121", "v20210122"]
+                },
+                "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__integrated_alerts__daily_alerts/v20210122",
+            "method": "PUT"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "pending"
+                },
+                "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__integrated_alerts__daily_alerts/v20210122",
+            "method": "GET"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "status": "saved"
+                },
+                "status": "success"
+            }
+        }
+    },
+    {
+        "httpRequest": {
+            "path": "/dataset/test_zonal_stats__integrated_alerts__daily_alerts/v20210122",
+            "method": "PATCH"
+        },
+        "httpResponse": {
+            "statusCode": 200,
+            "body": {
+                "data": {
+                    "is_latest": true
+                },
+                "status": "success"
+            }
+        }
     }
 ]
