@@ -87,6 +87,20 @@ def handler(event, context):
                                 },
                             )
                         )
+        elif isinstance(job, RasterVersionUpdateJob):
+            cast(job, RasterVersionUpdateJob)
+
+            if job.status == JobStatus.failed:
+                slack_webhook(
+                    "error",
+                    f"Raster tile generation failed for dataset {job.dataset} with version {job.version}",
+                )
+                failed_jobs.append(job)
+            elif job.status == JobStatus.complete:
+                slack_webhook(
+                    "info",
+                    f"Raster tile generation succeeded for dataset {job.dataset} with version {job.version}!",
+                )
 
     if failed_jobs:
         LOGGER.error("The following jobs failed: ")
