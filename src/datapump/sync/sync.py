@@ -182,7 +182,7 @@ class IntegratedAlertsSync(Sync):
 
         latest_versions = self._get_latest_versions()
         source_uris = [
-            f"s3://{GLOBALS.s3_bucket_data_lake}/{dataset}/{version}/raster/epsg-4326/10/100000/tiles.geojson"
+            f"s3://{GLOBALS.s3_bucket_data_lake}/{dataset}/{version}/raster/epsg-4326/10/100000/geotiff/tiles.geojson"
             for dataset, version in latest_versions.items()
         ]
 
