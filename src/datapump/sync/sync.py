@@ -120,7 +120,7 @@ class GladSync(Sync):
                     version=self.sync_version,
                     tile_set_parameters=RasterTileSetParameters(
                         source_uri=[
-                            f"{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
+                            f"s3://{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
                         ],
                         grid="10/100000",
                         data_type="uint16",
@@ -187,54 +187,62 @@ class IntegratedAlertsSync(Sync):
         ]
 
         if self._should_update(latest_versions):
-            layer_job = RasterVersionUpdateJob(
-                id=str(uuid1()),
-                status=JobStatus.starting,
-                dataset=self.DATASET_NAME,
-                version=self.sync_version,
-                tile_set_parameters=RasterTileSetParameters(
-                    source_uri=source_uris,
-                    calc=self.MULTI_BAND_CALC,
-                    grid="10/100000",
-                    data_type="uint16",
-                    no_data=[0, 0, 0],
-                    pixel_meaning="date_conf_v2",
-                    band_count=3,
-                    union_bands=True,
-                    compute_stats=False,
-                    timeout_sec=21600,
-                ),
-                tile_cache_parameters=RasterTileCacheParameters(
-                    max_zoom=14, symbology={"type": "date_conf_intensity_multi_8"}
-                ),
-                aux_tile_set_parameters=[
-                    RasterTileSetParameters(
-                        calc=self.SINGLE_BAND_CALC,
-                        grid="10/100000",
-                        data_type="uint16",
-                        pixel_meaning="date_conf",
-                        compute_stats=False,
-                        timeout_sec=21600,
+            jobs = []
+
+            if config.dataset == "gadm":
+                jobs.append(
+                    RasterVersionUpdateJob(
+                        id=str(uuid1()),
+                        status=JobStatus.starting,
+                        dataset=self.DATASET_NAME,
+                        version=self.sync_version,
+                        tile_set_parameters=RasterTileSetParameters(
+                            source_uri=source_uris,
+                            calc=self.MULTI_BAND_CALC,
+                            grid="10/100000",
+                            data_type="uint16",
+                            no_data=[0, 0, 0],
+                            pixel_meaning="date_conf_v2",
+                            band_count=3,
+                            union_bands=True,
+                            compute_stats=False,
+                            timeout_sec=21600,
+                        ),
+                        tile_cache_parameters=RasterTileCacheParameters(
+                            max_zoom=14,
+                            symbology={"type": "date_conf_intensity_multi_8"},
+                        ),
+                        aux_tile_set_parameters=[
+                            RasterTileSetParameters(
+                                calc=self.SINGLE_BAND_CALC,
+                                grid="10/100000",
+                                data_type="uint16",
+                                pixel_meaning="date_conf",
+                                compute_stats=False,
+                                timeout_sec=21600,
+                            )
+                        ],
                     )
-                ],
+                )
+
+            jobs.append(
+                GeotrellisJob(
+                    id=str(uuid1()),
+                    status=JobStatus.starting,
+                    analysis_version=config.analysis_version,
+                    sync_version=self.sync_version,
+                    sync_type=config.sync_type,
+                    table=AnalysisInputTable(
+                        dataset=config.dataset,
+                        version=config.dataset_version,
+                        analysis=config.analysis,
+                    ),
+                    features_1x1=config.metadata["features_1x1"],
+                    geotrellis_version=config.metadata["geotrellis_version"],
+                )
             )
 
-            geotrellis_job = GeotrellisJob(
-                id=str(uuid1()),
-                status=JobStatus.starting,
-                analysis_version=config.analysis_version,
-                sync_version=self.sync_version,
-                sync_type=config.sync_type,
-                table=AnalysisInputTable(
-                    dataset=config.dataset,
-                    version=config.dataset_version,
-                    analysis=config.analysis,
-                ),
-                features_1x1=config.metadata["features_1x1"],
-                geotrellis_version=config.metadata["geotrellis_version"],
-            )
-
-            return [layer_job, geotrellis_job]
+            return jobs
         else:
             return []
 
