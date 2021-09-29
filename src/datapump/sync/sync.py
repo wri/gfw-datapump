@@ -96,7 +96,7 @@ class GladSync(Sync):
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.should_sync_glad:
-            return [
+            jobs = [
                 GeotrellisJob(
                     id=str(uuid1()),
                     status=JobStatus.starting,
@@ -112,25 +112,31 @@ class GladSync(Sync):
                     geotrellis_version=config.metadata["geotrellis_version"],
                     change_only=True,
                     version_overrides=config.metadata.get("version_overrides", {}),
-                ),
-                RasterVersionUpdateJob(
-                    id=str(uuid1()),
-                    status=JobStatus.starting,
-                    dataset=self.DATASET_NAME,
-                    version=self.sync_version,
-                    tile_set_parameters=RasterTileSetParameters(
-                        source_uri=[
-                            f"s3://{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
-                        ],
-                        grid="10/100000",
-                        data_type="uint16",
-                        pixel_meaning="date_conf",
-                        compute_stats=False,
-                        num_processes=24,
-                        timeout_sec=21600,
-                    ),
-                ),
+                )
             ]
+
+            if config.dataset == "gadm":
+                jobs.append(
+                    RasterVersionUpdateJob(
+                        id=str(uuid1()),
+                        status=JobStatus.starting,
+                        dataset=self.DATASET_NAME,
+                        version=self.sync_version,
+                        tile_set_parameters=RasterTileSetParameters(
+                            source_uri=[
+                                f"s3://{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
+                            ],
+                            grid="10/100000",
+                            data_type="uint16",
+                            pixel_meaning="date_conf",
+                            compute_stats=False,
+                            num_processes=24,
+                            timeout_sec=21600,
+                        )
+                    )
+                )
+
+            return jobs
         else:
             return []
 
