@@ -40,6 +40,7 @@ class RasterVersionUpdateJob(Job):
                     self._create_tile_cache()
                 else:
                     self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
