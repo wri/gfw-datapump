@@ -169,7 +169,7 @@ class IntegratedAlertsSync(Sync):
         "wur_radd_alerts",
     ]
     MULTI_BAND_CALC = "np.ma.array([(A > 20000) * (A != 30000) * (A < 40000) * (2 * (A - (20000 + (A>30000) * 10000)) + (A<30000) * 1), (B > 20000) * (B != 30000) * (B < 40000) * (2 * (B - (20000 + (B>30000) * 10000)) + (B<30000) * 1), (C > 20000) * (C != 30000) * (C < 40000) * (2 * (C - (20000 + (C>30000) * 10000)) + (C<30000) * 1)])"
-    SINGLE_BAND_CALC = "np.np.ma.sum([np.clip(np.ma.sum([(np.ma.sum([(np.ma.masked_equal(A,0)>0)*1,(np.ma.masked_equal(B,0)>0)*1,(np.ma.masked_equal(C,0)>0)*1],axis=0)>=2)*4,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==0)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==1)*2],axis=0),None,4).filled(0)*10000,np.ma.min([np.ma.masked_equal(A,0)>>1,np.ma.masked_equal(B,0)>>1,np.ma.masked_equal(C,0)>>1],axis=0)],axis=0).filled(0)"
+    SINGLE_BAND_CALC = "np.ma.sum([np.clip(np.ma.sum([(np.ma.sum([(np.ma.masked_equal(A,0)>0)*1,(np.ma.masked_equal(B,0)>0)*1,(np.ma.masked_equal(C,0)>0)*1],axis=0)>=2)*4,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==0)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==1)*2],axis=0),None,4).filled(0)*10000,np.ma.min([np.ma.masked_equal(A,0)>>1,np.ma.masked_equal(B,0)>>1,np.ma.masked_equal(C,0)>>1],axis=0)],axis=0).filled(0)"
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -225,6 +225,7 @@ class IntegratedAlertsSync(Sync):
                                 grid="10/100000",
                                 data_type="uint16",
                                 pixel_meaning="date_conf",
+                                union_bands=True,
                                 compute_stats=False,
                                 timeout_sec=21600,
                             )
