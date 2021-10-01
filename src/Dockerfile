@@ -11,7 +11,7 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 00938433323432090434
+# change 838432
 
 # Precompile all python packages and remove .py files
 RUN find python/ -type f -name '*.pyc' -print0 | xargs -0 rm -rf
