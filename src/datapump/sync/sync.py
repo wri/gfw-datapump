@@ -133,7 +133,7 @@ class GladSync(Sync):
                             compute_stats=False,
                             num_processes=24,
                             timeout_sec=21600,
-                        )
+                        ),
                     )
                 )
 
