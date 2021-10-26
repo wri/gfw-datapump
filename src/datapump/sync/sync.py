@@ -218,6 +218,7 @@ class IntegratedAlertsSync(Sync):
                         tile_cache_parameters=RasterTileCacheParameters(
                             max_zoom=14,
                             symbology={"type": "date_conf_intensity_multi_8"},
+                            resampling="nearest",
                         ),
                         aux_tile_set_parameters=[
                             RasterTileSetParameters(

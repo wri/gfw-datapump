@@ -25,11 +25,13 @@ class RasterTileSetParameters(StrictBaseModel):
     compute_histogram: bool = False
     timeout_sec: int = 7200
     num_processes: Optional[int] = None
+    resampling: str = "nearest"
 
 
 class RasterTileCacheParameters(StrictBaseModel):
     symbology: Optional[Dict[str, Any]]
     max_zoom: int
+    resampling: str = "average"
 
 
 class RasterVersionUpdateParameters(StrictBaseModel):
