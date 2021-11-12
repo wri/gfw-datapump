@@ -164,12 +164,13 @@ class GeotrellisJob(Job):
                         table.latitude_field,
                     )
                 else:
-                    if self.sync_type == SyncType.rw_areas:
-                        version = client.get_latest_version(table.dataset)
-                    else:
-                        version = table.version
-
-                    client.append(table.dataset, version, table.source_uri)
+                    latest_version = client.get_latest_version(table.dataset)
+                    client.create_append_revision(
+                        table.dataset,
+                        latest_version,
+                        self.sync_version,
+                        table.source_uri,
+                    )
             else:
                 client.create_dataset_and_version(
                     table.dataset,

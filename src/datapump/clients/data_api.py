@@ -146,6 +146,22 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/append"
         return self._send_request(ValidMethods.post, uri, payload)["data"]
 
+    def create_append_revision(
+        self,
+        dataset: str,
+        current_version: str,
+        revision_version: str,
+        source_uris: List[str],
+    ) -> Dict[str, Any]:
+        payload = {
+            "source_uri": source_uris,
+            "operation": "append",
+            "revision_on": current_version,
+        }
+
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{revision_version}"
+        return self._send_request(ValidMethods.put, uri, payload)["data"]
+
     def copy_version(
         self, dataset: str, old_version: str, new_version: str, source_uris: List[str]
     ):
