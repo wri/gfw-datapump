@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -21,6 +22,8 @@ class Job(StrictBaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
+    start_time: datetime = datetime.now()
+    timeout: timedelta = timedelta(seconds=14400)
 
     @abstractmethod
     def next_step(self):
