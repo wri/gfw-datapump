@@ -1,7 +1,7 @@
 import csv
 import io
 import urllib
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 from itertools import groupby
 from pathlib import Path
@@ -86,7 +86,11 @@ class GeotrellisJob(Job):
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
-        if self.start_time + self.timeout < datetime.now():
+        if (
+            datetime.fromisoformat(self.start_time)
+            + timedelta(seconds=self.timeout_sec)
+            < datetime.now()
+        ):
             LOGGER.error(f"Job {self.id} has failed on step {self.step}")
             self.status = JobStatus.failed
 

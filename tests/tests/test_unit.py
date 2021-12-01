@@ -3,7 +3,6 @@
 #############
 import os
 import time
-from datetime import timedelta
 
 os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
@@ -68,7 +67,7 @@ def test_geotrellis_next_step_timeout(monkeypatch):
         ),
         features_1x1="s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
         geotrellis_version="1.3.0",
-        timeout=timedelta(seconds=3),
+        timeout_sec=3,
     )
 
     test.next_step()
