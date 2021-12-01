@@ -21,11 +21,11 @@ app = FastAPI()
 
 # Dataset settings
 known_datasets = {
-    "umd_glad_alerts": {
+    "umd_glad_landsat_alerts": {
         "start_date": GLAD_START_DATE,
         "tile_set_parameters": {
             "no_data": 0,
-            "grid": "10/100000",
+            "grid": "10/40000",
             "data_type": "uint16",
             "pixel_meaning": "date_conf"
         },
@@ -41,7 +41,7 @@ known_datasets = {
             "grid": "10/100000",
             "data_type": "uint16",
             "pixel_meaning": "date_conf",
-            "calc": "(A > 0).astype(np.bool_) * (20000 + 10000 * (A > 1).astype(np.bool_) + B + 1461).astype(np.uint16)"
+            "calc": "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461).astype(np.uint16)"
         },
         "tile_cache_parameters": {
             "max_zoom": 14,
