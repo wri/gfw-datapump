@@ -42,8 +42,8 @@ module "datapump" {
   policies_path = var.policies_path
   step_functions_path = var.step_functions_path
   lambdas_path = var.lambdas_path
-  fastapi_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_fastapi_0681_arn
-  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_rasterio_126_arn
+  fastapi_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_fastapi_0670_arn
+  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py38_rasterio_120_arn
   lambda_layers_path = var.lambda_layers_path
   geotrellis_jar_path = var.geotrellis_jar_path
   pipelines_bucket = data.terraform_remote_state.core.outputs.pipelines_bucket
