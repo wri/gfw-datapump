@@ -13,12 +13,18 @@ NoDataType = Union[StrictInt, NonNumericFloat]
 
 
 class RasterTileSetParameters(StrictBaseModel):
-    source_uri: List[str]
+    source_uri: Optional[List[str]]
     calc: Optional[str]
     grid: str
     data_type: str
     no_data: Optional[Union[List[NoDataType], NoDataType]]
     pixel_meaning: str
+    band_count: int = 1
+    union_bands: bool = False
+    compute_stats: bool = True
+    compute_histogram: bool = False
+    timeout_sec: int = 7200
+    num_processes: Optional[int] = None
 
 
 class RasterTileCacheParameters(StrictBaseModel):
@@ -31,7 +37,7 @@ class RasterVersionUpdateParameters(StrictBaseModel):
     version: str
     content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
-    tile_cache_parameters: RasterTileCacheParameters
+    tile_cache_parameters: Optional[RasterTileCacheParameters] = None
 
 
 class RasterVersionUpdateCommand(StrictBaseModel):

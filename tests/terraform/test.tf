@@ -23,6 +23,7 @@ resource "aws_s3_bucket_object" "qc_1x1" {
   etag   = filemd5("../files/qc.tsv")
 }
 
+
 resource "aws_s3_bucket_object" "geotrellis_results" {
   for_each = fileset("../files/geotrellis_results", "**/*.csv")
 
@@ -31,12 +32,20 @@ resource "aws_s3_bucket_object" "geotrellis_results" {
   source = "../files/geotrellis_results/${each.value}"
 }
 
-resource "aws_s3_bucket_object" "geotrellis_results_sync" {
-  for_each = fileset("../files/geotrellis_results", "**/{daily,weekly}_alerts/*.csv")
+resource "aws_s3_bucket_object" "geotrellis_results_sync_glad" {
+  for_each = fileset("../files/geotrellis_results/gladalerts", "**/{daily,weekly}_alerts/*.csv")
 
   bucket = aws_s3_bucket.pipelines_test.id
-  key    = "geotrellis/results/v20210122/test_zonal_stats/glad/${each.value}"
-  source = "../files/geotrellis_results/${each.value}"
+  key    = "geotrellis/results/v20210122/test_zonal_stats/glad/gladalerts/${each.value}"
+  source = "../files/geotrellis_results/gladalerts/${each.value}"
+}
+
+resource "aws_s3_bucket_object" "geotrellis_results_sync_integrated_alerts" {
+  for_each = fileset("../files/geotrellis_results/integrated_alerts", "**/{daily,weekly}_alerts/*.csv")
+
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "geotrellis/results/v20210122/test_zonal_stats/integrated_alerts/integrated_alerts/${each.value}"
+  source = "../files/geotrellis_results/integrated_alerts/${each.value}"
 }
 
 resource "aws_s3_bucket_object" "geotrellis_jar" {

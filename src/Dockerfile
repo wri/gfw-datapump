@@ -11,7 +11,7 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 334234232311
+# change 1337
 
 # Precompile all python packages and remove .py files
 RUN python -m compileall .

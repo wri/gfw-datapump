@@ -13,7 +13,7 @@ DATAPUMP_SFN_ARN = f"arn:aws:states:us-east-1:000000000000:stateMachine:{SFN_NAM
 DUMP_TO_STDOUT = os.environ.get("DUMP_TO_STDOUT", None)
 
 
-def test_datapump():
+def test_datapump_basic():
     try:
         add_version_input = {
             "command": "analysis",
@@ -37,6 +37,21 @@ def test_datapump():
         sync_input = {
             "command": "sync",
             "parameters": {"types": ["glad"], "sync_version": "v20210122"},
+        }
+
+        status = _run_datapump(sync_input)
+        assert status == "SUCCEEDED"
+    finally:
+        _dump_logs()
+
+
+def test_integrated_alerts():
+    try:
+        _add_sync_config("integrated_alerts", "integrated_alerts")
+
+        sync_input = {
+            "command": "sync",
+            "parameters": {"types": ["integrated_alerts"], "sync_version": "v20210122"},
         }
 
         status = _run_datapump(sync_input)
@@ -92,13 +107,26 @@ def _dump_logs():
                 message = event["message"].replace("\r", "\n")
                 print(f"{log_stream['logStreamName']}: {message}", file=lambda_stream)
 
-    # if not DUMP_TO_STDOUT:
-    #     try:
-    #         s3_client.download_file(
-    #             "gfw-pipelines-test", "datapump/config.db", "/app/tests/logs/config.db"
-    #         )
-    #     except ClientError:
-    #         print("config.db not available")
+
+def _add_sync_config(analysis: str, sync_type: str):
+    dynamodb = boto3.resource("dynamodb", endpoint_url=LOCALSTACK_URI)
+    client = dynamodb.Table("datapump-datapump-default")
+
+    attributes = {
+        "id": f"{analysis}_vteststats1_test_zonal_stats_vtest1_{sync_type}",
+        "analysis_version": "vteststats1",
+        "dataset": "test_zonal_stats",
+        "dataset_version": "vtest1",
+        "analysis": analysis,
+        "sync": True,
+        "sync_type": sync_type,
+        "metadata": {
+            "geotrellis_version": "1.2.1",
+            "features_1x1": "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
+        },
+    }
+
+    client.put_item(Item=attributes)
 
 
 def _run_datapump(input):
@@ -112,7 +140,7 @@ def _run_datapump(input):
     print(execution_arn)
 
     tries = 0
-    while tries < 3000:
+    while tries < 150:
         time.sleep(2)
         tries += 1
 

@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List, Optional
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
@@ -24,7 +25,8 @@ class RasterVersionUpdateJob(Job):
     version: str
     content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
-    tile_cache_parameters: RasterTileCacheParameters
+    tile_cache_parameters: Optional[RasterTileCacheParameters] = None
+    aux_tile_set_parameters: List[RasterTileSetParameters] = []
 
     def next_step(self):
         if self.step == RasterVersionUpdateJobStep.starting:
@@ -35,8 +37,11 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_tile_set:
             status = self._check_tile_set_status()
             if status == JobStatus.complete:
-                self.step = RasterVersionUpdateJobStep.creating_tile_cache
-                self._create_tile_cache()
+                if self.tile_cache_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_tile_cache
+                    self._create_tile_cache()
+                else:
+                    self.step = RasterVersionUpdateJobStep.mark_latest
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
@@ -51,20 +56,32 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
+                if self.aux_tile_set_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_aux_assets
+                    for tile_set_params in self.aux_tile_set_parameters:
+                        self._create_aux_tile_set(tile_set_params)
+                else:
+                    self.status = JobStatus.complete
+            elif status == JobStatus.failed:
+                self.status = JobStatus.failed
+
+        elif self.step == RasterVersionUpdateJobStep.creating_aux_assets:
+            status = self._check_aux_assets_status()
+            if status == JobStatus.complete:
                 self.status = JobStatus.complete
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-    def _create_tile_set(self):
+    def _create_tile_set(self, aux=False):
         client = DataApiClient()
-
-        co = self.tile_set_parameters
 
         # Create the dataset if it doesn't exist
         try:
             _ = client.create_dataset(self.dataset)
         except DataApiResponseError:
             pass
+
+        co = self.tile_set_parameters
 
         payload = {
             "creation_options": {
@@ -76,6 +93,11 @@ class RasterVersionUpdateJob(Job):
                 "pixel_meaning": co.pixel_meaning,
                 "grid": co.grid,
                 "calc": co.calc,
+                "band_count": co.band_count,
+                "union_bands": co.union_bands,
+                "compute_stats": co.compute_stats,
+                "compute_histogram": co.compute_histogram,
+                "timeout_sec": co.timeout_sec,
             },
             "metadata": {
                 "last_update": self.content_date_range.max,
@@ -86,7 +108,37 @@ class RasterVersionUpdateJob(Job):
                 }
             }
         }
+
         _ = client.create_version(self.dataset, self.version, payload)
+
+    def _create_aux_tile_set(self, tile_set_parameters: RasterTileSetParameters) -> str:
+        """
+        Create auxiliary tile set and return asset ID
+        """
+        client = DataApiClient()
+
+        co = tile_set_parameters
+
+        payload = {
+            "asset_type": "Raster tile set",
+            "creation_options": {
+                "data_type": co.data_type,
+                "no_data": co.no_data,
+                "pixel_meaning": co.pixel_meaning,
+                "grid": co.grid,
+                "calc": co.calc,
+                "band_count": co.band_count,
+                "union_bands": co.union_bands,
+                "compute_stats": co.compute_stats,
+                "compute_histogram": co.compute_histogram,
+                "timeout_sec": co.timeout_sec,
+                "num_processes": co.num_processes,
+            },
+        }
+
+        data = client.create_aux_asset(self.dataset, self.version, payload)
+
+        return data["asset_id"]
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
@@ -98,6 +150,24 @@ class RasterVersionUpdateJob(Job):
             return JobStatus.executing
         else:
             return JobStatus.failed
+
+    def _check_aux_assets_status(self) -> JobStatus:
+        """
+        These will run in parallel, just check all are set to saved
+        """
+        client = DataApiClient()
+
+        assets = client.get_assets(self.dataset, self.version)
+        statuses = [asset["status"] for asset in assets]
+
+        if "failed" in statuses:
+            return JobStatus.failed
+        elif "pending" in statuses:
+            return JobStatus.executing
+        elif all([status == "saved" for status in statuses]):
+            return JobStatus.complete
+        else:
+            raise KeyError(f"Undefined asset status in {statuses}")
 
     def _create_tile_cache(self):
         client = DataApiClient()
