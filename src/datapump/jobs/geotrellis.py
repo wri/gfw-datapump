@@ -427,10 +427,6 @@ class GeotrellisJob(Job):
             and analysis_agg == "daily_alerts"
         ):
             # this table is multi-use, so also create indices for individual alerts
-            glad_l_cols = [
-                "umd_glad_landsat_alerts__confidence",
-                "umd_glad_landsat_alerts__date",
-            ]
             glad_s2_cols = [
                 "umd_glad_sentinel2_alerts__confidence",
                 "umd_glad_sentinel2_alerts__date",
@@ -438,17 +434,9 @@ class GeotrellisJob(Job):
             wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
 
             indices += [
-                Index(index_type="btree", column_names=id_cols + glad_l_cols),
                 Index(index_type="btree", column_names=id_cols + glad_s2_cols),
                 Index(index_type="btree", column_names=id_cols + wur_radd_cols),
             ]
-
-        # FIXME table too big to handle this right now
-        if (
-            self.table.analysis == Analysis.integrated_alerts
-            and self.feature_type == "geostore"
-        ):
-            return None, None
 
         return indices, cluster
 
