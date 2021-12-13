@@ -548,6 +548,8 @@ class GeotrellisJob(Job):
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
+                elif self.table.analysis == Analysis.integrated_alerts:
+                    return 150
                 else:
                     return 100
             else:
@@ -568,7 +570,7 @@ class GeotrellisJob(Job):
             or self.table.analysis == Analysis.burned_areas
         ):
             analysis_weight *= 1.25
-        if self.change_only:
+        if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
@@ -762,7 +764,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 60,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }
@@ -784,7 +786,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 60,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }
