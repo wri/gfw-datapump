@@ -554,10 +554,7 @@ class GeotrellisJob(Job):
                     return 100
             else:
                 return 50
-        elif (
-            self.sync_type == SyncType.rw_areas
-            and self.table.analysis in FIRES_ANALYSES
-        ):
+        elif self.sync_type == SyncType.rw_areas:
             return 15
 
         bucket, key = get_s3_path_parts(limiting_src)
