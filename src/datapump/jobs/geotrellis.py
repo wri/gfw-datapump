@@ -555,7 +555,7 @@ class GeotrellisJob(Job):
             else:
                 return 50
         elif self.sync_type == SyncType.rw_areas:
-            return 15
+            return 30
 
         bucket, key = get_s3_path_parts(limiting_src)
         resp = get_s3_client().head_object(Bucket=bucket, Key=key)
