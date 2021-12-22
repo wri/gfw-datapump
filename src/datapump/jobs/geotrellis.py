@@ -89,9 +89,9 @@ class GeotrellisJob(Job):
         if (
             datetime.fromisoformat(self.start_time)
             + timedelta(seconds=self.timeout_sec)
-            < datetime.now()
+            > datetime.now()
         ):
-            LOGGER.error(f"Job {self.id} has failed on step {self.step}")
+            LOGGER.error(f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}")
             self.status = JobStatus.failed
 
             if self.step == GeotrellisJobStep.analyzing:

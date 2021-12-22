@@ -67,14 +67,14 @@ def test_geotrellis_next_step_timeout(monkeypatch):
         ),
         features_1x1="s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
         geotrellis_version="1.3.0",
-        timeout_sec=3,
+        timeout_sec=10,
     )
 
     test.next_step()
     assert test.status == JobStatus.executing
     assert test.step == GeotrellisJobStep.analyzing
 
-    time.sleep(3)
+    time.sleep(10)
     test.next_step()
     assert test.status == JobStatus.failed
 
