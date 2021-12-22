@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from datapump.util.models import StrictBaseModel
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class JobStatus(str, Enum):
@@ -22,8 +22,12 @@ class Job(StrictBaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
-    start_time: str = datetime.now().isoformat()
+    start_time: str = None
     timeout_sec: int = 14400
+
+    @validator('start_time', pre=True, always=True)
+    def set_start_time(cls, v):
+        return v or datetime.now().isoformat()
 
     @abstractmethod
     def next_step(self):
