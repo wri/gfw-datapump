@@ -43,6 +43,5 @@ fi
 
 docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test down
 
-# delete if exists, otherwise localstack might have issues with EMR on next run
 rm tests/terraform/terraform.tfstate*
 [[ -z "${failed:-}" ]] || exit 1

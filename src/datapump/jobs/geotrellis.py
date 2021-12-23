@@ -1,7 +1,7 @@
 import csv
 import io
 import urllib
-from datetime import date
+from datetime import date, datetime, timedelta
 from enum import Enum
 from itertools import groupby
 from pathlib import Path
@@ -86,7 +86,17 @@ class GeotrellisJob(Job):
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
-        if self.step == JobStep.starting:
+        if (
+            datetime.fromisoformat(self.start_time)
+            + timedelta(seconds=self.timeout_sec)
+            < datetime.now()
+        ):
+            LOGGER.error(f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}")
+            self.status = JobStatus.failed
+
+            if self.step == GeotrellisJobStep.analyzing:
+                self.cancel_analysis()
+        elif self.step == JobStep.starting:
             self.start_analysis()
             self.status = JobStatus.executing
             self.step = GeotrellisJobStep.analyzing
@@ -105,6 +115,10 @@ class GeotrellisJob(Job):
 
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
+
+    def cancel_analysis(self):
+        client = get_emr_client()
+        client.terminate_job_flows(JobFlowIds=[self.emr_job_id])
 
     def check_analysis(self) -> JobStatus:
         cluster_description = get_emr_client().describe_cluster(
