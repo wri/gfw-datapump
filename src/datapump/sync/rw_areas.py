@@ -241,15 +241,21 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
 
     # Body
     try:
+        error_ids = []
         for g in geostore["data"]:
             LOGGER.info(f"Processing geostore {g['geostoreId']}")
 
             try:
-                geom: Polygon = shape(
-                    g["geostore"]["data"]["attributes"]["geojson"]["features"][0][
-                        "geometry"
-                    ]
-                )
+                raw_geom = g["geostore"]["data"]["attributes"]["geojson"]["features"][
+                    0
+                ]["geometry"]
+
+                if raw_geom["type"] != "Polygon" and raw_geom["type"] != "MultiPolygon":
+                    LOGGER.warning(f"Invalid geometry type {g['geostoreId']}: {raw_geom['type'] }")
+                    error_ids.append(g["geostoreId"])
+                    continue
+
+                geom: Polygon = shape(raw_geom)
 
                 # dilate geometry to remove any slivers or other possible small artifacts that might cause issues
                 # in geotrellis
@@ -265,6 +271,7 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                         LOGGER.warning(
                             f"Invalid geometry {g['geostoreId']}: {geom.wkt}"
                         )
+                        error_ids.append(g["geostoreId"]["data"]["id"])
                         continue
 
                 for tile in extent_1x1:
@@ -282,6 +289,10 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
             except Exception as e:
                 LOGGER.error(f"Error processing geostore {g['geostoreId']}")
                 raise e
+
+        if error_ids:
+            LOGGER.info(f"Setting invalid geostore IDs to error: {error_ids}")
+            update_area_statuses(error_ids, "error")
 
         yield (wkb, count)
 

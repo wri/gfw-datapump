@@ -40,6 +40,7 @@ class RasterVersionUpdateJob(Job):
                     self._create_tile_cache()
                 else:
                     self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
@@ -96,6 +97,7 @@ class RasterVersionUpdateJob(Job):
                 "compute_stats": co.compute_stats,
                 "compute_histogram": co.compute_histogram,
                 "timeout_sec": co.timeout_sec,
+                "resampling": co.resampling,
             }
         }
 
@@ -174,6 +176,7 @@ class RasterVersionUpdateJob(Job):
                 "max_zoom": self.tile_cache_parameters.max_zoom,
                 "max_static_zoom": 9,
                 "symbology": self.tile_cache_parameters.symbology,
+                "resampling": self.tile_cache_parameters.resampling,
             },
         }
         _ = client.create_aux_asset(self.dataset, self.version, payload)

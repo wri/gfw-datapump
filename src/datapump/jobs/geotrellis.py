@@ -441,10 +441,6 @@ class GeotrellisJob(Job):
             and analysis_agg == "daily_alerts"
         ):
             # this table is multi-use, so also create indices for individual alerts
-            glad_l_cols = [
-                "umd_glad_landsat_alerts__confidence",
-                "umd_glad_landsat_alerts__date",
-            ]
             glad_s2_cols = [
                 "umd_glad_sentinel2_alerts__confidence",
                 "umd_glad_sentinel2_alerts__date",
@@ -452,7 +448,6 @@ class GeotrellisJob(Job):
             wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
 
             indices += [
-                Index(index_type="btree", column_names=id_cols + glad_l_cols),
                 Index(index_type="btree", column_names=id_cols + glad_s2_cols),
                 Index(index_type="btree", column_names=id_cols + wur_radd_cols),
             ]
@@ -567,15 +562,14 @@ class GeotrellisJob(Job):
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
+                elif self.table.analysis == Analysis.integrated_alerts:
+                    return 150
                 else:
                     return 100
             else:
                 return 50
-        elif (
-            self.sync_type == SyncType.rw_areas
-            and self.table.analysis in FIRES_ANALYSES
-        ):
-            return 15
+        elif self.sync_type == SyncType.rw_areas:
+            return 30
 
         bucket, key = get_s3_path_parts(limiting_src)
         resp = get_s3_client().head_object(Bucket=bucket, Key=key)
@@ -587,7 +581,7 @@ class GeotrellisJob(Job):
             or self.table.analysis == Analysis.burned_areas
         ):
             analysis_weight *= 1.25
-        if self.change_only:
+        if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
@@ -639,6 +633,61 @@ class GeotrellisJob(Job):
 
         if self.change_only:
             step_args.append("--change_only")
+
+        # TODO temp fix until we start sending all versions from datapump to geotrellis
+        if self.table.analysis == Analysis.integrated_alerts:
+            client = DataApiClient()
+            alert_datasets = [
+                "umd_glad_landsat_alerts",
+                "umd_glad_sentinel2_alerts",
+                "wur_radd_alerts",
+            ]
+
+            for ds in alert_datasets:
+                latest_version = client.get_latest_version(ds)
+                step_args.append("--pin_version")
+                step_args.append(f"{ds}:{latest_version}")
+
+            step_args += [
+                "--pin_version",
+                "gfw_wood_fiber:v20200725",
+                "--pin_version",
+                "whrc_aboveground_biomass_stock_2000:v4",
+                "--pin_version",
+                "umd_regional_primary_forest_2001:v201901",
+                "--pin_version",
+                "wdpa_protected_areas:v202106",
+                "--pin_version",
+                "birdlife_alliance_for_zero_extinction_sites:v20200725",
+                "--pin_version",
+                "birdlife_key_biodiversity_areas:v202106",
+                "--pin_version",
+                "landmark_indigenous_and_community_lands:v20201215",
+                "--pin_version",
+                "gfw_mining_concessions:v202106",
+                "--pin_version",
+                "gfw_managed_forests:v202106",
+                "--pin_version",
+                "rspo_oil_palm:v20200114",
+                "--pin_version",
+                "gfw_peatlands:v20200807",
+                "--pin_version",
+                "idn_forest_moratorium:v20200923",
+                "--pin_version",
+                "gfw_oil_palm:v20191031",
+                "--pin_version",
+                "idn_forest_area:v201709",
+                "--pin_version",
+                "per_forest_concessions:v201610",
+                "--pin_version",
+                "gfw_oil_gas:v20190321",
+                "--pin_version",
+                "gmw_global_mangrove_extent_2016:v20201210",
+                "--pin_version",
+                "ifl_intact_forest_landscapes:v2018",
+                "--pin_version",
+                "ibge_bra_biomes:v2004",
+            ]
 
         if (
             GLOBALS.env != "production"
@@ -726,7 +775,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 10,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }
@@ -748,7 +797,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 10,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }

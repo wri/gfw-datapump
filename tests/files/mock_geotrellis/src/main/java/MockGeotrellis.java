@@ -7,7 +7,7 @@ public class MockGeotrellis {
 
         System.out.println(joined);
 
-        if (!joined.equals(expectedGladUpdateStep) && !joined.equals(expectedGladSyncStep) && !joined.equals(expectedIntegratedAlertsSyncStep)) {
+        if (!joined.equals(expectedGladUpdateStep) && !joined.equals(expectedGladSyncStep) && !joined.startsWith(expectedIntegratedAlertsSyncStep)) {
             throw new Exception("Invalid step args");
         }
     }
