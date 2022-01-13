@@ -22,10 +22,11 @@ class Job(StrictBaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
-    start_time: str = None
+    start_time: Optional[str] = None
     timeout_sec: int = 14400
+    retries: int = 0
 
-    @validator('start_time', pre=True, always=True)
+    @validator("start_time", pre=True, always=True)
     def set_start_time(cls, v):
         return v or datetime.now().isoformat()
 

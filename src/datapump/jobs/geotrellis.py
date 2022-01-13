@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands.analysis import FIRES_ANALYSES, Analysis, AnalysisInputTable
+from ..commands.analysis import Analysis, AnalysisInputTable
 from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
@@ -25,6 +25,7 @@ from ..jobs.jobs import (
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
+GEOTRELLIS_RETRIES = 2
 
 
 class GeotrellisAnalysis(str, Enum):
@@ -91,7 +92,9 @@ class GeotrellisJob(Job):
             + timedelta(seconds=self.timeout_sec)
             < datetime.now()
         ):
-            LOGGER.error(f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}")
+            LOGGER.error(
+                f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}"
+            )
             self.status = JobStatus.failed
 
             if self.step == GeotrellisJobStep.analyzing:
@@ -109,7 +112,16 @@ class GeotrellisJob(Job):
                 self.upload()
                 self.step = GeotrellisJobStep.uploading
             elif status == JobStatus.failed:
-                self.status = JobStatus.failed
+                self.retries += 1
+
+                # retry only if this job isn't too big, otherwise we might waste a lot of money
+                if (
+                    self.retries <= GEOTRELLIS_RETRIES
+                    and self._calculate_worker_count(self.features_1x1) < 100
+                ):
+                    self.start_analysis()
+                else:
+                    self.status = JobStatus.failed
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
 
@@ -586,6 +598,8 @@ class GeotrellisJob(Job):
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
             analysis_weight *= 0.25
+
+        analysis_weight *= 1 + (0.25 * self.retries)
 
         worker_count = round(
             (byte_size / 1000000000)
