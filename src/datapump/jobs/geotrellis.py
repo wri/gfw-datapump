@@ -583,9 +583,7 @@ class GeotrellisJob(Job):
         elif self.sync_type == SyncType.rw_areas:
             return 30
 
-        bucket, key = get_s3_path_parts(limiting_src)
-        resp = get_s3_client().head_object(Bucket=bucket, Key=key)
-        byte_size = resp["ContentLength"]
+        byte_size = self._get_byte_size(limiting_src)
 
         analysis_weight = 1.0
         if (
@@ -607,6 +605,11 @@ class GeotrellisJob(Job):
             * analysis_weight
         )
         return max(worker_count, GLOBALS.worker_count_min)
+
+    def _get_byte_size(self, src):
+        bucket, key = get_s3_path_parts(src)
+        resp = get_s3_client().head_object(Bucket=bucket, Key=key)
+        return resp["ContentLength"]
 
     def _get_step(self) -> Dict[str, Any]:
         analysis = GeotrellisAnalysis[self.table.analysis].value
