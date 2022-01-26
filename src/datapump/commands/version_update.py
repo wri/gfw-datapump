@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
-from datapump.util.models import StrictBaseModel
+from datapump.util.models import ContentDateRange, StrictBaseModel
 from pydantic import StrictInt
 
 
@@ -37,6 +37,7 @@ class RasterTileCacheParameters(StrictBaseModel):
 class RasterVersionUpdateParameters(StrictBaseModel):
     dataset: str
     version: str
+    content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
 

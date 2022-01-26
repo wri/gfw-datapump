@@ -5,6 +5,7 @@ from datapump.commands.version_update import (
     RasterTileCacheParameters,
     RasterTileSetParameters,
 )
+from datapump.util.models import ContentDateRange
 
 from ..clients.data_api import DataApiClient
 from ..jobs.jobs import Job, JobStatus
@@ -22,6 +23,7 @@ class RasterVersionUpdateJobStep(str, Enum):
 class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
+    content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aux_tile_set_parameters: List[RasterTileSetParameters] = []
@@ -98,6 +100,14 @@ class RasterVersionUpdateJob(Job):
                 "compute_histogram": co.compute_histogram,
                 "timeout_sec": co.timeout_sec,
                 "resampling": co.resampling,
+            },
+            "metadata": {
+                "last_update": self.content_date_range.max,
+                "content_date": self.content_date_range.max,
+                "content_date_range": {
+                    "min": self.content_date_range.min,
+                    "max": self.content_date_range.max
+                }
             }
         }
 
@@ -105,7 +115,7 @@ class RasterVersionUpdateJob(Job):
 
     def _create_aux_tile_set(self, tile_set_parameters: RasterTileSetParameters) -> str:
         """
-        Create auxillary tile set and return asset ID
+        Create auxiliary tile set and return asset ID
         """
         client = DataApiClient()
 
@@ -125,7 +135,17 @@ class RasterVersionUpdateJob(Job):
                 "compute_histogram": co.compute_histogram,
                 "timeout_sec": co.timeout_sec,
                 "num_processes": co.num_processes,
+                "resampling": co.resampling,
             },
+            "metadata": {
+                "last_update": self.content_date_range.max,
+                "content_date": self.content_date_range.max,
+                "content_date_range": {
+                    "min": self.content_date_range.min,
+                    "max": self.content_date_range.max
+                }
+            }
+
         }
 
         data = client.create_aux_asset(self.dataset, self.version, payload)
