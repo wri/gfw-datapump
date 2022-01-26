@@ -14,6 +14,7 @@ ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
     "modis": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/shapes/zips/MODIS_C6_1_Global_7d.zip",
     "viirs": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/shapes/zips/SUOMI_VIIRS_C2_Global_7d.zip",
 }
+
 DATA_LAKE_BUCKET = os.environ["S3_BUCKET_DATA_LAKE"]
 BRIGHTNESS_FIELDS = {
     "modis": ["brightness", "bright_t31"],

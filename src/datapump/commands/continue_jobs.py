@@ -1,13 +1,14 @@
-from typing import List
+from typing import List, Union
 
-from datapump.jobs.jobs import Job
-from datapump.util.models import StrictBaseModel
-
-
-class ContinueJobsParameters(StrictBaseModel):
-    jobs: List[Job]
+from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
+from datapump.jobs.version_update import RasterVersionUpdateJob
+from pydantic import BaseModel
 
 
-class ContinueJobsCommand(StrictBaseModel):
+class ContinueJobsParameters(BaseModel):
+    jobs: List[Union[GeotrellisJob, FireAlertsGeotrellisJob, RasterVersionUpdateJob]]
+
+
+class ContinueJobsCommand(BaseModel):
     command: str
     parameters: ContinueJobsParameters

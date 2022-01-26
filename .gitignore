@@ -40,6 +40,9 @@ package.zip
 test/test_data/*
 *.zip
 terraform/.terraform/*
+tests/terraform/.terraform/*
+tests/files/mock_geotrellis/target/*
+*.tfstate*
 *.tfplan
 .coverage
 coverage.xml

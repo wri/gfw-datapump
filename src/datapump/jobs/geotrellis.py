@@ -1,7 +1,7 @@
 import csv
 import io
 import urllib
-from datetime import date
+from datetime import date, datetime, timedelta
 from enum import Enum
 from itertools import groupby
 from pathlib import Path
@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
-from ..commands.analysis import FIRES_ANALYSES, Analysis, AnalysisInputTable
+from ..commands.analysis import Analysis, AnalysisInputTable
 from ..commands.sync import SyncType
 from ..globals import GLOBALS, LOGGER
 from ..jobs.jobs import (
@@ -25,6 +25,7 @@ from ..jobs.jobs import (
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
+GEOTRELLIS_RETRIES = 2
 
 
 class GeotrellisAnalysis(str, Enum):
@@ -37,6 +38,7 @@ class GeotrellisAnalysis(str, Enum):
     viirs = "firealerts_viirs"
     modis = "firealerts_modis"
     burned_areas = "firealerts_burned_areas"
+    integrated_alerts = "integrated_alerts"
 
 
 class GeotrellisFeatureType(str, Enum):
@@ -85,7 +87,19 @@ class GeotrellisJob(Job):
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
-        if self.step == JobStep.starting:
+        if (
+            datetime.fromisoformat(self.start_time)
+            + timedelta(seconds=self.timeout_sec)
+            < datetime.now()
+        ):
+            LOGGER.error(
+                f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}"
+            )
+            self.status = JobStatus.failed
+
+            if self.step == GeotrellisJobStep.analyzing:
+                self.cancel_analysis()
+        elif self.step == JobStep.starting:
             self.start_analysis()
             self.status = JobStatus.executing
             self.step = GeotrellisJobStep.analyzing
@@ -98,12 +112,25 @@ class GeotrellisJob(Job):
                 self.upload()
                 self.step = GeotrellisJobStep.uploading
             elif status == JobStatus.failed:
-                self.status = JobStatus.failed
+                self.retries += 1
+
+                # retry only if this job isn't too big, otherwise we might waste a lot of money
+                if (
+                    self.retries <= GEOTRELLIS_RETRIES
+                    and self._calculate_worker_count(self.features_1x1) < 100
+                ):
+                    self.start_analysis()
+                else:
+                    self.status = JobStatus.failed
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
 
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
+
+    def cancel_analysis(self):
+        client = get_emr_client()
+        client.terminate_job_flows(JobFlowIds=[self.emr_job_id])
 
     def check_analysis(self) -> JobStatus:
         cluster_description = get_emr_client().describe_cluster(
@@ -145,8 +172,8 @@ class GeotrellisJob(Job):
                 # temporarily just appending sync versions to analysis version instead of using version inheritance
                 if (
                     self.table.analysis == Analysis.glad
-                    and self.sync_type != SyncType.rw_areas
-                ):
+                    or self.table.analysis == Analysis.integrated_alerts
+                ) and self.sync_type != SyncType.rw_areas:
                     client.create_vector_version(
                         table.dataset,
                         table.version,
@@ -202,7 +229,10 @@ class GeotrellisJob(Job):
 
         if all_saved:
             if (
-                self.table.analysis == Analysis.glad
+                (
+                    self.table.analysis == Analysis.glad
+                    or self.table.analysis == Analysis.integrated_alerts
+                )
                 and self.sync_version
                 and self.sync_type != SyncType.rw_areas
             ):
@@ -249,6 +279,11 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
+        LOGGER.debug(resp)
+
+        if "Contents" not in resp:
+            raise AssertionError("No results found in S3")
+
         keys = [
             item["Key"]
             for item in resp["Contents"]
@@ -289,7 +324,10 @@ class GeotrellisJob(Job):
             version = self.version_overrides[analysis_agg]
         elif (
             self.sync_version
-            and self.table.analysis == Analysis.glad
+            and (
+                self.table.analysis == Analysis.glad
+                or self.table.analysis == Analysis.integrated_alerts
+            )
             and "alerts" in analysis_agg
         ):
             version = self.sync_version
@@ -335,10 +373,10 @@ class GeotrellisJob(Job):
 
         try:
             if analysis_agg != "all":
-                cols = id_col_constructor[(self.feature_type, feature_agg)]
+                id_cols = id_col_constructor[(self.feature_type, feature_agg)]
             else:
                 # disaggregated points have no ID
-                cols = []
+                id_cols = []
         except KeyError as e:
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
@@ -354,6 +392,10 @@ class GeotrellisJob(Job):
                 "is__confirmed_alert",
                 "alert__year",
                 "alert__week",
+            ],
+            (Analysis.integrated_alerts, "daily_alerts"): [
+                "gfw_integrated_alerts__confidence",
+                "gfw_integrated_alerts__date",
             ],
             (Analysis.viirs, "daily_alerts"): [
                 "alert__date",
@@ -394,16 +436,33 @@ class GeotrellisJob(Job):
         }
 
         try:
-            cols += analysis_col_constructor[(self.table.analysis, analysis_agg)]
+            analysis_cols = analysis_col_constructor[
+                (self.table.analysis, analysis_agg)
+            ]
         except KeyError:
-            pass
+            analysis_cols = []
 
-        cluster = Index(index_type="btree", column_names=cols)
+        cluster = Index(index_type="btree", column_names=id_cols + analysis_cols)
         indices.append(cluster)
 
         if analysis_agg == "all":
             cluster = Index(index_type="gist", column_names=["geom_wm"])
             indices += [Index(index_type="gist", column_names=["geom"]), cluster]
+        elif (
+            self.table.analysis == Analysis.integrated_alerts
+            and analysis_agg == "daily_alerts"
+        ):
+            # this table is multi-use, so also create indices for individual alerts
+            glad_s2_cols = [
+                "umd_glad_sentinel2_alerts__confidence",
+                "umd_glad_sentinel2_alerts__date",
+            ]
+            wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
+
+            indices += [
+                Index(index_type="btree", column_names=id_cols + glad_s2_cols),
+                Index(index_type="btree", column_names=id_cols + wur_radd_cols),
+            ]
 
         return indices, cluster
 
@@ -515,28 +574,30 @@ class GeotrellisJob(Job):
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
+                elif self.table.analysis == Analysis.integrated_alerts:
+                    return 150
                 else:
                     return 100
             else:
                 return 50
-        elif (
-            self.sync_type == SyncType.rw_areas
-            and self.table.analysis in FIRES_ANALYSES
-        ):
-            return 15
+        elif self.sync_type == SyncType.rw_areas:
+            return 30
 
-        bucket, key = get_s3_path_parts(limiting_src)
-        resp = get_s3_client().head_object(Bucket=bucket, Key=key)
-        byte_size = resp["ContentLength"]
+        byte_size = self._get_byte_size(limiting_src)
 
         analysis_weight = 1.0
-        if self.table.analysis == Analysis.tcl or self.table.analysis == Analysis.burned_areas:
+        if (
+            self.table.analysis == Analysis.tcl
+            or self.table.analysis == Analysis.burned_areas
+        ):
             analysis_weight *= 1.25
-        if self.change_only:
+        if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
             analysis_weight *= 0.25
+
+        analysis_weight *= 1 + (0.25 * self.retries)
 
         worker_count = round(
             (byte_size / 1000000000)
@@ -544,6 +605,11 @@ class GeotrellisJob(Job):
             * analysis_weight
         )
         return max(worker_count, GLOBALS.worker_count_min)
+
+    def _get_byte_size(self, src):
+        bucket, key = get_s3_path_parts(src)
+        resp = get_s3_client().head_object(Bucket=bucket, Key=key)
+        return resp["ContentLength"]
 
     def _get_step(self) -> Dict[str, Any]:
         analysis = GeotrellisAnalysis[self.table.analysis].value
@@ -576,11 +642,69 @@ class GeotrellisJob(Job):
         # These limit the extent to look at for certain types of analyses
         if self.table.analysis == Analysis.tcl:
             step_args.append("--tcl")
-        elif self.table.analysis == Analysis.glad:
+        elif (
+            self.table.analysis == Analysis.glad
+            or self.table.analysis == Analysis.integrated_alerts
+        ):
             step_args.append("--glad")
 
         if self.change_only:
             step_args.append("--change_only")
+
+        # TODO temp fix until we start sending all versions from datapump to geotrellis
+        if self.table.analysis == Analysis.integrated_alerts:
+            client = DataApiClient()
+            alert_datasets = [
+                "umd_glad_landsat_alerts",
+                "umd_glad_sentinel2_alerts",
+                "wur_radd_alerts",
+            ]
+
+            for ds in alert_datasets:
+                latest_version = client.get_latest_version(ds)
+                step_args.append("--pin_version")
+                step_args.append(f"{ds}:{latest_version}")
+
+            step_args += [
+                "--pin_version",
+                "gfw_wood_fiber:v20200725",
+                "--pin_version",
+                "whrc_aboveground_biomass_stock_2000:v4",
+                "--pin_version",
+                "umd_regional_primary_forest_2001:v201901",
+                "--pin_version",
+                "wdpa_protected_areas:v202106",
+                "--pin_version",
+                "birdlife_alliance_for_zero_extinction_sites:v20200725",
+                "--pin_version",
+                "birdlife_key_biodiversity_areas:v202106",
+                "--pin_version",
+                "landmark_indigenous_and_community_lands:v20201215",
+                "--pin_version",
+                "gfw_mining_concessions:v202106",
+                "--pin_version",
+                "gfw_managed_forests:v202106",
+                "--pin_version",
+                "rspo_oil_palm:v20200114",
+                "--pin_version",
+                "gfw_peatlands:v20200807",
+                "--pin_version",
+                "idn_forest_moratorium:v20200923",
+                "--pin_version",
+                "gfw_oil_palm:v20191031",
+                "--pin_version",
+                "idn_forest_area:v201709",
+                "--pin_version",
+                "per_forest_concessions:v201610",
+                "--pin_version",
+                "gfw_oil_gas:v20190321",
+                "--pin_version",
+                "gmw_global_mangrove_extent_2016:v20201210",
+                "--pin_version",
+                "ifl_intact_forest_landscapes:v2018",
+                "--pin_version",
+                "ibge_bra_biomes:v2004",
+            ]
 
         if (
             GLOBALS.env != "production"
@@ -668,7 +792,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 10,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }
@@ -690,7 +814,7 @@ class GeotrellisJob(Job):
                                     {
                                         "VolumeSpecification": {
                                             "VolumeType": "gp2",
-                                            "SizeInGB": 10,
+                                            "SizeInGB": 100,
                                         },
                                         "VolumesPerInstance": 1,
                                     }
