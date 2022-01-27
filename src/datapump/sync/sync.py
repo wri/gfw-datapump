@@ -19,6 +19,7 @@ from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
 from ..util.gpkg_util import update_geopackage
 from ..util.slack import slack_webhook
+from .burned_areas import sync_burned_areas_if_exists
 
 
 class Sync(ABC):
@@ -35,7 +36,7 @@ class FireAlertsSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version: str = sync_version
         self.fire_alerts_type: Optional[SyncType] = None
-        self.fire_alerts_uri: Optional[str] = None
+        self.fire_alerts_uris: List[str] = []
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.fire_alerts_type is None:
@@ -56,7 +57,7 @@ class FireAlertsSync(Sync):
                 features_1x1=config.metadata["features_1x1"],
                 geotrellis_version=config.metadata["geotrellis_version"],
                 alert_type=self.fire_alerts_type.value,
-                alert_sources=[self.fire_alerts_uri],
+                alert_sources=self.fire_alerts_uris,
                 change_only=True,
                 version_overrides=config.metadata.get("version_overrides", {}),
             )
@@ -67,7 +68,7 @@ class ViirsSync(FireAlertsSync):
     def __init__(self, sync_version: str):
         super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
-        self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
+        self.fire_alerts_uri = [process_active_fire_alerts(self.fire_alerts_type.value)]
 
         # try to update geopackage, but still move on if it fails
         try:
@@ -84,7 +85,20 @@ class ModisSync(FireAlertsSync):
     def __init__(self, sync_version: str):
         super(ModisSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.modis
-        self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
+        self.fire_alerts_uri = [process_active_fire_alerts(self.fire_alerts_type.value)]
+
+
+class BurnedAreasSync(FireAlertsSync):
+    def __init__(self, sync_version: str):
+        super(BurnedAreasSync, self).__init__(sync_version)
+        self.fire_alerts_type = SyncType.burned_areas
+        self.fire_alerts_uri = sync_burned_areas_if_exists()
+
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
+        if self.fire_alerts_uris:
+            return super(BurnedAreasSync, self).build_jobs(config)
+
+        return []
 
 
 class GladSync(Sync):
@@ -318,6 +332,7 @@ class Syncer:
     SYNCERS: Dict[SyncType, Type[Sync]] = {
         SyncType.viirs: ViirsSync,
         SyncType.modis: ModisSync,
+        SyncType.burned_areas: BurnedAreasSync,
         SyncType.rw_areas: RWAreasSync,
         SyncType.glad: GladSync,
         SyncType.integrated_alerts: IntegratedAlertsSync,
