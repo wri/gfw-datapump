@@ -168,7 +168,44 @@ class IntegratedAlertsSync(Sync):
         "umd_glad_sentinel2_alerts",
         "wur_radd_alerts",
     ]
-    INPUT_CALC = "np.ma.array(((((A.data % 10000)  > 0) | ((B.data % 10000) > 0) | ((C.data % 10000)   > 0)) * (10000 + 10000 * np.where(((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) > 3, 3, np.maximum(((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) - 1, 0)).astype(np.uint16) + (65535 - np.maximum.reduce([(((A.data%10000)>0)*((65535-(A.data%10000)).astype(np.uint16))),(((B.data%10000)>0)*((65535-(B.data%10000)).astype(np.uint16))),(((C.data%10000)>0)*((65535-(C.data%10000)).astype(np.uint16)))])))), mask=False)"
+    _INPUT_CALC = """np.ma.array(
+        (
+            (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
+            * (
+                10000
+                + 10000
+                * np.where(
+                    ((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) > 3,
+                    3,
+                    np.maximum(
+                        ((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) - 1,
+                        0,
+                    ),
+                ).astype(np.uint16)
+                + (
+                    65535
+                    - np.maximum.reduce(
+                        [
+                            (
+                                ((A.data) > 0)
+                                * ((65535 - ((A.data) % 10000)).astype(np.uint16))
+                            ),
+                            (
+                                ((B.data) > 0)
+                                * ((65535 - ((B.data) % 10000)).astype(np.uint16))
+                            ),
+                            (
+                                ((C.data) > 0)
+                                * ((65535 - ((C.data) % 10000)).astype(np.uint16))
+                            ),
+                        ]
+                    )
+                )
+            )
+        ),
+        mask=False,
+    )"""
+    INPUT_CALC = " ".join(_INPUT_CALC.split())
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -216,8 +253,8 @@ class IntegratedAlertsSync(Sync):
                         tile_cache_parameters=RasterTileCacheParameters(
                             max_zoom=14,
                             resampling="med",
-                            symbology={"type": "date_conf_intensity_multi_8"}
-                        )
+                            symbology={"type": "date_conf_intensity_multi_8"},
+                        ),
                     )
                 )
             jobs.append(
