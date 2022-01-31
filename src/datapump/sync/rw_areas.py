@@ -18,7 +18,7 @@ from ..util.slack import slack_webhook
 from ..util.util import api_prefix
 
 DIRNAME = os.path.dirname(__file__)
-GEOSTORE_PAGE_SIZE = 100
+GEOSTORE_PAGE_SIZE = 25
 
 
 def create_1x1_tsv(version: str) -> Optional[str]:
