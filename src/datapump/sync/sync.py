@@ -168,6 +168,18 @@ class IntegratedAlertsSync(Sync):
         "umd_glad_sentinel2_alerts",
         "wur_radd_alerts",
     ]
+
+    # First filter for nodata by multiplying everything by
+    # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
+    # Now to establish the combined confidence. We take 10000 and add
+    # a maximum of 30000 for multiple alerts, otherwise 10000 for
+    # low confidence and 20000 for high confidence single alerts. It looks
+    # like taking the max of that and 0 is unnecessary because we already
+    # filtered for nodata.
+    # Next add the day. We want the minimum (earliest) day of the three
+    # systems. Because we can't easily take the minimum of the date and avoid
+    # 0 being the nodata value, subtract the day from the maximum 16-bit
+    # value (65535) and take the max.
     _INPUT_CALC = """np.ma.array(
         (
             (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
