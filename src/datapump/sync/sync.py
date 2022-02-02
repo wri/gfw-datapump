@@ -168,23 +168,70 @@ class IntegratedAlertsSync(Sync):
         "umd_glad_sentinel2_alerts",
         "wur_radd_alerts",
     ]
-    MULTI_BAND_CALC = "np.ma.array([(A > 20000) * (A != 30000) * (A < 40000) * (2 * (A - (20000 + (A>30000) * 10000)) + (A<30000) * 1), (B > 20000) * (B != 30000) * (B < 40000) * (2 * (B - (20000 + (B>30000) * 10000)) + (B<30000) * 1), (C > 20000) * (C != 30000) * (C < 40000) * (2 * (C - (20000 + (C>30000) * 10000)) + (C<30000) * 1)])"
-    SINGLE_BAND_CALC = "np.ma.array(np.ma.sum([np.clip(np.ma.sum([(np.ma.sum([(np.ma.masked_equal(A,0)>0)*1,(np.ma.masked_equal(B,0)>0)*1,(np.ma.masked_equal(C,0)>0)*1],axis=0)>=2)*4,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==0)*3,(np.ma.sum([np.ma.masked_equal(A,0)&1,np.ma.masked_equal(B,0)&1,np.ma.masked_equal(C,0)&1],axis=0)==1)*2],axis=0),None,4).filled(0)*10000,np.ma.min([np.ma.masked_equal(A,0)>>1,np.ma.masked_equal(B,0)>>1,np.ma.masked_equal(C,0)>>1],axis=0)],axis=0).filled(0))"
+
+    # First filter for nodata by multiplying everything by
+    # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
+    # Now to establish the combined confidence. We take 10000 and add
+    # a maximum of 30000 for multiple alerts, otherwise 10000 for
+    # low confidence and 20000 for high confidence single alerts. It looks
+    # like taking the max of that and 0 is unnecessary because we already
+    # filtered for nodata.
+    # Next add the day. We want the minimum (earliest) day of the three
+    # systems. Because we can't easily take the minimum of the date and avoid
+    # 0 being the nodata value, subtract the day from the maximum 16-bit
+    # value (65535) and take the max.
+    _INPUT_CALC = """np.ma.array(
+        (
+            (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
+            * (
+                10000
+                + 10000
+                * np.where(
+                    ((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) > 3,
+                    3,
+                    np.maximum(
+                        ((A.data // 10000) + (B.data // 10000) + (C.data // 10000)) - 1,
+                        0,
+                    ),
+                ).astype(np.uint16)
+                + (
+                    65535
+                    - np.maximum.reduce(
+                        [
+                            (
+                                ((A.data) > 0)
+                                * ((65535 - ((A.data) % 10000)).astype(np.uint16))
+                            ),
+                            (
+                                ((B.data) > 0)
+                                * ((65535 - ((B.data) % 10000)).astype(np.uint16))
+                            ),
+                            (
+                                ((C.data) > 0)
+                                * ((65535 - ((C.data) % 10000)).astype(np.uint16))
+                            ),
+                        ]
+                    )
+                )
+            )
+        ),
+        mask=False,
+    )"""
+    INPUT_CALC = " ".join(_INPUT_CALC.split())
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
-        Create two jobs for sync:
-        1) Create integrated raster layers and assets. This includes
-            1) Multiband raster where each band is a source dataset with encoded date and confidence
-            2) A tile cache, using a special date_conf_intensity_multi_8 to keep information about
-                all layers in the PNGs
-            3) a single band aux asset with standard date_conf encoding of the first observed alert date
-                and integrated confidence, to be used for OTF
-        2) Geotrellis job for integrated alerts. This can be done in parallel, since it just uses the
-            source datasets directly as well.
+        Creates two jobs for sync:
+        1) Creates the integrated raster layers and assets. This includes
+            a) A one band raster tile set where the values consist of the date
+             of first detection by one of the three alert systems and their
+             combined confidence for that pixel.
+            b) A tile cache, using the special date_conf_intensity_multi_8 symbology
+        2) Creates a Geotrellis job for integrated alerts. This can be done in
+         parallel with 1) because it also uses the source datasets directly
         """
 
         latest_versions = self._get_latest_versions()
@@ -205,35 +252,23 @@ class IntegratedAlertsSync(Sync):
                         version=self.sync_version,
                         tile_set_parameters=RasterTileSetParameters(
                             source_uri=source_uris,
-                            calc=self.MULTI_BAND_CALC,
+                            calc=self.INPUT_CALC,
                             grid="10/100000",
                             data_type="uint16",
-                            no_data=[0, 0, 0],
-                            pixel_meaning="date_conf_v2",
-                            band_count=3,
+                            no_data=0,
+                            pixel_meaning="date_conf",
+                            band_count=1,
                             union_bands=True,
                             compute_stats=False,
                             timeout_sec=21600,
                         ),
                         tile_cache_parameters=RasterTileCacheParameters(
                             max_zoom=14,
+                            resampling="med",
                             symbology={"type": "date_conf_intensity_multi_8"},
-                            resampling="nearest",
                         ),
-                        aux_tile_set_parameters=[
-                            RasterTileSetParameters(
-                                calc=self.SINGLE_BAND_CALC,
-                                grid="10/100000",
-                                data_type="uint16",
-                                pixel_meaning="date_conf",
-                                union_bands=True,
-                                compute_stats=False,
-                                timeout_sec=21600,
-                            )
-                        ],
                     )
                 )
-
             jobs.append(
                 GeotrellisJob(
                     id=str(uuid1()),

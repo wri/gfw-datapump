@@ -185,6 +185,11 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         self._send_request(ValidMethods.delete, uri)
 
+    def update_version_metadata(self, dataset: str, version: str, metadata: Dict[str, Any]):
+        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
+        payload = {"metadata": metadata}
+        self._send_request(ValidMethods.patch, uri, payload)
+
     def set_latest(self, dataset: str, version: str):
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         payload = {"is_latest": True}

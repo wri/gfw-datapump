@@ -36,6 +36,8 @@ lambda.zip
 layer.zip
 .mypy_cache/
 .pytest_cache/
+.venv*
+venv/*
 venvpy/
 pyenv/
 .github/
