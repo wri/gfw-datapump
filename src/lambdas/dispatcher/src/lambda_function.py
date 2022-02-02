@@ -98,6 +98,7 @@ def _raster_version_update(command: RasterVersionUpdateCommand):
         status=JobStatus.starting,
         dataset=command.parameters.dataset,
         version=command.parameters.version,
+        content_date_range=command.parameters.content_date_range,
         tile_set_parameters=command.parameters.tile_set_parameters,
         tile_cache_parameters=command.parameters.tile_cache_parameters,
     )
