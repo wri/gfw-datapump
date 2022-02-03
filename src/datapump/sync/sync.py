@@ -273,7 +273,7 @@ class IntegratedAlertsSync(Sync):
                             symbology={"type": "date_conf_intensity_multi_8"},
                         ),
                         content_date_range=ContentDateRange(
-                            min="2014-12-31", max=str(date.today())  # FIXME: Correct?
+                            min="2014-12-31", max=str(date.today())
                         ),
                     )
                 )
