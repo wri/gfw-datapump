@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional, Type
 from uuid import uuid1
 
@@ -18,6 +18,7 @@ from ..jobs.version_update import RasterVersionUpdateJob
 from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
 from ..util.gpkg_util import update_geopackage
+from ..util.models import ContentDateRange
 from ..util.slack import slack_webhook
 
 
@@ -131,8 +132,12 @@ class GladSync(Sync):
                             pixel_meaning="date_conf",
                             union_bands=True,
                             compute_stats=False,
-                            num_processes=24,
                             timeout_sec=21600,
+                            no_data=0,
+                        ),
+                        content_date_range=ContentDateRange(
+                            min="2014-12-31",  # FIXME: Change for collection 2?
+                            max="2021-12-31",  # TODO: Set to str(date.today()) when GLAD starts updating again
                         ),
                     )
                 )
@@ -266,6 +271,9 @@ class IntegratedAlertsSync(Sync):
                             max_zoom=14,
                             resampling="med",
                             symbology={"type": "date_conf_intensity_multi_8"},
+                        ),
+                        content_date_range=ContentDateRange(
+                            min="2014-12-31", max=str(date.today())
                         ),
                     )
                 )
