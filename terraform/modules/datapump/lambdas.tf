@@ -18,6 +18,7 @@ resource "aws_lambda_function" "dispatcher" {
       S3_BUCKET_DATA_LAKE           = var.data_lake_bucket
       DATAPUMP_TABLE_NAME           = aws_dynamodb_table.datapump.name
       S3_GLAD_PATH                  = var.glad_path
+      GCS_KEY_SECRET_ARN            = var.gcs_secret_arn
     }
   }
 }

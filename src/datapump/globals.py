@@ -58,5 +58,10 @@ class Globals(EnvSettings):
     max_versions: int = Field(4, env="MAX_VERSIONS")
     datapump_table_name: Optional[str] = Field(env="DATAPUMP_TABLE_NAME")
 
+    gcs_key_secret_arn = Field(env="GCS_KEY_SECRET_ARN")
+    google_application_credentials = Field(
+        "/root/.gcs/private_key.json", env="GOOGLE_APPLICATION_CREDENTIALS"
+    )
+
 
 GLOBALS = Globals()
