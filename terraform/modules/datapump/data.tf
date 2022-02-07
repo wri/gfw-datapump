@@ -7,7 +7,7 @@ data "template_file" "sts_assume_role_states" {
 }
 
 data "template_file" "datapump_policy" {
-  template = file("${var.policies_path}/datapump.json.tmpl"),
+  template = file("${var.policies_path}/datapump.json.tmpl")
   vars = {
     gcs_secret_arn = var.gcs_secret_arn
   }
