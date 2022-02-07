@@ -105,12 +105,6 @@ variable "command_runner_jar" {
   default = "command-runner.jar"
 }
 
-variable "gcs_secret_arn" {
-  type        = string
-  default     = ""
-  description = "ARN to read GCS secret"
-}
-
 variable "read_gfw_api_secrets_policy" {
   type        = string
   default     = ""
