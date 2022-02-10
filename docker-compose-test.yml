@@ -19,6 +19,7 @@ services:
       - AWS_SESSION_TOKEN=testing  # pragma: allowlist secret
       - AWS_DEFAULT_REGION=us-east-1 # pragma: allowlist secret
       - DUMP_TO_STDOUT=${DUMP_TO_STDOUT}
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.gcs/private_key.json
     depends_on:
       - localstack
       - mock_server

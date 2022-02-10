@@ -1,6 +1,8 @@
 import os
+from typing import List
 
 import boto3
+from google.cloud import storage
 
 from ..globals import GLOBALS
 
@@ -24,3 +26,31 @@ def set_gcs_credentials():
 
     with open(GLOBALS.google_application_credentials, "w") as f:
         f.write(response["SecretString"])
+
+
+def get_gs_subfolders(
+    bucket: str,
+    prefix: str,
+) -> List[str]:
+    set_gcs_credentials()
+
+    storage_client = storage.Client.from_service_account_json(
+        GLOBALS.google_application_credentials
+    )
+
+    delimiter = "/"
+    if not prefix.endswith(delimiter):
+        prefix = prefix + delimiter
+
+    blobs = storage_client.list_blobs(bucket, prefix=prefix, delimiter=delimiter)
+
+    try:
+        _ = next(blobs)
+    except StopIteration:
+        pass
+
+    found_prefixes = [
+        found_prefix.lstrip(prefix).strip("/") for found_prefix in blobs.prefixes
+    ]
+
+    return found_prefixes
