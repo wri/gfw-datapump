@@ -6,6 +6,13 @@ data "template_file" "sts_assume_role_states" {
   template = file("${var.policies_path}/sts_assume_role_states.json")
 }
 
+data "template_file" "datapump_policy" {
+  template = file("${var.policies_path}/datapump.json.tmpl")
+#  vars = {
+#    gcs_secret_arn = var.gcs_secret_arn
+#  }
+}
+
 data "template_file" "sfn_datapump" {
   template = file("${var.step_functions_path}/datapump.json.tmpl")
   vars = {
