@@ -39,7 +39,7 @@
             "Action": [
                 "secretsmanager:GetSecretsValue"
             ],
-            "Resource": "*"
+            "Resource": "${gcs_secret_arn}"
         },
         {
             "Effect": "Allow",

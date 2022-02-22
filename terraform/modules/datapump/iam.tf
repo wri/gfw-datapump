@@ -1,7 +1,9 @@
 resource "aws_iam_policy" "datapump" {
   name   = substr("${local.project}-${local.name_suffix}", 0, 64)
   path   = "/"
-  policy = data.template_file.datapump_policy.rendered
+  policy = templatefile("${var.policies_path}/datapump.json.tftpl", {
+    gcs_secret_arn = var.gcs_secret_arn
+  })
 }
 
 resource "aws_iam_role" "datapump_states" {
