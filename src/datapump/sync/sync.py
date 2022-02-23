@@ -345,10 +345,13 @@ class RADDAlertsSync(Sync):
         """
 
         latest_api_version = self._get_latest_api_version()
+
         latest_release = self._get_latest_release()
 
         if float(latest_api_version.lstrip("v")) >= float(latest_release.lstrip("v")):
             return []
+
+        latest_release_dt = self.parse_version_as_dt(latest_release)
 
         source_uris = [
             f"gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}{latest_release}"
@@ -358,7 +361,7 @@ class RADDAlertsSync(Sync):
             id=str(uuid1()),
             status=JobStatus.starting,
             dataset=self.DATASET_NAME,
-            version=self.sync_version,
+            version=latest_release,
             tile_set_parameters=RasterTileSetParameters(
                 source_uri=source_uris,
                 calc=self.INPUT_CALC,
@@ -375,7 +378,7 @@ class RADDAlertsSync(Sync):
                 symbology={"type": "date_conf_intensity"},
             ),
             content_date_range=ContentDateRange(
-                min="2014-12-31", max=str(date.today())
+                min="2014-12-31", max=str(latest_release_dt)
             ),
         )
 
@@ -394,6 +397,20 @@ class RADDAlertsSync(Sync):
         """
         versions = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
         return sorted(versions)[-1].rstrip("/")
+
+    @staticmethod
+    def parse_version_as_dt(version: str) -> datetime:
+        # Technically this has a Y10K bug
+        release_date = version.lstrip("v")
+        assert (
+            len(release_date) == 8
+        ), "Possibly malformed version folder in RADD GCS bucket!"
+        year, month, day = (
+            int(release_date[:4]),
+            int(release_date[4:6]),
+            int(release_date[6:]),
+        )
+        return datetime(year, month, day)
 
 
 class RWAreasSync(Sync):
