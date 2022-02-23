@@ -1,0 +1,55 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "lambda:InvokeFunction",
+              "elasticmapreduce:RunJobFlow",
+              "elasticmapreduce:DescribeCluster",
+              "cloudformation:DescribeChangeSet",
+              "cloudformation:DescribeStackResources",
+              "cloudformation:DescribeStacks",
+              "cloudformation:GetTemplate",
+              "cloudformation:ListStackResources",
+              "cloudwatch:*",
+              "dynamodb:*",
+              "ec2:DescribeSecurityGroups",
+              "ec2:DescribeSubnets",
+              "ec2:DescribeVpcs",
+              "events:*",
+              "iam:GetPolicy",
+              "iam:GetPolicyVersion",
+              "iam:GetRole",
+              "iam:GetRolePolicy",
+              "iam:ListAttachedRolePolicies",
+              "iam:ListRolePolicies",
+              "iam:ListRoles",
+              "iam:PassRole",
+              "lambda:*",
+              "logs:*",
+              "s3:*",
+              "secretsmanager:GetRandomPassword",
+              "secretsmanager:GetSecretsValue",
+              "states:StartExecution"
+          ],
+          "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "iam:CreateServiceLinkedRole",
+            "iam:PutRolePolicy"
+        ],
+        "Resource": "arn:aws:iam::*:role/aws-service-role/elasticmapreduce.amazonaws.com*/AWSServiceRoleForEMRCleanup*",
+        "Condition": {
+            "StringLike": {
+                "iam:AWSServiceName": [
+                    "elasticmapreduce.amazonaws.com",
+                    "elasticmapreduce.amazonaws.com.cn"
+                ]
+            }
+        }
+    }
+  ]
+}
