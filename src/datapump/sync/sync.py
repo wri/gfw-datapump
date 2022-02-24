@@ -17,7 +17,7 @@ from ..jobs.jobs import JobStatus
 from ..jobs.version_update import RasterVersionUpdateJob
 from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
-from ..util.gcs import get_gs_subfolders
+from ..util.gcs import get_gs_files, get_gs_subfolders
 from ..util.gpkg_util import update_geopackage
 from ..util.models import ContentDateRange
 from ..util.slack import slack_webhook
@@ -335,6 +335,7 @@ class RADDAlertsSync(Sync):
     SOURCE_BUCKET = "gfw_gee_export"
     SOURCE_PREFIX = "wur_radd_alerts/"
     INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
+    NUMBER_OF_TILES = 115
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -393,10 +394,30 @@ class RADDAlertsSync(Sync):
 
     def _get_latest_release(self) -> str:
         """
-        Get the version of the latest release in GCS
+        Get the version of the latest *complete* release in GCS
         """
-        versions = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
-        return sorted(versions)[-1].rstrip("/")
+        versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
+
+        # Shouldn't need to look back through many, so avoid this corner
+        # case: Checking every previous version when run right after
+        # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
+        # uploaded
+        for version in sorted(versions)[:3]:
+            version_prefix = "/".join((self.SOURCE_PREFIX, version))
+            version_tiles: int = len(
+                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
+            )
+            if version_tiles > self.NUMBER_OF_TILES:
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
+                    f"greater than the expected {self.NUMBER_OF_TILES}. "
+                    "If the extent has grown, update NUMBER_OF_TILES value."
+                )
+            elif version_tiles == self.NUMBER_OF_TILES:
+                return version.rstrip("/")
+
+        # We shouldn't get here
+        raise Exception("No complete RADD versions found in GCS!")
 
     @staticmethod
     def parse_version_as_dt(version: str) -> datetime:
@@ -404,7 +425,7 @@ class RADDAlertsSync(Sync):
         release_date = version.lstrip("v")
         assert (
             len(release_date) == 8
-        ), "Possibly malformed version folder in RADD GCS bucket!"
+        ), "Possibly malformed version folder name in RADD GCS bucket!"
         year, month, day = (
             int(release_date[:4]),
             int(release_date[4:6]),

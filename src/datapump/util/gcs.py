@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional, Sequence
 
 import boto3
 from google.cloud import storage
@@ -26,6 +26,37 @@ def set_gcs_credentials():
 
     with open(GLOBALS.google_application_credentials, "w") as f:
         f.write(response["SecretString"])
+
+
+def get_gs_files(
+    bucket: str,
+    prefix: str,
+    limit: Optional[int] = None,
+    exit_after_max: Optional[int] = None,
+    extensions: Sequence[str] = tuple(),
+) -> List[str]:
+    """Get all matching files in GCS.
+    Taken from data API.
+    """
+    set_gcs_credentials()
+
+    storage_client = storage.Client.from_service_account_json(
+        GLOBALS.google_application_credentials
+    )
+
+    matches: List[str] = list()
+    num_matches: int = 0
+
+    blobs = storage_client.list_blobs(bucket, prefix=prefix, max_results=limit)
+
+    for blob in blobs:
+        if not extensions or any(blob.name.endswith(ext) for ext in extensions):
+            matches.append(f"/vsigs/{bucket}/{blob.name}")
+            num_matches += 1
+            if exit_after_max and num_matches >= exit_after_max:
+                break
+
+    return matches
 
 
 def get_gs_subfolders(
