@@ -36,7 +36,7 @@ def get_gs_files(
     extensions: Sequence[str] = tuple(),
 ) -> List[str]:
     """Get all matching files in GCS.
-    Taken from data API.
+    Adapted from data API.
     """
     set_gcs_credentials()
 
@@ -51,7 +51,7 @@ def get_gs_files(
 
     for blob in blobs:
         if not extensions or any(blob.name.endswith(ext) for ext in extensions):
-            matches.append(f"/vsigs/{bucket}/{blob.name}")
+            matches.append(blob.name)
             num_matches += 1
             if exit_after_max and num_matches >= exit_after_max:
                 break
