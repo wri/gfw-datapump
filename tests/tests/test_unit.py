@@ -4,17 +4,22 @@
 import os
 import time
 
+from datapump.clients.datapump_store import DatapumpConfig
+from datapump.jobs.version_update import RasterVersionUpdateJob
+
 os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
 os.environ["GEOTRELLIS_JAR_PATH"] = "s3://gfw-pipelines-test/geotrellis/jars"
 
 from datapump.commands.analysis import Analysis, AnalysisInputTable
+from datapump.commands.sync import SyncType
 from datapump.jobs.geotrellis import (
     FireAlertsGeotrellisJob,
     GeotrellisJob,
     GeotrellisJobStep,
     JobStatus,
 )
+from datapump.sync.sync import RADDAlertsSync
 
 
 def test_geotrellis_fires():
@@ -135,6 +140,30 @@ def test_geotrellis_retries_big(monkeypatch):
 
     test_big.next_step()
     assert test_big.status == JobStatus.failed
+
+
+def test_radd_sync(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220101",
+        dataset="wur_radd_alerts",
+        dataset_version="v20220101",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.radd,
+    )
+
+    monkeypatch.setattr(
+        RADDAlertsSync, "_get_latest_api_version", lambda x: "v20211018"
+    )
+    monkeypatch.setattr(RADDAlertsSync, "_get_latest_release", lambda x: "v20220222")
+
+    radd_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
+
+    assert radd_jobs
+    job = radd_jobs[0]
+    assert isinstance(job, RasterVersionUpdateJob)
+    assert job.version == "v20220222"
+    assert job.content_date_range.max == "2022-02-22"
 
 
 EXPECTED = {

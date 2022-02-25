@@ -352,7 +352,7 @@ class RADDAlertsSync(Sync):
         if float(latest_api_version.lstrip("v")) >= float(latest_release.lstrip("v")):
             return []
 
-        latest_release_dt = self.parse_version_as_dt(latest_release)
+        latest_release_dt: str = str(self.parse_version_as_dt(latest_release).date())
 
         source_uris = [
             f"gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}{latest_release}"
@@ -398,8 +398,8 @@ class RADDAlertsSync(Sync):
         """
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
-        # Shouldn't need to look back through many, so avoid this corner
-        # case: Checking every previous version when run right after
+        # Shouldn't need to look back through many, so avoid the corner
+        # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
         for version in sorted(versions)[:3]:

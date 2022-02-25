@@ -14,11 +14,11 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
   rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
-RUN apk add --no-cache --upgrade bash
+RUN apk add --no-cache --upgrade bash gcc libc-dev python3-dev geos-dev
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
-RUN pip3 install pytest pytest-cov boto3
+RUN pip3 install pytest pytest-cov boto3 shapely
 
 RUN mkdir datapump
 COPY ./src src
