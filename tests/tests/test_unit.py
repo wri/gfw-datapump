@@ -4,13 +4,11 @@
 import os
 import time
 
-from datapump.clients.datapump_store import DatapumpConfig
-from datapump.jobs.version_update import RasterVersionUpdateJob
-
 os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
 os.environ["GEOTRELLIS_JAR_PATH"] = "s3://gfw-pipelines-test/geotrellis/jars"
 
+from datapump.clients.datapump_store import DatapumpConfig
 from datapump.commands.analysis import Analysis, AnalysisInputTable
 from datapump.commands.sync import SyncType
 from datapump.jobs.geotrellis import (
@@ -19,6 +17,7 @@ from datapump.jobs.geotrellis import (
     GeotrellisJobStep,
     JobStatus,
 )
+from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import RADDAlertsSync
 
 
