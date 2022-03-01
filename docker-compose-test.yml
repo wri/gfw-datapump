@@ -19,7 +19,7 @@ services:
       - AWS_SESSION_TOKEN=testing  # pragma: allowlist secret
       - AWS_DEFAULT_REGION=us-east-1 # pragma: allowlist secret
       - DUMP_TO_STDOUT=${DUMP_TO_STDOUT}
-      - GOOGLE_APPLICATION_CREDENTIALS=/root/.gcs/private_key.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/.gcs/private_key.json
       - S3_BUCKET_PIPELINE=gfw-pipelines-test
       - S3_BUCKET_DATA_LAKE=gfw-data-lake-test
     depends_on:

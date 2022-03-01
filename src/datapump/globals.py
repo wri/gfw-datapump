@@ -61,7 +61,7 @@ class Globals(EnvSettings):
     gcs_key_secret_arn: Optional[str] = Field(None, env="GCS_KEY_SECRET_ARN")
 
     google_application_credentials = Field(
-        "/root/.gcs/private_key.json", env="GOOGLE_APPLICATION_CREDENTIALS"
+        "/tmp/.gcs/private_key.json", env="GOOGLE_APPLICATION_CREDENTIALS"
     )
 
 
