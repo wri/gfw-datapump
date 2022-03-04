@@ -384,7 +384,7 @@ class GeotrellisJob(Job):
         # schema change in version 2.1.4
         if self.geotrellis_version < "2.1.4":
             threshold_field = "umd_tree_cover_density__threshold"
-            glad_conf_field = "confidence__cat"
+            glad_conf_field = "is__confirmed_alert"
             glad_date_field = "alert__date"
         else:
             threshold_field = "umd_tree_cover_density_2000__threshold"
