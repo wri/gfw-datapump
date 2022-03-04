@@ -381,15 +381,25 @@ class GeotrellisJob(Job):
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
 
+        # schema change in version 2.1.4
+        if self.geotrellis_version < "2.1.4":
+            threshold_field = "umd_tree_cover_density__threshold"
+            glad_conf_field = "confidence__cat"
+            glad_date_field = "alert__date"
+        else:
+            threshold_field = "umd_tree_cover_density_2000__threshold"
+            glad_conf_field = "umd_glad_landsat_alerts__confidence"
+            glad_date_field = "umd_glad_landsat_alerts__date"
+
         analysis_col_constructor: Dict[Tuple[Analysis, str], List[str]] = {
             (Analysis.tcl, "change"): [
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "umd_tree_cover_loss__year",
             ],
-            (Analysis.tcl, "summary"): ["umd_tree_cover_density_2000__threshold"],
-            (Analysis.glad, "daily_alerts"): ["umd_glad_landsat_alerts__confidence", "alert__date"],
+            (Analysis.tcl, "summary"): [threshold_field],
+            (Analysis.glad, "daily_alerts"): [glad_conf_field, glad_date_field],
             (Analysis.glad, "weekly_alerts"): [
-                "umd_glad_landsat_alerts__confidence",
+                glad_conf_field,
                 "alert__year",
                 "alert__week",
             ],
@@ -399,39 +409,39 @@ class GeotrellisJob(Job):
             ],
             (Analysis.viirs, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.viirs, "all"): [
                 "alert__date",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.viirs, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.modis, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.modis, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.burned_areas, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
             ],
             (Analysis.burned_areas, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density_2000__threshold",
+                threshold_field,
             ],
         }
 
