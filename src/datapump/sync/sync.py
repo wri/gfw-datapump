@@ -331,9 +331,6 @@ class DeforestationAlertsSync(Sync):
     Defines jobs to create new RADD alerts assets once a new release is available.
     """
 
-    def __init__(self, sync_version: str):
-        self.sync_version = sync_version
-
     @property
     @abstractmethod
     def dataset_name(self):
@@ -363,6 +360,9 @@ class DeforestationAlertsSync(Sync):
     @abstractmethod
     def grid(self):
         ...
+
+    def __init__(self, sync_version: str):
+        self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
@@ -446,6 +446,12 @@ class RADDAlertsSync(Sync):
     input_calc = "(A >= 20000) * (A < 40000) * A"
     number_of_tiles = 115
     grid = "10/100000"
+
+    def __init__(self, sync_version: str):
+        super().__init__(sync_version)
+
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
+        return super().build_jobs(config)
 
     def get_latest_release(self) -> str:
         """
