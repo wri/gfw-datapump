@@ -32,7 +32,7 @@ resource "aws_cloudwatch_event_target" "nightly-sync" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
   target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
-  input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\", \"radd\", \"viirs\", \"modis\"]}}"
+  input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\", \"viirs\", \"modis\", \"wur_radd_alerts\",]}}"
   role_arn  = aws_iam_role.datapump_states.arn
   count     = var.environment == "production" ? 1 : 0
 }
