@@ -148,7 +148,7 @@ def test_radd_sync(monkeypatch):
         dataset_version="v20220101",
         analysis="",
         sync=True,
-        sync_type=SyncType.radd,
+        sync_type=SyncType.wur_radd_alerts,
     )
 
     monkeypatch.setattr(
