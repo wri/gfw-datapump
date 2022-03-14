@@ -151,10 +151,8 @@ def test_radd_sync(monkeypatch):
         sync_type=SyncType.wur_radd_alerts,
     )
 
-    monkeypatch.setattr(
-        RADDAlertsSync, "_get_latest_api_version", lambda x: "v20211018"
-    )
-    monkeypatch.setattr(RADDAlertsSync, "_get_latest_release", lambda x: "v20220222")
+    monkeypatch.setattr(RADDAlertsSync, "get_latest_api_version", lambda x: "v20211018")
+    monkeypatch.setattr(RADDAlertsSync, "get_latest_release", lambda x: "v20220222")
 
     radd_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
 
