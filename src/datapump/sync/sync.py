@@ -326,16 +326,16 @@ class IntegratedAlertsSync(Sync):
         return False
 
 
-class RADDAlertsSync(Sync):
+class DeforestationAlertsSync(Sync):
     """
     Defines jobs to create new RADD alerts assets once a new release is available.
     """
 
-    DATASET_NAME = "wur_radd_alerts"
-    SOURCE_BUCKET = "gfw_gee_export"
-    SOURCE_PREFIX = "wur_radd_alerts/"
-    INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
-    NUMBER_OF_TILES = 115
+    # DATASET_NAME = "wur_radd_alerts"
+    # SOURCE_BUCKET = "gfw_gee_export"
+    # SOURCE_PREFIX = "wur_radd_alerts/"
+    # INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
+    # NUMBER_OF_TILES = 115
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -345,7 +345,8 @@ class RADDAlertsSync(Sync):
         Creates the WUR RADD raster layer and assets
         """
 
-        latest_api_version = self._get_latest_api_version()
+        client = DataApiClient()
+        latest_api_version = client.get_latest_version(self.DATASET_NAME)
 
         latest_release = self._get_latest_release()
 
@@ -366,7 +367,7 @@ class RADDAlertsSync(Sync):
             tile_set_parameters=RasterTileSetParameters(
                 source_uri=source_uris,
                 calc=self.INPUT_CALC,
-                grid="10/100000",
+                grid=self.GRID,
                 data_type="uint16",
                 no_data=0,
                 pixel_meaning="date_conf",
@@ -385,18 +386,88 @@ class RADDAlertsSync(Sync):
 
         return [job]
 
-    def _get_latest_api_version(self) -> str:
-        """
-        Get the version of the latest release in the Data API
-        """
-        client = DataApiClient()
-        return client.get_latest_version(self.DATASET_NAME)
+    @abstractmethod
+    def get_latest_release(self) -> str:
+        ...
 
-    def _get_latest_release(self) -> str:
+    @staticmethod
+    @abstractmethod
+    def parse_version_as_dt(version: str) -> datetime:
+        ...
+
+
+class RADDAlertsSync(Sync):
+    """
+    Defines jobs to create new RADD alerts assets once a new release is available.
+    """
+
+    DATASET_NAME = "wur_radd_alerts"
+    SOURCE_BUCKET = "gfw_gee_export"
+    SOURCE_PREFIX = "wur_radd_alerts/"
+    INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
+    NUMBER_OF_TILES = 115
+    GRID = "10/100000"
+
+    def get_latest_release(self) -> str:
         """
         Get the version of the latest *complete* release in GCS
         """
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
+
+        # Shouldn't need to look back through many, so avoid the corner
+        # case that would check every previous version when run right after
+        # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
+        # uploaded
+        for version in sorted(versions)[:3]:
+            version_prefix = "/".join((self.SOURCE_PREFIX, version))
+            version_tiles: int = len(
+                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
+            )
+            if version_tiles > self.NUMBER_OF_TILES:
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
+                    f"greater than the expected {self.NUMBER_OF_TILES}. "
+                    "If the extent has grown, update NUMBER_OF_TILES value."
+                )
+            elif version_tiles == self.NUMBER_OF_TILES:
+                return version.rstrip("/")
+
+        # We shouldn't get here
+        raise Exception("No complete RADD versions found in GCS!")
+
+    @staticmethod
+    def parse_version_as_dt(version: str) -> datetime:
+        # Technically this has a Y10K bug
+        release_date = version.lstrip("v")
+        assert (
+            len(release_date) == 8
+        ), "Possibly malformed version folder name in RADD GCS bucket!"
+        year, month, day = (
+            int(release_date[:4]),
+            int(release_date[4:6]),
+            int(release_date[6:]),
+        )
+        return datetime(year, month, day)
+
+
+class GLADLAlertsSync(Sync):
+    """
+    Defines jobs to create new RADD alerts assets once a new release is available.
+    """
+
+    DATASET_NAME = "wur_radd_alerts"
+    SOURCE_BUCKET = "gfw_gee_export"
+    SOURCE_PREFIX = "wur_radd_alerts/"
+    INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
+    NUMBER_OF_TILES = 115
+    GRID = "10/100000"
+
+    def get_latest_release(self) -> str:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+        today_prefix = date.today().strftime("%Y/%m_%d")
+        versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, f"{self.SOURCE_PREFIX}/{today_prefix}/alertDate_")
 
         # Shouldn't need to look back through many, so avoid the corner
         # case that would check every previous version when run right after
