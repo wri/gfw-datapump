@@ -473,7 +473,7 @@ class Syncer:
         SyncType.rw_areas: RWAreasSync,
         SyncType.glad: GladSync,
         SyncType.integrated_alerts: IntegratedAlertsSync,
-        SyncType.radd: RADDAlertsSync,
+        SyncType.wur_radd_alerts: RADDAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
