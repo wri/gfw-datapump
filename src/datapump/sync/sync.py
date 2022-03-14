@@ -398,22 +398,25 @@ class RADDAlertsSync(Sync):
         """
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
+        LOGGER.info("RADD versions")
+        LOGGER.info(versions)
+
         # Shouldn't need to look back through many, so avoid the corner
         # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
         for version in sorted(versions)[:3]:
-            version_prefix = "/".join((self.SOURCE_PREFIX, version))
+            version_prefix = "/".join((self.source_prefix, version))
             version_tiles: int = len(
-                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
+                get_gs_files(self.source_bucket, version_prefix, extensions=[".tif"])
             )
-            if version_tiles > self.NUMBER_OF_TILES:
+            if version_tiles > self.number_of_tiles:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
-                    f"greater than the expected {self.NUMBER_OF_TILES}. "
+                    f"greater than the expected {self.number_of_tiles}. "
                     "If the extent has grown, update NUMBER_OF_TILES value."
                 )
-            elif version_tiles == self.NUMBER_OF_TILES:
+            elif version_tiles == self.number_of_tiles:
                 return version.rstrip("/")
 
         # We shouldn't get here
