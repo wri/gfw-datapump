@@ -335,7 +335,7 @@ class RADDAlertsSync(Sync):
     SOURCE_BUCKET = "gfw_gee_export"
     SOURCE_PREFIX = "wur_radd_alerts/"
     INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
-    NUMBER_OF_TILES = 115
+    NUMBER_OF_TILES = 175
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -346,7 +346,6 @@ class RADDAlertsSync(Sync):
         """
 
         latest_api_version = self._get_latest_api_version()
-
         latest_release = self._get_latest_release()
 
         if float(latest_api_version.lstrip("v")) >= float(latest_release.lstrip("v")):
@@ -398,25 +397,24 @@ class RADDAlertsSync(Sync):
         """
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
-        LOGGER.info("RADD versions")
-        LOGGER.info(versions)
-
         # Shouldn't need to look back through many, so avoid the corner
         # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
-        for version in sorted(versions)[:3]:
-            version_prefix = "/".join((self.source_prefix, version))
+
+        for version in sorted(versions, reverse=True)[:3]:
+            version_prefix = "/".join((self.SOURCE_PREFIX, version))
             version_tiles: int = len(
-                get_gs_files(self.source_bucket, version_prefix, extensions=[".tif"])
+                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
-            if version_tiles > self.number_of_tiles:
+
+            if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
-                    f"greater than the expected {self.number_of_tiles}. "
+                    f"greater than the expected {self.NUMBER_OF_TILES}. "
                     "If the extent has grown, update NUMBER_OF_TILES value."
                 )
-            elif version_tiles == self.number_of_tiles:
+            elif version_tiles == self.NUMBER_OF_TILES:
                 return version.rstrip("/")
 
         # We shouldn't get here
