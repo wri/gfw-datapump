@@ -542,7 +542,7 @@ class GeotrellisJob(Job):
                 return "boolean"
         else:
             if (
-                field.endswith("__Mg")
+                "__Mg" in field
                 or field.endswith("__ha")
                 or field.endswith("__K")
                 or field.endswith("__MW")
