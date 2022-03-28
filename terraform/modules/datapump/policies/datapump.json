@@ -4,7 +4,6 @@
       {
           "Effect": "Allow",
           "Action": [
-              "secretsmanager:GetRandomPassword",
               "lambda:InvokeFunction",
               "elasticmapreduce:RunJobFlow",
               "elasticmapreduce:DescribeCluster",
@@ -30,6 +29,8 @@
               "lambda:*",
               "logs:*",
               "s3:*",
+              "secretsmanager:GetRandomPassword",
+              "secretsmanager:GetSecretsValue",
               "states:StartExecution"
           ],
           "Resource": "*"

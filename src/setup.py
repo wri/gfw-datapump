@@ -11,6 +11,7 @@ setup(
         "boto3~=1.10.7",
         "requests~=2.22.0",
         "geojson~=2.5.0",
+        "google-cloud-storage~=2.1.0",
         "pyshp~=2.1.0",
         "pydantic~=1.7.2",
         "smart-open~=4.0.1",

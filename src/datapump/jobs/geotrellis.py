@@ -51,11 +51,11 @@ class GeotrellisFeatureType(str, Enum):
     def get_feature_fields(feature_type):
         if feature_type == GeotrellisFeatureType.wdpa:
             return [
-                "wdpa_protected_area__id",
-                "wdpa_protected_area__name",
-                "wdpa_protected_area__iucn_cat",
-                "wdpa_protected_area__iso",
-                "wdpa_protected_area__status",
+                "wdpa_protected_areas__id",
+                "wdpa_protected_areas__name",
+                "wdpa_protected_areas__iucn_cat",
+                "wdpa_protected_areas__iso",
+                "wdpa_protected_areas__status",
             ]
         elif feature_type == GeotrellisFeatureType.gadm:
             return ["iso", "adm1", "adm2"]
@@ -366,7 +366,7 @@ class GeotrellisJob(Job):
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
             ("gadm", None): ["iso", "adm1", "adm2"],
             ("all", None): [],
-            ("wdpa", None): ["wdpa_protected_area__id"],
+            ("wdpa", None): ["wdpa_protected_areas__id"],
             ("geostore", None): ["geostore__id"],
             ("feature", None): ["feature__id"],
         }
@@ -381,15 +381,25 @@ class GeotrellisJob(Job):
             LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
             raise e
 
+        # schema change in version 2.1.4
+        if self.geotrellis_version < "2.1.4":
+            threshold_field = "umd_tree_cover_density__threshold"
+            glad_conf_field = "is__confirmed_alert"
+            glad_date_field = "alert__date"
+        else:
+            threshold_field = "umd_tree_cover_density_2000__threshold"
+            glad_conf_field = "umd_glad_landsat_alerts__confidence"
+            glad_date_field = "umd_glad_landsat_alerts__date"
+
         analysis_col_constructor: Dict[Tuple[Analysis, str], List[str]] = {
             (Analysis.tcl, "change"): [
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "umd_tree_cover_loss__year",
             ],
-            (Analysis.tcl, "summary"): ["umd_tree_cover_density__threshold"],
-            (Analysis.glad, "daily_alerts"): ["is__confirmed_alert", "alert__date"],
+            (Analysis.tcl, "summary"): [threshold_field],
+            (Analysis.glad, "daily_alerts"): [glad_conf_field, glad_date_field],
             (Analysis.glad, "weekly_alerts"): [
-                "is__confirmed_alert",
+                glad_conf_field,
                 "alert__year",
                 "alert__week",
             ],
@@ -399,39 +409,39 @@ class GeotrellisJob(Job):
             ],
             (Analysis.viirs, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.viirs, "all"): [
                 "alert__date",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.viirs, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.modis, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.modis, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
                 "confidence__cat",
             ],
             (Analysis.burned_areas, "daily_alerts"): [
                 "alert__date",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
             ],
             (Analysis.burned_areas, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                "umd_tree_cover_density__threshold",
+                threshold_field,
             ],
         }
 
@@ -532,7 +542,7 @@ class GeotrellisJob(Job):
                 return "boolean"
         else:
             if (
-                field.endswith("__Mg")
+                "__Mg" in field
                 or field.endswith("__ha")
                 or field.endswith("__K")
                 or field.endswith("__MW")
@@ -650,61 +660,6 @@ class GeotrellisJob(Job):
 
         if self.change_only:
             step_args.append("--change_only")
-
-        # TODO temp fix until we start sending all versions from datapump to geotrellis
-        if self.table.analysis == Analysis.integrated_alerts:
-            client = DataApiClient()
-            alert_datasets = [
-                "umd_glad_landsat_alerts",
-                "umd_glad_sentinel2_alerts",
-                "wur_radd_alerts",
-            ]
-
-            for ds in alert_datasets:
-                latest_version = client.get_latest_version(ds)
-                step_args.append("--pin_version")
-                step_args.append(f"{ds}:{latest_version}")
-
-            step_args += [
-                "--pin_version",
-                "gfw_wood_fiber:v20200725",
-                "--pin_version",
-                "whrc_aboveground_biomass_stock_2000:v4",
-                "--pin_version",
-                "umd_regional_primary_forest_2001:v201901",
-                "--pin_version",
-                "wdpa_protected_areas:v202106",
-                "--pin_version",
-                "birdlife_alliance_for_zero_extinction_sites:v20200725",
-                "--pin_version",
-                "birdlife_key_biodiversity_areas:v202106",
-                "--pin_version",
-                "landmark_indigenous_and_community_lands:v20201215",
-                "--pin_version",
-                "gfw_mining_concessions:v202106",
-                "--pin_version",
-                "gfw_managed_forests:v202106",
-                "--pin_version",
-                "rspo_oil_palm:v20200114",
-                "--pin_version",
-                "gfw_peatlands:v20200807",
-                "--pin_version",
-                "idn_forest_moratorium:v20200923",
-                "--pin_version",
-                "gfw_oil_palm:v20191031",
-                "--pin_version",
-                "idn_forest_area:v201709",
-                "--pin_version",
-                "per_forest_concessions:v201610",
-                "--pin_version",
-                "gfw_oil_gas:v20190321",
-                "--pin_version",
-                "gmw_global_mangrove_extent_2016:v20201210",
-                "--pin_version",
-                "ifl_intact_forest_landscapes:v2018",
-                "--pin_version",
-                "ibge_bra_biomes:v2004",
-            ]
 
         if (
             GLOBALS.env != "production"
@@ -869,6 +824,12 @@ class GeotrellisJob(Job):
                     "spark.dynamicAllocation.enabled": "true",
                     "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
                     "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
+                    "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.executorEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
                 },
                 "Configurations": [],
             },

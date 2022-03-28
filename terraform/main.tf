@@ -1,4 +1,3 @@
-# Download any stable version in AWS provider of 2.36.0 or higher in 2.36 train
 terraform {
   required_version = ">=0.13"
   backend "s3" {
@@ -15,6 +14,7 @@ terraform {
 }
 
 provider "aws" {
+  version  = "< 4"
   region  = "us-east-1"
 }
 
@@ -56,6 +56,7 @@ module "datapump" {
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name
   public_subnet_ids = data.terraform_remote_state.core.outputs.public_subnet_ids
   ec2_key_name = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+  gcs_secret_arn = data.terraform_remote_state.core.outputs.secrets_read-gfw-gee-export_arn
   read_gfw_api_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
   read_gfw_sync_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-slack-gfw-sync_policy_arn
 }
