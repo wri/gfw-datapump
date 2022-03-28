@@ -600,7 +600,7 @@ class GeotrellisJob(Job):
             self.table.analysis == Analysis.tcl
             or self.table.analysis == Analysis.burned_areas
         ):
-            analysis_weight *= 1.25
+            analysis_weight *= 2
         if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
