@@ -579,6 +579,9 @@ class GeotrellisJob(Job):
 
         :return: calculate number of works appropriate for job size
         """
+        if self.sync_type == SyncType.rw_areas:
+            return 30
+
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
             if GLOBALS.env == "production":
@@ -590,8 +593,6 @@ class GeotrellisJob(Job):
                     return 100
             else:
                 return 50
-        elif self.sync_type == SyncType.rw_areas:
-            return 30
 
         byte_size = self._get_byte_size(limiting_src)
 
