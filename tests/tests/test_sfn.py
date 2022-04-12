@@ -5,6 +5,7 @@ import time
 from pprint import pprint
 
 import boto3
+import pytest
 
 LOCALSTACK_URI = "http://localstack:4566"
 WORKSPACE = os.popen("terraform workspace show").read().strip()
@@ -13,6 +14,7 @@ DATAPUMP_SFN_ARN = f"arn:aws:states:us-east-1:000000000000:stateMachine:{SFN_NAM
 DUMP_TO_STDOUT = os.environ.get("DUMP_TO_STDOUT", None)
 
 
+@pytest.mark.skip(reason="Investigate issue with new version of localstack")
 def test_datapump_basic():
     try:
         add_version_input = {
@@ -45,6 +47,7 @@ def test_datapump_basic():
         _dump_logs()
 
 
+@pytest.mark.skip(reason="Investigate issue with new version of localstack")
 def test_integrated_alerts():
     try:
         _add_sync_config("integrated_alerts", "integrated_alerts")

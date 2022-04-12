@@ -542,7 +542,7 @@ class GeotrellisJob(Job):
                 return "boolean"
         else:
             if (
-                field.endswith("__Mg")
+                "__Mg" in field
                 or field.endswith("__ha")
                 or field.endswith("__K")
                 or field.endswith("__MW")
@@ -600,7 +600,7 @@ class GeotrellisJob(Job):
             self.table.analysis == Analysis.tcl
             or self.table.analysis == Analysis.burned_areas
         ):
-            analysis_weight *= 1.25
+            analysis_weight *= 2
         if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
@@ -824,6 +824,12 @@ class GeotrellisJob(Job):
                     "spark.dynamicAllocation.enabled": "true",
                     "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
                     "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
+                    "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.executorEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
                 },
                 "Configurations": [],
             },
