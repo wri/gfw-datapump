@@ -30,7 +30,7 @@
               "logs:*",
               "s3:*",
               "secretsmanager:GetRandomPassword",
-              "secretsmanager:GetSecretsValue",
+              "secretsmanager:GetSecretValue",
               "states:StartExecution"
           ],
           "Resource": "*"

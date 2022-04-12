@@ -335,7 +335,7 @@ class RADDAlertsSync(Sync):
     SOURCE_BUCKET = "gfw_gee_export"
     SOURCE_PREFIX = "wur_radd_alerts/"
     INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
-    NUMBER_OF_TILES = 115
+    NUMBER_OF_TILES = 175
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -346,7 +346,6 @@ class RADDAlertsSync(Sync):
         """
 
         latest_api_version = self._get_latest_api_version()
-
         latest_release = self._get_latest_release()
 
         if float(latest_api_version.lstrip("v")) >= float(latest_release.lstrip("v")):
@@ -402,11 +401,13 @@ class RADDAlertsSync(Sync):
         # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
-        for version in sorted(versions)[:3]:
+
+        for version in sorted(versions, reverse=True)[:3]:
             version_prefix = "/".join((self.SOURCE_PREFIX, version))
             version_tiles: int = len(
                 get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
+
             if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
@@ -473,7 +474,7 @@ class Syncer:
         SyncType.rw_areas: RWAreasSync,
         SyncType.glad: GladSync,
         SyncType.integrated_alerts: IntegratedAlertsSync,
-        SyncType.radd: RADDAlertsSync,
+        SyncType.wur_radd_alerts: RADDAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
