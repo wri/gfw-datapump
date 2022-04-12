@@ -13,6 +13,8 @@ from datapump.sync.rw_areas import get_aoi_geostore_ids
 from datapump.util.slack import slack_webhook
 from pydantic import parse_obj_as
 
+from datapump.commands.analysis import Analysis
+
 
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
@@ -22,6 +24,8 @@ def handler(event, context):
     )
     failed_jobs = []
     rw_area_jobs = []
+
+    config_client = DatapumpStore()
 
     for job in jobs:
         LOGGER.info(f"Postprocessing job: {pformat(job.dict())}")
@@ -54,7 +58,6 @@ def handler(event, context):
 
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
-                config_client = DatapumpStore()
                 LOGGER.debug(
                     f"Writing entries for {job.table.dataset} - {job.table.analysis} - {sync_types}"
                 )
@@ -100,6 +103,17 @@ def handler(event, context):
                 slack_webhook(
                     "info",
                     f"Raster tile generation succeeded for dataset {job.dataset} with version {job.version}!",
+                )
+
+                config_client.put(
+                    DatapumpConfig(
+                        analysis_version=job.version,
+                        dataset=job.dataset,
+                        dataset_version=job.version,
+                        analysis=Analysis.create_raster,
+                        sync=True,
+                        sync_type=job.dataset
+                    )
                 )
 
     if failed_jobs:
