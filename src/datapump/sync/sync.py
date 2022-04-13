@@ -405,7 +405,7 @@ class RADDAlertsSync(Sync):
 
         LOGGER.info(f"RADD versions: {versions}")
         for version in sorted(versions, reverse=True)[:3]:
-            version_prefix = "/".join((self.SOURCE_PREFIX, version))
+            version_prefix = f"{self.SOURCE_PREFIX}{version}"
             LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
 
             version_tiles: int = len(
