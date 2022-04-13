@@ -395,6 +395,7 @@ class RADDAlertsSync(Sync):
         """
         Get the version of the latest *complete* release in GCS
         """
+        LOGGER.info(f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}")
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
         # Shouldn't need to look back through many, so avoid the corner
@@ -402,12 +403,16 @@ class RADDAlertsSync(Sync):
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
 
+        LOGGER.info(f"RADD versions: {versions}")
         for version in sorted(versions, reverse=True)[:3]:
             version_prefix = "/".join((self.SOURCE_PREFIX, version))
+            LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+
             version_tiles: int = len(
                 get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
 
+            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
             if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
@@ -497,4 +502,12 @@ class Syncer:
         :return: Job model, or None if there's no job to sync
         """
         sync_type = SyncType[config.sync_type]
-        return self.syncers[sync_type].build_jobs(config)
+
+        try:
+            jobs = self.syncers[sync_type].build_jobs(config)
+        except Exception as e:
+            LOGGER.error(f"Could not generate jobs for sync type {sync_type} with config {config}")
+            # TODO report to slack?
+            return []
+
+        return jobs
