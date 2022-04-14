@@ -4,7 +4,7 @@ from typing import List, Optional, Sequence
 import boto3
 from google.cloud import storage
 
-from ..globals import GLOBALS
+from ..globals import GLOBALS, LOGGER
 
 
 def set_gcs_credentials():
@@ -47,8 +47,9 @@ def get_gs_files(
     matches: List[str] = list()
     num_matches: int = 0
 
-    blobs = storage_client.list_blobs(bucket, prefix=prefix, max_results=limit)
+    blobs = list(storage_client.list_blobs(bucket, prefix=prefix, max_results=limit))
 
+    LOGGER.info(f"Found files under gs://{bucket}/{prefix}: {blobs}")
     for blob in blobs:
         if not extensions or any(blob.name.endswith(ext) for ext in extensions):
             matches.append(blob.name)

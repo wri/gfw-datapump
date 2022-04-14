@@ -51,11 +51,11 @@ class GeotrellisFeatureType(str, Enum):
     def get_feature_fields(feature_type):
         if feature_type == GeotrellisFeatureType.wdpa:
             return [
-                "wdpa_protected_areas__id",
-                "wdpa_protected_areas__name",
-                "wdpa_protected_areas__iucn_cat",
-                "wdpa_protected_areas__iso",
-                "wdpa_protected_areas__status",
+                "wdpa_protected_area__id",
+                "wdpa_protected_area__name",
+                "wdpa_protected_area__iucn_cat",
+                "wdpa_protected_area__iso",
+                "wdpa_protected_area__status",
             ]
         elif feature_type == GeotrellisFeatureType.gadm:
             return ["iso", "adm1", "adm2"]
@@ -366,7 +366,7 @@ class GeotrellisJob(Job):
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
             ("gadm", None): ["iso", "adm1", "adm2"],
             ("all", None): [],
-            ("wdpa", None): ["wdpa_protected_areas__id"],
+            ("wdpa", None): ["wdpa_protected_area__id"],
             ("geostore", None): ["geostore__id"],
             ("feature", None): ["feature__id"],
         }
@@ -542,7 +542,7 @@ class GeotrellisJob(Job):
                 return "boolean"
         else:
             if (
-                field.endswith("__Mg")
+                "__Mg" in field
                 or field.endswith("__ha")
                 or field.endswith("__K")
                 or field.endswith("__MW")
@@ -579,6 +579,9 @@ class GeotrellisJob(Job):
 
         :return: calculate number of works appropriate for job size
         """
+        if self.sync_type == SyncType.rw_areas:
+            return 30
+
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
             if GLOBALS.env == "production":
@@ -590,8 +593,6 @@ class GeotrellisJob(Job):
                     return 100
             else:
                 return 50
-        elif self.sync_type == SyncType.rw_areas:
-            return 30
 
         byte_size = self._get_byte_size(limiting_src)
 
@@ -600,7 +601,7 @@ class GeotrellisJob(Job):
             self.table.analysis == Analysis.tcl
             or self.table.analysis == Analysis.burned_areas
         ):
-            analysis_weight *= 1.25
+            analysis_weight *= 2
         if self.change_only or self.table.analysis == Analysis.integrated_alerts:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
@@ -824,6 +825,12 @@ class GeotrellisJob(Job):
                     "spark.dynamicAllocation.enabled": "true",
                     "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
                     "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
+                    "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.executorEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
                 },
                 "Configurations": [],
             },

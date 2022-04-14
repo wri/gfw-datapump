@@ -444,7 +444,7 @@ class RADDAlertsSync(Sync):
     source_bucket = "gfw_gee_export"
     source_prefix = "wur_radd_alerts/"
     input_calc = "(A >= 20000) * (A < 40000) * A"
-    number_of_tiles = 115
+    number_of_tiles = 175
     grid = "10/100000"
 
     def __init__(self, sync_version: str):
@@ -457,24 +457,31 @@ class RADDAlertsSync(Sync):
         """
         Get the version of the latest *complete* release in GCS
         """
-        versions: List[str] = get_gs_subfolders(self.source_bucket, self.source_prefix)
+        LOGGER.info(f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}")
+        versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
         # Shouldn't need to look back through many, so avoid the corner
         # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
-        for version in sorted(versions)[:3]:
-            version_prefix = "/".join((self.source_prefix, version))
+
+        LOGGER.info(f"RADD versions: {versions}")
+        for version in sorted(versions, reverse=True)[:3]:
+            version_prefix = f"{self.SOURCE_PREFIX}{version}"
+            LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+
             version_tiles: int = len(
-                get_gs_files(self.source_bucket, version_prefix, extensions=[".tif"])
+                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
-            if version_tiles > self.number_of_tiles:
+
+            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+            if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
-                    f"greater than the expected {self.number_of_tiles}. "
+                    f"greater than the expected {self.NUMBER_OF_TILES}. "
                     "If the extent has grown, update NUMBER_OF_TILES value."
                 )
-            elif version_tiles == self.number_of_tiles:
+            elif version_tiles == self.NUMBER_OF_TILES:
                 return version.rstrip("/")
 
         # We shouldn't get here
@@ -497,20 +504,30 @@ class GLADLAlertsSync(Sync):
         """
         Get the version of the latest *complete* release in GCS
         """
+
         today_prefix = date.today().strftime("%Y/%m_%d")
         versions: List[str] = get_gs_subfolders(
             self.SOURCE_BUCKET, f"{self.SOURCE_PREFIX}/{today_prefix}/alertDate_"
         )
 
+        LOGGER.info(f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}")
+        versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
+
         # Shouldn't need to look back through many, so avoid the corner
         # case that would check every previous version when run right after
         # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
         # uploaded
-        for version in sorted(versions)[:3]:
-            version_prefix = "/".join((self.SOURCE_PREFIX, version))
+
+        LOGGER.info(f"RADD versions: {versions}")
+        for version in sorted(versions, reverse=True)[:3]:
+            version_prefix = f"{self.SOURCE_PREFIX}{version}"
+            LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+
             version_tiles: int = len(
                 get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
+
+            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
             if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
@@ -600,4 +617,12 @@ class Syncer:
         :return: Job model, or None if there's no job to sync
         """
         sync_type = SyncType[config.sync_type]
-        return self.syncers[sync_type].build_jobs(config)
+
+        try:
+            jobs = self.syncers[sync_type].build_jobs(config)
+        except Exception as e:
+            LOGGER.error(f"Could not generate jobs for sync type {sync_type} with config {config}")
+            # TODO report to slack?
+            return []
+
+        return jobs
