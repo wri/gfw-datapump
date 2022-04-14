@@ -51,11 +51,11 @@ class GeotrellisFeatureType(str, Enum):
     def get_feature_fields(feature_type):
         if feature_type == GeotrellisFeatureType.wdpa:
             return [
-                "wdpa_protected_areas__id",
-                "wdpa_protected_areas__name",
-                "wdpa_protected_areas__iucn_cat",
-                "wdpa_protected_areas__iso",
-                "wdpa_protected_areas__status",
+                "wdpa_protected_area__id",
+                "wdpa_protected_area__name",
+                "wdpa_protected_area__iucn_cat",
+                "wdpa_protected_area__iso",
+                "wdpa_protected_area__status",
             ]
         elif feature_type == GeotrellisFeatureType.gadm:
             return ["iso", "adm1", "adm2"]
@@ -366,7 +366,7 @@ class GeotrellisJob(Job):
             ("gadm", "adm2"): ["iso", "adm1", "adm2"],
             ("gadm", None): ["iso", "adm1", "adm2"],
             ("all", None): [],
-            ("wdpa", None): ["wdpa_protected_areas__id"],
+            ("wdpa", None): ["wdpa_protected_area__id"],
             ("geostore", None): ["geostore__id"],
             ("feature", None): ["feature__id"],
         }
