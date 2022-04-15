@@ -86,3 +86,20 @@ def get_gs_subfolders(
     ]
 
     return found_prefixes
+
+
+def get_gs_file_as_text(
+    bucket: str,
+    key: str,
+) -> str:
+    """
+    Get contents of a file as a string
+    """
+    set_gcs_credentials()
+
+    storage_client = storage.Client.from_service_account_json(
+        GLOBALS.google_application_credentials
+    )
+
+    blob = storage_client.get_bucket(bucket).get_blob(key)
+    return blob.download_as_text(encoding="utf-8")

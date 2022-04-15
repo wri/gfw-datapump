@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional, Type, Tuple
+from typing import Dict, List, Optional, Tuple, Type
 from uuid import uuid1
 
 import dateutil.tz as tz
@@ -17,7 +17,7 @@ from ..jobs.jobs import JobStatus
 from ..jobs.version_update import RasterVersionUpdateJob
 from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
-from ..util.gcs import get_gs_files, get_gs_subfolders
+from ..util.gcs import get_gs_file_as_text, get_gs_files, get_gs_subfolders
 from ..util.gpkg_util import update_geopackage
 from ..util.models import ContentDateRange
 from ..util.slack import slack_webhook
@@ -361,6 +361,7 @@ class DeforestationAlertsSync(Sync):
     def grid(self):
         ...
 
+
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
@@ -377,7 +378,9 @@ class DeforestationAlertsSync(Sync):
 
         return [self.get_raster_job(latest_release, source_uris)]
 
-    def get_raster_job(self, version: str, source_uris: List[str]) -> RasterVersionUpdateJob:
+    def get_raster_job(
+        self, version: str, source_uris: List[str]
+    ) -> RasterVersionUpdateJob:
         version_dt: str = str(self.parse_version_as_dt(version).date())
 
         return RasterVersionUpdateJob(
@@ -400,14 +403,11 @@ class DeforestationAlertsSync(Sync):
                 resampling="nearest",
                 symbology={"type": "date_conf_intensity"},
             ),
-            content_date_range=ContentDateRange(
-                min="2014-12-31", max=str(version_dt)
-            ),
+            content_date_range=ContentDateRange(min="2014-12-31", max=str(version_dt)),
         )
 
-
     @abstractmethod
-    def get_latest_release(self) -> str:
+    def get_latest_release(self) -> Tuple[str, List[str]]:
         ...
 
     @staticmethod
@@ -433,7 +433,7 @@ class DeforestationAlertsSync(Sync):
         return client.get_latest_version(dataset_name)
 
 
-class RADDAlertsSync(Sync):
+class RADDAlertsSync(DeforestationAlertsSync):
     """
     Defines jobs to create new RADD alerts assets once a new release is available.
     """
@@ -456,7 +456,9 @@ class RADDAlertsSync(Sync):
         Get the version of the latest *complete* release in GCS
         """
 
-        LOGGER.info(f"Looking for RADD folders in gs://{self.source_bucket}/{self.source_prefix}")
+        LOGGER.info(
+            f"Looking for RADD folders in gs://{self.source_bucket}/{self.source_prefix}"
+        )
         versions: List[str] = get_gs_subfolders(self.source_bucket, self.source_prefix)
 
         # Shouldn't need to look back through many, so avoid the corner
@@ -467,13 +469,17 @@ class RADDAlertsSync(Sync):
         LOGGER.info(f"{self.dataset_name} versions: {versions}")
         for version in sorted(versions, reverse=True)[:3]:
             version_prefix = f"{self.source_prefix}{version}"
-            LOGGER.info(f"Looking for RADD tiles in gs://{self.source_bucket}/{version_prefix}")
+            LOGGER.info(
+                f"Looking for RADD tiles in gs://{self.source_bucket}/{version_prefix}"
+            )
 
             version_tiles: int = len(
                 get_gs_files(self.source_bucket, version_prefix, extensions=[".tif"])
             )
 
-            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.source_bucket}/{version_prefix}")
+            LOGGER.info(
+                f"Found {version_tiles} RADD tiles in gs://{self.source_bucket}/{version_prefix}"
+            )
             if version_tiles > self.number_of_tiles:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
@@ -492,7 +498,7 @@ class RADDAlertsSync(Sync):
         raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
 
 
-class GLADLAlertsSync(Sync):
+class GLADLAlertsSync(DeforestationAlertsSync):
     """
     Defines jobs to create new RADD alerts assets once a new release is available.
     """
@@ -504,24 +510,65 @@ class GLADLAlertsSync(Sync):
     number_of_tiles = 115
     grid = "10/40000"
 
-    def get_latest_release(self) -> str:
+    def get_latest_release(self) -> Tuple[str, List[str]]:
         """
         Get the version of the latest *complete* release in GCS
         """
 
         today_prefix = date.today().strftime("%Y/%m_%d")
         version_tiles: List[str] = get_gs_files(
-            self.SOURCE_BUCKET, f"{self.SOURCE_PREFIX}/{today_prefix}/alertDate_",  extensions=[".tif"]
+            self.source_bucket,
+            f"{self.source_prefix}/{today_prefix}/alertDate_",
+            extensions=[".tif"],
         )
 
         if len(version_tiles) > self.number_of_tiles:
-           raise Exception(
+            raise Exception(
                 f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
                 f"greater than the expected {self.number_of_tiles}. "
                 "If the extent has grown, update NUMBER_OF_TILES value."
             )
         elif version_tiles == self.number_of_tiles:
             return self.sync_version, version_tiles
+        else:
+            raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+
+
+class GLADS2AlertsSync(DeforestationAlertsSync):
+    """
+    Defines jobs to create new RADD alerts assets once a new release is available.
+    """
+
+    dataset_name = "umd_glad_sentinel2_alerts"
+    source_bucket = "earthenginepartners-hansen"
+    source_prefix = "S2alert"
+    input_calc = "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461)"
+    number_of_tiles = 18
+    grid = "10/100000"
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+
+        # Raw tiles are just updated in-place
+        source_uri = [
+            f"gs://{self.source_bucket}/{self.source_prefix}/alert",
+            f"gs://{self.source_bucket}/{self.source_prefix}/alertDate",
+        ]
+
+        # This file is updated once tiles are updated
+        upload_date_text = get_gs_file_as_text(
+            self.source_bucket, f"{self.source_prefix}/uploadDate.txt"
+        )
+
+        # Example string: "Updated Fri Apr 15 14:27:01 2022 UTC"
+        upload_date = upload_date_text[12:-4]
+        latest_release = datetime.strptime(upload_date, "%b %d %H:%M:%S %Y").strftime(
+            "v%Y%m%d"
+        )
+
+        return latest_release, source_uri
 
 
 class RWAreasSync(Sync):
@@ -589,8 +636,10 @@ class Syncer:
 
         try:
             jobs = self.syncers[sync_type].build_jobs(config)
-        except Exception as e:
-            LOGGER.error(f"Could not generate jobs for sync type {sync_type} with config {config}")
+        except Exception:
+            LOGGER.error(
+                f"Could not generate jobs for sync type {sync_type} with config {config}"
+            )
             # TODO report to slack?
             return []
 
