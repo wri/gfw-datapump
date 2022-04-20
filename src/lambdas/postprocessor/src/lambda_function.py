@@ -107,9 +107,9 @@ def handler(event, context):
 
                 config_client.put(
                     DatapumpConfig(
-                        analysis_version=job.version,
+                        analysis_version="",
                         dataset=job.dataset,
-                        dataset_version=job.version,
+                        dataset_version="",
                         analysis=Analysis.create_raster,
                         sync=True,
                         sync_type=job.dataset
