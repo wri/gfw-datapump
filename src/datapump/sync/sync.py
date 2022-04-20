@@ -361,7 +361,6 @@ class DeforestationAlertsSync(Sync):
     def grid(self):
         ...
 
-
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
@@ -506,7 +505,9 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     dataset_name = "umd_glad_landsat_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "GLADalert/C2"
-    input_calc = "(A >= 20000) * (A < 40000) * A"
+    input_calc = (
+        "np.ma.array((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B), mask=False)"
+    )
     number_of_tiles = 115
     grid = "10/40000"
 
@@ -528,8 +529,13 @@ class GLADLAlertsSync(DeforestationAlertsSync):
                 f"greater than the expected {self.number_of_tiles}. "
                 "If the extent has grown, update NUMBER_OF_TILES value."
             )
-        elif version_tiles == self.number_of_tiles:
-            return self.sync_version, version_tiles
+        elif len(version_tiles) == self.number_of_tiles:
+            source_uris = [
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate*",
+            ]
+            return self.sync_version, source_uris
+
         else:
             raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
 
