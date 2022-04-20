@@ -18,8 +18,8 @@ from datapump.jobs.geotrellis import (
     JobStatus,
 )
 from datapump.jobs.version_update import RasterVersionUpdateJob
-from datapump.sync.sync import RADDAlertsSync, DeforestationAlertsSync
-
+from datapump.sync.sync import RADDAlertsSync, DeforestationAlertsSync, GLADS2AlertsSync, GLADLAlertsSync
+import datapump.sync.sync as sync
 
 def test_geotrellis_fires():
     job = FireAlertsGeotrellisJob(
@@ -151,16 +151,50 @@ def test_radd_sync(monkeypatch):
         sync_type=SyncType.wur_radd_alerts,
     )
 
-    monkeypatch.setattr(DeforestationAlertsSync, "get_latest_api_version", lambda x: "v20211018")
-    monkeypatch.setattr(RADDAlertsSync, "get_latest_release", lambda x: "v20220222")
+    monkeypatch.setattr(DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v2021018")
+    monkeypatch.setattr(sync, "get_gs_subfolders",
+                        lambda bucket, prefix: ["v20220222", "v20220221", "v20211018", "v20211016"])
+    monkeypatch.setattr(sync, "get_gs_files",
+                        lambda bucket, prefix, **kwargs: list(range(0, 175)))
 
-    radd_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
+    raster_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
 
-    assert radd_jobs
-    job = radd_jobs[0]
+    assert raster_jobs
+    job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == "v20220222"
     assert job.content_date_range.max == "2022-02-22"
+    assert job.tile_set_parameters.source_uri == ["gs://gfw_gee_export/wur_radd_alerts/v20220222"]
+    assert job.tile_set_parameters.grid == "10/100000"
+    assert job.tile_set_parameters.calc == "(A >= 20000) * (A < 40000) * A"
+
+
+def test_glad_s2_sync(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220223",
+        dataset="umd_glad_sentinel2_alerts",
+        dataset_version="v20220223",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.wur_radd_alerts,
+    )
+
+    monkeypatch.setattr(DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v2021018")
+    monkeypatch.setattr(sync, "get_gs_file_as_text", lambda bucket, prefix: "Updated Fri Feb 22 14:27:01 2022 UTC")
+
+    raster_jobs = GLADS2AlertsSync("v20220223").build_jobs(mock_dp_config)
+
+    assert raster_jobs
+    job = raster_jobs[0]
+    assert isinstance(job, RasterVersionUpdateJob)
+    assert job.version == "v20220222"
+    assert job.content_date_range.max == "2022-02-22"
+    assert job.tile_set_parameters.source_uri == [
+        "gs://earthenginepartners-hansen/S2alert/alert",
+        "gs://earthenginepartners-hansen/S2alert/alertDate",
+    ]
+    assert job.tile_set_parameters.grid == "10/100000"
+    assert job.tile_set_parameters.calc == "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461)"
 
 
 EXPECTED = {
