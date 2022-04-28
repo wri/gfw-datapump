@@ -328,7 +328,7 @@ class IntegratedAlertsSync(Sync):
 
 class DeforestationAlertsSync(Sync):
     """
-    Defines jobs to create new RADD alerts assets once a new release is available.
+    Defines jobs to create new deforestation alerts assets once a new release is available.
     """
 
     @property
@@ -402,7 +402,7 @@ class DeforestationAlertsSync(Sync):
                 resampling="nearest",
                 symbology={"type": "date_conf_intensity"},
             ),
-            content_date_range=ContentDateRange(min="2014-12-31", max=str(version_dt)),
+            content_date_range=ContentDateRange(min="2020-01-01", max=str(version_dt)),
         )
 
     @abstractmethod
@@ -505,9 +505,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     dataset_name = "umd_glad_landsat_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "GLADalert/C2"
-    input_calc = (
-        "np.ma.array((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B), mask=False)"
-    )
+    input_calc = "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2192 + D)), mask=False)"
     number_of_tiles = 115
     grid = "10/40000"
 
@@ -519,7 +517,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         today_prefix = date.today().strftime("%Y/%m_%d")
         version_tiles: List[str] = get_gs_files(
             self.source_bucket,
-            f"{self.source_prefix}/{today_prefix}/alertDate_",
+            f"{self.source_prefix}/{today_prefix}/alertDate20",
             extensions=[".tif"],
         )
 
@@ -531,8 +529,10 @@ class GLADLAlertsSync(DeforestationAlertsSync):
             )
         elif len(version_tiles) == self.number_of_tiles:
             source_uris = [
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert*",
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert22*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate22*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert21*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate21*",
             ]
             return self.sync_version, source_uris
 

@@ -247,13 +247,15 @@ def test_glad_landsat_sync(monkeypatch):
     assert job.version == "v20220222"
     assert job.content_date_range.max == "2022-02-22"
     assert job.tile_set_parameters.source_uri == [
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate21*",
     ]
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
-        == "np.ma.array((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B), mask=False)"
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2192 + D)), mask=False)"
     )
 
 
