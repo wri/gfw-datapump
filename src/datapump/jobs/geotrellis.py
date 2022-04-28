@@ -258,7 +258,7 @@ class GeotrellisJob(Job):
         worker_count = self._calculate_worker_count(self.features_1x1)
         instances = self._instances(worker_count)
         applications = self._applications()
-        configurations = self._configurations()
+        configurations = self._configurations(worker_count)
 
         return name, instances, steps, applications, configurations
 
@@ -734,6 +734,9 @@ class GeotrellisJob(Job):
 
     @staticmethod
     def _instances(worker_instance_count: int) -> Dict[str, Any]:
+        core_count = round(worker_instance_count / 8)
+        task_count = worker_instance_count - core_count
+
         instances = {
             "InstanceFleets": [
                 {
@@ -761,7 +764,30 @@ class GeotrellisJob(Job):
                 {
                     "Name": "geotrellis-cores",
                     "InstanceFleetType": "CORE",
-                    "TargetSpotCapacity": worker_instance_count,
+                    "TargetOnDemandCapacity": core_count,
+                    "InstanceTypeConfigs": [
+                        {
+                            "InstanceType": instance_type,
+                            "EbsConfiguration": {
+                                "EbsBlockDeviceConfigs": [
+                                    {
+                                        "VolumeSpecification": {
+                                            "VolumeType": "gp2",
+                                            "SizeInGB": 100,
+                                        },
+                                        "VolumesPerInstance": 1,
+                                    }
+                                ],
+                                "EbsOptimized": True,
+                            },
+                        }
+                        for instance_type in WORKER_INSTANCE_TYPES
+                    ],
+                },
+                {
+                    "Name": "geotrellis-cores",
+                    "InstanceFleetType": "TASK",
+                    "TargetSpotCapacity": task_count,
                     "InstanceTypeConfigs": [
                         {
                             "InstanceType": instance_type,
@@ -803,7 +829,10 @@ class GeotrellisJob(Job):
         ]
 
     @staticmethod
-    def _configurations() -> List[Dict[str, Any]]:
+    def _configurations(worker_count: str) -> List[Dict[str, Any]]:
+        executor_count = worker_count * 7
+        partition_count = executor_count * 3
+
         return [
             {
                 "Classification": "spark",
@@ -813,24 +842,34 @@ class GeotrellisJob(Job):
             {
                 "Classification": "spark-defaults",
                 "Properties": {
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
                     "spark.driver.maxResultSize": "3G",
                     "spark.yarn.appMasterEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
                     "spark.rdd.compress": "true",
                     "spark.executorEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
-                    "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
+                    "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
+                    "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
+                    "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError\u003d\u0027kill -9 %p\u0027",
+                    "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
+                    "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
                     "spark.shuffle.spill.compress": "true",
+                    "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
                     "spark.shuffle.compress": "true",
                     "spark.shuffle.service.enabled": "true",
-                    "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
-                    "spark.dynamicAllocation.enabled": "true",
-                    "spark.yarn.appMasterEnv.AWS_REQUEST_PAYER": "requester",
-                    "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
-                    "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
-                    "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
-                    "spark.yarn.appMasterEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
-                    "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
-                    "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
-                    "spark.executorEnv.GDAL_MAX_DATASET_POOL_SIZE": "450",
+                    "spark.driver.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError\u003d\u0027kill -9 %p\u0027",
+                    "spark.decommission.enabled": "true",
+                    "spark.storage.decommission.enabled": "true",
+                    "spark.storage.decommission.rddBlocks.enabled": "true",
+                    "spark.storage.decommission.shuffleBlocks.enabled": "true",
+                    "spark.default.parallelism": partition_count,
+                    "spark.sql.shuffle.partitions": partition_count,
+                    "spark.executor.instances": executor_count,
+                    "spark.executor.memory": "6G",
+                    "spark.driver.memory": "6G",
+                    "spark.driver.cores": "1",
+                    "spark.executor.cores": "1",
+                    "spark.yarn.executor.memoryOverhead": "1G",
+                    "spark.dynamicAllocation.enabled": "false",
                 },
                 "Configurations": [],
             },

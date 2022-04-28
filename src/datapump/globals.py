@@ -39,7 +39,7 @@ class Globals(EnvSettings):
         "command-runner.jar", env="COMMAND_RUNNER_JAR"
     )
 
-    emr_version: str = Field("emr-6.1.0")
+    emr_version: str = Field("emr-6.3.1")
 
     geotrellis_jar_path = Field(
         "s3://gfw-pipelines/geotrellis/jars", env="GEOTRELLIS_JAR_PATH"
