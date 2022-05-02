@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
+from string import ascii_uppercase
 from typing import Dict, List, Optional, Tuple, Type
 from uuid import uuid1
 
@@ -505,19 +506,48 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     dataset_name = "umd_glad_landsat_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "GLADalert/C2"
-    input_calc = "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2192 + D)), mask=False)"
     number_of_tiles = 115
     grid = "10/40000"
+    start_year = 2021
+
+    @property
+    def input_calc(self):
+        """
+        Calc string is
+        """
+        today = self.get_today()
+
+        calc_strings = []
+        prev_conf_bands = []
+        bands = iter(ascii_uppercase)
+
+        for year in range(self.start_year, today.year + 1):
+            year_start = self.get_days_since_2015(year)
+            conf_band = next(bands)
+
+            # earlier years should override later years for overlapping pixels
+            prev_conf_calc_string = "".join(
+                [f"({band} == 0) * " for band in prev_conf_bands]
+            )
+
+            date_band = next(bands)
+            calc_strings.append(
+                f"({prev_conf_calc_string}({conf_band} > 0) * (20000 + 10000 * ({conf_band} > 1) + {year_start} + {date_band}))"
+            )
+            prev_conf_bands.append(conf_band)
+
+        calc_string = f"np.ma.array({' + '.join(calc_strings)}, mask=False)"
+        return calc_string
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
         Get the version of the latest *complete* release in GCS
         """
 
-        today_prefix = date.today().strftime("%Y/%m_%d")
+        today_prefix = self.get_today().strftime("%Y/%m_%d")
         version_tiles: List[str] = get_gs_files(
             self.source_bucket,
-            f"{self.source_prefix}/{today_prefix}/alertDate20",
+            f"{self.source_prefix}/{today_prefix}/alertDate22",
             extensions=[".tif"],
         )
 
@@ -528,16 +558,39 @@ class GLADLAlertsSync(DeforestationAlertsSync):
                 "If the extent has grown, update NUMBER_OF_TILES value."
             )
         elif len(version_tiles) == self.number_of_tiles:
-            source_uris = [
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert22*",
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate22*",
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert21*",
-                f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate21*",
-            ]
+            today = self.get_today()
+
+            source_uris = []
+            for year in range(self.start_year, today.year + 1):
+                year_suffix = str(year)[2:4]
+
+                if year == today.year or (year == today.year - 1 and today.month < 7):
+                    # these rasters are still being updated
+                    source_uris += [
+                        f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert{year_suffix}*",
+                        f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate{year_suffix}*",
+                    ]
+                else:
+                    # otherwise, use final raster for that year
+                    source_uris += [
+                        f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
+                        f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
+                    ]
+
             return self.sync_version, source_uris
 
         else:
             raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+
+    @staticmethod
+    def get_days_since_2015(year: int) -> int:
+        year_date = date(year=year, month=1, day=1)
+        start_date = date(year=2015, month=1, day=1)
+        return (year_date - start_date).days
+
+    @staticmethod
+    def get_today():
+        return date.today()
 
 
 class GLADS2AlertsSync(DeforestationAlertsSync):

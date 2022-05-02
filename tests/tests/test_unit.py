@@ -9,18 +9,18 @@ os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
 os.environ["GEOTRELLIS_JAR_PATH"] = "s3://gfw-pipelines-test/geotrellis/jars"
 
-import datapump.sync.sync as sync
-from datapump.clients.datapump_store import DatapumpConfig
-from datapump.commands.analysis import Analysis, AnalysisInputTable
-from datapump.commands.sync import SyncType
-from datapump.jobs.geotrellis import (
+import src.datapump.sync.sync as sync
+from src.datapump.clients.datapump_store import DatapumpConfig
+from src.datapump.commands.analysis import Analysis, AnalysisInputTable
+from src.datapump.commands.sync import SyncType
+from src.datapump.jobs.geotrellis import (
     FireAlertsGeotrellisJob,
     GeotrellisJob,
     GeotrellisJobStep,
     JobStatus,
 )
-from datapump.jobs.version_update import RasterVersionUpdateJob
-from datapump.sync.sync import (
+from src.datapump.jobs.version_update import RasterVersionUpdateJob
+from src.datapump.sync.sync import (
     DeforestationAlertsSync,
     GLADLAlertsSync,
     GLADS2AlertsSync,
@@ -159,7 +159,7 @@ def test_radd_sync(monkeypatch):
     )
 
     monkeypatch.setattr(
-        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v2021018"
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
     )
     monkeypatch.setattr(
         sync,
@@ -191,11 +191,11 @@ def test_glad_s2_sync(monkeypatch):
         dataset_version="v20220223",
         analysis="",
         sync=True,
-        sync_type=SyncType.wur_radd_alerts,
+        sync_type=SyncType.umd_glad_sentinel2_alerts,
     )
 
     monkeypatch.setattr(
-        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v2021018"
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
     )
     monkeypatch.setattr(
         sync,
@@ -227,11 +227,11 @@ def test_glad_landsat_sync(monkeypatch):
         dataset_version="v20220223",
         analysis="",
         sync=True,
-        sync_type=SyncType.wur_radd_alerts,
+        sync_type=SyncType.umd_glad_landsat_alerts,
     )
 
     monkeypatch.setattr(
-        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v2021018"
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
     )
     monkeypatch.setattr(
         sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
@@ -247,15 +247,101 @@ def test_glad_landsat_sync(monkeypatch):
     assert job.version == "v20220222"
     assert job.content_date_range.max == "2022-02-22"
     assert job.tile_set_parameters.source_uri == [
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert21*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
     ]
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
-        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2192 + D)), mask=False)"
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)), mask=False)"
+    )
+
+
+def test_glad_landsat_sync_after_june_30(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220223",
+        dataset="umd_glad_landsat_alerts",
+        dataset_version="v20220223",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.umd_glad_landsat_alerts,
+    )
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
+    )
+    monkeypatch.setattr(
+        GLADLAlertsSync, "get_today", lambda x: date(year=2022, month=7, day=1)
+    )
+    monkeypatch.setattr(
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
+    )
+
+    raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
+
+    today_prefix = "2022/07_01"
+
+    assert raster_jobs
+    job = raster_jobs[0]
+    assert isinstance(job, RasterVersionUpdateJob)
+    assert job.version == "v20220222"
+    assert job.content_date_range.max == "2022-02-22"
+    assert job.tile_set_parameters.source_uri == [
+        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alert21*",
+        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
+    ]
+    assert job.tile_set_parameters.grid == "10/40000"
+    assert (
+        job.tile_set_parameters.calc
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)), mask=False)"
+    )
+
+
+def test_glad_landsat_sync_after_2023(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220223",
+        dataset="umd_glad_landsat_alerts",
+        dataset_version="v20220223",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.umd_glad_landsat_alerts,
+    )
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
+    )
+    monkeypatch.setattr(
+        GLADLAlertsSync, "get_today", lambda x: date(year=2023, month=2, day=1)
+    )
+    monkeypatch.setattr(
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
+    )
+
+    raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
+
+    today_prefix = "2023/02_01"
+
+    assert raster_jobs
+    job = raster_jobs[0]
+    assert isinstance(job, RasterVersionUpdateJob)
+    assert job.version == "v20220222"
+    assert job.content_date_range.max == "2022-02-22"
+    assert job.tile_set_parameters.source_uri == [
+        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alert21*",
+        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert23*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate23*",
+    ]
+    assert job.tile_set_parameters.grid == "10/40000"
+    assert (
+        job.tile_set_parameters.calc
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)) + ((A == 0) * (C == 0) * (E > 0) * (20000 + 10000 * (E > 1) + 2922 + F)), mask=False)"
     )
 
 
