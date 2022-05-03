@@ -1,5 +1,6 @@
 import csv
 import io
+import math
 import urllib
 from datetime import date, datetime, timedelta
 from enum import Enum
@@ -733,9 +734,9 @@ class GeotrellisJob(Job):
         return response["JobFlowId"]
 
     @staticmethod
-    def _instances(worker_instance_count: int) -> Dict[str, Any]:
-        core_count = round(worker_instance_count / 8)
-        task_count = worker_instance_count - core_count
+    def _instances(worker_count: int) -> Dict[str, Any]:
+        core_count = math.ceil(worker_count / 8)
+        task_count = worker_count - core_count
 
         instances = {
             "InstanceFleets": [
