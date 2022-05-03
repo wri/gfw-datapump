@@ -367,7 +367,7 @@ class DeforestationAlertsSync(Sync):
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
-        Creates the WUR RADD raster layer and assets
+        Creates the deforesation raster layer and assets
         """
 
         latest_api_version = self.get_latest_api_version(self.dataset_name)
@@ -414,9 +414,7 @@ class DeforestationAlertsSync(Sync):
     def parse_version_as_dt(version: str) -> datetime:
         # Technically this has a Y10K bug
         release_date = version.lstrip("v")
-        assert (
-            len(release_date) == 8
-        ), "Possibly malformed version folder name in RADD GCS bucket!"
+        assert len(release_date) == 8, "Possibly malformed version folder name!"
         year, month, day = (
             int(release_date[:4]),
             int(release_date[4:6]),
@@ -500,7 +498,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
 
 class GLADLAlertsSync(DeforestationAlertsSync):
     """
-    Defines jobs to create new RADD alerts assets once a new release is available.
+    Defines jobs to create new GLAD-L alerts assets once a new release is available.
     """
 
     dataset_name = "umd_glad_landsat_alerts"
@@ -595,7 +593,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
 
 class GLADS2AlertsSync(DeforestationAlertsSync):
     """
-    Defines jobs to create new RADD alerts assets once a new release is available.
+    Defines jobs to create new GLAD-S2 alerts assets once a new release is available.
     """
 
     dataset_name = "umd_glad_sentinel2_alerts"

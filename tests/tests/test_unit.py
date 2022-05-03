@@ -9,18 +9,18 @@ os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
 os.environ["GEOTRELLIS_JAR_PATH"] = "s3://gfw-pipelines-test/geotrellis/jars"
 
-import src.datapump.sync.sync as sync
-from src.datapump.clients.datapump_store import DatapumpConfig
-from src.datapump.commands.analysis import Analysis, AnalysisInputTable
-from src.datapump.commands.sync import SyncType
-from src.datapump.jobs.geotrellis import (
+import datapump.sync.sync as sync
+from datapump.clients.datapump_store import DatapumpConfig
+from datapump.commands.analysis import Analysis, AnalysisInputTable
+from datapump.commands.sync import SyncType
+from datapump.jobs.geotrellis import (
     FireAlertsGeotrellisJob,
     GeotrellisJob,
     GeotrellisJobStep,
     JobStatus,
 )
-from src.datapump.jobs.version_update import RasterVersionUpdateJob
-from src.datapump.sync.sync import (
+from datapump.jobs.version_update import RasterVersionUpdateJob
+from datapump.sync.sync import (
     DeforestationAlertsSync,
     GLADLAlertsSync,
     GLADS2AlertsSync,
