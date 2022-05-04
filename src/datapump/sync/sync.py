@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Type
 from uuid import uuid1
 
 import dateutil.tz as tz
+import traceback
 from datapump.clients.data_api import DataApiClient
 
 from ..clients.aws import get_s3_client, get_s3_path_parts
@@ -620,7 +621,8 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
         )
 
         # Example string: "Updated Fri Apr 15 14:27:01 2022 UTC"
-        upload_date = upload_date_text[12:-4]
+        upload_date = upload_date_text[12:-5]
+        LOGGER.info(f"Last GLAD-S2 upload date: {upload_date}")
         latest_release = datetime.strptime(upload_date, "%b %d %H:%M:%S %Y").strftime(
             "v%Y%m%d"
         )
@@ -668,6 +670,8 @@ class Syncer:
         SyncType.glad: GladSync,
         SyncType.integrated_alerts: IntegratedAlertsSync,
         SyncType.wur_radd_alerts: RADDAlertsSync,
+        SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
+        SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
@@ -695,7 +699,7 @@ class Syncer:
             jobs = self.syncers[sync_type].build_jobs(config)
         except Exception:
             LOGGER.error(
-                f"Could not generate jobs for sync type {sync_type} with config {config}"
+                f"Could not generate jobs for sync type {sync_type} with config {config} due to exception: {traceback.format_exc()}"
             )
             # TODO report to slack?
             return []
