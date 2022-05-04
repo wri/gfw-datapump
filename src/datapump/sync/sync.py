@@ -1,3 +1,4 @@
+import traceback
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from string import ascii_uppercase
@@ -5,7 +6,6 @@ from typing import Dict, List, Optional, Tuple, Type
 from uuid import uuid1
 
 import dateutil.tz as tz
-import traceback
 from datapump.clients.data_api import DataApiClient
 
 from ..clients.aws import get_s3_client, get_s3_path_parts

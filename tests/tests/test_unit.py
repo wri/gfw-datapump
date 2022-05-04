@@ -200,7 +200,7 @@ def test_glad_s2_sync(monkeypatch):
     monkeypatch.setattr(
         sync,
         "get_gs_file_as_text",
-        lambda bucket, prefix: "Updated Fri Feb 22 14:27:01 2022 UTC",
+        lambda bucket, prefix: "Updated Fri Feb 22 14:27:01 2022 UTC\n",
     )
 
     raster_jobs = GLADS2AlertsSync("v20220223").build_jobs(mock_dp_config)
