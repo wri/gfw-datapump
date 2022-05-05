@@ -543,43 +543,54 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         Get the version of the latest *complete* release in GCS
         """
 
-        today_prefix = self.get_today().strftime("%Y/%m_%d")
-        version_tiles: List[str] = get_gs_files(
-            self.source_bucket,
-            f"{self.source_prefix}/{today_prefix}/alertDate22",
-            extensions=[".tif"],
-        )
+        past_10_days = [
+            self.get_today() - timedelta(days=i)
+            for i in range(0, 10)
+        ]
 
-        if len(version_tiles) > self.number_of_tiles:
-            raise Exception(
-                f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
-                f"greater than the expected {self.number_of_tiles}. "
-                "If the extent has grown, update NUMBER_OF_TILES value."
+        past_10_day_prefixes = [
+            d.strftime("%Y/%m_%d")
+            for d in past_10_days
+        ]
+
+        for prefix in past_10_day_prefixes:
+            version_tiles: List[str] = get_gs_files(
+                self.source_bucket,
+                f"{self.source_prefix}/{prefix}/alertDate22",
+                extensions=[".tif"],
             )
-        elif len(version_tiles) == self.number_of_tiles:
-            today = self.get_today()
 
-            source_uris = []
-            for year in range(self.start_year, today.year + 1):
-                year_suffix = str(year)[2:4]
+            LOGGER.info(f"Found files for date {prefix}: {version_tiles}")
 
-                if year == today.year or (year == today.year - 1 and today.month < 7):
-                    # these rasters are still being updated
-                    source_uris += [
-                        f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alert{year_suffix}*",
-                        f"gs://{self.source_bucket}/{self.source_prefix}/{today_prefix}/alertDate{year_suffix}*",
-                    ]
-                else:
-                    # otherwise, use final raster for that year
-                    source_uris += [
-                        f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
-                        f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
-                    ]
+            if len(version_tiles) > self.number_of_tiles:
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
+                    f"greater than the expected {self.number_of_tiles}. "
+                    "If the extent has grown, update NUMBER_OF_TILES value."
+                )
+            elif len(version_tiles) == self.number_of_tiles:
+                today = self.get_today()
 
-            return self.sync_version, source_uris
+                source_uris = []
+                for year in range(self.start_year, today.year + 1):
+                    year_suffix = str(year)[2:4]
 
-        else:
-            raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+                    if year == today.year or (year == today.year - 1 and today.month < 7):
+                        # these rasters are still being updated
+                        source_uris += [
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alert{year_suffix}*",
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alertDate{year_suffix}*",
+                        ]
+                    else:
+                        # otherwise, use final raster for that year
+                        source_uris += [
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
+                        ]
+
+                return self.sync_version, source_uris
+
+        raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
 
     @staticmethod
     def get_days_since_2015(year: int) -> int:
