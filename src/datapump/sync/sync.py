@@ -318,9 +318,15 @@ class IntegratedAlertsSync(Sync):
             for v in versions
         ]
 
-        one_day_ago = datetime.now(tz.UTC) - timedelta(hours=24)
+        latest_integrated_version = client.get_latest_version(self.DATASET_NAME)
+        last_integrated_update = datetime.fromisoformat(
+            latest_integrated_version["created_on"]
+        ).replace(tzinfo=tz.UTC)
 
-        if any([last_update > one_day_ago for last_update in last_updates]):
+        LOGGER.info(f"Last update time for integrated alerts: {last_integrated_update}")
+        LOGGER.info(f"Last update time for source datasets: {last_updates}")
+
+        if any([last_update > last_integrated_update for last_update in last_updates]):
             return True
 
         return False
