@@ -1,3 +1,4 @@
+import traceback
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional, Type
@@ -318,7 +319,10 @@ class IntegratedAlertsSync(Sync):
             for v in versions
         ]
 
-        latest_integrated_version = client.get_latest_version(self.DATASET_NAME)
+        latest_integrated_version = client.get_version(
+            self.DATASET_NAME, client.get_latest_version(self.DATASET_NAME)
+        )
+
         last_integrated_update = datetime.fromisoformat(
             latest_integrated_version["created_on"]
         ).replace(tzinfo=tz.UTC)
@@ -401,7 +405,9 @@ class RADDAlertsSync(Sync):
         """
         Get the version of the latest *complete* release in GCS
         """
-        LOGGER.info(f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}")
+        LOGGER.info(
+            f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}"
+        )
         versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
 
         # Shouldn't need to look back through many, so avoid the corner
@@ -412,13 +418,17 @@ class RADDAlertsSync(Sync):
         LOGGER.info(f"RADD versions: {versions}")
         for version in sorted(versions, reverse=True)[:3]:
             version_prefix = f"{self.SOURCE_PREFIX}{version}"
-            LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+            LOGGER.info(
+                f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}"
+            )
 
             version_tiles: int = len(
                 get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
             )
 
-            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
+            LOGGER.info(
+                f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}"
+            )
             if version_tiles > self.NUMBER_OF_TILES:
                 raise Exception(
                     f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
@@ -511,8 +521,10 @@ class Syncer:
 
         try:
             jobs = self.syncers[sync_type].build_jobs(config)
-        except Exception as e:
-            LOGGER.error(f"Could not generate jobs for sync type {sync_type} with config {config}")
+        except Exception:
+            LOGGER.error(
+                f"Could not generate jobs for sync type {sync_type} with config {config} due to exception: {traceback.format_exc()}"
+            )
             # TODO report to slack?
             return []
 
