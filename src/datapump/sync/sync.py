@@ -401,7 +401,7 @@ class DeforestationAlertsSync(Sync):
             ),
             tile_cache_parameters=RasterTileCacheParameters(
                 max_zoom=14,
-                resampling="nearest",
+                resampling="med",
                 symbology={"type": "date_conf_intensity"},
             ),
             content_date_range=ContentDateRange(min="2020-01-01", max=str(version_dt)),
