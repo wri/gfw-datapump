@@ -1,6 +1,8 @@
+import traceback
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional, Type
+from string import ascii_uppercase
+from typing import Dict, List, Optional, Tuple, Type
 from uuid import uuid1
 
 import dateutil.tz as tz
@@ -17,7 +19,7 @@ from ..jobs.jobs import JobStatus
 from ..jobs.version_update import RasterVersionUpdateJob
 from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
-from ..util.gcs import get_gs_files, get_gs_subfolders
+from ..util.gcs import get_gs_file_as_text, get_gs_files, get_gs_subfolders
 from ..util.gpkg_util import update_geopackage
 from ..util.models import ContentDateRange
 from ..util.slack import slack_webhook
@@ -326,46 +328,71 @@ class IntegratedAlertsSync(Sync):
         return False
 
 
-class RADDAlertsSync(Sync):
+class DeforestationAlertsSync(Sync):
     """
-    Defines jobs to create new RADD alerts assets once a new release is available.
+    Defines jobs to create new deforestation alerts assets once a new release is available.
     """
 
-    DATASET_NAME = "wur_radd_alerts"
-    SOURCE_BUCKET = "gfw_gee_export"
-    SOURCE_PREFIX = "wur_radd_alerts/"
-    INPUT_CALC = "(A >= 20000) * (A < 40000) * A"
-    NUMBER_OF_TILES = 175
+    @property
+    @abstractmethod
+    def dataset_name(self):
+        ...
+
+    @property
+    @abstractmethod
+    def source_bucket(self):
+        ...
+
+    @property
+    @abstractmethod
+    def source_prefix(self):
+        ...
+
+    @property
+    @abstractmethod
+    def input_calc(self):
+        ...
+
+    @property
+    @abstractmethod
+    def number_of_tiles(self):
+        ...
+
+    @property
+    @abstractmethod
+    def grid(self):
+        ...
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
-        Creates the WUR RADD raster layer and assets
+        Creates the deforesation raster layer and assets
         """
 
-        latest_api_version = self._get_latest_api_version()
-        latest_release = self._get_latest_release()
+        latest_api_version = self.get_latest_api_version(self.dataset_name)
+        latest_release, source_uris = self.get_latest_release()
 
         if float(latest_api_version.lstrip("v")) >= float(latest_release.lstrip("v")):
             return []
 
-        latest_release_dt: str = str(self.parse_version_as_dt(latest_release).date())
+        return [self.get_raster_job(latest_release, source_uris)]
 
-        source_uris = [
-            f"gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}{latest_release}"
-        ]
+    def get_raster_job(
+        self, version: str, source_uris: List[str]
+    ) -> RasterVersionUpdateJob:
+        version_dt: str = str(self.parse_version_as_dt(version).date())
 
-        job = RasterVersionUpdateJob(
+        return RasterVersionUpdateJob(
             id=str(uuid1()),
             status=JobStatus.starting,
-            dataset=self.DATASET_NAME,
-            version=latest_release,
+            dataset=self.dataset_name,
+            version=version,
             tile_set_parameters=RasterTileSetParameters(
                 source_uri=source_uris,
-                calc=self.INPUT_CALC,
-                grid="10/100000",
+                calc=self.input_calc,
+                grid=self.grid,
                 data_type="uint16",
                 no_data=0,
                 pixel_meaning="date_conf",
@@ -374,70 +401,244 @@ class RADDAlertsSync(Sync):
             ),
             tile_cache_parameters=RasterTileCacheParameters(
                 max_zoom=14,
-                resampling="nearest",
+                resampling="med",
                 symbology={"type": "date_conf_intensity"},
             ),
-            content_date_range=ContentDateRange(
-                min="2014-12-31", max=str(latest_release_dt)
-            ),
+            content_date_range=ContentDateRange(min="2020-01-01", max=str(version_dt)),
         )
 
-        return [job]
-
-    def _get_latest_api_version(self) -> str:
-        """
-        Get the version of the latest release in the Data API
-        """
-        client = DataApiClient()
-        return client.get_latest_version(self.DATASET_NAME)
-
-    def _get_latest_release(self) -> str:
-        """
-        Get the version of the latest *complete* release in GCS
-        """
-        LOGGER.info(f"Looking for RADD folders in gs://{self.SOURCE_BUCKET}/{self.SOURCE_PREFIX}")
-        versions: List[str] = get_gs_subfolders(self.SOURCE_BUCKET, self.SOURCE_PREFIX)
-
-        # Shouldn't need to look back through many, so avoid the corner
-        # case that would check every previous version when run right after
-        # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
-        # uploaded
-
-        LOGGER.info(f"RADD versions: {versions}")
-        for version in sorted(versions, reverse=True)[:3]:
-            version_prefix = f"{self.SOURCE_PREFIX}{version}"
-            LOGGER.info(f"Looking for RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
-
-            version_tiles: int = len(
-                get_gs_files(self.SOURCE_BUCKET, version_prefix, extensions=[".tif"])
-            )
-
-            LOGGER.info(f"Found {version_tiles} RADD tiles in gs://{self.SOURCE_BUCKET}/{version_prefix}")
-            if version_tiles > self.NUMBER_OF_TILES:
-                raise Exception(
-                    f"Found {version_tiles} TIFFs in latest RADD GCS folder, which is "
-                    f"greater than the expected {self.NUMBER_OF_TILES}. "
-                    "If the extent has grown, update NUMBER_OF_TILES value."
-                )
-            elif version_tiles == self.NUMBER_OF_TILES:
-                return version.rstrip("/")
-
-        # We shouldn't get here
-        raise Exception("No complete RADD versions found in GCS!")
+    @abstractmethod
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        ...
 
     @staticmethod
     def parse_version_as_dt(version: str) -> datetime:
         # Technically this has a Y10K bug
         release_date = version.lstrip("v")
-        assert (
-            len(release_date) == 8
-        ), "Possibly malformed version folder name in RADD GCS bucket!"
+        assert len(release_date) == 8, "Possibly malformed version folder name!"
         year, month, day = (
             int(release_date[:4]),
             int(release_date[4:6]),
             int(release_date[6:]),
         )
         return datetime(year, month, day)
+
+    @staticmethod
+    def get_latest_api_version(dataset_name: str) -> str:
+        """
+        Get the version of the latest release in the Data API
+        """
+        client = DataApiClient()
+        return client.get_latest_version(dataset_name)
+
+
+class RADDAlertsSync(DeforestationAlertsSync):
+    """
+    Defines jobs to create new RADD alerts assets once a new release is available.
+    """
+
+    dataset_name = "wur_radd_alerts"
+    source_bucket = "gfw_gee_export"
+    source_prefix = "wur_radd_alerts/"
+    input_calc = "(A >= 20000) * (A < 40000) * A"
+    number_of_tiles = 175
+    grid = "10/100000"
+
+    def __init__(self, sync_version: str):
+        super().__init__(sync_version)
+
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
+        return super().build_jobs(config)
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+
+        LOGGER.info(
+            f"Looking for RADD folders in gs://{self.source_bucket}/{self.source_prefix}"
+        )
+        versions: List[str] = get_gs_subfolders(self.source_bucket, self.source_prefix)
+
+        # Shouldn't need to look back through many, so avoid the corner
+        # case that would check every previous version when run right after
+        # increasing NUMBER_OF_TILES and hitting GCS as a new release is being
+        # uploaded
+
+        LOGGER.info(f"{self.dataset_name} versions: {versions}")
+        for version in sorted(versions, reverse=True)[:3]:
+            version_prefix = f"{self.source_prefix}{version}"
+            LOGGER.info(
+                f"Looking for RADD tiles in gs://{self.source_bucket}/{version_prefix}"
+            )
+
+            version_tiles: int = len(
+                get_gs_files(self.source_bucket, version_prefix, extensions=[".tif"])
+            )
+
+            LOGGER.info(
+                f"Found {version_tiles} RADD tiles in gs://{self.source_bucket}/{version_prefix}"
+            )
+            if version_tiles > self.number_of_tiles:
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
+                    f"greater than the expected {self.number_of_tiles}. "
+                    "If the extent has grown, update NUMBER_OF_TILES value."
+                )
+            elif version_tiles == self.number_of_tiles:
+                latest_release = version.rstrip("/")
+                source_uris = [
+                    f"gs://{self.source_bucket}/{self.source_prefix}{latest_release}"
+                ]
+
+                return latest_release, source_uris
+
+        # We shouldn't get here
+        raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+
+
+class GLADLAlertsSync(DeforestationAlertsSync):
+    """
+    Defines jobs to create new GLAD-L alerts assets once a new release is available.
+    """
+
+    dataset_name = "umd_glad_landsat_alerts"
+    source_bucket = "earthenginepartners-hansen"
+    source_prefix = "GLADalert/C2"
+    number_of_tiles = 115
+    grid = "10/40000"
+    start_year = 2021
+
+    @property
+    def input_calc(self):
+        """
+        Calc string is
+        """
+        today = self.get_today()
+
+        calc_strings = []
+        prev_conf_bands = []
+        bands = iter(ascii_uppercase)
+
+        for year in range(self.start_year, today.year + 1):
+            year_start = self.get_days_since_2015(year)
+            conf_band = next(bands)
+
+            # earlier years should override later years for overlapping pixels
+            prev_conf_calc_string = "".join(
+                [f"({band} == 0) * " for band in prev_conf_bands]
+            )
+
+            date_band = next(bands)
+            calc_strings.append(
+                f"({prev_conf_calc_string}({conf_band} > 0) * (20000 + 10000 * ({conf_band} > 1) + {year_start} + {date_band}))"
+            )
+            prev_conf_bands.append(conf_band)
+
+        calc_string = f"np.ma.array({' + '.join(calc_strings)}, mask=False)"
+        return calc_string
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+
+        past_10_days = [
+            self.get_today() - timedelta(days=i)
+            for i in range(0, 10)
+        ]
+
+        past_10_day_prefixes = [
+            d.strftime("%Y/%m_%d")
+            for d in past_10_days
+        ]
+
+        for prefix in past_10_day_prefixes:
+            version_tiles: List[str] = get_gs_files(
+                self.source_bucket,
+                f"{self.source_prefix}/{prefix}/alertDate22",
+                extensions=[".tif"],
+            )
+
+            LOGGER.info(f"Found files for date {prefix}: {version_tiles}")
+
+            if len(version_tiles) > self.number_of_tiles:
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
+                    f"greater than the expected {self.number_of_tiles}. "
+                    "If the extent has grown, update NUMBER_OF_TILES value."
+                )
+            elif len(version_tiles) == self.number_of_tiles:
+                today = self.get_today()
+
+                source_uris = []
+                for year in range(self.start_year, today.year + 1):
+                    year_suffix = str(year)[2:4]
+
+                    if year == today.year or (year == today.year - 1 and today.month < 7):
+                        # these rasters are still being updated
+                        source_uris += [
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alert{year_suffix}*",
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alertDate{year_suffix}*",
+                        ]
+                    else:
+                        # otherwise, use final raster for that year
+                        source_uris += [
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
+                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
+                        ]
+
+                return self.sync_version, source_uris
+
+        raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+
+    @staticmethod
+    def get_days_since_2015(year: int) -> int:
+        year_date = date(year=year, month=1, day=1)
+        start_date = date(year=2015, month=1, day=1)
+        return (year_date - start_date).days
+
+    @staticmethod
+    def get_today():
+        return date.today()
+
+
+class GLADS2AlertsSync(DeforestationAlertsSync):
+    """
+    Defines jobs to create new GLAD-S2 alerts assets once a new release is available.
+    """
+
+    dataset_name = "umd_glad_sentinel2_alerts"
+    source_bucket = "earthenginepartners-hansen"
+    source_prefix = "S2alert"
+    input_calc = "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461)"
+    number_of_tiles = 18
+    grid = "10/100000"
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+
+        # Raw tiles are just updated in-place
+        source_uri = [
+            f"gs://{self.source_bucket}/{self.source_prefix}/alert",
+            f"gs://{self.source_bucket}/{self.source_prefix}/alertDate",
+        ]
+
+        # This file is updated once tiles are updated
+        upload_date_text = get_gs_file_as_text(
+            self.source_bucket, f"{self.source_prefix}/uploadDate.txt"
+        )
+
+        # Example string: "Updated Fri Apr 15 14:27:01 2022 UTC"
+        upload_date = upload_date_text[12:-5]
+        LOGGER.info(f"Last GLAD-S2 upload date: {upload_date}")
+        latest_release = datetime.strptime(upload_date, "%b %d %H:%M:%S %Y").strftime(
+            "v%Y%m%d"
+        )
+
+        return latest_release, source_uri
 
 
 class RWAreasSync(Sync):
@@ -480,6 +681,8 @@ class Syncer:
         SyncType.glad: GladSync,
         SyncType.integrated_alerts: IntegratedAlertsSync,
         SyncType.wur_radd_alerts: RADDAlertsSync,
+        SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
+        SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
@@ -505,8 +708,10 @@ class Syncer:
 
         try:
             jobs = self.syncers[sync_type].build_jobs(config)
-        except Exception as e:
-            LOGGER.error(f"Could not generate jobs for sync type {sync_type} with config {config}")
+        except Exception:
+            LOGGER.error(
+                f"Could not generate jobs for sync type {sync_type} with config {config} due to exception: {traceback.format_exc()}"
+            )
             # TODO report to slack?
             return []
 
