@@ -360,7 +360,7 @@ EXPECTED = {
             "--analysis",
             "firealerts",
             "--output",
-            "s3://gfw-pipelines-test/geotrellis/results/vtestsync/test_dataset",
+            "s3://gfw-pipelines-test/geotrellis/results/vtestsync/test_dataset/vtest",
             "--features",
             "s3://gfw-pipelines-test/test_zonal_stats/vtest1/vector/epsg-4326/test_zonal_stats_vtest1_1x1.tsv",
             "--feature_type",

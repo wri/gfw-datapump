@@ -26,7 +26,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 if [ "${BUILD}" = true ]; then
     # pre-download bigdata image, otherwise localstack try to download it when you make your first EMR request,
     # and cause boto3 to timeout because it's a ~2.5 GB image
-    docker pull localstack/bigdata
+    # docker pull localstack/bigdata
     docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
 fi
 
