@@ -55,7 +55,7 @@ module "datapump" {
   emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name
   public_subnet_ids = data.terraform_remote_state.core.outputs.public_subnet_ids
-  ec2_key_name = data.terraform_remote_state.core.outputs.key_pair_tmaschler_gfw
+  ec2_key_name = data.terraform_remote_state.core.outputs.key_pair_jterry_gfw
   gcs_secret_arn = data.terraform_remote_state.core.outputs.secrets_read-gfw-gee-export_arn
   read_gfw_api_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
   read_gfw_sync_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-slack-gfw-sync_policy_arn
