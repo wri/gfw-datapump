@@ -363,6 +363,11 @@ class DeforestationAlertsSync(Sync):
     def grid(self):
         ...
 
+    @property
+    @abstractmethod
+    def max_zoom(self):
+        ...
+
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
@@ -400,7 +405,7 @@ class DeforestationAlertsSync(Sync):
                 compute_stats=False,
             ),
             tile_cache_parameters=RasterTileCacheParameters(
-                max_zoom=14,
+                max_zoom=self.max_zoom,
                 resampling="med",
                 symbology={"type": "date_conf_intensity"},
             ),
@@ -443,6 +448,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     input_calc = "(A >= 20000) * (A < 40000) * A"
     number_of_tiles = 175
     grid = "10/100000"
+    max_zoom = 14
 
     def __init__(self, sync_version: str):
         super().__init__(sync_version)
@@ -508,6 +514,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     number_of_tiles = 115
     grid = "10/40000"
     start_year = 2021
+    max_zoom = 12
 
     @property
     def input_calc(self):
@@ -543,15 +550,9 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         Get the version of the latest *complete* release in GCS
         """
 
-        past_10_days = [
-            self.get_today() - timedelta(days=i)
-            for i in range(0, 10)
-        ]
+        past_10_days = [self.get_today() - timedelta(days=i) for i in range(0, 10)]
 
-        past_10_day_prefixes = [
-            d.strftime("%Y/%m_%d")
-            for d in past_10_days
-        ]
+        past_10_day_prefixes = [d.strftime("%Y/%m_%d") for d in past_10_days]
 
         for prefix in past_10_day_prefixes:
             version_tiles: List[str] = get_gs_files(
@@ -575,7 +576,9 @@ class GLADLAlertsSync(DeforestationAlertsSync):
                 for year in range(self.start_year, today.year + 1):
                     year_suffix = str(year)[2:4]
 
-                    if year == today.year or (year == today.year - 1 and today.month < 7):
+                    if year == today.year or (
+                        year == today.year - 1 and today.month < 7
+                    ):
                         # these rasters are still being updated
                         source_uris += [
                             f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alert{year_suffix}*",
@@ -614,6 +617,7 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
     input_calc = "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461)"
     number_of_tiles = 18
     grid = "10/100000"
+    max_zoom = 14
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
