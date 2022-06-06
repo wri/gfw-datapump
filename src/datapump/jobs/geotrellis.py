@@ -703,7 +703,7 @@ class GeotrellisJob(Job):
 
         # Spark/Scala upgrade in version 2.0.0
         emr_version = (
-            GLOBALS.emr_version if self.geotrellis_version > "2.0.0" else "6.1.0"
+            GLOBALS.emr_version if self.geotrellis_version > "2.0.0" else "emr-6.1.0"
         )
 
         request = {
@@ -865,7 +865,7 @@ class GeotrellisJob(Job):
             "spark.dynamicAllocation.enabled": "false",
         }
 
-        if self.geotrellis_version >= "6.3.1":
+        if self.geotrellis_version >= "2.0.0":
             spark_defaults.update(
                 {
                     "spark.decommission.enabled": "true",

@@ -8,7 +8,6 @@ from uuid import uuid1
 import dateutil.tz as tz
 from datapump.clients.data_api import DataApiClient
 
-from ..clients.aws import get_s3_client, get_s3_path_parts
 from ..clients.datapump_store import DatapumpConfig
 from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
 from ..commands.sync import SyncType
@@ -96,11 +95,10 @@ class GladSync(Sync):
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
-        self.should_sync_glad = self._check_for_new_glad()
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
-        if self.should_sync_glad:
-            jobs = [
+        if self._check_for_new_glad(config):
+            return [
                 GeotrellisJob(
                     id=str(uuid1()),
                     status=JobStatus.starting,
@@ -118,51 +116,13 @@ class GladSync(Sync):
                     version_overrides=config.metadata.get("version_overrides", {}),
                 )
             ]
-
-            if config.dataset == "gadm":
-                jobs.append(
-                    RasterVersionUpdateJob(
-                        id=str(uuid1()),
-                        status=JobStatus.starting,
-                        dataset=self.DATASET_NAME,
-                        version=self.sync_version,
-                        tile_set_parameters=RasterTileSetParameters(
-                            source_uri=[
-                                f"s3://{GLOBALS.s3_bucket_data_lake}/{self.DATASET_NAME}/raw/tiles.geojson"
-                            ],
-                            grid="10/100000",
-                            data_type="uint16",
-                            pixel_meaning="date_conf",
-                            union_bands=True,
-                            compute_stats=False,
-                            timeout_sec=21600,
-                            no_data=0,
-                        ),
-                        content_date_range=ContentDateRange(
-                            min="2014-12-31",  # FIXME: Change for collection 2?
-                            max="2021-12-31",  # TODO: Set to str(date.today()) when GLAD starts updating again
-                        ),
-                    )
-                )
-
-            return jobs
         else:
             return []
 
-    def _check_for_new_glad(self):
-        bucket, path = get_s3_path_parts(GLOBALS.s3_glad_path)
-        response = get_s3_client().get_object(
-            Bucket=bucket, Key=f"{path}/events/status"
-        )
-
-        last_modified_datetime = response["LastModified"]
-        status = response["Body"].read().strip().decode("utf-8")
-        one_day_ago = datetime.now(tz.UTC) - timedelta(hours=24)
-
-        stati = ["COMPLETED", "SAVED", "HADOOP RUNNING", "HADOOP FAILED"]
-        return (status in stati) and (
-            one_day_ago <= last_modified_datetime <= datetime.now(tz.UTC)
-        )
+    def _check_for_new_glad(self, config: DatapumpConfig):
+        client = DataApiClient()
+        glad_tiles_latest_version = client.get_latest_version(self.DATASET_NAME)
+        return config.sync_version < glad_tiles_latest_version
 
 
 class IntegratedAlertsSync(Sync):
@@ -553,6 +513,24 @@ class GLADLAlertsSync(DeforestationAlertsSync):
 
         calc_string = f"np.ma.array({' + '.join(calc_strings)}, mask=False)"
         return calc_string
+
+    def get_raster_job(
+        self, version: str, source_uris: List[str]
+    ) -> RasterVersionUpdateJob:
+        raster_job = super().get_raster_job(version, source_uris)
+        raster_job.aux_tile_set_parameters = [
+            RasterTileSetParameters(
+                grid="10/100000",
+                data_type="uint16",
+                pixel_meaning="date_conf",
+                union_bands=True,
+                compute_stats=False,
+                timeout_sec=21600,
+                no_data=0,
+            )
+        ]
+
+        return raster_job
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
