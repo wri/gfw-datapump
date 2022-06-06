@@ -257,6 +257,7 @@ def test_glad_landsat_sync(monkeypatch):
         job.tile_set_parameters.calc
         == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)), mask=False)"
     )
+    assert job.aux_tile_set_parameters[0].grid == "10/100000"
 
 
 def test_glad_landsat_sync_after_june_30(monkeypatch):
