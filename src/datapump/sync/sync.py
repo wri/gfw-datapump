@@ -507,7 +507,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
 
             date_band = next(bands)
             calc_strings.append(
-                f"({prev_conf_calc_string}({conf_band} > 0) * (20000 + 10000 * ({conf_band} > 1) + {year_start} + {date_band}))"
+                f"({prev_conf_calc_string}({conf_band} > 0) * (20000 + 10000 * ({conf_band} > 2) + {year_start} + {date_band}))"
             )
             prev_conf_bands.append(conf_band)
 
