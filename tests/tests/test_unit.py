@@ -226,7 +226,7 @@ def test_glad_landsat_sync(monkeypatch):
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
-        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)), mask=False)"
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 2) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 2) + 2557 + D)), mask=False)"
     )
     assert job.aux_tile_set_parameters[0].grid == "10/100000"
 
@@ -269,7 +269,7 @@ def test_glad_landsat_sync_after_june_30(monkeypatch):
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
-        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)), mask=False)"
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 2) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 2) + 2557 + D)), mask=False)"
     )
 
 
@@ -313,7 +313,7 @@ def test_glad_landsat_sync_after_2023(monkeypatch):
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
-        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 1) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 1) + 2557 + D)) + ((A == 0) * (C == 0) * (E > 0) * (20000 + 10000 * (E > 1) + 2922 + F)), mask=False)"
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 2) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 2) + 2557 + D)) + ((A == 0) * (C == 0) * (E > 0) * (20000 + 10000 * (E > 2) + 2922 + F)), mask=False)"
     )
 
 
