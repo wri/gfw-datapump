@@ -4,6 +4,7 @@ from pprint import pformat
 from typing import Any, Dict, List, Optional
 
 import requests
+from retry import retry
 
 from ..globals import GLOBALS, LOGGER
 from ..util.exceptions import DataApiResponseError
@@ -185,7 +186,9 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         self._send_request(ValidMethods.delete, uri)
 
-    def update_version_metadata(self, dataset: str, version: str, metadata: Dict[str, Any]):
+    def update_version_metadata(
+        self, dataset: str, version: str, metadata: Dict[str, Any]
+    ):
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         payload = {"metadata": metadata}
         self._send_request(ValidMethods.patch, uri, payload)
@@ -196,6 +199,7 @@ class DataApiClient:
         self._send_request(ValidMethods.patch, uri, payload)
 
     @staticmethod
+    @retry(DataApiResponseError, delay=10, backoff=2, tries=3)
     def _send_request(
         method: ValidMethods, uri: str, payload: Dict[str, Any] = None
     ) -> Dict[str, Any]:
@@ -224,12 +228,15 @@ class DataApiClient:
 
         if resp.status_code >= 300:
             error_msg = f"Data API responded with status code {resp.status_code}\n"
+
+            # error response will be JSON if from the API, but could be HTML if from a proxy
             try:
                 body = resp.json()
                 error_msg += pformat(body)
             except Exception:
                 error_msg += resp.content.decode()
             finally:
+                LOGGER.error(error_msg)
                 raise DataApiResponseError(error_msg)
         else:
             return resp.json()

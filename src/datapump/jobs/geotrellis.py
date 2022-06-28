@@ -26,7 +26,7 @@ from ..jobs.jobs import (
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
-GEOTRELLIS_RETRIES = 2
+GEOTRELLIS_RETRIES = 3
 
 
 class GeotrellisAnalysis(str, Enum):
@@ -115,11 +115,7 @@ class GeotrellisJob(Job):
             elif status == JobStatus.failed:
                 self.retries += 1
 
-                # retry only if this job isn't too big, otherwise we might waste a lot of money
-                if (
-                    self.retries <= GEOTRELLIS_RETRIES
-                    and self._calculate_worker_count(self.features_1x1) < 100
-                ):
+                if self.retries <= GEOTRELLIS_RETRIES:
                     self.start_analysis()
                 else:
                     self.status = JobStatus.failed
@@ -358,7 +354,7 @@ class GeotrellisJob(Job):
 
     def _get_indices_and_cluster(
         self, analysis_agg: str, feature_agg: Optional[str] = None
-    ) -> Tuple[List[Index], Index]:
+    ) -> Tuple[List[Optional[Index]], Optional[Index]]:
         indices = []
 
         id_col_constructor: Dict[Tuple[str, Optional[str]], List[str]] = {
@@ -405,44 +401,31 @@ class GeotrellisJob(Job):
                 "alert__week",
             ],
             (Analysis.integrated_alerts, "daily_alerts"): [
-                "gfw_integrated_alerts__confidence",
                 "gfw_integrated_alerts__date",
             ],
             (Analysis.viirs, "daily_alerts"): [
                 "alert__date",
-                threshold_field,
-                "confidence__cat",
             ],
             (Analysis.viirs, "all"): [
                 "alert__date",
-                threshold_field,
-                "confidence__cat",
             ],
             (Analysis.viirs, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                threshold_field,
-                "confidence__cat",
             ],
             (Analysis.modis, "daily_alerts"): [
                 "alert__date",
-                threshold_field,
-                "confidence__cat",
             ],
             (Analysis.modis, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                threshold_field,
-                "confidence__cat",
             ],
             (Analysis.burned_areas, "daily_alerts"): [
                 "alert__date",
-                threshold_field,
             ],
             (Analysis.burned_areas, "weekly_alerts"): [
                 "alert__year",
                 "alert__week",
-                threshold_field,
             ],
         }
 
@@ -453,8 +436,15 @@ class GeotrellisJob(Job):
         except KeyError:
             analysis_cols = []
 
-        cluster = Index(index_type="btree", column_names=id_cols + analysis_cols)
+        cluster: Optional[Index] = Index(
+            index_type="btree", column_names=id_cols + analysis_cols
+        )
         indices.append(cluster)
+
+        if self.feature_type == "geostore":
+            # this often uses up all the memory on the DB and fails since there are so many
+            # geostore IDs, so don't cluster for geostore
+            cluster = None
 
         if analysis_agg == "all":
             cluster = Index(index_type="gist", column_names=["geom_wm"])
