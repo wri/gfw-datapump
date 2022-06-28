@@ -38,7 +38,7 @@ variable "lambda_params" {
   default = {
     runtime = "python3.7"
     memory_size = 3048
-    timeout = 300
+    timeout = 900
   }
 }
 
