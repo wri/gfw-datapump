@@ -170,28 +170,27 @@ class GeotrellisJob(Job):
                 if (
                     self.table.analysis == Analysis.glad
                     or self.table.analysis == Analysis.integrated_alerts
-                ) and self.sync_type != SyncType.rw_areas:
-                    client.create_vector_version(
-                        table.dataset,
-                        table.version,
-                        table.source_uri,
-                        [index.dict() for index in table.indices]
-                        if table.indices
-                        else table.indices,
-                        table.cluster.dict() if table.cluster else table.cluster,
-                        table.table_schema,
-                        table.partitions.dict()
-                        if table.partitions
-                        else table.partitions,
-                        table.longitude_field,
-                        table.latitude_field,
-                    )
-                else:
+                ):
                     if self.sync_type == SyncType.rw_areas:
                         version = client.get_latest_version(table.dataset)
+                        client.append(table.dataset, version, table.source_uri)
                     else:
-                        version = table.version
-
+                        client.create_vector_version(
+                            table.dataset,
+                            table.version,
+                            table.source_uri,
+                            [index.dict() for index in table.indices]
+                            if table.indices
+                            else table.indices,
+                            table.cluster.dict() if table.cluster else table.cluster,
+                            table.table_schema,
+                            table.partitions.dict()
+                            if table.partitions
+                            else table.partitions,
+                            table.longitude_field,
+                            table.latitude_field,
+                        )
+                else:
                     client.append(table.dataset, version, table.source_uri)
             else:
                 client.create_dataset_and_version(
