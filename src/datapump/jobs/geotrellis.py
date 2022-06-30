@@ -191,7 +191,7 @@ class GeotrellisJob(Job):
                             table.latitude_field,
                         )
                 else:
-                    client.append(table.dataset, version, table.source_uri)
+                    client.append(table.dataset, table.version, table.source_uri)
             else:
                 client.create_dataset_and_version(
                     table.dataset,
