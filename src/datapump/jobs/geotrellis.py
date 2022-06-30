@@ -867,7 +867,7 @@ class GeotrellisJob(Job):
         return [
             {
                 "Classification": "spark",
-                "Properties": {"maximizeResourceAllocation": "true"},
+                "Properties": {"maximizeResourceAllocation": "false"},
                 "Configurations": [],
             },
             {
