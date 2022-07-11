@@ -342,7 +342,7 @@ class DeforestationAlertsSync(Sync):
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
-        Creates the deforesation raster layer and assets
+        Creates the deforestation raster layer and assets
         """
 
         latest_api_version = self.get_latest_api_version(self.dataset_name)
@@ -533,54 +533,78 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         return raster_job
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
-        """
-        Get the version of the latest *complete* release in GCS
-        """
+        today = self.get_today()
+        month_day = today.strftime("%m_%d")
 
-        past_10_days = [self.get_today() - timedelta(days=i) for i in range(0, 10)]
+        source_uris: List[str] = []
+        release_version: str = "v" + today.strftime("%Y%m%d")
 
-        past_10_day_prefixes = [d.strftime("%Y/%m_%d") for d in past_10_days]
+        for target_year in range(self.start_year, today.year + 1):
+            two_digit_year = str(target_year)[-2:]
 
-        for prefix in past_10_day_prefixes:
-            version_tiles: List[str] = get_gs_files(
+            tiles: List[str] = get_gs_files(
                 self.source_bucket,
-                f"{self.source_prefix}/{prefix}/alertDate22",
+                f"{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}",
                 extensions=[".tif"],
             )
 
-            LOGGER.info(f"Found files for date {prefix}: {version_tiles}")
-
-            if len(version_tiles) > self.number_of_tiles:
+            if len(tiles) > self.number_of_tiles:
                 raise Exception(
-                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
-                    f"greater than the expected {self.number_of_tiles}. "
+                    f"Found {len(tiles)} TIFFs in {self.dataset_name} "
+                    "GCS folder, which is greater than the expected "
+                    f"{self.number_of_tiles} tiles. If the extent has grown,"
+                    "update self.number_of_tiles value."
+                )
+            if len(tiles) == self.number_of_tiles:
+                source_uris += [
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/{month_day}/alert{two_digit_year}*",
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/{month_day}/alertDate{two_digit_year}*",
+                ]
+                continue
+
+            # We found less than self.number_of_tiles (potentially 0) in the
+            # "final" folder, so tiles for the year are still being modified.
+            # Step back in history (starting with today) until we find the
+            # last day that there was a full set. Stop if we reach a year ago
+            # without finding one.
+            a_year_ago: date = today - timedelta(days=365)
+
+            search_day: date = today
+            search_month_day: str = search_day.strftime("%m_%d")
+
+            while len(tiles) < self.number_of_tiles and search_day > a_year_ago:
+                search_day -= timedelta(days=1)
+                search_month_day = search_day.strftime("%m_%d")
+
+                tiles = get_gs_files(
+                    self.source_bucket,
+                    f"{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}",
+                    extensions=[".tif"],
+                )
+
+            if len(tiles) > self.number_of_tiles:
+                raise Exception(
+                    f"Found {len(tiles)} TIFFs in {self.dataset_name} "
+                    "GCS folder, which is greater than the expected "
+                    f"{self.number_of_tiles}. "
                     "If the extent has grown, update NUMBER_OF_TILES value."
                 )
-            elif len(version_tiles) == self.number_of_tiles:
-                today = self.get_today()
+            if len(tiles) < self.number_of_tiles:
+                raise Exception(
+                    f"Can't find tiles for {target_year}, even after looking "
+                    f"back as far as {search_day.year}/{search_month_day}, still can't find tiles!"
+                )
 
-                source_uris = []
-                for year in range(self.start_year, today.year + 1):
-                    year_suffix = str(year)[2:4]
+            # We found them!
+            source_uris += [
+                f"gs://{self.source_bucket}/{self.source_prefix}/{search_day.year}/{search_month_day}/alert{two_digit_year}*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}*",
+            ]
 
-                    if year == today.year or (
-                        year == today.year - 1 and today.month < 7
-                    ):
-                        # these rasters are still being updated
-                        source_uris += [
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alert{year_suffix}*",
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alertDate{year_suffix}*",
-                        ]
-                    else:
-                        # otherwise, use final raster for that year
-                        source_uris += [
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
-                        ]
+            if two_digit_year == str(today.year)[-2:]:
+                release_version = "v" + search_day.strftime("%Y%m%d")
 
-                return self.sync_version, source_uris
-
-        raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+        return release_version, source_uris
 
     @staticmethod
     def get_days_since_2015(year: int) -> int:
