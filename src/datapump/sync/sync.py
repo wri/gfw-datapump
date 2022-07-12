@@ -557,8 +557,8 @@ class GLADLAlertsSync(DeforestationAlertsSync):
                 )
             if len(tiles) == self.number_of_tiles:
                 source_uris += [
-                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/{month_day}/alert{two_digit_year}*",
-                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/{month_day}/alertDate{two_digit_year}*",
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/final/alert{two_digit_year}*",
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}*",
                 ]
                 continue
 
@@ -572,7 +572,17 @@ class GLADLAlertsSync(DeforestationAlertsSync):
             search_day: date = today
             search_month_day: str = search_day.strftime("%m_%d")
 
-            while len(tiles) < self.number_of_tiles and search_day > a_year_ago:
+            tiles = get_gs_files(
+                self.source_bucket,
+                f"{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}",
+                extensions=[".tif"],
+            )
+
+            while (
+                len(tiles) < self.number_of_tiles
+                and search_day.year >= target_year
+                and search_day > a_year_ago
+            ):
                 search_day -= timedelta(days=1)
                 search_month_day = search_day.strftime("%m_%d")
 
@@ -592,7 +602,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
             if len(tiles) < self.number_of_tiles:
                 raise Exception(
                     f"Can't find tiles for {target_year}, even after looking "
-                    f"back as far as {search_day.year}/{search_month_day}, still can't find tiles!"
+                    f"back as far as {search_day.year}/{search_month_day}!"
                 )
 
             # We found them!
