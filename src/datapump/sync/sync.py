@@ -405,6 +405,10 @@ class DeforestationAlertsSync(Sync):
         client = DataApiClient()
         return client.get_latest_version(dataset_name)
 
+    @staticmethod
+    def get_today():
+        return date.today()
+
 
 class RADDAlertsSync(DeforestationAlertsSync):
     """
@@ -533,6 +537,28 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         return raster_job
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
+        # UMD's GLAD release scheme goes something like this:
+        # GLAD alerts are released as a set of tiles that contain all the
+        # alerts for a given year, placed in
+        # GLADalert/C2/{year_of_release}/{month_day_of_release}
+        # They start out as provisional, which means pixel values may be
+        # modified following a QA process (with the new values appearing
+        # in subsequent releases). At some point (typically around July)
+        # there will be some final QA, after which the alerts for the
+        # previous year will be put in the GLADalert/C2/{year_of_data}/final
+        # folder.
+        # There will be some time during which the processing of current
+        # year alerts overlaps the processing of the previous year's alerts,
+        # but the tiles have the year of the data in the file names to
+        # differentiate them (there are two bands/sets of tiles, named
+        # like alert{two_digit_year} and alertDate{two_digit_year}).
+        # So.
+        # For a given year's data, first see if it's already been finalized
+        # (i.e. there are tiles in year/final). If not, find the last day it
+        # was released as provisional data (which may be today or some time
+        # in the past: As of this writing they have stopped including the 2021
+        # data in daily updates but have not yet put anything in the "final"
+        # folder).
         today = self.get_today()
         month_day = today.strftime("%m_%d")
 
@@ -621,10 +647,6 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         year_date = date(year=year, month=1, day=1)
         start_date = date(year=2015, month=1, day=1)
         return (year_date - start_date).days
-
-    @staticmethod
-    def get_today():
-        return date.today()
 
 
 class GLADS2AlertsSync(DeforestationAlertsSync):
