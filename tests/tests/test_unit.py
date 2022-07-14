@@ -3,7 +3,10 @@
 #############
 import os
 import time
-from datetime import date
+from datetime import date, datetime, timedelta
+from typing import List
+
+import pytest
 
 os.environ["S3_BUCKET_PIPELINE"] = "gfw-pipelines-test"
 os.environ["S3_BUCKET_DATA_LAKE"] = "gfw-data-lake-test"
@@ -191,7 +194,7 @@ def test_glad_s2_sync(monkeypatch):
     )
 
 
-def test_glad_landsat_sync(monkeypatch):
+def test_glad_landsat_sync_early_2022(monkeypatch):
     mock_dp_config = DatapumpConfig(
         analysis_version="v20220223",
         dataset="umd_glad_landsat_alerts",
@@ -201,27 +204,47 @@ def test_glad_landsat_sync(monkeypatch):
         sync_type=SyncType.umd_glad_landsat_alerts,
     )
 
+    test_date: date = datetime.strptime("2022-06-12", "%Y-%m-%d").date()
+    monkeypatch.setattr(DeforestationAlertsSync, "get_today", lambda x: test_date)
+
+    test_month_day = test_date.strftime("%m_%d")
+    test_version = "v" + test_date.strftime("%Y%m%d")
+
+    def mock_get_gs_files(bucket, prefix, **kwargs) -> List[str]:
+        just_right: List[str] = [str(x) for x in range(0, 115)]
+        too_few: List[str] = []
+
+        if (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate22"
+        ):
+            return just_right
+        elif (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate21"
+        ):
+            return just_right
+
+        return too_few
+
+    monkeypatch.setattr(sync, "get_gs_files", mock_get_gs_files)
+
     monkeypatch.setattr(
         DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
-    )
-    monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
     )
 
     raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
 
-    today_prefix = date.today().strftime("%Y/%m_%d")
-
     assert raster_jobs
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
-    assert job.version == "v20220222"
-    assert job.content_date_range.max == "2022-02-22"
+    assert job.version == test_version
+    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert21*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate21*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate22*",
     ]
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
@@ -231,7 +254,7 @@ def test_glad_landsat_sync(monkeypatch):
     assert job.aux_tile_set_parameters[0].grid == "10/100000"
 
 
-def test_glad_landsat_sync_after_june_30(monkeypatch):
+def test_glad_landsat_sync_mid_2022(monkeypatch):
     mock_dp_config = DatapumpConfig(
         analysis_version="v20220223",
         dataset="umd_glad_landsat_alerts",
@@ -241,30 +264,47 @@ def test_glad_landsat_sync_after_june_30(monkeypatch):
         sync_type=SyncType.umd_glad_landsat_alerts,
     )
 
+    test_date: date = datetime.strptime("2022-07-12", "%Y-%m-%d").date()
+    monkeypatch.setattr(DeforestationAlertsSync, "get_today", lambda x: test_date)
+
+    test_month_day = test_date.strftime("%m_%d")
+    test_version = "v" + test_date.strftime("%Y%m%d")
+
+    def mock_get_gs_files(bucket, prefix, **kwargs) -> List[str]:
+        just_right: List[str] = [str(x) for x in range(0, 115)]
+        too_few: List[str] = []
+
+        if (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate22"
+        ):
+            return just_right
+        elif (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{(test_date - timedelta(days=20)).strftime('%m_%d')}/alertDate21"
+        ):
+            return just_right
+
+        return too_few
+
+    monkeypatch.setattr(sync, "get_gs_files", mock_get_gs_files)
+
     monkeypatch.setattr(
         DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
-    )
-    monkeypatch.setattr(
-        GLADLAlertsSync, "get_today", lambda x: date(year=2022, month=7, day=1)
-    )
-    monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
     )
 
     raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
 
-    today_prefix = "2022/07_01"
-
     assert raster_jobs
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
-    assert job.version == "v20220222"
-    assert job.content_date_range.max == "2022-02-22"
+    assert job.version == test_version
+    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
-        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alert21*",
-        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alertDate21*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{(test_date - timedelta(days=20)).strftime('%m_%d')}/alert21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{(test_date - timedelta(days=20)).strftime('%m_%d')}/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate22*",
     ]
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
@@ -273,7 +313,7 @@ def test_glad_landsat_sync_after_june_30(monkeypatch):
     )
 
 
-def test_glad_landsat_sync_after_2023(monkeypatch):
+def test_glad_landsat_sync_late_2022(monkeypatch):
     mock_dp_config = DatapumpConfig(
         analysis_version="v20220223",
         dataset="umd_glad_landsat_alerts",
@@ -283,38 +323,151 @@ def test_glad_landsat_sync_after_2023(monkeypatch):
         sync_type=SyncType.umd_glad_landsat_alerts,
     )
 
+    test_date: date = datetime.strptime("2022-08-12", "%Y-%m-%d").date()
+    monkeypatch.setattr(DeforestationAlertsSync, "get_today", lambda x: test_date)
+
+    test_month_day = test_date.strftime("%m_%d")
+    test_version = "v" + test_date.strftime("%Y%m%d")
+
+    def mock_get_gs_files(bucket, prefix, **kwargs) -> List[str]:
+        just_right: List[str] = [str(x) for x in range(0, 115)]
+        too_few: List[str] = []
+
+        if (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate22"
+        ):
+            return just_right
+        elif prefix == f"GLADalert/C2/{test_date.year - 1}/final/alertDate21":
+            return just_right
+
+        return too_few
+
+    monkeypatch.setattr(sync, "get_gs_files", mock_get_gs_files)
+
     monkeypatch.setattr(
         DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
-    )
-    monkeypatch.setattr(
-        GLADLAlertsSync, "get_today", lambda x: date(year=2023, month=2, day=1)
-    )
-    monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 115))
     )
 
     raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
 
-    today_prefix = "2023/02_01"
+    assert raster_jobs
+    job = raster_jobs[0]
+    assert isinstance(job, RasterVersionUpdateJob)
+    assert job.version == test_version
+    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
+    assert job.tile_set_parameters.source_uri == [
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 1}/final/alert21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 1}/final/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate22*",
+    ]
+    assert job.tile_set_parameters.grid == "10/40000"
+    assert (
+        job.tile_set_parameters.calc
+        == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 2) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 2) + 2557 + D)), mask=False)"
+    )
+
+
+def test_glad_landsat_sync_early_2023(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220223",
+        dataset="umd_glad_landsat_alerts",
+        dataset_version="v20220223",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.umd_glad_landsat_alerts,
+    )
+
+    test_date: date = datetime.strptime("2023-04-12", "%Y-%m-%d").date()
+    monkeypatch.setattr(DeforestationAlertsSync, "get_today", lambda x: test_date)
+
+    test_month_day = test_date.strftime("%m_%d")
+    test_version = "v" + test_date.strftime("%Y%m%d")
+
+    def mock_get_gs_files(bucket, prefix, **kwargs) -> List[str]:
+        just_right: List[str] = [str(x) for x in range(0, 115)]
+        too_few: List[str] = []
+
+        if (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate23"
+        ):
+            return just_right
+        elif (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate22"
+        ):
+            return just_right
+        elif prefix == f"GLADalert/C2/{test_date.year - 2}/final/alertDate21":
+            return just_right
+
+        return too_few
+
+    monkeypatch.setattr(sync, "get_gs_files", mock_get_gs_files)
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
+    )
+
+    raster_jobs = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
 
     assert raster_jobs
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
-    assert job.version == "v20220222"
-    assert job.content_date_range.max == "2022-02-22"
+    assert job.version == test_version
+    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
-        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alert21*",
-        "gs://earthenginepartners-hansen/GLADalert/C2/2021/final/alertDate21*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert22*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate22*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alert23*",
-        f"gs://earthenginepartners-hansen/GLADalert/C2/{today_prefix}/alertDate23*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 2}/final/alert21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 2}/final/alertDate21*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate22*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert23*",
+        f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate23*",
     ]
     assert job.tile_set_parameters.grid == "10/40000"
     assert (
         job.tile_set_parameters.calc
         == "np.ma.array(((A > 0) * (20000 + 10000 * (A > 2) + 2192 + B)) + ((A == 0) * (C > 0) * (20000 + 10000 * (C > 2) + 2557 + D)) + ((A == 0) * (C == 0) * (E > 0) * (20000 + 10000 * (E > 2) + 2922 + F)), mask=False)"
     )
+
+
+def test_glad_landsat_sync_grown_extent(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220223",
+        dataset="umd_glad_landsat_alerts",
+        dataset_version="v20220223",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.umd_glad_landsat_alerts,
+    )
+
+    test_date: date = datetime.strptime("2022-07-12", "%Y-%m-%d").date()
+    monkeypatch.setattr(DeforestationAlertsSync, "get_today", lambda x: test_date)
+
+    def mock_get_gs_files(bucket, prefix, **kwargs) -> List[str]:
+        just_right: List[str] = [str(x) for x in range(0, 115)]
+        too_few: List[str] = []
+        too_many: List[str] = [str(x) for x in range(0, 120)]
+
+        if (
+            prefix
+            == f"GLADalert/C2/{test_date.year}/{test_date.strftime('%m_%d')}/alertDate22"
+        ):
+            return too_many
+        elif prefix == f"GLADalert/C2/{test_date.year - 1}/final/alertDate21":
+            return just_right
+
+        return too_few
+
+    monkeypatch.setattr(sync, "get_gs_files", mock_get_gs_files)
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
+    )
+
+    with pytest.raises(Exception):
+        _ = GLADLAlertsSync("v20220222").build_jobs(mock_dp_config)
 
 
 EXPECTED = {

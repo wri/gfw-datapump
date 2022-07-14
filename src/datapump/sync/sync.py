@@ -342,7 +342,7 @@ class DeforestationAlertsSync(Sync):
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         """
-        Creates the deforesation raster layer and assets
+        Creates the deforestation raster layer and assets
         """
 
         latest_api_version = self.get_latest_api_version(self.dataset_name)
@@ -404,6 +404,10 @@ class DeforestationAlertsSync(Sync):
         """
         client = DataApiClient()
         return client.get_latest_version(dataset_name)
+
+    @staticmethod
+    def get_today():
+        return date.today()
 
 
 class RADDAlertsSync(DeforestationAlertsSync):
@@ -533,64 +537,116 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         return raster_job
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
-        """
-        Get the version of the latest *complete* release in GCS
-        """
+        # UMD's GLAD release scheme goes something like this:
+        # GLAD alerts are released as a set of tiles that contain all the
+        # alerts for a given year, placed in
+        # GLADalert/C2/{year_of_release}/{month_day_of_release}
+        # They start out as provisional, which means pixel values may be
+        # modified following a QA process (with the new values appearing
+        # in subsequent releases). At some point (typically around July)
+        # there will be some final QA, after which the alerts for the
+        # previous year will be put in the GLADalert/C2/{year_of_data}/final
+        # folder.
+        # There will be some time during which the processing of current
+        # year alerts overlaps the processing of the previous year's alerts,
+        # but the tiles have the year of the data in the file names to
+        # differentiate them (there are two bands/sets of tiles, named
+        # like alert{two_digit_year} and alertDate{two_digit_year}).
+        # So.
+        # For a given year's data, first see if it's already been finalized
+        # (i.e. there are tiles in year/final). If not, find the last day it
+        # was released as provisional data (which may be today or some time
+        # in the past: As of this writing they have stopped including the 2021
+        # data in daily updates but have not yet put anything in the "final"
+        # folder).
+        today = self.get_today()
+        month_day = today.strftime("%m_%d")
 
-        past_10_days = [self.get_today() - timedelta(days=i) for i in range(0, 10)]
+        source_uris: List[str] = []
+        release_version: str = "v" + today.strftime("%Y%m%d")
 
-        past_10_day_prefixes = [d.strftime("%Y/%m_%d") for d in past_10_days]
+        for target_year in range(self.start_year, today.year + 1):
+            two_digit_year = str(target_year)[-2:]
 
-        for prefix in past_10_day_prefixes:
-            version_tiles: List[str] = get_gs_files(
+            tiles: List[str] = get_gs_files(
                 self.source_bucket,
-                f"{self.source_prefix}/{prefix}/alertDate22",
+                f"{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}",
                 extensions=[".tif"],
             )
 
-            LOGGER.info(f"Found files for date {prefix}: {version_tiles}")
-
-            if len(version_tiles) > self.number_of_tiles:
+            if len(tiles) > self.number_of_tiles:
                 raise Exception(
-                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
-                    f"greater than the expected {self.number_of_tiles}. "
+                    f"Found {len(tiles)} TIFFs in {self.dataset_name} "
+                    "GCS folder, which is greater than the expected "
+                    f"{self.number_of_tiles} tiles. If the extent has grown,"
+                    "update self.number_of_tiles value."
+                )
+            if len(tiles) == self.number_of_tiles:
+                source_uris += [
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/final/alert{two_digit_year}*",
+                    f"gs://{self.source_bucket}/{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}*",
+                ]
+                continue
+
+            # We found less than self.number_of_tiles (potentially 0) in the
+            # "final" folder, so tiles for the year are still being modified.
+            # Step back in history (starting with today) until we find the
+            # last day that there was a full set. Stop if we reach a year ago
+            # without finding one.
+            a_year_ago: date = today - timedelta(days=365)
+
+            search_day: date = today
+            search_month_day: str = search_day.strftime("%m_%d")
+
+            tiles = get_gs_files(
+                self.source_bucket,
+                f"{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}",
+                extensions=[".tif"],
+            )
+
+            while (
+                len(tiles) < self.number_of_tiles
+                and search_day.year >= target_year
+                and search_day > a_year_ago
+            ):
+                search_day -= timedelta(days=1)
+                search_month_day = search_day.strftime("%m_%d")
+
+                tiles = get_gs_files(
+                    self.source_bucket,
+                    f"{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}",
+                    extensions=[".tif"],
+                )
+
+            if len(tiles) > self.number_of_tiles:
+                raise Exception(
+                    f"Found {len(tiles)} TIFFs in {self.dataset_name} "
+                    "GCS folder, which is greater than the expected "
+                    f"{self.number_of_tiles}. "
                     "If the extent has grown, update NUMBER_OF_TILES value."
                 )
-            elif len(version_tiles) == self.number_of_tiles:
-                today = self.get_today()
+            if len(tiles) < self.number_of_tiles:
+                raise Exception(
+                    f"Can't find tiles for {target_year}, even after looking "
+                    f"back as far as {search_day.year}/{search_month_day}!"
+                )
 
-                source_uris = []
-                for year in range(self.start_year, today.year + 1):
-                    year_suffix = str(year)[2:4]
+            # We found them!
+            source_uris += [
+                f"gs://{self.source_bucket}/{self.source_prefix}/{search_day.year}/{search_month_day}/alert{two_digit_year}*",
+                f"gs://{self.source_bucket}/{self.source_prefix}/{search_day.year}/{search_month_day}/alertDate{two_digit_year}*",
+            ]
 
-                    if year == today.year or (
-                        year == today.year - 1 and today.month < 7
-                    ):
-                        # these rasters are still being updated
-                        source_uris += [
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alert{year_suffix}*",
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{prefix}/alertDate{year_suffix}*",
-                        ]
-                    else:
-                        # otherwise, use final raster for that year
-                        source_uris += [
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alert{year_suffix}*",
-                            f"gs://{self.source_bucket}/{self.source_prefix}/{year}/final/alertDate{year_suffix}*",
-                        ]
+            if two_digit_year == str(today.year)[-2:]:
+                release_version = "v" + search_day.strftime("%Y%m%d")
 
-                return self.sync_version, source_uris
-
-        raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
+        return release_version, source_uris
 
     @staticmethod
     def get_days_since_2015(year: int) -> int:
         year_date = date(year=year, month=1, day=1)
         start_date = date(year=2015, month=1, day=1)
         return (year_date - start_date).days
-
-    @staticmethod
-    def get_today():
-        return date.today()
 
 
 class GLADS2AlertsSync(DeforestationAlertsSync):
