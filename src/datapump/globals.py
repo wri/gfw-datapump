@@ -44,7 +44,7 @@ class Globals(EnvSettings):
     geotrellis_jar_path = Field(
         "s3://gfw-pipelines/geotrellis/jars", env="GEOTRELLIS_JAR_PATH"
     )
-    worker_count_min: PositiveInt = Field(5)
+    worker_count_min: PositiveInt = Field(10)
     worker_count_per_gb_features: PositiveInt = Field(50)
 
     # if LOCALSTACK_HOSTNAME is set, it means we're running in a mock environment
