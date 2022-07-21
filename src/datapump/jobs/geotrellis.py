@@ -828,13 +828,15 @@ class GeotrellisJob(Job):
         partition_count = executor_count * 3
 
         spark_defaults = {
-            "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "10",
+            "spark.yarn.appMasterEnv.GDAL_HTTP_MAX_RETRY": "3",
             "spark.driver.maxResultSize": "3G",
             "spark.yarn.appMasterEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
             "spark.rdd.compress": "true",
             "spark.executorEnv.LD_LIBRARY_PATH": "/usr/local/miniconda/lib/:/usr/local/lib",
             "spark.executorEnv.AWS_REQUEST_PAYER": "requester",
-            "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "10",
+            "spark.executorEnv.GDAL_HTTP_MAX_RETRY": "3",
+            "spark.executorEnv.GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR",
+            "spark.yarn.appMasterEnv.GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR",
             "spark.executor.defaultJavaOptions": "-XX:+UseParallelGC -XX:+UseParallelOldGC -XX:OnOutOfMemoryError='kill -9 %p'",
             "spark.executorEnv.GDAL_HTTP_RETRY_DELAY": "10",
             "spark.yarn.appMasterEnv.GDAL_HTTP_RETRY_DELAY": "10",
