@@ -122,7 +122,34 @@ def test_geotrellis_retries(monkeypatch):
     assert test.status == JobStatus.failed
 
 
-def test_radd_sync(monkeypatch):
+def test_radd_sync_nothing_newer(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220101",
+        dataset="wur_radd_alerts",
+        dataset_version="v20220101",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.wur_radd_alerts,
+    )
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20230118"
+    )
+    monkeypatch.setattr(
+        sync,
+        "get_gs_subfolders",
+        lambda bucket, prefix: ["v20220222"],
+    )
+    monkeypatch.setattr(
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 175))
+    )
+
+    raster_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
+
+    assert raster_jobs == []
+
+
+def test_radd_sync_newer_available_with_valid_number_tiles(monkeypatch):
     mock_dp_config = DatapumpConfig(
         analysis_version="v20220101",
         dataset="wur_radd_alerts",
@@ -138,10 +165,10 @@ def test_radd_sync(monkeypatch):
     monkeypatch.setattr(
         sync,
         "get_gs_subfolders",
-        lambda bucket, prefix: ["v20220222", "v20220221", "v20211018", "v20211016"],
+        lambda bucket, prefix: ["v20220222", "v20220221"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 175))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 174))
     )
 
     raster_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
@@ -156,6 +183,32 @@ def test_radd_sync(monkeypatch):
     ]
     assert job.tile_set_parameters.grid == "10/100000"
     assert job.tile_set_parameters.calc == "(A >= 20000) * (A < 40000) * A"
+
+
+def test_radd_sync_newer_available_with_too_many_tiles(monkeypatch):
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20220101",
+        dataset="wur_radd_alerts",
+        dataset_version="v20220101",
+        analysis="",
+        sync=True,
+        sync_type=SyncType.wur_radd_alerts,
+    )
+
+    monkeypatch.setattr(
+        DeforestationAlertsSync, "get_latest_api_version", lambda x, y: "v20210118"
+    )
+    monkeypatch.setattr(
+        sync,
+        "get_gs_subfolders",
+        lambda bucket, prefix: ["v20220222"],
+    )
+    monkeypatch.setattr(
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 200))
+    )
+
+    with pytest.raises(Exception):
+        _ = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
 
 
 def test_glad_s2_sync(monkeypatch):
