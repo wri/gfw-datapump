@@ -419,7 +419,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     source_bucket = "gfw_gee_export"
     source_prefix = "wur_radd_alerts/"
     input_calc = "(A >= 20000) * (A < 40000) * A"
-    number_of_tiles = 175
+    number_of_tiles = [174, 175]
     grid = "10/100000"
     max_zoom = 14
 
@@ -458,19 +458,24 @@ class RADDAlertsSync(DeforestationAlertsSync):
             LOGGER.info(
                 f"Found {version_tiles} RADD tiles in gs://{self.source_bucket}/{version_prefix}"
             )
-            if version_tiles > self.number_of_tiles:
-                raise Exception(
-                    f"Found {version_tiles} TIFFs in latest {self.dataset_name} GCS folder, which is "
-                    f"greater than the expected {self.number_of_tiles}. "
-                    "If the extent has grown, update NUMBER_OF_TILES value."
-                )
-            elif version_tiles == self.number_of_tiles:
+            # Why is self.number_of_tiles a list? Because it seems that it
+            # varies a little. For any large change, though, WUR should give
+            # us a heads-up and we will update.
+            if version_tiles in self.number_of_tiles:
                 latest_release = version.rstrip("/")
                 source_uris = [
                     f"gs://{self.source_bucket}/{self.source_prefix}{latest_release}"
                 ]
 
                 return latest_release, source_uris
+            elif all(version_tiles > num for num in self.number_of_tiles):
+                raise Exception(
+                    f"Found {version_tiles} TIFFs in latest {self.dataset_name}"
+                    "GCS folder, which is greater than any of the expected "
+                    f"values ({self.number_of_tiles}). "
+                    "If the extent has changed, update the number_of_tiles value "
+                    f"in the datapump for {self.dataset_name}"
+                )
 
         # We shouldn't get here
         raise Exception(f"No complete {self.dataset_name} versions found in GCS!")
@@ -560,7 +565,6 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         # data in daily updates but have not yet put anything in the "final"
         # folder).
         today = self.get_today()
-        month_day = today.strftime("%m_%d")
 
         source_uris: List[str] = []
         release_version: str = "v" + today.strftime("%Y%m%d")
