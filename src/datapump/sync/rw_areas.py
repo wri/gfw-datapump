@@ -251,7 +251,9 @@ def geostore_to_wkb(geostore: Dict[str, Any]) -> Iterator[Tuple[io.StringIO, int
                 ]["geometry"]
 
                 if raw_geom["type"] != "Polygon" and raw_geom["type"] != "MultiPolygon":
-                    LOGGER.warning(f"Invalid geometry type {g['geostoreId']}: {raw_geom['type'] }")
+                    LOGGER.warning(
+                        f"Invalid geometry type {g['geostoreId']}: {raw_geom['type'] }"
+                    )
                     error_ids.append(g["geostoreId"])
                     continue
 

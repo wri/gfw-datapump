@@ -45,7 +45,7 @@ def api_prefix() -> str:
     return suffix
 
 
-def error(msg):
-    LOGGER.exception(msg)
+def log_and_notify_error(msg):
+    LOGGER.error(msg)
     slack_webhook("ERROR", msg)
     return {"status": "FAILED"}

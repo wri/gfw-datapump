@@ -34,6 +34,12 @@ class Job(StrictBaseModel, ABC):
     def next_step(self):
         ...
 
+    def success_message(self) -> str:
+        return "Job succeeded."
+
+    def error_message(self, err: str) -> str:
+        return "Job failed."
+
 
 class Partition(BaseModel):
     partition_suffix: str

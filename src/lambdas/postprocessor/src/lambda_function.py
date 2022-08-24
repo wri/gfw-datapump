@@ -1,19 +1,19 @@
+import traceback
 from pprint import pformat
 from typing import List, Union, cast
 
 from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
 from datapump.clients.rw_api import update_area_statuses
+from datapump.commands.analysis import Analysis
 from datapump.commands.sync import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.rw_areas import get_aoi_geostore_ids
-from datapump.util.slack import slack_webhook
+from datapump.util.util import log_and_notify_error
 from pydantic import parse_obj_as
-
-from datapump.commands.analysis import Analysis
 
 
 def handler(event, context):
@@ -42,20 +42,10 @@ def handler(event, context):
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
 
-            job_type_slack = "Sync" if job.sync_version else "Job"
             # add any results with sync enabled to the config table
             if job.status == JobStatus.failed:
-                slack_webhook(
-                    "error",
-                    f"{job_type_slack} failed for analysis {job.table.analysis} on dataset {job.table.dataset}",
-                )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
-                slack_webhook(
-                    "info",
-                    f"{job_type_slack} succeeded for analysis {job.table.analysis} on dataset {job.table.dataset}!",
-                )
-
                 # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
                 # so add all to config table
                 LOGGER.debug(
@@ -94,17 +84,8 @@ def handler(event, context):
             cast(job, RasterVersionUpdateJob)
 
             if job.status == JobStatus.failed:
-                slack_webhook(
-                    "error",
-                    f"Raster tile generation failed for dataset {job.dataset} with version {job.version}",
-                )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
-                slack_webhook(
-                    "info",
-                    f"Raster tile generation succeeded for dataset {job.dataset} with version {job.version}!",
-                )
-
                 config_client.put(
                     DatapumpConfig(
                         analysis_version="",
@@ -112,7 +93,7 @@ def handler(event, context):
                         dataset_version="",
                         analysis=Analysis.create_raster,
                         sync=True,
-                        sync_type=job.dataset
+                        sync_type=job.dataset,
                     )
                 )
 
@@ -130,6 +111,11 @@ def handler(event, context):
         raise Exception("One or more jobs failed. See logs for details.")
 
     if rw_area_jobs and GLOBALS.env == "production":
-        # update AOIs on RW but only on production
-        geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
-        update_area_statuses(geostore_ids, "saved")
+        try:
+            # update AOIs on RW but only on production
+            geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
+            update_area_statuses(geostore_ids, "saved")
+        except Exception:
+            log_and_notify_error(
+                f"Unexpected exception caught while trying to run update user area statuses: {traceback.format_exc()}"
+            )

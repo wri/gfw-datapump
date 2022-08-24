@@ -1,3 +1,5 @@
+import pprint
+import traceback
 from pprint import pformat
 from typing import Any, Dict, List, Union, cast
 from uuid import uuid1
@@ -14,6 +16,7 @@ from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
+from datapump.util.util import log_and_notify_error
 from pydantic import ValidationError, parse_obj_as
 
 
@@ -54,7 +57,10 @@ def handler(event, context):
     except ValidationError as e:
         return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
-        LOGGER.exception(f"Exception caught while running update: {e}")
+        log_and_notify_error(
+            f"Unexpected exception caught while trying to run data sync pipeline for command: "
+            f"{pprint.pformat(command)}\n\n {traceback.format_exc()}"
+        )
         raise e
 
 

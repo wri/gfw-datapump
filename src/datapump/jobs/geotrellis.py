@@ -245,6 +245,38 @@ class GeotrellisJob(Job):
 
         return JobStatus.executing
 
+    def success_message(self) -> str:
+        # give user areas more readable name
+        dataset = (
+            "new user areas"
+            if self.sync_type == SyncType.rw_areas
+            else self.table.dataset
+        )
+
+        # make it clear if this was nightly sync job
+        nightly = " nightly " if self.sync_type else ""
+
+        return (
+            f"Successfully ran{nightly}geotrellis analysis {self.table.analysis} on {dataset}"
+            f"and uploaded to tables with version {self.table.version}."
+        )
+
+    def error_message(self, err: str) -> str:
+        # give user areas more readable name
+        dataset = (
+            "new user areas"
+            if self.sync_type == SyncType.rw_areas
+            else self.table.dataset
+        )
+
+        # make it clear if this was nightly sync job
+        nightly = "nightly " if self.sync_type else ""
+
+        return (
+            f"{nightly} analysis failed for {self.table.analysis} on {dataset}"
+            f"and uploaded to tables with version {self.table.version}."
+        )
+
     def _get_emr_inputs(self):
         name = f"{self.table.dataset}_{self.table.analysis}_{self.analysis_version}__{self.id}"
         self.feature_type = self._get_feature_type()
