@@ -93,9 +93,7 @@ class GeotrellisJob(Job):
             + timedelta(seconds=self.timeout_sec)
             < datetime.now()
         ):
-            LOGGER.error(
-                f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}"
-            )
+            self.error = f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}"
             self.status = JobStatus.failed
 
             if self.step == GeotrellisJobStep.analyzing:
@@ -118,6 +116,7 @@ class GeotrellisJob(Job):
                 if self.retries <= GEOTRELLIS_RETRIES:
                     self.start_analysis()
                 else:
+                    self.error += "\nExceeded number of retries for EMR job."
                     self.status = JobStatus.failed
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
@@ -150,6 +149,7 @@ class GeotrellisJob(Job):
         ):
             return JobStatus.complete
         elif status["State"] == "TERMINATED_WITH_ERRORS":
+            self.error = f"\nEMR job with ID {self.emr_job_id} terminated with errors."
             return JobStatus.failed
         elif (
             status["State"] == "TERMINATED"
@@ -157,6 +157,7 @@ class GeotrellisJob(Job):
         ):
             # this can happen if someone manually terminates the EMR job, which means the step function should stop
             # since we can't know if it completed correctly
+            self.error = f"\nEMR job with ID {self.emr_job_id} was terminated manually."
             return JobStatus.failed
         else:
             return JobStatus.executing
@@ -219,6 +220,7 @@ class GeotrellisJob(Job):
 
             status = client.get_version(table.dataset, version)["status"]
             if status == "failed":
+                self.error = f'Table {table.dataset}/{version} has status "failed".'
                 return JobStatus.failed
 
             all_saved &= status == "saved"
@@ -261,7 +263,7 @@ class GeotrellisJob(Job):
             f"and uploaded to tables with version {self.table.version}."
         )
 
-    def error_message(self, err: str) -> str:
+    def error_message(self) -> str:
         # give user areas more readable name
         dataset = (
             "new user areas"
@@ -270,11 +272,11 @@ class GeotrellisJob(Job):
         )
 
         # make it clear if this was nightly sync job
-        nightly = "nightly " if self.sync_type else ""
+        nightly = "Nightly analysis" if self.sync_type else "analysis"
 
         return (
-            f"{nightly} analysis failed for {self.table.analysis} on {dataset}"
-            f"and uploaded to tables with version {self.table.version}."
+            f"{nightly} failed for {self.table.analysis} on {dataset} with version {self.table.version}"
+            f"due to the error: {self.error}"
         )
 
     def _get_emr_inputs(self):

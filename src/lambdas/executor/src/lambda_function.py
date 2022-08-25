@@ -1,3 +1,4 @@
+import traceback
 from typing import Union
 
 from datapump.globals import LOGGER
@@ -19,7 +20,10 @@ def handler(event, context):
 
         if job.status == JobStatus.complete:
             slack_webhook("info", job.success_message())
+        elif job.status == JobStatus.failed:
+            log_and_notify_error(job.error_message())
     except Exception:
+        job.error = traceback.format_exc()
         log_and_notify_error(job.error_message())
         job.status = JobStatus.failed
 

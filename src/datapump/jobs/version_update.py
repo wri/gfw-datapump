@@ -73,6 +73,12 @@ class RasterVersionUpdateJob(Job):
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
+    def success_message(self) -> str:
+        pass
+
+    def error_message(self) -> str:
+        pass
+
     def _create_tile_set(self, aux=False):
         client = DataApiClient()
 
@@ -106,9 +112,9 @@ class RasterVersionUpdateJob(Job):
                 "content_date": self.content_date_range.max,
                 "content_date_range": {
                     "min": self.content_date_range.min,
-                    "max": self.content_date_range.max
-                }
-            }
+                    "max": self.content_date_range.max,
+                },
+            },
         }
 
         _ = client.create_version(self.dataset, self.version, payload)
@@ -142,10 +148,9 @@ class RasterVersionUpdateJob(Job):
                 "content_date": self.content_date_range.max,
                 "content_date_range": {
                     "min": self.content_date_range.min,
-                    "max": self.content_date_range.max
-                }
-            }
-
+                    "max": self.content_date_range.max,
+                },
+            },
         }
 
         data = client.create_aux_asset(self.dataset, self.version, payload)
