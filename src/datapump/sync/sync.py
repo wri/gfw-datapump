@@ -16,12 +16,10 @@ from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
 from ..jobs.version_update import RasterVersionUpdateJob
-from ..sync.fire_alerts import get_tmp_result_path, process_active_fire_alerts
+from ..sync.fire_alerts import process_active_fire_alerts
 from ..sync.rw_areas import create_1x1_tsv
 from ..util.gcs import get_gs_file_as_text, get_gs_files, get_gs_subfolders
-from ..util.gpkg_util import update_geopackage
 from ..util.models import ContentDateRange
-from ..util.slack import slack_webhook
 
 
 class Sync(ABC):
@@ -71,16 +69,6 @@ class ViirsSync(FireAlertsSync):
         super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
         self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
-
-        # try to update geopackage, but still move on if it fails
-        try:
-            viirs_local_path = get_tmp_result_path("VIIRS")
-            update_geopackage(viirs_local_path)
-        except Exception as e:
-            LOGGER.exception(e)
-            slack_webhook(
-                "ERROR", "Error updating fires geopackage. Check logs for more details."
-            )
 
 
 class ModisSync(FireAlertsSync):
