@@ -569,7 +569,11 @@ class GeotrellisJob(Job):
 
         :return: calculate number of works appropriate for job size
         """
-        if self.sync_type == SyncType.rw_areas:
+        if (
+            self.sync_type == SyncType.rw_areas
+            or self.table.analysis == Analysis.integrated_alerts
+            or (self.change_only and self.table.analysis == Analysis.glad)
+        ):
             return 30
 
         # if using a wildcard for a folder, just use hardcoded value
@@ -577,8 +581,6 @@ class GeotrellisJob(Job):
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
-                elif self.table.analysis == Analysis.integrated_alerts:
-                    return 150
                 else:
                     return 100
             else:
@@ -592,7 +594,7 @@ class GeotrellisJob(Job):
             or self.table.analysis == Analysis.burned_areas
         ):
             analysis_weight *= 2
-        if self.change_only or self.table.analysis == Analysis.integrated_alerts:
+        if self.change_only:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
