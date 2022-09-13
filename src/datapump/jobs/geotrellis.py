@@ -572,9 +572,10 @@ class GeotrellisJob(Job):
         if (
             self.sync_type == SyncType.rw_areas
             or self.table.analysis == Analysis.integrated_alerts
-            or (self.change_only and self.table.analysis == Analysis.glad)
         ):
             return 30
+        elif self.change_only and self.table.analysis == Analysis.glad:
+            return 10
 
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
