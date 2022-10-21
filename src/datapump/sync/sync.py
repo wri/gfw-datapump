@@ -224,7 +224,7 @@ class IntegratedAlertsSync(Sync):
                             symbology={"type": "date_conf_intensity_multi_8"},
                         ),
                         content_date_range=ContentDateRange(
-                            min="2014-12-31", max=str(date.today())
+                            start_date="2014-12-31", end_date=str(date.today())
                         ),
                     )
                 )
@@ -366,7 +366,9 @@ class DeforestationAlertsSync(Sync):
                 resampling="med",
                 symbology={"type": "date_conf_intensity"},
             ),
-            content_date_range=ContentDateRange(min="2020-01-01", max=str(version_dt)),
+            content_date_range=ContentDateRange(
+                start_date="2020-01-01", end_date=str(version_dt)
+            ),
         )
 
     @abstractmethod
