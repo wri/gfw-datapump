@@ -1,11 +1,12 @@
 import pprint
 import traceback
 from pprint import pformat
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Optional, Union
 from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
+from datapump.commands import BaseCommand
 from datapump.commands.analysis import FIRES_ANALYSES, AnalysisCommand
 from datapump.commands.continue_jobs import ContinueJobsCommand
 from datapump.commands.set_latest import SetLatestCommand
@@ -21,6 +22,7 @@ from pydantic import ValidationError, parse_obj_as
 
 
 def handler(event, context):
+    command: Optional[BaseCommand] = None
     try:
         command = parse_obj_as(
             Union[
@@ -37,19 +39,14 @@ def handler(event, context):
         jobs = []
         LOGGER.info(f"Received command:\n{pformat(command.dict())}")
         if isinstance(command, AnalysisCommand):
-            cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
         elif isinstance(command, RasterVersionUpdateCommand):
-            cast(RasterVersionUpdateCommand, command)
             jobs += _raster_version_update(command)
         elif isinstance(command, SyncCommand):
-            cast(SyncCommand, command)
             jobs += _sync(command)
         elif isinstance(command, ContinueJobsCommand):
-            cast(ContinueJobsCommand, command)
             jobs += command.parameters.dict()["jobs"]
         elif isinstance(command, SetLatestCommand):
-            cast(SetLatestCommand, command)
             _set_latest(command, client)
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
@@ -112,7 +109,7 @@ def _raster_version_update(command: RasterVersionUpdateCommand):
 
 
 def _sync(command: SyncCommand):
-    jobs = []
+    jobs: List[SyncCommand] = []
     syncer = Syncer(command.parameters.types, command.parameters.sync_version)
     config_client = DatapumpStore()
 

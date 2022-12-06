@@ -3,14 +3,14 @@ from typing import Union
 
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.util.util import log_and_notify_error, slack_webhook
 from pydantic import parse_obj_as
 
 
 def handler(event, context):
-    job = parse_obj_as(
+    job: Job = parse_obj_as(
         Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob], event
     )
 
@@ -23,7 +23,7 @@ def handler(event, context):
         elif job.status == JobStatus.failed:
             log_and_notify_error(job.error_message())
     except Exception:
-        job.error = traceback.format_exc()
+        job.errors.append(traceback.format_exc())
         log_and_notify_error(job.error_message())
         job.status = JobStatus.failed
 

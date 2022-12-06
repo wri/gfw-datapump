@@ -1,6 +1,6 @@
 import traceback
 from pprint import pformat
-from typing import List, Union, cast
+from typing import List, Union
 
 from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
@@ -9,7 +9,7 @@ from datapump.commands.analysis import Analysis
 from datapump.commands.sync import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.rw_areas import get_aoi_geostore_ids
 from datapump.util.util import log_and_notify_error
@@ -18,7 +18,7 @@ from pydantic import parse_obj_as
 
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
-    jobs = parse_obj_as(
+    jobs: List[Job] = parse_obj_as(
         List[Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob]],
         event["jobs"],
     )
@@ -31,8 +31,6 @@ def handler(event, context):
         LOGGER.info(f"Postprocessing job: {pformat(job.dict())}")
 
         if isinstance(job, GeotrellisJob):
-            cast(job, GeotrellisJob)
-
             sync_types = (
                 [job.sync_type]
                 if job.sync_type
@@ -81,8 +79,6 @@ def handler(event, context):
                             )
                         )
         elif isinstance(job, RasterVersionUpdateJob):
-            cast(job, RasterVersionUpdateJob)
-
             if job.status == JobStatus.failed:
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
