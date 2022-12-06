@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 
+from datapump.commands import BaseCommand
 from datapump.commands.analysis import Analysis, AnalysisTable
 from datapump.util.models import StrictBaseModel
 
@@ -35,6 +36,5 @@ class SyncParameters(StrictBaseModel):
     tables: List[AnalysisTable] = []
 
 
-class SyncCommand(StrictBaseModel):
-    command: str
+class SyncCommand(BaseCommand):
     parameters: SyncParameters

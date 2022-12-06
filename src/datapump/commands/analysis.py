@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List
 
 from ..util.models import StrictBaseModel
+from . import BaseCommand
 
 
 class Analysis(str, Enum):
@@ -48,6 +49,5 @@ class AnalysisParameters(StrictBaseModel):
     tables: List[AnalysisInputTable]
 
 
-class AnalysisCommand(StrictBaseModel):
-    command: str
+class AnalysisCommand(BaseCommand):
     parameters: AnalysisParameters

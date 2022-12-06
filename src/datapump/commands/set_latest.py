@@ -1,10 +1,10 @@
-from datapump.util.models import StrictBaseModel
+from datapump.commands import BaseCommand
 
 
-class SetLatestParameters(StrictBaseModel):
+class SetLatestParameters(BaseCommand):
     analysis_version: str
 
 
-class SetLatestCommand(StrictBaseModel):
+class SetLatestCommand(BaseCommand):
     command: str
     parameters: SetLatestParameters
