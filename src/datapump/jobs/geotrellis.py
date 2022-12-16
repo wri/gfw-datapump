@@ -122,6 +122,11 @@ class GeotrellisJob(Job):
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
 
+            # clear result tables after completion, combining these after
+            # the Map state can go over the Step Function message size limit
+            if self.status == JobStatus.complete:
+                self.result_tables = []
+
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
 
@@ -856,7 +861,7 @@ class GeotrellisJob(Job):
             "spark.driver.cores": "1",
             "spark.executor.cores": "1",
             "spark.yarn.executor.memoryOverhead": "1G",
-            "spark.dynamicAllocation.enabled": "false",
+            "spark.dynamicAllocation.enabled": "false"
         }
 
         if self.geotrellis_version >= "2.0.0":

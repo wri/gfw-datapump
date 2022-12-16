@@ -14,7 +14,7 @@ RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
   rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
-RUN apk add --no-cache --upgrade bash gcc libc-dev python3-dev geos-dev
+RUN apk add --no-cache --upgrade bash gcc libc-dev python3-dev geos-dev musl-dev linux-headers g++
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
