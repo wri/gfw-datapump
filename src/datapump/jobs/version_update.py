@@ -77,9 +77,9 @@ class RasterVersionUpdateJob(Job):
         pass
 
     def error_message(self) -> str:
-        pass
+        return "\n".join(self.errors)
 
-    def _create_tile_set(self, aux=False):
+    def _create_tile_set(self):
         client = DataApiClient()
 
         # Create the dataset if it doesn't exist
@@ -166,6 +166,7 @@ class RasterVersionUpdateJob(Job):
         elif rts_asset["status"] == "pending":
             return JobStatus.executing
         else:
+            self.errors.append(f"Tile set has status: {rts_asset['status']}")
             return JobStatus.failed
 
     def _check_aux_assets_status(self) -> JobStatus:
@@ -184,6 +185,7 @@ class RasterVersionUpdateJob(Job):
         elif all([status == "saved" for status in statuses]):
             return JobStatus.complete
         else:
+            self.errors.append(f"Aux asset has unknown asset status: {statuses}")
             raise KeyError(f"Undefined asset status in {statuses}")
 
     def _create_tile_cache(self):
@@ -215,6 +217,7 @@ class RasterVersionUpdateJob(Job):
         elif rtc_asset["status"] == "pending":
             return JobStatus.executing
         else:
+            self.errors.append("Tile cache in status other than saved or pending")
             return JobStatus.failed
 
     def _mark_latest(self):
@@ -230,4 +233,5 @@ class RasterVersionUpdateJob(Job):
         if latest_version == self.version:
             return JobStatus.complete
         else:
+            self.errors.append("Setting is_latest status failed")
             return JobStatus.failed

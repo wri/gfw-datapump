@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from datapump.util.models import StrictBaseModel
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 
 class JobStatus(str, Enum):
@@ -25,7 +25,7 @@ class Job(StrictBaseModel, ABC):
     start_time: Optional[str] = None
     timeout_sec: int = 14400
     retries: int = 0
-    error: Optional[str] = None
+    errors: List[str] = list()
 
     @validator("start_time", pre=True, always=True)
     def set_start_time(cls, v):
@@ -39,27 +39,27 @@ class Job(StrictBaseModel, ABC):
         return "Job succeeded."
 
     def error_message(self) -> str:
-        return f"Job failed due to error: {self.error}"
+        return f"Job failed due to error(s): {self.errors}"
 
 
-class Partition(BaseModel):
+class Partition(StrictBaseModel):
     partition_suffix: str
     start_value: str
     end_value: str
 
 
-class Partitions(BaseModel):
+class Partitions(StrictBaseModel):
     partition_type: str
     partition_column: str
     partition_schema: List[Partition]
 
 
-class Index(BaseModel):
+class Index(StrictBaseModel):
     index_type: str
     column_names: List[str]
 
 
-class AnalysisResultTable(BaseModel):
+class AnalysisResultTable(StrictBaseModel):
     dataset: str
     version: str
     source_uri: List[str]

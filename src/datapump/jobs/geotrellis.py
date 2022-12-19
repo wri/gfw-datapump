@@ -88,12 +88,20 @@ class GeotrellisJob(Job):
     result_tables: List[AnalysisResultTable] = []
 
     def next_step(self):
+        now = datetime.now()
         if (
             datetime.fromisoformat(self.start_time)
             + timedelta(seconds=self.timeout_sec)
-            < datetime.now()
+            < now
         ):
-            self.error = f"Job {self.id} has failed on step {self.step} because of a timeout.\nStart time: {self.start_time}\nEnd time: {datetime.now().isoformat()}.\nTimeout seconds: {self.timeout_sec}"
+            error_msg = (
+                f"Job {self.id} has failed on step {self.step} because of a timeout.\n"
+                f"Start time: {self.start_time}\n"
+                f"End time: {now.isoformat()}\n"
+                f"Timeout seconds: {self.timeout_sec}"
+            )
+            LOGGER.error(error_msg)
+            self.errors.append(error_msg)
             self.status = JobStatus.failed
 
             if self.step == GeotrellisJobStep.analyzing:
@@ -116,7 +124,9 @@ class GeotrellisJob(Job):
                 if self.retries <= GEOTRELLIS_RETRIES:
                     self.start_analysis()
                 else:
-                    self.error += "\nExceeded number of retries for EMR job."
+                    error_msg = "Exceeded number of retries for EMR job."
+                    LOGGER.error(error_msg)
+                    self.errors.append(error_msg)
                     self.status = JobStatus.failed
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
@@ -149,15 +159,20 @@ class GeotrellisJob(Job):
         ):
             return JobStatus.complete
         elif status["State"] == "TERMINATED_WITH_ERRORS":
-            self.error = f"\nEMR job with ID {self.emr_job_id} terminated with errors."
+            error_msg = f"EMR job with ID {self.emr_job_id} terminated with errors."
+            LOGGER.error(error_msg)
+            self.errors.append(error_msg)
             return JobStatus.failed
         elif (
             status["State"] == "TERMINATED"
             and status["StateChangeReason"]["Code"] == "USER_REQUEST"
         ):
-            # this can happen if someone manually terminates the EMR job, which means the step function should stop
-            # since we can't know if it completed correctly
-            self.error = f"\nEMR job with ID {self.emr_job_id} was terminated manually."
+            # this can happen if someone manually terminates the EMR job, which
+            # means the step function should stop since we can't know if it
+            # completed correctly
+            error_msg = f"EMR job with ID {self.emr_job_id} was terminated manually."
+            LOGGER.error(error_msg)
+            self.errors.append(error_msg)
             return JobStatus.failed
         else:
             return JobStatus.executing
@@ -167,7 +182,8 @@ class GeotrellisJob(Job):
 
         for table in self.result_tables:
             if self.sync_version:
-                # temporarily just appending sync versions to analysis version instead of using version inheritance
+                # temporarily just appending sync versions to analysis version
+                # instead of using version inheritance
                 if (
                     self.table.analysis == Analysis.glad
                     or self.table.analysis == Analysis.integrated_alerts
@@ -180,16 +196,22 @@ class GeotrellisJob(Job):
                             table.dataset,
                             table.version,
                             table.source_uri,
-                            [index.dict() for index in table.indices]
-                            if table.indices
-                            else table.indices,
-                            table.cluster.dict() if table.cluster else table.cluster,
-                            table.table_schema,
-                            table.partitions.dict()
-                            if table.partitions
-                            else table.partitions,
-                            table.longitude_field,
-                            table.latitude_field,
+                            indices=(
+                                [index.dict() for index in table.indices]
+                                if table.indices
+                                else table.indices
+                            ),
+                            cluster=(
+                                table.cluster.dict() if table.cluster else table.cluster
+                            ),
+                            table_schema=table.table_schema,
+                            partitions=(
+                                table.partitions.dict()
+                                if table.partitions
+                                else table.partitions
+                            ),
+                            longitude_field=table.longitude_field,
+                            latitude_field=table.latitude_field,
                         )
                 else:
                     client.append(table.dataset, table.version, table.source_uri)
@@ -198,14 +220,20 @@ class GeotrellisJob(Job):
                     table.dataset,
                     table.version,
                     table.source_uri,
-                    [index.dict() for index in table.indices]
-                    if table.indices
-                    else table.indices,
-                    table.cluster.dict() if table.cluster else table.cluster,
-                    table.table_schema,
-                    table.partitions.dict() if table.partitions else table.partitions,
-                    table.longitude_field,
-                    table.latitude_field,
+                    indices=(
+                        [index.dict() for index in table.indices]
+                        if table.indices
+                        else table.indices
+                    ),
+                    cluster=(table.cluster.dict() if table.cluster else table.cluster),
+                    table_schema=table.table_schema,
+                    partitions=(
+                        table.partitions.dict()
+                        if table.partitions
+                        else table.partitions
+                    ),
+                    longitude_field=table.longitude_field,
+                    latitude_field=table.latitude_field,
                 )
 
     def check_upload(self) -> JobStatus:
@@ -220,7 +248,9 @@ class GeotrellisJob(Job):
 
             status = client.get_version(table.dataset, version)["status"]
             if status == "failed":
-                self.error = f'Table {table.dataset}/{version} has status "failed".'
+                error_msg = f'Table {table.dataset}/{version} has status "failed".'
+                LOGGER.error(error_msg)
+                self.errors.append(error_msg)
                 return JobStatus.failed
 
             all_saved &= status == "saved"
@@ -256,7 +286,7 @@ class GeotrellisJob(Job):
         )
 
         # make it clear if this was nightly sync job
-        nightly = " nightly " if self.sync_type else ""
+        nightly = " nightly " if self.sync_type else " "
 
         return (
             f"Successfully ran{nightly}geotrellis analysis {self.table.analysis} on {dataset}"
@@ -272,11 +302,13 @@ class GeotrellisJob(Job):
         )
 
         # make it clear if this was nightly sync job
-        nightly = "Nightly analysis" if self.sync_type else "analysis"
+        job_type = "Nightly analysis" if self.sync_type else "Analysis"
 
+        errors = "\n".join(self.errors)
         return (
-            f"{nightly} failed for {self.table.analysis} on {dataset} with version {self.table.version}"
-            f"due to the error: {self.error}"
+            f"{job_type} failed for {self.table.analysis} on {dataset} "
+            f"with version {self.table.version} "
+            f"due to the following error(s): {errors}"
         )
 
     def _get_emr_inputs(self):
@@ -285,10 +317,10 @@ class GeotrellisJob(Job):
 
         steps = [self._get_step()]
 
-        worker_count = self._calculate_worker_count(self.features_1x1)
+        worker_count: int = self._calculate_worker_count(self.features_1x1)
         instances = self._instances(worker_count)
         applications = self._applications()
-        configurations = self._configurations(worker_count)
+        configurations = self._configurations(str(worker_count))
 
         return name, instances, steps, applications, configurations
 
@@ -309,7 +341,8 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
-        LOGGER.debug(resp)
+        # FIXME: Do we really need to log this?
+        LOGGER.debug(f"Analysis results: {resp}")
 
         if "Contents" not in resp:
             raise AssertionError("No results found in S3")
@@ -408,7 +441,9 @@ class GeotrellisJob(Job):
                 # disaggregated points have no ID
                 id_cols = []
         except KeyError as e:
-            LOGGER.error(f"Unable to find index for {analysis_agg}/{feature_agg}")
+            error_msg = f"Unable to find index for {analysis_agg}/{feature_agg}"
+            LOGGER.error(error_msg)
+            self.errors.append(error_msg)
             raise e
 
         # schema change in version 2.1.4
@@ -500,8 +535,9 @@ class GeotrellisJob(Job):
 
         return indices, cluster
 
+    @staticmethod
     def _get_partitions(
-        self, analysis_agg: str, feature_agg: Optional[str] = None
+        analysis_agg: str, feature_agg: Optional[str] = None
     ) -> Optional[Partitions]:
         if analysis_agg == "all":
             # for all points, partition by month
@@ -593,15 +629,17 @@ class GeotrellisJob(Job):
 
     def _calculate_worker_count(self, limiting_src) -> int:
         """
-        Calculate a heuristic for number of workers appropriate for job based on the size
-        of the input features.
+        Calculate a heuristic for number of workers appropriate for job based
+        on the size of the input features.
 
-        Uses global constant WORKER_COUNT_PER_GB_FEATURES to determine number of worker per GB of features.
-        Uses global constant WORKER_COUNT_MIN to determine minimum number of workers.
+        Uses global constant WORKER_COUNT_PER_GB_FEATURES to determine number
+        of worker per GB of features.
+        Uses global constant WORKER_COUNT_MIN to determine minimum number of
+        workers.
 
         Multiplies by weights for specific analyses.
 
-        :return: calculate number of works appropriate for job size
+        :return: number of workers appropriate for job size
         """
         if self.sync_type == SyncType.rw_areas:
             return 30
@@ -641,7 +679,8 @@ class GeotrellisJob(Job):
         )
         return max(worker_count, GLOBALS.worker_count_min)
 
-    def _get_byte_size(self, src):
+    @staticmethod
+    def _get_byte_size(src: str):
         bucket, key = get_s3_path_parts(src)
         resp = get_s3_client().head_object(Bucket=bucket, Key=key)
         return resp["ContentLength"]

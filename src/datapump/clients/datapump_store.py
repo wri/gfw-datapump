@@ -3,12 +3,12 @@ from typing import Any, Dict, List
 
 import boto3
 from boto3.dynamodb.conditions import And, Attr
-from pydantic import BaseModel
 
 from ..globals import GLOBALS
+from ..util.models import StrictBaseModel
 
 
-class DatapumpConfig(BaseModel):
+class DatapumpConfig(StrictBaseModel):
     analysis_version: str
     dataset: str
     dataset_version: str

@@ -77,10 +77,12 @@ class ViirsSync(FireAlertsSync):
             viirs_local_path = get_tmp_result_path("VIIRS")
             update_geopackage(viirs_local_path)
         except Exception as e:
-            LOGGER.exception(e)
-            slack_webhook(
-                "ERROR", "Error updating fires geopackage. Check logs for more details."
+            error_msg: str = (
+                "Error updating fires geopackage. Check logs for more details."
             )
+            LOGGER.error(error_msg)
+            LOGGER.exception(e)
+            slack_webhook("ERROR", error_msg)
 
 
 class ModisSync(FireAlertsSync):
@@ -746,7 +748,7 @@ class Syncer:
         }
 
     @staticmethod
-    def _get_latest_version():
+    def _get_latest_version() -> str:
         return f"v{datetime.now().strftime('%Y%m%d')}"
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -760,10 +762,12 @@ class Syncer:
         try:
             jobs = self.syncers[sync_type].build_jobs(config)
         except Exception:
-            LOGGER.error(
-                f"Could not generate jobs for sync type {sync_type} with config {config} due to exception: {traceback.format_exc()}"
+            error_msg: str = (
+                f"Could not generate jobs for sync type {sync_type} "
+                f"due to exception: {traceback.format_exc()}"
             )
-            # TODO report to slack?
+            LOGGER.error(error_msg)
+            slack_webhook("ERROR", f"Unhandled exception building jobs: {error_msg}")
             return []
 
         return jobs
