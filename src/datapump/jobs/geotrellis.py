@@ -131,6 +131,11 @@ class GeotrellisJob(Job):
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
 
+            # clear result tables after completion, combining these after
+            # the Map state can go over the Step Function message size limit
+            if self.status == JobStatus.complete:
+                self.result_tables = []
+
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
 
@@ -641,16 +646,19 @@ class GeotrellisJob(Job):
 
         :return: number of workers appropriate for job size
         """
-        if self.sync_type == SyncType.rw_areas:
+        if (
+            self.sync_type == SyncType.rw_areas
+            or self.table.analysis == Analysis.integrated_alerts
+        ):
             return 30
+        elif self.change_only and self.table.analysis == Analysis.glad:
+            return 10
 
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl:
                     return 200
-                elif self.table.analysis == Analysis.integrated_alerts:
-                    return 150
                 else:
                     return 100
             else:
@@ -664,7 +672,7 @@ class GeotrellisJob(Job):
             or self.table.analysis == Analysis.burned_areas
         ):
             analysis_weight *= 2
-        if self.change_only or self.table.analysis == Analysis.integrated_alerts:
+        if self.change_only:
             analysis_weight *= 0.75
         # wdpa just has very  complex geometries
         if self.table.dataset == "wdpa_protected_areas":
