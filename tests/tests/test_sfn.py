@@ -47,7 +47,6 @@ def test_datapump_basic():
         _dump_logs()
 
 
-@pytest.mark.skip(reason="Investigate issue with new version of localstack")
 def test_integrated_alerts():
     try:
         _add_sync_config("integrated_alerts", "integrated_alerts")
@@ -78,7 +77,9 @@ def _dump_logs():
 
     #### Step Function
     resp = sfn_client.list_executions(stateMachineArn=DATAPUMP_SFN_ARN)
+
     execution_arn = resp["executions"][-1]["executionArn"]
+
     resp = sfn_client.get_execution_history(executionArn=execution_arn)
     pprint(resp["events"], stream=sfn_stream)
 
@@ -140,7 +141,7 @@ def _run_datapump(input):
     )
 
     execution_arn = resp["executionArn"]
-    print(execution_arn)
+    print(f"Start execution response: {resp}")
 
     tries = 0
     while tries < 150:
@@ -150,5 +151,7 @@ def _run_datapump(input):
         status = client.describe_execution(executionArn=execution_arn)["status"]
         if status == "RUNNING":
             continue
+        elif status is None:
+            raise Exception("Return value from describe_execution was None!")
         else:
             return status

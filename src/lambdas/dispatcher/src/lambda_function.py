@@ -14,7 +14,7 @@ from datapump.commands.sync import SyncCommand
 from datapump.commands.version_update import RasterVersionUpdateCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
 from datapump.util.util import log_and_notify_error
@@ -36,7 +36,7 @@ def handler(event, context):
         )
         client = DataApiClient()
 
-        jobs = []
+        jobs: List[Job] = []
         LOGGER.info(f"Received command:\n{pformat(command.dict())}")
         if isinstance(command, AnalysisCommand):
             jobs += _analysis(command, client)

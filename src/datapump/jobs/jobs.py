@@ -27,6 +27,7 @@ class Job(StrictBaseModel, ABC):
     retries: int = 0
     errors: List[str] = list()
 
+    @classmethod
     @validator("start_time", pre=True, always=True)
     def set_start_time(cls, v):
         return v or datetime.now().isoformat()
