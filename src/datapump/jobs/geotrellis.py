@@ -551,6 +551,7 @@ class GeotrellisJob(Job):
                 or field.endswith("__perc")
                 or field.endswith("__year")
                 or field.endswith("__week")
+                or field.endswith("__decile")
                 or field == "adm1"
                 or field == "adm2"
             ):
