@@ -477,7 +477,7 @@ class GeotrellisJob(Job):
         if analysis_agg == "all":
             # for all points, partition by month
             partition_schema = []
-            for year in range(2012, 2023):
+            for year in range(2012, 2030):
                 for month in range(1, 13):
                     start_value = date(year, month, 1).strftime("%Y-%m-%d")
                     end_month = month + 1 if month < 12 else 1
