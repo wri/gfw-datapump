@@ -95,9 +95,8 @@ class GeotrellisJob(Job):
             < now
         ):
             error_msg = (
-                f"Job {self.id} has failed on step {self.step} because of a timeout.\n"
-                f"Start time: {self.start_time}\n"
-                f"End time: {now.isoformat()}\n"
+                f"Job {self.id} has failed on step {self.step} because of a timeout. "
+                f"Start time: {self.start_time} End time: {now.isoformat()} "
                 f"Timeout seconds: {self.timeout_sec}"
             )
             LOGGER.error(error_msg)
@@ -124,7 +123,10 @@ class GeotrellisJob(Job):
                 if self.retries <= GEOTRELLIS_RETRIES:
                     self.start_analysis()
                 else:
-                    error_msg = "Exceeded number of retries for EMR job."
+                    error_msg = (
+                        f"Exceeded number of retries for EMR job that started "
+                        f"at {self.start_time}"
+                    )
                     LOGGER.error(error_msg)
                     self.errors.append(error_msg)
                     self.status = JobStatus.failed
@@ -150,7 +152,8 @@ class GeotrellisJob(Job):
         status = cluster_description["Cluster"]["Status"]
 
         LOGGER.info(
-            f"EMR job {self.emr_job_id} has state {status['State']} for reason {pformat(status['StateChangeReason'])}"
+            f"EMR job {self.emr_job_id} has state {status['State']} "
+            f"for reason {pformat(status['StateChangeReason'])}"
         )
         if (
             status["State"] == "TERMINATED"
