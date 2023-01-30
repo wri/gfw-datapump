@@ -279,7 +279,7 @@ class GeotrellisJob(Job):
 
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         paginator = get_s3_client().get_paginator("list_objects_v2")
-        pages = paginator.paginate(Bucket="bucket", Prefix="prefix")
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
 
         keys = []
         for page in pages:
