@@ -197,58 +197,58 @@ class IntegratedAlertsSync(Sync):
             for dataset, version in latest_versions.items()
         ]
 
-        if self._should_update(latest_versions):
-            jobs = []
+        if not self._should_update(latest_versions):
+            return []
 
-            if config.dataset == "gadm":
-                jobs.append(
-                    RasterVersionUpdateJob(
-                        id=str(uuid1()),
-                        status=JobStatus.starting,
-                        dataset=self.DATASET_NAME,
-                        version=self.sync_version,
-                        tile_set_parameters=RasterTileSetParameters(
-                            source_uri=source_uris,
-                            calc=self.INPUT_CALC,
-                            grid="10/100000",
-                            data_type="uint16",
-                            no_data=0,
-                            pixel_meaning="date_conf",
-                            band_count=1,
-                            union_bands=True,
-                            compute_stats=False,
-                            timeout_sec=21600,
-                        ),
-                        tile_cache_parameters=RasterTileCacheParameters(
-                            max_zoom=14,
-                            resampling="med",
-                            symbology={"type": "date_conf_intensity_multi_8"},
-                        ),
-                        content_date_range=ContentDateRange(
-                            min="2014-12-31", max=str(date.today())
-                        ),
-                    )
-                )
+        jobs = []
+
+        if config.dataset == "gadm":
             jobs.append(
-                GeotrellisJob(
+                RasterVersionUpdateJob(
                     id=str(uuid1()),
                     status=JobStatus.starting,
-                    analysis_version=config.analysis_version,
-                    sync_version=self.sync_version,
-                    sync_type=config.sync_type,
-                    table=AnalysisInputTable(
-                        dataset=config.dataset,
-                        version=config.dataset_version,
-                        analysis=config.analysis,
+                    dataset=self.DATASET_NAME,
+                    version=self.sync_version,
+                    tile_set_parameters=RasterTileSetParameters(
+                        source_uri=source_uris,
+                        calc=self.INPUT_CALC,
+                        grid="10/100000",
+                        data_type="uint16",
+                        no_data=0,
+                        pixel_meaning="date_conf",
+                        band_count=1,
+                        union_bands=True,
+                        compute_stats=False,
+                        timeout_sec=21600,
                     ),
-                    features_1x1=config.metadata["features_1x1"],
-                    geotrellis_version=config.metadata["geotrellis_version"],
+                    tile_cache_parameters=RasterTileCacheParameters(
+                        max_zoom=14,
+                        resampling="med",
+                        symbology={"type": "date_conf_intensity_multi_8"},
+                    ),
+                    content_date_range=ContentDateRange(
+                        min="2014-12-31", max=str(date.today())
+                    ),
                 )
             )
+        jobs.append(
+            GeotrellisJob(
+                id=str(uuid1()),
+                status=JobStatus.starting,
+                analysis_version=config.analysis_version,
+                sync_version=self.sync_version,
+                sync_type=config.sync_type,
+                table=AnalysisInputTable(
+                    dataset=config.dataset,
+                    version=config.dataset_version,
+                    analysis=config.analysis,
+                ),
+                features_1x1=config.metadata["features_1x1"],
+                geotrellis_version=config.metadata["geotrellis_version"],
+            )
+        )
 
-            return jobs
-        else:
-            return []
+        return jobs
 
     def _get_latest_versions(self) -> Dict[str, str]:
         client = DataApiClient()
@@ -256,8 +256,8 @@ class IntegratedAlertsSync(Sync):
 
     def _should_update(self, latest_versions: Dict[str, str]) -> bool:
         """
-        Check if any of the dependent deforestation alert layers have created
-        a new version in the last 24 hours on the API
+        See if any of the individual three deforestation alert layers
+        have been updated since the latest integrated alert layer
         """
         client = DataApiClient()
 
@@ -397,6 +397,12 @@ class DeforestationAlertsSync(Sync):
     @staticmethod
     def get_today():
         return date.today()
+
+    @staticmethod
+    def get_days_since_2015(year: int) -> int:
+        year_date = date(year=year, month=1, day=1)
+        start_date = date(year=2015, month=1, day=1)
+        return (year_date - start_date).days
 
 
 class RADDAlertsSync(DeforestationAlertsSync):
@@ -634,12 +640,6 @@ class GLADLAlertsSync(DeforestationAlertsSync):
                 release_version = "v" + search_day.strftime("%Y%m%d")
 
         return release_version, source_uris
-
-    @staticmethod
-    def get_days_since_2015(year: int) -> int:
-        year_date = date(year=year, month=1, day=1)
-        start_date = date(year=2015, month=1, day=1)
-        return (year_date - start_date).days
 
 
 class GLADS2AlertsSync(DeforestationAlertsSync):
