@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 import boto3
 from boto3.dynamodb.conditions import And, Attr
-from pydantic.main import BaseModel
+from pydantic import BaseModel
 
 from ..globals import GLOBALS
 
