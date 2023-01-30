@@ -208,8 +208,8 @@ class GeotrellisJob(Job):
                     table.cluster.dict() if table.cluster else table.cluster,
                     table.table_schema,
                     table.partitions.dict() if table.partitions else table.partitions,
-                    table.longitude_field,
-                    table.latitude_field,
+                    longitude_field=table.longitude_field,
+                    latitude_field=table.latitude_field,
                 )
 
     def check_upload(self) -> JobStatus:
