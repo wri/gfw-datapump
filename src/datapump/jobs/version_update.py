@@ -9,9 +9,9 @@ from datapump.commands.version_update import (
 from datapump.util.models import ContentDateRange
 
 from ..clients.data_api import DataApiClient
+from ..globals import LOGGER
 from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
-from ..util.util import log_and_notify_error
 
 
 class RasterVersionUpdateJobStep(str, Enum):
@@ -29,22 +29,22 @@ class RasterVersionUpdateJob(Job):
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aux_tile_set_parameters: List[RasterTileSetParameters] = []
-    warn_interval_hours: int = 12
-    warn_interval_sec: int = warn_interval_hours * 60 * 60
+    timeout_sec = 24 * 60 * 60
 
     def next_step(self):
         now = datetime.now()
-        if (now - datetime.fromisoformat(self.start_time)) % timedelta(
-            seconds=self.warn_interval_sec
-        ) < timedelta(
-            seconds=30
-        ):  # The step function wait time
+        if now >= datetime.fromisoformat(self.start_time) + timedelta(
+            seconds=self.timeout_sec
+        ):
             msg = (
-                f"{self.__class__.__name__} job {self.id} is still unfinished "
-                f"after {self.warn_interval_hours} hours. "
-                "Perhaps someone should check on it?"
+                f"{self.__class__.__name__} {self.id} is still unfinished "
+                f"{self.timeout_sec} seconds after starting at "
+                f"{self.start_time}. Considering it failed. Perhaps someone "
+                "should check on it?"
             )
-            log_and_notify_error(msg)
+            LOGGER.error(msg)
+            self.errors.append(msg)
+            self.status = JobStatus.failed
 
         if self.step == RasterVersionUpdateJobStep.starting:
             self.status = JobStatus.executing
