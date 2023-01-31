@@ -3,7 +3,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from datapump.util.models import StrictBaseModel
 from pydantic import BaseModel, validator
 
 
@@ -18,14 +17,16 @@ class JobStep(str, Enum):
     starting = "starting"
 
 
-class Job(StrictBaseModel, ABC):
+class Job(BaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
     start_time: Optional[str] = None
     timeout_sec: int = 14400
     retries: int = 0
+    errors: List[str] = list()
 
+    @classmethod
     @validator("start_time", pre=True, always=True)
     def set_start_time(cls, v):
         return v or datetime.now().isoformat()
@@ -33,6 +34,12 @@ class Job(StrictBaseModel, ABC):
     @abstractmethod
     def next_step(self):
         ...
+
+    def success_message(self) -> str:
+        return "Job succeeded."
+
+    def error_message(self) -> str:
+        return f"Job failed due to error(s): {self.errors}"
 
 
 class Partition(BaseModel):
