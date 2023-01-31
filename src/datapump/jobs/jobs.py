@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from datapump.util.models import StrictBaseModel
 from pydantic import BaseModel, validator
 
 
@@ -17,7 +18,7 @@ class JobStep(str, Enum):
     starting = "starting"
 
 
-class Job(BaseModel, ABC):
+class Job(StrictBaseModel, ABC):
     id: str
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
