@@ -8,12 +8,12 @@ setup(
     author="Justin Terry",
     license="MIT",
     install_requires=[
-        "boto3~=1.26",
-        "geojson~=3.0",
-        "google-cloud-storage~=2.7",
-        "pydantic~=1.10",
-        "pyshp~=2.3",
-        "requests~=2.28",
-        "retry~=0.9",
+        "boto3~=1.10.7",
+        "requests~=2.22.0",
+        "geojson~=2.5.0",
+        "google-cloud-storage~=2.1.0",
+        "pyshp~=2.1.0",
+        "pydantic~=1.7.2",
+        "retry~=0.9.2",
     ],  # noqa: E231
 )
