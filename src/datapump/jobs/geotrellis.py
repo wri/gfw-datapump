@@ -192,8 +192,8 @@ class GeotrellisJob(Job):
                             table.partitions.dict()
                             if table.partitions
                             else table.partitions,
-                            table.longitude_field,
-                            table.latitude_field,
+                            longitude_field=table.longitude_field,
+                            latitude_field=table.latitude_field,
                         )
                 else:
                     client.append(table.dataset, table.version, table.source_uri)
@@ -862,7 +862,7 @@ class GeotrellisJob(Job):
             "spark.driver.cores": "1",
             "spark.executor.cores": "1",
             "spark.yarn.executor.memoryOverhead": "1G",
-            "spark.dynamicAllocation.enabled": "false"
+            "spark.dynamicAllocation.enabled": "false",
         }
 
         if self.geotrellis_version >= "2.0.0":
