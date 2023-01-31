@@ -21,7 +21,7 @@ resource "aws_cloudwatch_event_rule" "everyday-3-am-est" {
 
 resource "aws_cloudwatch_event_target" "sync-areas" {
   rule      = aws_cloudwatch_event_rule.everyday-7-pm-est.name
-  target_id = substr("${local.project}-sync-areas${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync-areas${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"rw_areas\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -30,7 +30,7 @@ resource "aws_cloudwatch_event_target" "sync-areas" {
 
 resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
   rule      = aws_cloudwatch_event_rule.everyday-7-pm-est.name
-  target_id = substr("${local.project}-sync-deforestation-alerts${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync-areas${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"wur_radd_alerts\", \"umd_glad_landsat_alerts\", \"umd_glad_sentinel2_alerts\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -39,7 +39,7 @@ resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
 
 resource "aws_cloudwatch_event_target" "sync-glad" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
-  target_id = substr("${local.project}-sync-glad${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -48,7 +48,7 @@ resource "aws_cloudwatch_event_target" "sync-glad" {
 
 resource "aws_cloudwatch_event_target" "sync-viirs" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
-  target_id = substr("${local.project}-sync-viirs${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"viirs\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -57,7 +57,7 @@ resource "aws_cloudwatch_event_target" "sync-viirs" {
 
 resource "aws_cloudwatch_event_target" "sync-modis" {
   rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
-  target_id = substr("${local.project}-sync-modis${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"modis\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
@@ -66,7 +66,7 @@ resource "aws_cloudwatch_event_target" "sync-modis" {
 
 resource "aws_cloudwatch_event_target" "sync-integrated-alerts" {
   rule      = aws_cloudwatch_event_rule.everyday-3-am-est.name
-  target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
+  target_id = substr("${local.project}-nightly-sync${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"integrated_alerts\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
