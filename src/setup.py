@@ -15,6 +15,5 @@ setup(
         "pyshp~=2.3",
         "requests~=2.28",
         "retry~=0.9",
-        "smart-open~=6.0",
     ],  # noqa: E231
 )
