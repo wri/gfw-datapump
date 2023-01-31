@@ -1,5 +1,7 @@
+import pprint
+import traceback
 from pprint import pformat
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Union
 from uuid import uuid1
 
 from datapump.clients.data_api import DataApiClient
@@ -11,14 +13,15 @@ from datapump.commands.sync import SyncCommand
 from datapump.commands.version_update import RasterVersionUpdateCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
-from datapump.util.util import error
+from datapump.util.util import log_and_notify_error
 from pydantic import ValidationError, parse_obj_as
 
 
 def handler(event, context):
+    command = None
     try:
         command = parse_obj_as(
             Union[
@@ -32,22 +35,17 @@ def handler(event, context):
         )
         client = DataApiClient()
 
-        jobs = []
+        jobs: List[Job] = []
         LOGGER.info(f"Received command:\n{pformat(command.dict())}")
         if isinstance(command, AnalysisCommand):
-            cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
         elif isinstance(command, RasterVersionUpdateCommand):
-            cast(RasterVersionUpdateCommand, command)
             jobs += _raster_version_update(command)
         elif isinstance(command, SyncCommand):
-            cast(SyncCommand, command)
             jobs += _sync(command)
         elif isinstance(command, ContinueJobsCommand):
-            cast(ContinueJobsCommand, command)
             jobs += command.parameters.dict()["jobs"]
         elif isinstance(command, SetLatestCommand):
-            cast(SetLatestCommand, command)
             _set_latest(command, client)
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
@@ -55,7 +53,10 @@ def handler(event, context):
     except ValidationError as e:
         return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
-        error(f"Exception caught while running update: {e}")
+        log_and_notify_error(
+            f"Unexpected exception caught while trying to run data sync pipeline for command: "
+            f"{pprint.pformat(command)}\n\n {traceback.format_exc()}"
+        )
         raise e
 
 
