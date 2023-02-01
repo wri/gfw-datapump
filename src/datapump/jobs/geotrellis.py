@@ -278,18 +278,20 @@ class GeotrellisJob(Job):
         bucket, prefix = get_s3_path_parts(result_path)
 
         LOGGER.debug(f"Looking for analysis results at {result_path}")
-        resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
+        paginator = get_s3_client().get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
 
-        LOGGER.debug(resp)
+        keys = []
+        for page in pages:
+            if "Contents" not in page:
+                raise AssertionError("No results found in S3")
 
-        if "Contents" not in resp:
-            raise AssertionError("No results found in S3")
-
-        keys = [
-            item["Key"]
-            for item in resp["Contents"]
-            if item["Key"].endswith(".csv") and "download" not in item["Key"]
-        ]
+            page_keys = [
+                item["Key"]
+                for item in page["Contents"]
+                if item["Key"].endswith(".csv") and "download" not in item["Key"]
+            ]
+            keys += page_keys
 
         result_tables = [
             self._get_result_table(bucket, path, list(files))
@@ -906,6 +908,7 @@ class GeotrellisJob(Job):
 class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
     alert_sources: Optional[List[str]] = []
+    timeout_sec = 43200
 
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
         "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
