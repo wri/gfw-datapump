@@ -192,8 +192,8 @@ class GeotrellisJob(Job):
                             table.partitions.dict()
                             if table.partitions
                             else table.partitions,
-                            table.longitude_field,
-                            table.latitude_field,
+                            longitude_field=table.longitude_field,
+                            latitude_field=table.latitude_field,
                         )
                 else:
                     client.append(table.dataset, table.version, table.source_uri)
@@ -208,8 +208,8 @@ class GeotrellisJob(Job):
                     table.cluster.dict() if table.cluster else table.cluster,
                     table.table_schema,
                     table.partitions.dict() if table.partitions else table.partitions,
-                    table.longitude_field,
-                    table.latitude_field,
+                    longitude_field=table.longitude_field,
+                    latitude_field=table.latitude_field,
                 )
 
     def check_upload(self) -> JobStatus:
@@ -479,7 +479,7 @@ class GeotrellisJob(Job):
         if analysis_agg == "all":
             # for all points, partition by month
             partition_schema = []
-            for year in range(2012, 2023):
+            for year in range(2012, 2030):
                 for month in range(1, 13):
                     start_value = date(year, month, 1).strftime("%Y-%m-%d")
                     end_month = month + 1 if month < 12 else 1
@@ -553,6 +553,7 @@ class GeotrellisJob(Job):
                 or field.endswith("__perc")
                 or field.endswith("__year")
                 or field.endswith("__week")
+                or field.endswith("__decile")
                 or field == "adm1"
                 or field == "adm2"
             ):
