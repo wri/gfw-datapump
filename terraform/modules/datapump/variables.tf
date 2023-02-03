@@ -122,3 +122,13 @@ variable "read_gfw_sync_secrets_policy" {
   default     = ""
   description = "ARN to policy to read gfw sync secrets"
 }
+
+variable "geotrellis_iso_start" {
+  type        = string
+  description = "The first ISO region in a range to run analysis on."
+}
+
+variable "geotrellis_iso_end" {
+  type        = string
+  description = "The last ISO region in a range to run analysis on."
+}

@@ -58,6 +58,9 @@ class Globals(EnvSettings):
     max_versions: int = Field(4, env="MAX_VERSIONS")
     datapump_table_name: Optional[str] = Field(env="DATAPUMP_TABLE_NAME")
 
+    geotrellis_iso_start: str = Field(env="GEOTRELLIS_ISO_START")
+    geotrellis_iso_end: str = Field(env="GEOTRELLIS_ISO_END")
+
     gcs_key_secret_arn: Optional[str] = Field(None, env="GCS_KEY_SECRET_ARN")
 
     google_application_credentials = Field(

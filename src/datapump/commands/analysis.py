@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List
 
+from ..globals import GLOBALS
 from ..util.models import StrictBaseModel
 
 
@@ -31,6 +32,11 @@ class AnalysisInputTable(StrictBaseModel):
     analysis: Analysis
 
 
+class IsoRange(StrictBaseModel):
+    iso_start: str
+    iso_end: str
+
+
 class AnalysisTable(StrictBaseModel):
     """
     Metadata of analysis result table that already exists.
@@ -39,6 +45,9 @@ class AnalysisTable(StrictBaseModel):
     dataset: str
     analysis_version: str
     analysis: Analysis
+    iso_range: IsoRange = IsoRange(
+        iso_start=GLOBALS.geotrellis_iso_start, iso_end=GLOBALS.geotrellis_iso_end
+    )
 
 
 class AnalysisParameters(StrictBaseModel):
