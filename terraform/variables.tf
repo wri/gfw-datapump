@@ -46,3 +46,13 @@ variable "geotrellis_jar_path" {
   type        = string
   description = "Fat Jar to use to run Geotrellis Spark Job"
 }
+
+variable "geotrellis_iso_start" {
+  type        = string
+  description = "The first ISO region in a range to run analysis on."
+}
+
+variable "geotrellis_iso_end" {
+  type        = string
+  description = "The last ISO region in a range to run analysis on."
+}

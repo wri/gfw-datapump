@@ -59,6 +59,8 @@ module "datapump" {
   gcs_secret_arn = data.terraform_remote_state.core.outputs.secrets_read-gfw-gee-export_arn
   read_gfw_api_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-gfw-api-token_policy_arn
   read_gfw_sync_secrets_policy = data.terraform_remote_state.core.outputs.secrets_read-slack-gfw-sync_policy_arn
+  geotrellis_iso_start = var.geotrellis_iso_start
+  geotrellis_iso_end = var.geotrellis_iso_end
 }
 
 locals {
