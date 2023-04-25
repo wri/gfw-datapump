@@ -102,13 +102,13 @@ class RasterVersionUpdateJob(Job):
                 "resampling": co.resampling,
             },
             "metadata": {
-                "last_update": self.content_date_range.max,
-                "content_date": self.content_date_range.max,
+                "last_update": self.content_date_range.end_date,
+                "content_date": self.content_date_range.end_date,
                 "content_date_range": {
-                    "min": self.content_date_range.min,
-                    "max": self.content_date_range.max
-                }
-            }
+                    "start_date": self.content_date_range.start_date,
+                    "end_date": self.content_date_range.end_date,
+                },
+            },
         }
 
         _ = client.create_version(self.dataset, self.version, payload)
@@ -138,14 +138,13 @@ class RasterVersionUpdateJob(Job):
                 "resampling": co.resampling,
             },
             "metadata": {
-                "last_update": self.content_date_range.max,
-                "content_date": self.content_date_range.max,
+                "last_update": self.content_date_range.end_date,
+                "content_date": self.content_date_range.end_date,
                 "content_date_range": {
-                    "min": self.content_date_range.min,
-                    "max": self.content_date_range.max
-                }
-            }
-
+                    "start_date": self.content_date_range.start_date,
+                    "end_date": self.content_date_range.end_date,
+                },
+            },
         }
 
         data = client.create_aux_asset(self.dataset, self.version, payload)

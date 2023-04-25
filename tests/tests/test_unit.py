@@ -177,7 +177,7 @@ def test_radd_sync_newer_available_with_valid_number_tiles(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == "v20220222"
-    assert job.content_date_range.max == "2022-02-22"
+    assert job.content_date_range.end_date == "2022-02-22"
     assert job.tile_set_parameters.source_uri == [
         "gs://gfw_gee_export/wur_radd_alerts/v20220222"
     ]
@@ -236,7 +236,7 @@ def test_glad_s2_sync(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == "v20220222"
-    assert job.content_date_range.max == "2022-02-22"
+    assert job.content_date_range.end_date == "2022-02-22"
     assert job.tile_set_parameters.source_uri == [
         "gs://earthenginepartners-hansen/S2alert/alert",
         "gs://earthenginepartners-hansen/S2alert/alertDate",
@@ -292,7 +292,7 @@ def test_glad_landsat_sync_early_2022(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == test_version
-    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
+    assert job.content_date_range.end_date == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alert21*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{test_month_day}/alertDate21*",
@@ -352,7 +352,7 @@ def test_glad_landsat_sync_mid_2022(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == test_version
-    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
+    assert job.content_date_range.end_date == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{(test_date - timedelta(days=20)).strftime('%m_%d')}/alert21*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year}/{(test_date - timedelta(days=20)).strftime('%m_%d')}/alertDate21*",
@@ -408,7 +408,7 @@ def test_glad_landsat_sync_late_2022(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == test_version
-    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
+    assert job.content_date_range.end_date == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 1}/final/alert21*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 1}/final/alertDate21*",
@@ -469,7 +469,7 @@ def test_glad_landsat_sync_early_2023(monkeypatch):
     job = raster_jobs[0]
     assert isinstance(job, RasterVersionUpdateJob)
     assert job.version == test_version
-    assert job.content_date_range.max == test_date.strftime("%Y-%m-%d")
+    assert job.content_date_range.end_date == test_date.strftime("%Y-%m-%d")
     assert job.tile_set_parameters.source_uri == [
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 2}/final/alert21*",
         f"gs://earthenginepartners-hansen/GLADalert/C2/{test_date.year - 2}/final/alertDate21*",

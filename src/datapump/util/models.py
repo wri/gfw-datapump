@@ -9,12 +9,12 @@ class StrictBaseModel(BaseModel):
 
 
 class ContentDateRange(StrictBaseModel):
-    min: str = Field(
+    start_date: str = Field(
         ...,
         description="Beginning date covered by data",
         regex=DATE_REGEX,
     )
-    max: str = Field(
+    end_date: str = Field(
         ...,
         description="End date covered by data",
         regex=DATE_REGEX,

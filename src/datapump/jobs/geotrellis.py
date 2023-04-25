@@ -523,7 +523,7 @@ class GeotrellisJob(Job):
             is_whitelist = "whitelist" in source_uri
             field_type = self._get_field_type(field_name, is_whitelist)
 
-            table_schema.append({"field_name": field_name, "field_type": field_type})
+            table_schema.append({"name": field_name, "data_type": field_type})
 
         return table_schema
 
