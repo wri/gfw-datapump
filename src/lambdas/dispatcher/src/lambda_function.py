@@ -14,6 +14,7 @@ from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
+from datapump.util.util import error
 from pydantic import ValidationError, parse_obj_as
 
 
@@ -54,7 +55,7 @@ def handler(event, context):
     except ValidationError as e:
         return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
-        LOGGER.exception(f"Exception caught while running update: {e}")
+        error(f"Exception caught while running update: {e}")
         raise e
 
 

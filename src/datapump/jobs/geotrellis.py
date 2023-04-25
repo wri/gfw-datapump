@@ -122,6 +122,11 @@ class GeotrellisJob(Job):
         elif self.step == GeotrellisJobStep.uploading:
             self.status = self.check_upload()
 
+            # clear result tables after completion, combining these after
+            # the Map state can go over the Step Function message size limit
+            if self.status == JobStatus.complete:
+                self.result_tables = []
+
     def start_analysis(self):
         self.emr_job_id = self._run_job_flow(*self._get_emr_inputs())
 
@@ -187,8 +192,8 @@ class GeotrellisJob(Job):
                             table.partitions.dict()
                             if table.partitions
                             else table.partitions,
-                            table.longitude_field,
-                            table.latitude_field,
+                            longitude_field=table.longitude_field,
+                            latitude_field=table.latitude_field,
                         )
                 else:
                     client.append(table.dataset, table.version, table.source_uri)
@@ -203,8 +208,8 @@ class GeotrellisJob(Job):
                     table.cluster.dict() if table.cluster else table.cluster,
                     table.table_schema,
                     table.partitions.dict() if table.partitions else table.partitions,
-                    table.longitude_field,
-                    table.latitude_field,
+                    longitude_field=table.longitude_field,
+                    latitude_field=table.latitude_field,
                 )
 
     def check_upload(self) -> JobStatus:
@@ -273,18 +278,20 @@ class GeotrellisJob(Job):
         bucket, prefix = get_s3_path_parts(result_path)
 
         LOGGER.debug(f"Looking for analysis results at {result_path}")
-        resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
+        paginator = get_s3_client().get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
 
-        LOGGER.debug(resp)
+        keys = []
+        for page in pages:
+            if "Contents" not in page:
+                raise AssertionError("No results found in S3")
 
-        if "Contents" not in resp:
-            raise AssertionError("No results found in S3")
-
-        keys = [
-            item["Key"]
-            for item in resp["Contents"]
-            if item["Key"].endswith(".csv") and "download" not in item["Key"]
-        ]
+            page_keys = [
+                item["Key"]
+                for item in page["Contents"]
+                if item["Key"].endswith(".csv") and "download" not in item["Key"]
+            ]
+            keys += page_keys
 
         result_tables = [
             self._get_result_table(bucket, path, list(files))
@@ -472,7 +479,7 @@ class GeotrellisJob(Job):
         if analysis_agg == "all":
             # for all points, partition by month
             partition_schema = []
-            for year in range(2012, 2023):
+            for year in range(2012, 2030):
                 for month in range(1, 13):
                     start_value = date(year, month, 1).strftime("%Y-%m-%d")
                     end_month = month + 1 if month < 12 else 1
@@ -546,6 +553,7 @@ class GeotrellisJob(Job):
                 or field.endswith("__perc")
                 or field.endswith("__year")
                 or field.endswith("__week")
+                or field.endswith("__decile")
                 or field == "adm1"
                 or field == "adm2"
             ):
@@ -900,6 +908,7 @@ class GeotrellisJob(Job):
 class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
     alert_sources: Optional[List[str]] = []
+    timeout_sec = 43200
 
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
         "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
