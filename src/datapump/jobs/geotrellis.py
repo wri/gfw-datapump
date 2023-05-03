@@ -349,9 +349,6 @@ class GeotrellisJob(Job):
         LOGGER.debug(f"Looking for analysis results at {result_path}")
         resp = get_s3_client().list_objects_v2(Bucket=bucket, Prefix=prefix)
 
-        # FIXME: Do we really need to log this?
-        LOGGER.debug(f"Analysis results: {resp}")
-
         if "Contents" not in resp:
             raise AssertionError("No results found in S3")
 
