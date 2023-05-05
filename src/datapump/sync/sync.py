@@ -224,7 +224,7 @@ class IntegratedAlertsSync(Sync):
                             symbology={"type": "date_conf_intensity_multi_8"},
                         ),
                         content_date_range=ContentDateRange(
-                            min="2014-12-31", max=str(date.today())
+                            start_date="2014-12-31", end_date=str(date.today())
                         ),
                     )
                 )
@@ -366,7 +366,9 @@ class DeforestationAlertsSync(Sync):
                 resampling="med",
                 symbology={"type": "date_conf_intensity"},
             ),
-            content_date_range=ContentDateRange(min="2020-01-01", max=str(version_dt)),
+            content_date_range=ContentDateRange(
+                start_date="2020-01-01", end_date=str(version_dt)
+            ),
         )
 
     @abstractmethod
@@ -407,7 +409,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     source_bucket = "gfw_gee_export"
     source_prefix = "wur_radd_alerts/"
     input_calc = "(A >= 20000) * (A < 40000) * A"
-    number_of_tiles = [174, 175]
+    number_of_tiles = [190, 191]  # Africa:54, Asia:52, CA: 16, SA:68
     grid = "10/100000"
     max_zoom = 14
 
