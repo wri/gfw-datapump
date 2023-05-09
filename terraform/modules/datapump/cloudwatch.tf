@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_target" "sync-areas" {
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"rw_areas\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
-  count     = var.environment == "production" ? 0 : 0
+  count     = var.environment == "production" ? 1 : 0
 }
 
 resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
@@ -52,7 +52,7 @@ resource "aws_cloudwatch_event_target" "sync-viirs" {
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"viirs\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
-  count     = var.environment == "production" ? 0 : 0
+  count     = var.environment == "production" ? 1 : 0
 }
 
 resource "aws_cloudwatch_event_target" "sync-modis" {
@@ -61,7 +61,7 @@ resource "aws_cloudwatch_event_target" "sync-modis" {
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"modis\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
-  count     = var.environment == "production" ? 0 : 0
+  count     = var.environment == "production" ? 1 : 0
 }
 
 resource "aws_cloudwatch_event_target" "sync-integrated-alerts" {
