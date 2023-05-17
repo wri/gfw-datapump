@@ -86,6 +86,7 @@ class GeotrellisJob(Job):
     emr_job_id: Optional[str] = None
     version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
+    content_end_date: Optional[str] = None
 
     def next_step(self):
         if (
@@ -196,7 +197,12 @@ class GeotrellisJob(Job):
                             latitude_field=table.latitude_field,
                         )
                 else:
-                    client.append(table.dataset, table.version, table.source_uri)
+                    client.append(
+                        table.dataset,
+                        table.version,
+                        table.source_uri,
+                        self.content_end_date,
+                    )
             else:
                 client.create_dataset_and_version(
                     table.dataset,
@@ -909,6 +915,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
     alert_sources: Optional[List[str]] = []
     timeout_sec = 43200
+    content_end_date: Optional[str] = None
 
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
         "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",

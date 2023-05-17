@@ -114,7 +114,7 @@ def process_active_fire_alerts(alert_type):
     # remove raw shapefile, since it can be big and hit max lambda storage size of 512 MB
     shutil.rmtree(shp_dir)
 
-    return f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}"
+    return (last_row["ACQ_DATE"], f"s3a://{DATA_LAKE_BUCKET}/{pipeline_key}")
 
 
 def get_tmp_result_path(alert_type):

@@ -37,6 +37,7 @@ class FireAlertsSync(Sync):
         self.sync_version: str = sync_version
         self.fire_alerts_type: Optional[SyncType] = None
         self.fire_alerts_uri: Optional[str] = None
+        self.content_end_date: Optional[str] = None
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.fire_alerts_type is None:
@@ -58,6 +59,7 @@ class FireAlertsSync(Sync):
                 geotrellis_version=config.metadata["geotrellis_version"],
                 alert_type=self.fire_alerts_type.value,
                 alert_sources=[self.fire_alerts_uri],
+                content_end_date=self.content_end_date,
                 change_only=True,
                 version_overrides=config.metadata.get("version_overrides", {}),
             )
@@ -68,14 +70,18 @@ class ViirsSync(FireAlertsSync):
     def __init__(self, sync_version: str):
         super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
-        self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
+        self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
+            self.fire_alerts_type.value
+        )
 
 
 class ModisSync(FireAlertsSync):
     def __init__(self, sync_version: str):
         super(ModisSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.modis
-        self.fire_alerts_uri = process_active_fire_alerts(self.fire_alerts_type.value)
+        self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
+            self.fire_alerts_type.value
+        )
 
 
 class GladSync(Sync):
