@@ -197,12 +197,7 @@ class GeotrellisJob(Job):
                             latitude_field=table.latitude_field,
                         )
                 else:
-                    client.append(
-                        table.dataset,
-                        table.version,
-                        table.source_uri,
-                        self.content_end_date,
-                    )
+                    client.append(table.dataset, table.version, table.source_uri)
             else:
                 client.create_dataset_and_version(
                     table.dataset,
@@ -251,6 +246,19 @@ class GeotrellisJob(Job):
                     versions_to_delete = versions[: -GLOBALS.max_versions]
                     for version in versions_to_delete:
                         client.delete_version(table.dataset, version)
+
+            if (
+                self.table.analysis == Analysis.viirs
+                and self.sync_version
+                and self.content_end_date
+            ):
+                for table in self.result_tables:
+                    metadata = {
+                        "content_date_range": {"end_date": self.content_end_date}
+                    }
+                    client.update_version_metadata(
+                        table.dataset, self.sync_version, metadata=metadata
+                    )
 
             return JobStatus.complete
 

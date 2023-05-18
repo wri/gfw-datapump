@@ -141,15 +141,9 @@ class DataApiClient:
         return self._send_request(ValidMethods.post, uri, payload)["data"]
 
     def append(
-        self,
-        dataset: str,
-        version: str,
-        source_uris: List[str],
-        content_end_date: Optional[str] = None,
+        self, dataset: str, version: str, source_uris: List[str]
     ) -> Dict[str, Any]:
-        payload: Dict[str, Any] = {"source_uri": source_uris}
-        if content_end_date:
-            payload["metadata"] = {"content_date_range": {"end_date": content_end_date}}
+        payload = {"source_uri": source_uris}
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/append"
         return self._send_request(ValidMethods.post, uri, payload)["data"]
 
