@@ -257,7 +257,7 @@ class GeotrellisJob(Job):
                         "content_date_range": {"end_date": self.content_end_date}
                     }
                     client.update_version_metadata(
-                        table.dataset, self.sync_version, metadata=metadata
+                        table.dataset, table.version, metadata=metadata
                     )
 
             return JobStatus.complete
