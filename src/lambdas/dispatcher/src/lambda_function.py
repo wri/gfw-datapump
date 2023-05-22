@@ -54,7 +54,7 @@ def handler(event, context):
         return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
         log_and_notify_error(
-            f"Unexpected exception caught while trying to run data sync pipeline for command: "
+            f"Exception while trying to run data sync pipeline for command: "
             f"{pprint.pformat(command)}\n\n {traceback.format_exc()}"
         )
         raise e
