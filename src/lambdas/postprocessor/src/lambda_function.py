@@ -94,9 +94,9 @@ def handler(event, context):
                 )
 
     if failed_jobs:
-        LOGGER.error("The following jobs failed: ")
+        msg = "The following jobs failed: "
         for job in failed_jobs:
-            LOGGER.error(pformat(job.dict()))
+            msg += pformat(job.dict())
 
         if rw_area_jobs:
             # delete AOI tsv file to rollback from failed update
@@ -104,7 +104,7 @@ def handler(event, context):
             bucket, key = get_s3_path_parts(rw_area_jobs[0].features_1x1)
             get_s3_client().delete_object(Bucket=bucket, Key=key)
 
-        raise Exception("One or more jobs failed. See logs for details.")
+        log_and_notify_error(msg)
 
     if rw_area_jobs and GLOBALS.env == "production":
         try:
