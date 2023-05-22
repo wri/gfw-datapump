@@ -86,6 +86,7 @@ class GeotrellisJob(Job):
     emr_job_id: Optional[str] = None
     version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
+    content_end_date: Optional[str] = None
 
     def next_step(self):
         if (
@@ -245,6 +246,19 @@ class GeotrellisJob(Job):
                     versions_to_delete = versions[: -GLOBALS.max_versions]
                     for version in versions_to_delete:
                         client.delete_version(table.dataset, version)
+
+            if (
+                self.table.analysis == Analysis.viirs
+                and self.sync_version
+                and self.content_end_date
+            ):
+                for table in self.result_tables:
+                    metadata = {
+                        "content_date_range": {"end_date": self.content_end_date}
+                    }
+                    client.update_version_metadata(
+                        table.dataset, table.version, metadata=metadata
+                    )
 
             return JobStatus.complete
 
@@ -909,6 +923,7 @@ class FireAlertsGeotrellisJob(GeotrellisJob):
     alert_type: str
     alert_sources: Optional[List[str]] = []
     timeout_sec = 43200
+    content_end_date: Optional[str] = None
 
     FIRE_SOURCE_DEFAULT_PATHS: Dict[str, str] = {
         "viirs": f"s3://{GLOBALS.s3_bucket_data_lake}/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",

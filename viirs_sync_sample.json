@@ -1,0 +1,495 @@
+{
+  "name": "executor",
+  "input": {
+    "id": "7ef96fb8-f480-11ed-a844-c630de944b0b",
+    "step": "uploading",
+    "status": "executing",
+    "start_time": "2023-05-17T07:00:24.162178",
+    "timeout_sec": 43200,
+    "retries": 0,
+    "table": {
+      "dataset": "geostore",
+      "version": "",
+      "analysis": "viirs"
+    },
+    "analysis_version": "v20220713",
+    "features_1x1": "s3://gfw-pipelines/geotrellis/features/geostore/*.tsv",
+    "sync_version": "v20230517",
+    "feature_type": "geostore",
+    "geotrellis_version": "2.2.4",
+    "sync": false,
+    "sync_type": "viirs",
+    "change_only": true,
+    "emr_job_id": "j-27O5TLMFKK5N6",
+    "version_overrides": {},
+    "result_tables": [
+      {
+        "dataset": "geostore__viirs__daily_alerts",
+        "version": "v20220713",
+        "source_uri": [
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00000-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00001-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00002-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00003-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00004-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00005-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00006-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00007-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00008-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00009-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00010-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00011-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00012-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00013-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00014-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00015-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00016-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00017-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00018-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00019-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00020-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00021-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00022-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00023-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00024-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00025-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00026-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00027-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00028-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00029-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00030-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00031-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00032-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00033-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00034-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00035-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00036-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00037-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00038-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00039-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00040-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00041-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00042-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00043-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00044-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00045-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00046-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00047-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00048-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00049-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00050-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00051-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00052-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00053-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00054-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00055-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00056-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00057-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00058-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00059-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00060-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00061-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/daily_alerts/part-00062-a8554205-fdb8-47a6-97af-ff859f0b4271-c000.csv"
+        ],
+        "indices": [
+          {
+            "index_type": "btree",
+            "column_names": [
+              "geostore__id",
+              "alert__date"
+            ]
+          }
+        ],
+        "cluster": null,
+        "partitions": null,
+        "table_schema": [
+          {
+            "name": "geostore__id",
+            "data_type": "text"
+          },
+          {
+            "name": "alert__date",
+            "data_type": "date"
+          },
+          {
+            "name": "confidence__cat",
+            "data_type": "text"
+          },
+          {
+            "name": "wdpa_protected_areas__iucn_cat",
+            "data_type": "text"
+          },
+          {
+            "name": "wdpa_protected_area__iucn_cat",
+            "data_type": "text"
+          },
+          {
+            "name": "umd_tree_cover_density_2000__threshold",
+            "data_type": "integer"
+          },
+          {
+            "name": "is__umd_regional_primary_forest_2001",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_alliance_for_zero_extinction_sites",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_key_biodiversity_areas",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__landmark_indigenous_and_community_lands",
+            "data_type": "boolean"
+          },
+          {
+            "name": "gfw_planted_forests__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_mining_concessions",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_managed_forests",
+            "data_type": "boolean"
+          },
+          {
+            "name": "rspo_oil_palm__certification_status",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_wood_fiber",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_peatlands",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__idn_forest_moratorium",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_oil_palm",
+            "data_type": "boolean"
+          },
+          {
+            "name": "idn_forest_area__class",
+            "data_type": "text"
+          },
+          {
+            "name": "per_forest_concessions__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_oil_gas",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gmw_global_mangrove_extent_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__ifl_intact_forest_landscapes_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "ibge_bra_biomes__name",
+            "data_type": "text"
+          },
+          {
+            "name": "umd_tree_cover_density__threshold",
+            "data_type": "integer"
+          },
+          {
+            "name": "is__birdlife_alliance_for_zero_extinction_site",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_key_biodiversity_area",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__landmark_land_right",
+            "data_type": "boolean"
+          },
+          {
+            "name": "gfw_plantation__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_mining",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_managed_forest",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__peatland",
+            "data_type": "boolean"
+          },
+          {
+            "name": "idn_forest_area__type",
+            "data_type": "text"
+          },
+          {
+            "name": "per_forest_concession__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gmw_mangroves_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__ifl_intact_forest_landscape_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "bra_biome__name",
+            "data_type": "text"
+          },
+          {
+            "name": "alert__count",
+            "data_type": "integer"
+          }
+        ],
+        "latitude_field": "",
+        "longitude_field": ""
+      },
+      {
+        "dataset": "geostore__viirs__weekly_alerts",
+        "version": "v20220713",
+        "source_uri": [
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00000-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00001-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00002-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00003-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00004-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00005-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00006-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00007-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00008-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00009-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00010-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00011-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00012-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00013-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00014-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00015-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00016-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00017-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00018-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00019-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00020-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00021-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00022-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00023-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00024-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00025-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00026-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00027-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00028-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00029-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00030-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00031-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00032-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00033-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00034-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00035-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00036-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00037-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00038-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00039-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00040-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv",
+          "s3://gfw-pipelines/geotrellis/results/v20230517/geostore/v20220713/viirs/firealerts_viirs_20230517_0717/geostore/weekly_alerts/part-00041-0a5b120d-864d-479f-97e8-8fcf2bcff309-c000.csv"
+        ],
+        "indices": [
+          {
+            "index_type": "btree",
+            "column_names": [
+              "geostore__id",
+              "alert__year",
+              "alert__week"
+            ]
+          }
+        ],
+        "cluster": null,
+        "partitions": null,
+        "table_schema": [
+          {
+            "name": "geostore__id",
+            "data_type": "text"
+          },
+          {
+            "name": "alert__year",
+            "data_type": "integer"
+          },
+          {
+            "name": "alert__week",
+            "data_type": "integer"
+          },
+          {
+            "name": "confidence__cat",
+            "data_type": "text"
+          },
+          {
+            "name": "wdpa_protected_areas__iucn_cat",
+            "data_type": "text"
+          },
+          {
+            "name": "wdpa_protected_area__iucn_cat",
+            "data_type": "text"
+          },
+          {
+            "name": "umd_tree_cover_density_2000__threshold",
+            "data_type": "integer"
+          },
+          {
+            "name": "is__umd_regional_primary_forest_2001",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_alliance_for_zero_extinction_sites",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_key_biodiversity_areas",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__landmark_indigenous_and_community_lands",
+            "data_type": "boolean"
+          },
+          {
+            "name": "gfw_planted_forests__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_mining_concessions",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_managed_forests",
+            "data_type": "boolean"
+          },
+          {
+            "name": "rspo_oil_palm__certification_status",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_wood_fiber",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_peatlands",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__idn_forest_moratorium",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_oil_palm",
+            "data_type": "boolean"
+          },
+          {
+            "name": "idn_forest_area__class",
+            "data_type": "text"
+          },
+          {
+            "name": "per_forest_concessions__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_oil_gas",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gmw_global_mangrove_extent_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__ifl_intact_forest_landscapes_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "ibge_bra_biomes__name",
+            "data_type": "text"
+          },
+          {
+            "name": "umd_tree_cover_density__threshold",
+            "data_type": "integer"
+          },
+          {
+            "name": "is__birdlife_alliance_for_zero_extinction_site",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__birdlife_key_biodiversity_area",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__landmark_land_right",
+            "data_type": "boolean"
+          },
+          {
+            "name": "gfw_plantation__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gfw_mining",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__gfw_managed_forest",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__peatland",
+            "data_type": "boolean"
+          },
+          {
+            "name": "idn_forest_area__type",
+            "data_type": "text"
+          },
+          {
+            "name": "per_forest_concession__type",
+            "data_type": "text"
+          },
+          {
+            "name": "is__gmw_mangroves_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "is__ifl_intact_forest_landscape_2016",
+            "data_type": "boolean"
+          },
+          {
+            "name": "bra_biome__name",
+            "data_type": "text"
+          },
+          {
+            "name": "alert__count",
+            "data_type": "integer"
+          }
+        ],
+        "latitude_field": "",
+        "longitude_field": ""
+      }
+    ],
+    "alert_type": "viirs",
+    "alert_sources": [
+      "s3a://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/2023-05-16-0357_2023-05-17-0141.tsv"
+    ],
+    "FIRE_SOURCE_DEFAULT_PATHS": {
+      "viirs": "s3://gfw-data-lake/nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv",
+      "modis": "s3://gfw-data-lake/nasa_modis_fire_alerts/v6/vector/epsg-4326/tsv",
+      "burned_areas": "s3://gfw-data-lake/umd_modis_burned_areas/raw"
+    }
+  },
+  "inputDetails": {
+    "truncated": false
+  }
