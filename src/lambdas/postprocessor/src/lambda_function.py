@@ -113,5 +113,5 @@ def handler(event, context):
             update_area_statuses(geostore_ids, "saved")
         except Exception:
             log_and_notify_error(
-                f"Unexpected exception caught while trying to run update user area statuses: {traceback.format_exc()}"
+                f"Exception while trying to update user area statuses: {traceback.format_exc()}"
             )
