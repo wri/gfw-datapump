@@ -160,14 +160,6 @@ class RasterVersionUpdateJob(Job):
                 "num_processes": co.num_processes,
                 "resampling": co.resampling,
             },
-            "metadata": {
-                "last_update": self.content_date_range.end_date,
-                "content_date": self.content_date_range.end_date,
-                "content_date_range": {
-                    "start_date": self.content_date_range.start_date,
-                    "end_date": self.content_date_range.end_date,
-                },
-            },
         }
 
         data = client.create_aux_asset(self.dataset, self.version, payload)
