@@ -1,4 +1,4 @@
-FROM lambci/lambda:build-python3.7
+FROM public.ecr.aws/lambda/python:3.10
 
 ENV WORKDIR /opt
 WORKDIR $WORKDIR
@@ -11,7 +11,8 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 31862
+# change 31864
+RUN yum install -y zip
 
 # Precompile all python packages and remove .py files
 RUN find python/ -type f -name '*.pyc' -print0 | xargs -0 rm -rf

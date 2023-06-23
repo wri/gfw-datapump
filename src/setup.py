@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="datapump",
-    version="0.2.0",
+    version="0.2.1",
     description="Data pipelines to ingest, analyze, and store new data.",
     packages=find_packages(),
     author="Justin Terry",

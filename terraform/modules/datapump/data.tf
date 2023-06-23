@@ -20,11 +20,11 @@ data "template_file" "sfn_datapump" {
   }
 }
 
-module "py37_datapump_020" {
+module "py310_datapump_021" {
   source         = "git::https://github.com/wri/gfw-lambda-layers.git//terraform/modules/lambda_layer"
   bucket         = var.pipelines_bucket
   name           = "datapump-${terraform.workspace}"
-  module_version = "0.2.0"
-  runtime        = "python3.7"
+  module_version = "0.2.1"
+  runtime        = "python3.10"
   layer_path     = "${var.lambda_layers_path}/"
 }
