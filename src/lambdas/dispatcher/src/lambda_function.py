@@ -17,7 +17,7 @@ from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
 from datapump.util.util import log_and_notify_error
-from pydantic import ValidationError, parse_obj_as
+from pydantic import parse_obj_as
 
 
 def handler(event, context):
@@ -50,8 +50,6 @@ def handler(event, context):
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
         return {"jobs": jobs}
-    except ValidationError as e:
-        return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
         log_and_notify_error(
             f"Exception while trying to run data sync pipeline for command: "
