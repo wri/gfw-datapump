@@ -342,7 +342,7 @@ class GeotrellisJob(Job):
         worker_count: int = self._calculate_worker_count(self.features_1x1)
         instances = self._instances(worker_count)
         applications = self._applications()
-        configurations = self._configurations(str(worker_count))
+        configurations = self._configurations(worker_count)
 
         return name, instances, steps, applications, configurations
 
@@ -923,7 +923,7 @@ class GeotrellisJob(Job):
             {"Name": "Ganglia"},
         ]
 
-    def _configurations(self, worker_count: str) -> List[Dict[str, Any]]:
+    def _configurations(self, worker_count: int) -> List[Dict[str, Any]]:
         executor_count = worker_count * 7
         partition_count = executor_count * 3
 
