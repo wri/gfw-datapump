@@ -11,7 +11,7 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 31864
+# change 31365
 RUN yum install -y zip
 
 # Precompile all python packages and remove .py files
