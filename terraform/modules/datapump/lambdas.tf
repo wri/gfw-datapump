@@ -30,7 +30,7 @@ resource "aws_lambda_function" "executor" {
   role             = aws_iam_role.datapump_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_params.memory_size
+  memory_size      = 256
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
@@ -58,7 +58,7 @@ resource "aws_lambda_function" "postprocessor" {
   role             = aws_iam_role.datapump_lambda.arn
   runtime          = var.lambda_params.runtime
   handler          = "lambda_function.handler"
-  memory_size      = var.lambda_params.memory_size
+  memory_size      = 384
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
