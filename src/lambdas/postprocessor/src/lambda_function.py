@@ -105,6 +105,7 @@ def handler(event, context):
             get_s3_client().delete_object(Bucket=bucket, Key=key)
 
         log_and_notify_error(msg)
+        raise Exception("One or more jobs failed. See logs for details.")
 
     if rw_area_jobs and GLOBALS.env == "production":
         try:
@@ -115,3 +116,4 @@ def handler(event, context):
             log_and_notify_error(
                 f"Exception while trying to update user area statuses: {traceback.format_exc()}"
             )
+            raise Exception("One or more jobs failed. See logs for details.")
