@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">=0.13"
+  required_version = ">=0.13, < 0.14"
   backend "s3" {
     key     = "user-aoi-batch.tfstate"
     region  = "us-east-1"

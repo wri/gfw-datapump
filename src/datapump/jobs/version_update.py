@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Optional
 
@@ -8,6 +9,7 @@ from datapump.commands.version_update import (
 from datapump.util.models import ContentDateRange
 
 from ..clients.data_api import DataApiClient
+from ..globals import LOGGER
 from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
 
@@ -27,8 +29,23 @@ class RasterVersionUpdateJob(Job):
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aux_tile_set_parameters: List[RasterTileSetParameters] = []
+    timeout_sec = 24 * 60 * 60
 
     def next_step(self):
+        now = datetime.now()
+        if now >= datetime.fromisoformat(self.start_time) + timedelta(
+            seconds=self.timeout_sec
+        ):
+            msg = (
+                f"{self.__class__.__name__} {self.id} is still unfinished "
+                f"{self.timeout_sec} seconds after starting at "
+                f"{self.start_time}. Considering it failed. Perhaps someone "
+                "should check on it?"
+            )
+            LOGGER.error(msg)
+            self.errors.append(msg)
+            self.status = JobStatus.failed
+
         if self.step == RasterVersionUpdateJobStep.starting:
             self.status = JobStatus.executing
             self.step = RasterVersionUpdateJobStep.creating_tile_set
@@ -73,7 +90,13 @@ class RasterVersionUpdateJob(Job):
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-    def _create_tile_set(self, aux=False):
+    def success_message(self) -> str:
+        pass
+
+    def error_message(self) -> str:
+        return "\n".join(self.errors)
+
+    def _create_tile_set(self):
         client = DataApiClient()
 
         # Create the dataset if it doesn't exist
@@ -152,6 +175,7 @@ class RasterVersionUpdateJob(Job):
         elif rts_asset["status"] == "pending":
             return JobStatus.executing
         else:
+            self.errors.append(f"Tile set has status: {rts_asset['status']}")
             return JobStatus.failed
 
     def _check_aux_assets_status(self) -> JobStatus:
@@ -170,6 +194,7 @@ class RasterVersionUpdateJob(Job):
         elif all([status == "saved" for status in statuses]):
             return JobStatus.complete
         else:
+            self.errors.append(f"Aux asset has unknown asset status: {statuses}")
             raise KeyError(f"Undefined asset status in {statuses}")
 
     def _create_tile_cache(self):
@@ -201,6 +226,7 @@ class RasterVersionUpdateJob(Job):
         elif rtc_asset["status"] == "pending":
             return JobStatus.executing
         else:
+            self.errors.append("Tile cache in status other than saved or pending")
             return JobStatus.failed
 
     def _mark_latest(self):
@@ -216,4 +242,5 @@ class RasterVersionUpdateJob(Job):
         if latest_version == self.version:
             return JobStatus.complete
         else:
+            self.errors.append("Setting is_latest status failed")
             return JobStatus.failed
