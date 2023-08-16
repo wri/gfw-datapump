@@ -4,6 +4,6 @@ pytest~=5.3.1
 pytest-cov~=2.8.1
 mock
 # lambdas
-shapely~=1.7.1
+shapely~=1.8.5.post1
 geojson~=2.5.0
 pyshp~=2.1.0
