@@ -9,13 +9,13 @@ terraform {
     aws = {
       source   = "hashicorp/aws"
       version  = ">= 4, < 5"
-      region  = "us-east-1"
     }
   }
 }
 
 provider "aws" {
   version  = ">= 4, < 5"
+  region  = "us-east-1"
 }
 
 data "terraform_remote_state" "core" {
@@ -26,7 +26,6 @@ data "terraform_remote_state" "core" {
     key    = "core.tfstate"
   }
 }
-
 
 data "terraform_remote_state" "lambda-layers" {
   backend = "s3"
