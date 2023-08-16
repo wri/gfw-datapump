@@ -8,14 +8,14 @@ terraform {
   required_providers {
     aws = {
       source   = "hashicorp/aws"
-      version  = "< 4"
+      version  = ">= 4, < 5"
+      region  = "us-east-1"
     }
   }
 }
 
 provider "aws" {
-  version  = "< 4"
-  region  = "us-east-1"
+  version  = ">= 4, < 5"
 }
 
 data "terraform_remote_state" "core" {
