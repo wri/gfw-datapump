@@ -11,8 +11,8 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 31365
-RUN yum install -y zip
+# change 31369
+RUN yum install -y zip geos-devel
 
 # Precompile all python packages and remove .py files
 RUN find python/ -type f -name '*.pyc' -print0 | xargs -0 rm -rf
