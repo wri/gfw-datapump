@@ -25,6 +25,7 @@ class Job(StrictBaseModel, ABC):
     start_time: Optional[str] = None
     timeout_sec: int = 14400
     retries: int = 0
+    errors: List[str] = list()
 
     @validator("start_time", pre=True, always=True)
     def set_start_time(cls, v):
@@ -33,6 +34,12 @@ class Job(StrictBaseModel, ABC):
     @abstractmethod
     def next_step(self):
         ...
+
+    def success_message(self) -> str:
+        return "Job succeeded."
+
+    def error_message(self) -> str:
+        return f"Job failed due to error(s): {self.errors}"
 
 
 class Partition(BaseModel):

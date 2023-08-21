@@ -140,7 +140,7 @@ def _run_datapump(input):
     )
 
     execution_arn = resp["executionArn"]
-    print(execution_arn)
+    print(f"Start execution response: {resp}")
 
     tries = 0
     while tries < 150:
@@ -150,5 +150,7 @@ def _run_datapump(input):
         status = client.describe_execution(executionArn=execution_arn)["status"]
         if status == "RUNNING":
             continue
+        elif status is None:
+            raise Exception("Return value from describe_execution was None!")
         else:
             return status
