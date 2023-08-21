@@ -91,10 +91,17 @@ class RasterVersionUpdateJob(Job):
                 self.status = JobStatus.failed
 
     def success_message(self) -> str:
-        pass
+        return (
+            f"Successfully updated dataset {self.dataset} to version "
+            f"{self.version}."
+        )
 
     def error_message(self) -> str:
-        return "\n".join(self.errors)
+        return (
+            f"Version update job failed for dataset {self.dataset}, "
+            f"version {self.version}, due to the following error(s): "
+            f"{self.errors}"
+        )
 
     def _create_tile_set(self):
         client = DataApiClient()
