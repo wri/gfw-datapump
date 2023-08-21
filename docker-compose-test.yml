@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 services:
   datapump_test:
     build:
@@ -13,12 +13,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     entrypoint: /app/tests/run_tests.sh
     environment:
-      - AWS_ACCESS_KEY_ID=testing  # pragma: allowlist secret
+      - AWS_ACCESS_KEY_ID=testing      # pragma: allowlist secret
       - AWS_SECRET_ACCESS_KEY=testing  # pragma: allowlist secret
-      - AWS_SECURITY_TOKEN=testing  # pragma: allowlist secret
-      - AWS_SESSION_TOKEN=testing  # pragma: allowlist secret
-      - AWS_DEFAULT_REGION=us-east-1 # pragma: allowlist secret
-      - DUMP_TO_STDOUT=${DUMP_TO_STDOUT}
+      - AWS_SECURITY_TOKEN=testing     # pragma: allowlist secret
+      - AWS_SESSION_TOKEN=testing      # pragma: allowlist secret
+      - AWS_DEFAULT_REGION=us-east-1   # pragma: allowlist secret
+      - DUMP_TO_STDOUT=1
+      - DEBUG=1
       - GOOGLE_APPLICATION_CREDENTIALS=/tmp/.gcs/private_key.json
       - S3_BUCKET_PIPELINE=gfw-pipelines-test
       - S3_BUCKET_DATA_LAKE=gfw-data-lake-test
@@ -27,31 +28,33 @@ services:
       - mock_server
 
   localstack:
-    image: localstack/localstack:0.12.11
     container_name: localstack
+    image: localstack/localstack-pro  # required for Pro
     ports:
-#      - '53:53'
-      - '443:443'
-      - '4563-4584:4563-4584'
-      - '8055:8080'
-      - '${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}'
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+      - "127.0.0.1:53:53"                # DNS config (required for Pro)
+      - "127.0.0.1:53:53/udp"            # DNS config (required for Pro)
+      - "127.0.0.1:443:443"              # LocalStack HTTPS Gateway (required for Pro)
     environment:
-      - SERVICES=iam,lambda,stepfunctions,sts,cloudwatch,emr,events,ec2,cloudformation,s3,secretsmanager,dynamodb
+      - SERVICES=cloudformation,cloudwatch,dynamodb,ec2,emr,events,iam,lambda,s3,secretsmanager,stepfunctions,sts
       - DEBUG=1
       - DISABLE_EVENTS=1
       - LAMBDA_DOCKER_NETWORK=gfw-datapump_test_default
-      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
       - HOSTNAME_EXTERNAL=localstack
-      #- DNS_ADDRESS=22.22.22.22
       - LAMBDA_REMOTE_DOCKER=1
+      - PERSISTENCE=${PERSISTENCE-}
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # required for Pro
+      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
       - '/var/run/docker.sock:/var/run/docker.sock'
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
 
   mock_server:
-    image: mockserver/mockserver:mockserver-5.11.1
+    image: mockserver/mockserver:mockserver-5.15.0
     ports:
-      - 1080:1080
+      - "1080:1080"
     environment:
       MOCKSERVER_INITIALIZATION_JSON_PATH: /mock_server/mock_responses.json
     volumes:
