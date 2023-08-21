@@ -16,6 +16,7 @@ from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
+from datapump.util.slack import slack_webhook
 from datapump.util.util import log_and_notify_error
 from pydantic import parse_obj_as
 
@@ -112,6 +113,11 @@ def _sync(command: SyncCommand):
 
     for sync_type in command.parameters.types:
         sync_config = config_client.get(sync=True, sync_type=sync_type)
+        if not sync_config:
+            slack_webhook(
+                "WARNING",
+                f"No DyanamoDB rows found for sync type {sync_type}!"
+            )
         for row in sync_config:
             syncer_jobs = syncer.build_jobs(row)
             if syncer_jobs:
