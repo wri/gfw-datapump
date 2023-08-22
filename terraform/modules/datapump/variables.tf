@@ -90,7 +90,12 @@ variable "sfn_wait_time" {
 
 variable "rasterio_lambda_layer_arn" {
   type        = string
-  description = "Pipelines bucket to store intermediate results"
+  description = "ARN of the rasterio lambda layer"
+}
+
+variable "shapely_lambda_layer_arn" {
+  type        = string
+  description = "ARN of the shapely lambda layer"
 }
 
 variable "glad_path" {

@@ -50,6 +50,7 @@ module "datapump" {
   data_api_uri = var.data_api_uri
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket
   rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py310_rasterio_138_arn
+  shapely_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py310_shapely_185_arn
   glad_path = local.glad_path
   emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name

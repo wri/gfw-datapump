@@ -11,7 +11,8 @@ resource "aws_lambda_function" "dispatcher" {
   tags             = local.tags
   layers           = [
     module.py310_datapump_021.layer_arn,
-    var.rasterio_lambda_layer_arn
+    var.rasterio_lambda_layer_arn,
+    var.shapely_lambda_layer_arn
   ]
   environment {
     variables = {
@@ -65,7 +66,11 @@ resource "aws_lambda_function" "postprocessor" {
   timeout          = var.lambda_params.timeout
   publish          = true
   tags             = local.tags
-  layers           = [module.py310_datapump_021.layer_arn, var.rasterio_lambda_layer_arn]
+  layers           = [
+    module.py310_datapump_021.layer_arn,
+    var.rasterio_lambda_layer_arn,
+    var.shapely_lambda_layer_arn
+  ]
   environment {
     variables = {
       ENV                            = var.environment
