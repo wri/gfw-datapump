@@ -1,8 +1,12 @@
+import json
 import pprint
 import traceback
 from pprint import pformat
 from typing import Any, Dict, List, Union
 from uuid import uuid1
+
+from pydantic import parse_obj_as
+from pydantic.error_wrappers import ValidationError
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
@@ -16,12 +20,11 @@ from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
 from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
+from datapump.util.slack import slack_webhook
 from datapump.util.util import log_and_notify_error
-from pydantic import parse_obj_as
 
 
 def handler(event, context):
-    command = None
     try:
         command = parse_obj_as(
             Union[
@@ -33,10 +36,19 @@ def handler(event, context):
             ],
             event,
         )
-        client = DataApiClient()
-
-        jobs: List[Job] = []
         LOGGER.info(f"Received command:\n{pformat(command.dict())}")
+    except ValidationError as e:
+        log_and_notify_error(
+            f"Validation error parsing the following command:\n"
+            f"{json.dumps(event, indent=2)}\n"
+            f"Error:\n{e.json(indent=2)}"
+        )
+        raise e
+
+    jobs: List[Job] = []
+
+    try:
+        client = DataApiClient()
         if isinstance(command, AnalysisCommand):
             jobs += _analysis(command, client)
         elif isinstance(command, RasterVersionUpdateCommand):
@@ -52,8 +64,9 @@ def handler(event, context):
         return {"jobs": jobs}
     except Exception as e:
         log_and_notify_error(
-            f"Exception while trying to run data sync pipeline for command: "
-            f"{pprint.pformat(command)}\n\n {traceback.format_exc()}"
+            "Exception while creating jobs for command: "
+            f"{pprint.pformat(command)}\n\n"
+            f"{traceback.format_exc()}"
         )
         raise e
 
@@ -112,6 +125,11 @@ def _sync(command: SyncCommand):
 
     for sync_type in command.parameters.types:
         sync_config = config_client.get(sync=True, sync_type=sync_type)
+        if not sync_config:
+            slack_webhook(
+                "WARNING",
+                f"No DyanamoDB rows found for sync type {sync_type}!"
+            )
         for row in sync_config:
             syncer_jobs = syncer.build_jobs(row)
             if syncer_jobs:
