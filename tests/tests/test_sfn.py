@@ -14,7 +14,7 @@ DATAPUMP_SFN_ARN = f"arn:aws:states:us-east-1:000000000000:stateMachine:{SFN_NAM
 DUMP_TO_STDOUT = os.environ.get("DUMP_TO_STDOUT", None)
 
 
-@pytest.mark.skip(reason="Investigate issue with new version of localstack")
+# @pytest.mark.skip(reason="Investigate issue with new version of localstack")
 def test_datapump_basic():
     try:
         add_version_input = {

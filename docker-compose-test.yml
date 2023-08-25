@@ -18,7 +18,7 @@ services:
       - AWS_SECURITY_TOKEN=testing     # pragma: allowlist secret
       - AWS_SESSION_TOKEN=testing      # pragma: allowlist secret
       - AWS_DEFAULT_REGION=us-east-1   # pragma: allowlist secret
-      - DUMP_TO_STDOUT=1
+      - DUMP_TO_STDOUT=$DUMP_TO_STDOUT
       - DEBUG=1
       - GOOGLE_APPLICATION_CREDENTIALS=/tmp/.gcs/private_key.json
       - S3_BUCKET_PIPELINE=gfw-pipelines-test
@@ -42,7 +42,7 @@ services:
       - DISABLE_EVENTS=1
       - LAMBDA_DOCKER_NETWORK=gfw-datapump_test_default
       - HOSTNAME_EXTERNAL=localstack
-      - LAMBDA_REMOTE_DOCKER=1
+      - LAMBDA_KEEPALIVE_MS=0
       - PERSISTENCE=${PERSISTENCE-}
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # required for Pro
       - DOCKER_HOST=unix:///var/run/docker.sock
