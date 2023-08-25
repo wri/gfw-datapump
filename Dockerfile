@@ -1,4 +1,4 @@
-FROM hashicorp/terraform:0.13.7
+FROM hashicorp/terraform:0.13.3
 
 ENV PYTHONUNBUFFERED=1
 RUN apk update
