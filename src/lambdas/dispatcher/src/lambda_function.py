@@ -1,6 +1,12 @@
+import json
+import pprint
+import traceback
 from pprint import pformat
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Union
 from uuid import uuid1
+
+from pydantic import parse_obj_as
+from pydantic.error_wrappers import ValidationError
 
 from datapump.clients.data_api import DataApiClient
 from datapump.clients.datapump_store import DatapumpStore
@@ -11,11 +17,11 @@ from datapump.commands.sync import SyncCommand
 from datapump.commands.version_update import RasterVersionUpdateCommand
 from datapump.globals import LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.sync import Syncer
-from datapump.util.util import error
-from pydantic import ValidationError, parse_obj_as
+from datapump.util.slack import slack_webhook
+from datapump.util.util import log_and_notify_error
 
 
 def handler(event, context):
@@ -30,32 +36,38 @@ def handler(event, context):
             ],
             event,
         )
-        client = DataApiClient()
-
-        jobs = []
         LOGGER.info(f"Received command:\n{pformat(command.dict())}")
+    except ValidationError as e:
+        log_and_notify_error(
+            f"Validation error parsing the following command:\n"
+            f"{json.dumps(event, indent=2)}\n"
+            f"Error:\n{e.json(indent=2)}"
+        )
+        raise e
+
+    jobs: List[Job] = []
+
+    try:
+        client = DataApiClient()
         if isinstance(command, AnalysisCommand):
-            cast(AnalysisCommand, command)
             jobs += _analysis(command, client)
         elif isinstance(command, RasterVersionUpdateCommand):
-            cast(RasterVersionUpdateCommand, command)
             jobs += _raster_version_update(command)
         elif isinstance(command, SyncCommand):
-            cast(SyncCommand, command)
             jobs += _sync(command)
         elif isinstance(command, ContinueJobsCommand):
-            cast(ContinueJobsCommand, command)
             jobs += command.parameters.dict()["jobs"]
         elif isinstance(command, SetLatestCommand):
-            cast(SetLatestCommand, command)
             _set_latest(command, client)
 
         LOGGER.info(f"Dispatching jobs:\n{pformat(jobs)}")
         return {"jobs": jobs}
-    except ValidationError as e:
-        return {"statusCode": 400, "body": {"message": "Validation error", "detail": e}}
     except Exception as e:
-        error(f"Exception caught while running update: {e}")
+        log_and_notify_error(
+            "Exception while creating jobs for command: "
+            f"{pprint.pformat(command)}\n\n"
+            f"{traceback.format_exc()}"
+        )
         raise e
 
 
@@ -113,6 +125,11 @@ def _sync(command: SyncCommand):
 
     for sync_type in command.parameters.types:
         sync_config = config_client.get(sync=True, sync_type=sync_type)
+        if not sync_config:
+            slack_webhook(
+                "WARNING",
+                f"No DyanamoDB rows found for sync type {sync_type}!"
+            )
         for row in sync_config:
             syncer_jobs = syncer.build_jobs(row)
             if syncer_jobs:

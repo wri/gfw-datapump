@@ -1,24 +1,24 @@
+import traceback
 from pprint import pformat
-from typing import List, Union, cast
+from typing import List, Union
 
 from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
 from datapump.clients.rw_api import update_area_statuses
+from datapump.commands.analysis import Analysis
 from datapump.commands.sync import SyncType
 from datapump.globals import GLOBALS, LOGGER
 from datapump.jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob
-from datapump.jobs.jobs import JobStatus
+from datapump.jobs.jobs import Job, JobStatus
 from datapump.jobs.version_update import RasterVersionUpdateJob
 from datapump.sync.rw_areas import get_aoi_geostore_ids
-from datapump.util.slack import slack_webhook
+from datapump.util.util import log_and_notify_error
 from pydantic import parse_obj_as
-
-from datapump.commands.analysis import Analysis
 
 
 def handler(event, context):
     LOGGER.info(f"Postprocessing results of map: {pformat(event)}")
-    jobs = parse_obj_as(
+    jobs: List[Job] = parse_obj_as(
         List[Union[FireAlertsGeotrellisJob, GeotrellisJob, RasterVersionUpdateJob]],
         event["jobs"],
     )
@@ -31,8 +31,6 @@ def handler(event, context):
         LOGGER.info(f"Postprocessing job: {pformat(job.dict())}")
 
         if isinstance(job, GeotrellisJob):
-            cast(job, GeotrellisJob)
-
             sync_types = (
                 [job.sync_type]
                 if job.sync_type
@@ -42,22 +40,12 @@ def handler(event, context):
             if SyncType.rw_areas in sync_types:
                 rw_area_jobs.append(job)
 
-            job_type_slack = "Sync" if job.sync_version else "Job"
             # add any results with sync enabled to the config table
             if job.status == JobStatus.failed:
-                slack_webhook(
-                    "error",
-                    f"{job_type_slack} failed for analysis {job.table.analysis} on dataset {job.table.dataset}",
-                )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
-                slack_webhook(
-                    "info",
-                    f"{job_type_slack} succeeded for analysis {job.table.analysis} on dataset {job.table.dataset}!",
-                )
-
-                # it's possible to have multiple sync types for a single table (e.g. viirs and geostore),
-                # so add all to config table
+                # it's possible to have multiple sync types for a single table
+                # (e.g. viirs and geostore), so add all to config table
                 LOGGER.debug(
                     f"Writing entries for {job.table.dataset} - {job.table.analysis} - {sync_types}"
                 )
@@ -91,20 +79,9 @@ def handler(event, context):
                             )
                         )
         elif isinstance(job, RasterVersionUpdateJob):
-            cast(job, RasterVersionUpdateJob)
-
             if job.status == JobStatus.failed:
-                slack_webhook(
-                    "error",
-                    f"Raster tile generation failed for dataset {job.dataset} with version {job.version}",
-                )
                 failed_jobs.append(job)
             elif job.status == JobStatus.complete:
-                slack_webhook(
-                    "info",
-                    f"Raster tile generation succeeded for dataset {job.dataset} with version {job.version}!",
-                )
-
                 config_client.put(
                     DatapumpConfig(
                         analysis_version="",
@@ -112,14 +89,14 @@ def handler(event, context):
                         dataset_version="",
                         analysis=Analysis.create_raster,
                         sync=True,
-                        sync_type=job.dataset
+                        sync_type=job.dataset,
                     )
                 )
 
     if failed_jobs:
-        LOGGER.error("The following jobs failed: ")
+        msg = "The following jobs failed: "
         for job in failed_jobs:
-            LOGGER.error(pformat(job.dict()))
+            msg += pformat(job.dict())
 
         if rw_area_jobs:
             # delete AOI tsv file to rollback from failed update
@@ -127,9 +104,16 @@ def handler(event, context):
             bucket, key = get_s3_path_parts(rw_area_jobs[0].features_1x1)
             get_s3_client().delete_object(Bucket=bucket, Key=key)
 
+        log_and_notify_error(msg)
         raise Exception("One or more jobs failed. See logs for details.")
 
     if rw_area_jobs and GLOBALS.env == "production":
-        # update AOIs on RW but only on production
-        geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
-        update_area_statuses(geostore_ids, "saved")
+        try:
+            # update AOIs on RW but only on production
+            geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
+            update_area_statuses(geostore_ids, "saved")
+        except Exception:
+            log_and_notify_error(
+                f"Exception while trying to update user area statuses: {traceback.format_exc()}"
+            )
+            raise Exception("One or more jobs failed. See logs for details.")
