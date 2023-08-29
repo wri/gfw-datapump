@@ -311,7 +311,7 @@ class GeotrellisJob(Job):
         nightly = " nightly " if self.sync_type else " "
 
         return (
-            f"Successfully ran{nightly}geotrellis analysis {self.table.analysis} on {dataset}"
+            f"Successfully ran{nightly}geotrellis analysis {self.table.analysis} on {dataset} "
             f"and uploaded to tables with version {self.table.version}."
         )
 
@@ -693,7 +693,7 @@ class GeotrellisJob(Job):
             analysis_weight *= 2
         if self.change_only:
             analysis_weight *= 0.75
-        # wdpa just has very  complex geometries
+        # wdpa just has very complex geometries
         if self.table.dataset == "wdpa_protected_areas":
             analysis_weight *= 0.25
 
