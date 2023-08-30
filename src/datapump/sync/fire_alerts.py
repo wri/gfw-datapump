@@ -141,12 +141,6 @@ def _get_last_saved_alert_time(nrt_s3_directory):
         return "0000-00-00", "0000"
 
 
-def get_most_recent_s3_object(bucket_name, prefix):
-    """
-    Get last modified file at S3 bucket and prefix
-    """
-
-
 def _write_row(row, fields, writer):
     tsv_row = dict()
     for field in fields:
