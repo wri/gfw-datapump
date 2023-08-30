@@ -122,18 +122,29 @@ def get_tmp_result_path(alert_type):
 
 
 def _get_last_saved_alert_time(nrt_s3_directory):
-    response = get_s3_client().list_objects(
-        Bucket=DATA_LAKE_BUCKET, Prefix=f"{nrt_s3_directory}/"
-    )
+    paginator = get_s3_client().get_paginator("list_objects_v2")
+    page_iterator = paginator.paginate(Bucket=DATA_LAKE_BUCKET, Prefix=nrt_s3_directory)
+    latest_key = None
 
-    if "Contents" in response:
-        last_file = response["Contents"][-1]
-        last_min = last_file["Key"][-8:-4]
-        last_date = last_file["Key"][-19:-9]
+    for page in page_iterator:
+        if "Contents" in page:
+            latest_key_curr = max(page['Contents'], key=lambda x: x["Key"])["Key"]
+            if latest_key is None or latest_key_curr > latest_key:
+                latest_key = latest_key_curr
+
+    if latest_key:
+        last_min = latest_key[-8:-4]
+        last_date = latest_key[-19:-9]
 
         return last_date, last_min
     else:
         return "0000-00-00", "0000"
+
+
+def get_most_recent_s3_object(bucket_name, prefix):
+    """
+    Get last modified file at S3 bucket and prefix
+    """
 
 
 def _write_row(row, fields, writer):
