@@ -9,19 +9,14 @@ ENV MAVEN_VERSION 3.5.4
 ENV MAVEN_HOME /usr/lib/mvn
 ENV PATH $MAVEN_HOME/bin:$PATH
 
-RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz && \
-  tar -zxvf apache-maven-$MAVEN_VERSION-bin.tar.gz && \
-  rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
+RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz -O - | tar -zxvf - && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
-RUN apk add --no-cache --upgrade bash gcc libc-dev python3-dev geos-dev musl-dev linux-headers g++
-RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
-RUN pip3 install pytest pytest-cov boto3 shapely
+RUN apk add --no-cache --upgrade bash gcc libc-dev python3 python3-dev geos-dev musl-dev linux-headers g++ git
+RUN ln -sf python3 /usr/bin/python && \
+  python3 -m ensurepip && \
+  pip3 install --no-cache-dir --upgrade pip setuptools pytest pytest-cov boto3 shapely
 
 RUN mkdir datapump
 COPY ./src src
 RUN pip3 install ./src
-
-RUN apk add git

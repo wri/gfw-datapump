@@ -71,12 +71,27 @@ resource "aws_s3_bucket_object" "rasterio" {
   etag   = filemd5("../files/rasterio.zip")
 }
 
+resource "aws_s3_bucket_object" "shapely" {
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "lambda_layers/shapely.zip"
+  source = "../files/shapely.zip"
+  etag   = filemd5("../files/shapely.zip")
+}
+
 resource "aws_lambda_layer_version" "rasterio" {
   layer_name          = substr("test-rasterio", 0, 64)
   s3_bucket           = aws_s3_bucket_object.rasterio.bucket
   s3_key              = aws_s3_bucket_object.rasterio.key
-  compatible_runtimes = ["python3.7"]
+  compatible_runtimes = ["python3.10"]
   source_code_hash    = filebase64sha256("../files/rasterio.zip")
+}
+
+resource "aws_lambda_layer_version" "shapely" {
+  layer_name          = substr("test-shapely", 0, 64)
+  s3_bucket           = aws_s3_bucket_object.shapely.bucket
+  s3_key              = aws_s3_bucket_object.shapely.key
+  compatible_runtimes = ["python3.10"]
+  source_code_hash    = filebase64sha256("../files/shapely.zip")
 }
 
 module "api_token_secret" {
