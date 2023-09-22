@@ -538,7 +538,10 @@ class GeotrellisJob(Job):
             cluster = None
 
         if analysis_agg == "all":
-            cluster = Index(index_type="gist", column_names=["geom_wm"])
+            # TODO this clustering always fails because it goes beyond the
+            # memory limits of our DB instance. Disable for now since after
+            # a month the clustering won't even matter anymore.
+            cluster = None  # Index(index_type="gist", column_names=["geom_wm"])
             indices += [Index(index_type="gist", column_names=["geom"]), cluster]
         elif (
             self.table.analysis == Analysis.integrated_alerts
