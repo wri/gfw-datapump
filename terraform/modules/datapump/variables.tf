@@ -36,7 +36,7 @@ variable "lambda_params" {
   })
   description = "Lambda parameters"
   default = {
-    runtime = "python3.7"
+    runtime = "python3.10"
     memory_size = 3048
     timeout = 900
   }
@@ -76,7 +76,6 @@ variable "pipelines_bucket" {
   description = "Pipelines bucket to store intermediate results"
 }
 
-
 variable "data_lake_bucket" {
   type        = string
   description = "Data lake bucket to store intermediate results"
@@ -91,7 +90,12 @@ variable "sfn_wait_time" {
 
 variable "rasterio_lambda_layer_arn" {
   type        = string
-  description = "Pipelines bucket to store intermediate results"
+  description = "ARN of the rasterio lambda layer"
+}
+
+variable "shapely_lambda_layer_arn" {
+  type        = string
+  description = "ARN of the shapely lambda layer"
 }
 
 variable "glad_path" {

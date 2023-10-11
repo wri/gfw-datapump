@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">=0.13, < 0.14"
+  required_version = ">= 0.13, < 0.14"
   backend "s3" {
     key     = "user-aoi-batch.tfstate"
     region  = "us-east-1"
@@ -8,13 +8,13 @@ terraform {
   required_providers {
     aws = {
       source   = "hashicorp/aws"
-      version  = "< 4"
+      version  = ">= 4, < 5"
     }
   }
 }
 
 provider "aws" {
-  version  = "< 4"
+  version  = ">= 4, < 5"
   region  = "us-east-1"
 }
 
@@ -26,7 +26,6 @@ data "terraform_remote_state" "core" {
     key    = "core.tfstate"
   }
 }
-
 
 data "terraform_remote_state" "lambda-layers" {
   backend = "s3"
@@ -50,7 +49,8 @@ module "datapump" {
   sfn_wait_time = 30
   data_api_uri = var.data_api_uri
   data_lake_bucket = data.terraform_remote_state.core.outputs.data-lake_bucket
-  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py37_rasterio_115_arn
+  rasterio_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py310_rasterio_138_arn
+  shapely_lambda_layer_arn = data.terraform_remote_state.lambda-layers.outputs.py310_shapely_185_arn
   glad_path = local.glad_path
   emr_instance_profile_name = data.terraform_remote_state.core.outputs.emr_instance_profile_name
   emr_service_role_name = data.terraform_remote_state.core.outputs.emr_service_role_name
