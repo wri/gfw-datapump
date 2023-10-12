@@ -30,9 +30,7 @@ GEOTRELLIS_RETRIES = 3
 
 
 class GeotrellisAnalysis(str, Enum):
-    """
-    Supported analyses to run on datasets
-    """
+    """Supported analyses to run on datasets."""
 
     tcl = "annualupdate_minimal"
     glad = "gladalerts"
@@ -542,7 +540,7 @@ class GeotrellisJob(Job):
             # memory limits of our DB instance. Disable for now since after
             # a month the clustering won't even matter anymore.
             cluster = None  # Index(index_type="gist", column_names=["geom_wm"])
-            indices += [Index(index_type="gist", column_names=["geom"]), cluster]
+            indices.append(Index(index_type="gist", column_names=["geom"]))
         elif (
             self.table.analysis == Analysis.integrated_alerts
             and analysis_agg == "daily_alerts"
@@ -655,14 +653,12 @@ class GeotrellisJob(Job):
                 return "text"
 
     def _calculate_worker_count(self, limiting_src) -> int:
-        """
-        Calculate a heuristic for number of workers appropriate for job based
-        on the size of the input features.
+        """Calculate a heuristic for number of workers appropriate for job
+        based on the size of the input features.
 
-        Uses global constant WORKER_COUNT_PER_GB_FEATURES to determine number
-        of worker per GB of features.
-        Uses global constant WORKER_COUNT_MIN to determine minimum number of
-        workers.
+        Uses global constant WORKER_COUNT_PER_GB_FEATURES to determine
+        number of worker per GB of features. Uses global constant
+        WORKER_COUNT_MIN to determine minimum number of workers.
 
         Multiplies by weights for specific analyses.
 

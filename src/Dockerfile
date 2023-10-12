@@ -11,7 +11,12 @@ COPY . $WORKDIR
 # installing dependencies to build package
 RUN pip install . -t python
 
-# change 31337.1
+# This next line needs to be changed (just increment the number) in order
+# to change the hash of the file and get TF to realize it needs to be
+# redeployed. Ticket for a better solution:
+# https://gfw.atlassian.net/browse/GTC-1250
+# change 1
+
 RUN yum install -y zip geos-devel
 
 # Precompile all python packages and remove .py files
