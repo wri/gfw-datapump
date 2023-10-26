@@ -206,7 +206,7 @@ class IntegratedAlertsSync(Sync):
         if not self._should_update(latest_versions):
             return []
 
-        jobs: List[Job] = []
+        jobs = []
 
         if config.dataset == "gadm":
             jobs.append(
@@ -237,25 +237,22 @@ class IntegratedAlertsSync(Sync):
                     ),
                 )
             )
-
-        job = GeotrellisJob(
-            id=str(uuid1()),
-            status=JobStatus.starting,
-            analysis_version=config.analysis_version,
-            sync_version=self.sync_version,
-            sync_type=config.sync_type,
-            table=AnalysisInputTable(
-                dataset=config.dataset,
-                version=config.dataset_version,
-                analysis=config.analysis,
-            ),
-            features_1x1=config.metadata["features_1x1"],
-            geotrellis_version=config.metadata["geotrellis_version"],
+        jobs.append(
+            GeotrellisJob(
+                id=str(uuid1()),
+                status=JobStatus.starting,
+                analysis_version=config.analysis_version,
+                sync_version=self.sync_version,
+                sync_type=config.sync_type,
+                table=AnalysisInputTable(
+                    dataset=config.dataset,
+                    version=config.dataset_version,
+                    analysis=config.analysis,
+                ),
+                features_1x1=config.metadata["features_1x1"],
+                geotrellis_version=config.metadata["geotrellis_version"],
+            )
         )
-        # Increase default timeout for gadm generated datasets.
-        if config.dataset == "gadm":
-            job.timeout_sec = 6 * 3600
-        jobs.append(job)
 
         return jobs
 
