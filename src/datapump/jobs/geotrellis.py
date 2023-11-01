@@ -664,11 +664,10 @@ class GeotrellisJob(Job):
 
         :return: number of workers appropriate for job size
         """
-        if (
-            self.sync_type == SyncType.rw_areas
-            or self.table.analysis == Analysis.integrated_alerts
-        ):
+        if self.sync_type == SyncType.rw_areas:
             return 30
+        elif self.table.analysis == Analysis.integrated_alerts:
+            return 60
         elif self.change_only and self.table.analysis == Analysis.glad:
             return 10
 
