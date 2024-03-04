@@ -234,6 +234,7 @@ class GeotrellisJob(Job):
                     ),
                     cluster=(table.cluster.dict() if table.cluster else table.cluster),
                     table_schema=table.table_schema,
+                    constraints=table.constraints,
                     partitions=(
                         table.partitions.dict()
                         if table.partitions
@@ -421,6 +422,7 @@ class GeotrellisJob(Job):
         indices, cluster = self._get_indices_and_cluster(analysis_agg, feature_agg)
         partitions = self._get_partitions(analysis_agg, feature_agg)
         table_schema = self._get_table_schema(sources[0])
+        constraints = self._get_constraints(table_schema)
 
         result_table = {
             "dataset": result_dataset,
@@ -429,6 +431,7 @@ class GeotrellisJob(Job):
             "indices": indices,
             "cluster": cluster,
             "table_schema": table_schema,
+            "constraints": constraints
         }
 
         if partitions:
@@ -613,6 +616,20 @@ class GeotrellisJob(Job):
             table_schema.append({"name": field_name, "data_type": field_type})
 
         return table_schema
+
+    @staticmethod
+    def _get_constraints(table_schema: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Return uniqueness constraint based off table schema. Anything non-numeric
+        should be used, since these are fields used for filtering and grouping.
+        """
+        columns_names = [field["name"] for field in table_schema if field["data_type"] != "numeric"]
+        return [
+            {
+                "constraint_type": "unique",
+                "column_names": columns_names
+            }
+        ]
 
     def _get_field_type(self, field, is_whitelist=False):
         if is_whitelist:

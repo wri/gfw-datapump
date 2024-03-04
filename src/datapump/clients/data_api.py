@@ -63,6 +63,7 @@ class DataApiClient:
         indices: List[Dict[str, Any]],
         cluster: Dict[str, Any],
         table_schema: List[Dict[str, Any]],
+        constraints: List[Dict[str, Any]],
         partitions: Optional[Dict[str, Any]] = None,
         latitude_field: Optional[str] = None,
         longitude_field: Optional[str] = None,
@@ -80,6 +81,7 @@ class DataApiClient:
             indices,
             cluster,
             table_schema,
+            constraints,
             partitions,
             latitude_field,
             longitude_field,
@@ -101,6 +103,7 @@ class DataApiClient:
         indices: List[Dict[str, Any]],
         cluster: Dict[str, Any],
         table_schema: List[Dict[str, Any]],
+        constraints: List[Dict[str, Any]],
         partitions: Optional[Dict[str, Any]] = None,
         latitude_field: Optional[str] = None,
         longitude_field: Optional[str] = None,
@@ -114,6 +117,7 @@ class DataApiClient:
             "indices": indices,
             "cluster": cluster,
             "table_schema": table_schema,
+            "constraints": constraints,
         }
 
         if partitions:

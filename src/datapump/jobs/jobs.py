@@ -59,6 +59,11 @@ class Index(BaseModel):
     column_names: List[str]
 
 
+class Constraint(BaseModel):
+    constraint_type: str = "unique"
+    column_names: List[str]
+
+
 class AnalysisResultTable(BaseModel):
     dataset: str
     version: str
@@ -67,5 +72,6 @@ class AnalysisResultTable(BaseModel):
     cluster: Optional[Index] = None
     partitions: Optional[Partitions] = None
     table_schema: List[Dict[str, Any]] = []
+    constraints: Optional[List[Constraint]]
     latitude_field: str = ""
     longitude_field: str = ""
