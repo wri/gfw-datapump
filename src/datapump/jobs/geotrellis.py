@@ -631,6 +631,7 @@ class GeotrellisJob(Job):
 
         # temporarily remove duplicate columns from constraints until we delete them from
         # geotrellis, since these put us over the constraint columns limit
+        # see GTC-2773
         duplicate_columns = {
             "umd_tree_cover_density__threshold",
             "tsc_tree_cover_loss_drivers__type",
