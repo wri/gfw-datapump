@@ -234,7 +234,11 @@ class GeotrellisJob(Job):
                     ),
                     cluster=(table.cluster.dict() if table.cluster else table.cluster),
                     table_schema=table.table_schema,
-                    constraints=table.constraints,
+                    constraints=(
+                        [constraint.dict() for constraint in table.constraints]
+                        if table.constraints
+                        else table.constraints
+                    ),
                     partitions=(
                         table.partitions.dict()
                         if table.partitions
@@ -623,11 +627,34 @@ class GeotrellisJob(Job):
         Return uniqueness constraint based off table schema. Anything non-numeric
         should be used, since these are fields used for filtering and grouping.
         """
-        columns_names = [field["name"] for field in table_schema if field["data_type"] != "numeric"]
+        columns_names = {field["name"] for field in table_schema if field["data_type"] != "numeric"}
+
+        # temporarily remove duplicate columns from constraints until we delete them from
+        # geotrellis, since these put us over the constraint columns limit
+        duplicate_columns = {
+            "umd_tree_cover_density__threshold",
+            "tsc_tree_cover_loss_drivers__type",
+            "is__birdlife_alliance_for_zero_extinction_site",
+            "gfw_plantation__type",
+            "is__gmw_mangroves_1996",
+            "is__gmw_mangroves_2020",
+            "is__gfw_tiger_landscape",
+            "is__landmark_land_right",
+            "is__gfw_land_right",
+            "is__birdlife_key_biodiversity_area",
+            "is__gfw_mining",
+            "is__peatland",
+            "is__gfw_resource_right",
+            "is__gfw_managed_forest",
+            "is__umd_tree_cover_gain_2000-2012",
+            "wdpa_protected_area__iucn_cat"
+        }
+
+        constraint_columns = list(columns_names - duplicate_columns)
         return [
             {
                 "constraint_type": "unique",
-                "column_names": columns_names
+                "column_names": constraint_columns
             }
         ]
 
