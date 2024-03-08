@@ -169,6 +169,7 @@ class DataApiClient:
             creation_options["indices"],
             creation_options["cluster"],
             creation_options["table_schema"],
+            creation_options["constraints"],
             creation_options["partitions"],
             creation_options["latitude"],
             creation_options["longitude"],

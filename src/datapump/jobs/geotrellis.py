@@ -212,6 +212,11 @@ class GeotrellisJob(Job):
                                 table.cluster.dict() if table.cluster else table.cluster
                             ),
                             table_schema=table.table_schema,
+                            constraints=(
+                                [constraint.dict() for constraint in table.constraints]
+                                if table.constraints
+                                else table.constraints
+                            ),
                             partitions=(
                                 table.partitions.dict()
                                 if table.partitions
