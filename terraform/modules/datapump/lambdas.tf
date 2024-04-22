@@ -45,7 +45,6 @@ resource "aws_lambda_function" "executor" {
       S3_BUCKET_PIPELINE             = var.pipelines_bucket
       S3_BUCKET_DATA_LAKE            = var.data_lake_bucket
       GEOTRELLIS_JAR_PATH            = var.geotrellis_jar_path
-      PUBLIC_SUBNET_IDS              = jsonencode(var.public_subnet_ids)
       EC2_KEY_NAME                   = var.ec2_key_name
       EMR_SERVICE_ROLE               = var.emr_service_role_name
       EMR_INSTANCE_PROFILE           = var.emr_instance_profile_name
