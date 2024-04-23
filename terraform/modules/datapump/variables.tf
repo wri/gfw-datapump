@@ -65,10 +65,10 @@ variable "ec2_key_name" {
   description = "Key pair to use for SSHing into EC2"
 }
 
-variable "public_subnet_ids" {
+variable "subnet_ids" {
   default     = []
   type        = list(string)
-  description = "Public subnet IDs to run on"
+  description = "Subnet IDs to run on"
 }
 
 variable "pipelines_bucket" {
