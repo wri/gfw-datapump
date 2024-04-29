@@ -30,8 +30,8 @@ class Globals(EnvSettings):
     s3_bucket_data_lake: str = Field(env="S3_BUCKET_DATA_LAKE")
     s3_glad_path: Optional[str] = Field(env="S3_GLAD_PATH")
     ec2_key_name: Optional[str] = Field("", env="EC2_KEY_NAME")
-    public_subnet_ids: List[str] = Field(
-        json.loads(os.environ.get("PUBLIC_SUBNET_IDS", b"[]"))
+    subnet_ids: List[str] = Field(
+        json.loads(os.environ.get("SUBNET_IDS", b"[]"))
     )
     emr_instance_profile: Optional[str] = Field("", env="EMR_INSTANCE_PROFILE")
     emr_service_role: Optional[str] = Field("", env="EMR_SERVICE_ROLE")

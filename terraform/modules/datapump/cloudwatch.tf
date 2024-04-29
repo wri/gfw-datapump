@@ -5,6 +5,13 @@ resource "aws_cloudwatch_event_rule" "everyday-11-pm-est" {
   tags                = local.tags
 }
 
+resource "aws_cloudwatch_event_rule" "everyday-10-pm-est" {
+  name                = substr("everyday-10-pm-est${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 10 pm EST"
+  schedule_expression = "cron(0 6 ? * * *)"
+  tags                = local.tags
+}
+
 resource "aws_cloudwatch_event_rule" "everyday-7-pm-est" {
   name                = substr("everyday-7-pm-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 7 pm EST"
@@ -38,7 +45,7 @@ resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
 }
 
 resource "aws_cloudwatch_event_target" "sync-glad" {
-  rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
+  rule      = aws_cloudwatch_event_rule.everyday-10-pm-est.name
   target_id = substr("${local.project}-sync-glad${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\"]}}"

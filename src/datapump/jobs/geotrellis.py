@@ -908,8 +908,8 @@ class GeotrellisJob(Job):
         if GLOBALS.ec2_key_name:
             instances["Ec2KeyName"] = GLOBALS.ec2_key_name
 
-        if GLOBALS.public_subnet_ids:
-            instances["Ec2SubnetIds"] = GLOBALS.public_subnet_ids
+        if GLOBALS.subnet_ids:
+            instances["Ec2SubnetIds"] = GLOBALS.subnet_ids
 
         return instances
 

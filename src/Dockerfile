@@ -15,7 +15,7 @@ RUN pip install . -t python
 # to change the hash of the file and get TF to realize it needs to be
 # redeployed. Ticket for a better solution:
 # https://gfw.atlassian.net/browse/GTC-1250
-# change 2
+# change 3
 
 RUN yum install -y zip geos-devel
 
