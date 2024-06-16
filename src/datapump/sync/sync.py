@@ -11,7 +11,7 @@ from datapump.clients.data_api import DataApiClient
 from ..clients.datapump_store import DatapumpConfig
 from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
 from ..commands.sync import SyncType
-from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters
+from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters
 from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
@@ -231,6 +231,34 @@ class IntegratedAlertsSync(Sync):
                         max_zoom=14,
                         resampling="med",
                         symbology={"type": "date_conf_intensity_multi_8"},
+                    ),
+                    aux_tile_set_parameters=RasterTileSetParameters(
+                        [
+                            RasterTileSetParameters(
+                                pixel_meaning="intensity",
+                                data_type="uint8",
+                                calc="(A > 0) * 255",
+                                grid="10/100000"
+                            )
+                        ]
+                    ),
+                    cog_asset_parameters=CogAssetParameters(
+                        [
+                            # Created from the "date_conf" asset
+                            CogAssetParameters(
+                                source_pixel_meaning="date_conf",
+                                resampling="mode",
+                                implementation="default",
+                                blocksize=1024
+                            ),
+                            # Created from the "intensity" asset
+                            CogAssetParameters(
+                                source_pixel_meaning="intensity",
+                                resampling="bilinear",
+                                implementation="intensity",
+                                blocksize=1024
+                            ),
+                        ]
                     ),
                     content_date_range=ContentDateRange(
                         start_date="2014-12-31", end_date=str(date.today())

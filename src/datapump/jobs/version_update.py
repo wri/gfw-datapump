@@ -5,6 +5,7 @@ from typing import List, Optional
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
     RasterTileSetParameters,
+    CogAssetParameters,
 )
 from datapump.util.models import ContentDateRange
 
@@ -19,6 +20,7 @@ class RasterVersionUpdateJobStep(str, Enum):
     creating_tile_set = "creating_tile_set"
     creating_tile_cache = "creating_tile_cache"
     creating_aux_assets = "creating_aux_assets"
+    creating_cog_assets = "creating_cog_assets"
     mark_latest = "mark_latest"
 
 
@@ -29,6 +31,7 @@ class RasterVersionUpdateJob(Job):
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aux_tile_set_parameters: List[RasterTileSetParameters] = []
+    cog_asset_parameters: List[CogAssetParameters] = []
     timeout_sec = 24 * 60 * 60
 
     def next_step(self):
@@ -84,6 +87,20 @@ class RasterVersionUpdateJob(Job):
                 self.status = JobStatus.failed
 
         elif self.step == RasterVersionUpdateJobStep.creating_aux_assets:
+            status = self._check_aux_assets_status()
+            if status == JobStatus.complete:
+                if self.cog_asset_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_cog_assets
+                    for cog_asset_param in self.cog_asset_parameters:
+                        if self._create_cog_asset(cog_asset_param) == "":
+                            self.status = JobStatus.failed
+                            break
+                else:
+                    self.status = JobStatus.complete
+            elif status == JobStatus.failed:
+                self.status = JobStatus.failed
+
+        elif self.step == RasterVersionUpdateJobStep.creating_cog_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
                 self.status = JobStatus.complete
@@ -166,6 +183,43 @@ class RasterVersionUpdateJob(Job):
                 "timeout_sec": co.timeout_sec,
                 "num_processes": co.num_processes,
                 "resampling": co.resampling,
+            },
+        }
+
+        data = client.create_aux_asset(self.dataset, self.version, payload)
+
+        return data["asset_id"]
+
+    def _create_cog_asset(self, cog_asset_parameters: CogAssetParameters) -> str:
+        """
+        Create cog asset and return asset ID, empty string if an error
+        """
+        client = DataApiClient()
+
+        co = cog_asset_parameters
+
+        assets = client.get_assets(self.dataset, self.version)
+        asset_id = ""
+        for asset in assets:
+            if asset["asset_type"] == "Raster tile set" and f"/{co.source_pixel_meaning}/" in asset["asset_uri"]:
+                if asset_id != "":
+                    
+                    self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
+                    return ""
+                asset_id = asset["asset_id"]
+                break
+
+        if asset_id == "":
+            self.errors.append(f"Could not find asset with pixel meaning  '{co.source_pixel_meaning}'")
+            return ""
+
+        payload = {
+            "asset_type": "COG",
+            "creation_options": {
+                "implementation": co.implementation,
+                "source_asset_id": asset_id,
+                "resampling": co.resampling,
+                "block_size": co.blocksize
             },
         }
 
