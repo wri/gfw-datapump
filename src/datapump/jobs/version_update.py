@@ -203,7 +203,6 @@ class RasterVersionUpdateJob(Job):
         for asset in assets:
             if asset["asset_type"] == "Raster tile set" and f"/{co.source_pixel_meaning}/" in asset["asset_uri"]:
                 if asset_id != "":
-                    
                     self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
                     return ""
                 asset_id = asset["asset_id"]

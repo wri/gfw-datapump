@@ -203,85 +203,86 @@ class IntegratedAlertsSync(Sync):
             for dataset, version in latest_versions.items()
         ]
 
-        if not self._should_update(latest_versions):
-            return []
+        # For testing, always force an integrated_alerts update
+        # if not self._should_update(latest_versions):
+        #     return []
 
         jobs = []
 
         if config.dataset == "gadm":
-            jobs.append(
-                RasterVersionUpdateJob(
-                    id=str(uuid1()),
-                    status=JobStatus.starting,
-                    dataset=self.DATASET_NAME,
-                    version=self.sync_version,
-                    tile_set_parameters=RasterTileSetParameters(
-                        source_uri=source_uris,
-                        calc=self.INPUT_CALC,
-                        grid="10/100000",
-                        data_type="uint16",
-                        no_data=0,
-                        pixel_meaning="date_conf",
-                        band_count=1,
-                        union_bands=True,
-                        compute_stats=False,
-                        timeout_sec=21600,
-                    ),
-                    tile_cache_parameters=RasterTileCacheParameters(
-                        max_zoom=14,
-                        resampling="med",
-                        symbology={"type": "date_conf_intensity_multi_8"},
-                    ),
-                    aux_tile_set_parameters=RasterTileSetParameters(
-                        [
-                            RasterTileSetParameters(
-                                pixel_meaning="intensity",
-                                data_type="uint8",
-                                calc="(A > 0) * 255",
-                                grid="10/100000"
-                            )
-                        ]
-                    ),
-                    cog_asset_parameters=CogAssetParameters(
-                        [
-                            # Created from the "date_conf" asset
-                            CogAssetParameters(
-                                source_pixel_meaning="date_conf",
-                                resampling="mode",
-                                implementation="default",
-                                blocksize=1024
-                            ),
-                            # Created from the "intensity" asset
-                            CogAssetParameters(
-                                source_pixel_meaning="intensity",
-                                resampling="bilinear",
-                                implementation="intensity",
-                                blocksize=1024
-                            ),
-                        ]
-                    ),
-                    content_date_range=ContentDateRange(
-                        start_date="2014-12-31", end_date=str(date.today())
-                    ),
-                )
-            )
-        jobs.append(
-            GeotrellisJob(
+            job = RasterVersionUpdateJob(
                 id=str(uuid1()),
                 status=JobStatus.starting,
-                analysis_version=config.analysis_version,
-                sync_version=self.sync_version,
-                sync_type=config.sync_type,
-                table=AnalysisInputTable(
-                    dataset=config.dataset,
-                    version=config.dataset_version,
-                    analysis=config.analysis,
+                dataset=self.DATASET_NAME,
+                version=self.sync_version,
+                tile_set_parameters=RasterTileSetParameters(
+                    source_uri=source_uris,
+                    calc=self.INPUT_CALC,
+                    grid="10/100000",
+                    data_type="uint16",
+                    no_data=0,
+                    pixel_meaning="date_conf",
+                    band_count=1,
+                    union_bands=True,
+                    compute_stats=False,
+                    timeout_sec=21600,
                 ),
-                features_1x1=config.metadata["features_1x1"],
-                geotrellis_version=config.metadata["geotrellis_version"],
-                timeout_sec=6 * 3600,
+                tile_cache_parameters=RasterTileCacheParameters(
+                    max_zoom=14,
+                    resampling="med",
+                    symbology={"type": "date_conf_intensity_multi_8"},
+                ),
+                content_date_range=ContentDateRange(
+                    start_date="2014-12-31", end_date=str(date.today())
+                ),
             )
-        )
+            job.aux_tile_set_parameters = [
+                RasterTileSetParameters(
+                    source_uri=None,
+                    pixel_meaning="intensity",
+                    data_type="uint8",
+                    calc="(A > 0) * 255",
+                    grid="10/100000",
+                    no_data=0,
+                )
+            ]
+            job.cog_asset_parameters = [
+                # Created from the "date_conf" asset
+                CogAssetParameters(
+                    source_pixel_meaning="date_conf",
+                    resampling="mode",
+                    implementation="default",
+                    blocksize=1024,
+                ),
+                # Created from the "intensity" asset
+                CogAssetParameters(
+                    source_pixel_meaning="intensity",
+                    resampling="bilinear",
+                    implementation="intensity",
+                    blocksize=1024,
+                ),
+            ]
+
+            jobs.append(job)
+
+        # Disable for testing
+        # jobs.append(
+        #     GeotrellisJob(
+        #         id=str(uuid1()),
+        #         status=JobStatus.starting,
+        #         analysis_version=config.analysis_version,
+        #         sync_version=self.sync_version,
+        #         sync_type=config.sync_type,
+        #         table=AnalysisInputTable(
+        #             dataset=config.dataset,
+        #             version=config.dataset_version,
+        #             analysis=config.analysis,
+        #         ),
+        #         features_1x1=config.metadata["features_1x1"],
+        #         geotrellis_version=config.metadata["geotrellis_version"],
+        #         timeout_sec=6 * 3600,
+        #     )
+        # )
 
         return jobs
 
