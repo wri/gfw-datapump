@@ -118,27 +118,19 @@ def _raster_version_update(command: RasterVersionUpdateCommand):
     return [job.dict()]
 
 
-from datapump.clients.datapump_store import DatapumpConfig
-
-
 def _sync(command: SyncCommand):
     jobs = []
     syncer = Syncer(command.parameters.types, command.parameters.sync_version)
-    # config_client = DatapumpStore()
+    config_client = DatapumpStore()
 
     for sync_type in command.parameters.types:
-        # sync_config = config_client.get(sync=True, sync_type=sync_type)
-        sync_config = [DatapumpConfig(analysis_version="1.0", dataset="gadm",
-                                      dataset_version="3.6",
-                                      analysis="forest_change_diagnostic",
-                                      sync=True,
-                                      sync_type="integrated_alerts")]
+        sync_config = config_client.get(sync=True, sync_type=sync_type)
         if not sync_config:
             slack_webhook(
                 "WARNING",
-                f"No DyanamoDB rows found for sync type {sync_type}!"
+                f"No DynamoDB rows found for sync type {sync_type}!"
             )
-            LOGGER.warning(f"No DyanamoDB rows found for sync type {sync_type}!")
+            LOGGER.warning(f"No DynamoDB rows found for sync type {sync_type}!")
         for row in sync_config:
             syncer_jobs = syncer.build_jobs(row)
             LOGGER.info(f"Processing row {row}, got jobs {syncer_jobs}!")
