@@ -29,13 +29,10 @@ services:
 
   localstack:
     container_name: localstack
-    image: localstack/localstack-pro:2.2.0  # required for Pro
+    image: localstack/localstack:2.2.0
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
-      - "127.0.0.1:53:53"                # DNS config (required for Pro)
-      - "127.0.0.1:53:53/udp"            # DNS config (required for Pro)
-      - "127.0.0.1:443:443"              # LocalStack HTTPS Gateway (required for Pro)
     environment:
       - SERVICES=cloudformation,cloudwatch,dynamodb,ec2,emr,events,iam,lambda,s3,secretsmanager,stepfunctions,sts
       - DEBUG=1
@@ -44,7 +41,6 @@ services:
       - HOSTNAME_EXTERNAL=localstack
       - LAMBDA_KEEPALIVE_MS=0
       - PERSISTENCE=${PERSISTENCE-}
-      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # required for Pro
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "${TMPDIR:-./localstack}:/tmp/localstack"
