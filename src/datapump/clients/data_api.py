@@ -186,6 +186,10 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         self._send_request(ValidMethods.delete, uri)
 
+    def get_asset_creation_options(self, asset_id: str) -> Dict[str, Any]:
+        uri = f"{GLOBALS.data_api_uri}/asset/{asset_id}/creation_options"
+        return self._send_request(ValidMethods.get, uri)["data"]
+
     def update_version_metadata(
         self, dataset: str, version: str, metadata: Dict[str, Any]
     ):

@@ -201,12 +201,13 @@ class RasterVersionUpdateJob(Job):
         assets = client.get_assets(self.dataset, self.version)
         asset_id = ""
         for asset in assets:
-            if asset["asset_type"] == "Raster tile set" and f"/{co.source_pixel_meaning}/" in asset["asset_uri"]:
-                if asset_id != "":
-                    self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
-                    return ""
-                asset_id = asset["asset_id"]
-                break
+            if asset["asset_type"] == "Raster tile set":
+                creation_options = client.get_asset_creation_options(asset['asset_id'])
+                if creation_options["pixel_meaning"] == co.source_pixel_meaning:
+                    if asset_id != "":
+                        self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
+                        return ""
+                    asset_id = asset["asset_id"]
 
         if asset_id == "":
             self.errors.append(f"Could not find asset with pixel meaning  '{co.source_pixel_meaning}'")
