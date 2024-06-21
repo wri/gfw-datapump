@@ -52,3 +52,4 @@ class CogAssetParameters(StrictBaseModel):
     source_pixel_meaning: str
     blocksize: int
     resampling: str = "mode"
+    export_to_gee: bool = False

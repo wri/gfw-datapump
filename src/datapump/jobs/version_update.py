@@ -8,6 +8,7 @@ from datapump.commands.version_update import (
     CogAssetParameters,
 )
 from datapump.util.models import ContentDateRange
+from datapump.util.slack import slack_webhook
 
 from ..clients.data_api import DataApiClient
 from ..globals import LOGGER
@@ -219,10 +220,12 @@ class RasterVersionUpdateJob(Job):
                 "implementation": co.implementation,
                 "source_asset_id": asset_id,
                 "resampling": co.resampling,
-                "block_size": co.blocksize
+                "block_size": co.blocksize,
+                "export_to_gee": co.export_to_gee,
             },
         }
 
+        slack_webhook("INFO", f"Starting COG asset job {self.dataset}/{self.version} {co.implementation}")
         data = client.create_aux_asset(self.dataset, self.version, payload)
 
         return data["asset_id"]

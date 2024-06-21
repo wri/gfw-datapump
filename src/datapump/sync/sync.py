@@ -253,6 +253,7 @@ class IntegratedAlertsSync(Sync):
                     resampling="mode",
                     implementation="default",
                     blocksize=1024,
+                    export_to_gee=True,
                 ),
                 # Created from the "intensity" asset
                 CogAssetParameters(
