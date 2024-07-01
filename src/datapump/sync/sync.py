@@ -203,11 +203,10 @@ class IntegratedAlertsSync(Sync):
             for dataset, version in latest_versions.items()
         ]
 
-        # For testing, always force an integrated_alerts update
-        # if not self._should_update(latest_versions):
-        #     return []
+        if not self._should_update(latest_versions):
+            return []
 
-        jobs = []
+        jobs: List[Job] = []
 
         if config.dataset == "gadm":
             job = RasterVersionUpdateJob(
@@ -266,24 +265,23 @@ class IntegratedAlertsSync(Sync):
 
             jobs.append(job)
 
-        # Disable for testing
-        # jobs.append(
-        #     GeotrellisJob(
-        #         id=str(uuid1()),
-        #         status=JobStatus.starting,
-        #         analysis_version=config.analysis_version,
-        #         sync_version=self.sync_version,
-        #         sync_type=config.sync_type,
-        #         table=AnalysisInputTable(
-        #             dataset=config.dataset,
-        #             version=config.dataset_version,
-        #             analysis=config.analysis,
-        #         ),
-        #         features_1x1=config.metadata["features_1x1"],
-        #         geotrellis_version=config.metadata["geotrellis_version"],
-        #         timeout_sec=6 * 3600,
-        #     )
-        # )
+        jobs.append(
+            GeotrellisJob(
+                id=str(uuid1()),
+                status=JobStatus.starting,
+                analysis_version=config.analysis_version,
+                sync_version=self.sync_version,
+                sync_type=config.sync_type,
+                table=AnalysisInputTable(
+                    dataset=config.dataset,
+                    version=config.dataset_version,
+                    analysis=config.analysis,
+                ),
+                features_1x1=config.metadata["features_1x1"],
+                geotrellis_version=config.metadata["geotrellis_version"],
+                timeout_sec=6 * 3600,
+            )
+        )
 
         return jobs
 
