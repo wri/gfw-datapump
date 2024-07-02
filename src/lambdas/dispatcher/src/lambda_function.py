@@ -128,10 +128,12 @@ def _sync(command: SyncCommand):
         if not sync_config:
             slack_webhook(
                 "WARNING",
-                f"No DyanamoDB rows found for sync type {sync_type}!"
+                f"No DynamoDB rows found for sync type {sync_type}!"
             )
+            LOGGER.warning(f"No DynamoDB rows found for sync type {sync_type}!")
         for row in sync_config:
             syncer_jobs = syncer.build_jobs(row)
+            LOGGER.info(f"Processing row {row}, got jobs {syncer_jobs}!")
             if syncer_jobs:
                 jobs += [job.dict() for job in syncer_jobs]
 

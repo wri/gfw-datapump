@@ -45,3 +45,11 @@ class RasterVersionUpdateParameters(StrictBaseModel):
 class RasterVersionUpdateCommand(StrictBaseModel):
     command: str
     parameters: RasterVersionUpdateParameters
+
+
+class CogAssetParameters(StrictBaseModel):
+    implementation: str
+    source_pixel_meaning: str
+    blocksize: int
+    resampling: str = "mode"
+    export_to_gee: bool = False
