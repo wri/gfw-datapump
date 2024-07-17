@@ -451,7 +451,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     source_bucket = "gfw_gee_export"
     source_prefix = "wur_radd_alerts/"
     input_calc = "(A >= 20000) * (A < 40000) * A"
-    number_of_tiles = [190, 191]  # Africa:54, Asia:52, CA: 16, SA:68
+    number_of_tiles = [208, 209]  # Africa:54, Asia:70, CA: 16, SA:68
     grid = "10/100000"
     max_zoom = 14
 
