@@ -141,7 +141,7 @@ def test_radd_sync_nothing_newer(monkeypatch):
         lambda bucket, prefix: ["v20220222"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 191))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 209))
     )
 
     raster_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
@@ -168,7 +168,7 @@ def test_radd_sync_newer_available_with_valid_number_tiles(monkeypatch):
         lambda bucket, prefix: ["v20220222", "v20220221"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 190))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 208))
     )
 
     raster_jobs = RADDAlertsSync("v20220101").build_jobs(mock_dp_config)
@@ -204,7 +204,7 @@ def test_radd_sync_newer_available_with_too_many_tiles(monkeypatch):
         lambda bucket, prefix: ["v20220222"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 200))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 250))
     )
 
     with pytest.raises(Exception):
