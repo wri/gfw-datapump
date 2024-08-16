@@ -11,6 +11,7 @@ resource "aws_lambda_function" "dispatcher" {
   tags             = local.tags
   layers           = [
     module.py310_datapump_021.layer_arn,
+    var.numpy_lambda_layer_arn,
     var.rasterio_lambda_layer_arn,
     var.shapely_lambda_layer_arn
   ]
@@ -68,6 +69,7 @@ resource "aws_lambda_function" "postprocessor" {
   tags             = local.tags
   layers           = [
     module.py310_datapump_021.layer_arn,
+    var.numpy_lambda_layer_arn,
     var.rasterio_lambda_layer_arn,
     var.shapely_lambda_layer_arn
   ]
