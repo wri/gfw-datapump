@@ -27,21 +27,21 @@ if [ "${BUILD}" = true ]; then
     # pre-download bigdata image, otherwise localstack try to download it when you make your first EMR request,
     # and cause boto3 to timeout because it's a ~2.5 GB image
     docker pull localstack/bigdata
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test build --no-cache datapump_test
 fi
 
-#docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test restart mock_server
+#docker compose -f docker-compose-test.yml --project-name gfw-datapump_test restart mock_server
 
 if [ "${DUMP_TO_STDOUT}" = true ]; then
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test || failed=yes
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs -t
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test || failed=yes
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test logs -t
 else
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
-    docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test run datapump_test | tee tests/logs/tests.log || failed=yes
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color localstack > tests/logs/localstack.log
+    docker compose -f docker-compose-test.yml --project-name gfw-datapump_test logs --no-color mock_server > tests/logs/mock_server.log
 fi
 
-docker-compose -f docker-compose-test.yml --project-name gfw-datapump_test down
+docker compose -f docker-compose-test.yml --project-name gfw-datapump_test down
 
 rm tests/terraform/terraform.tfstate*
 [[ -z "${failed:-}" ]] || exit 1
