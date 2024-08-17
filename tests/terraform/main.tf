@@ -35,6 +35,7 @@ module "datapump" {
   sfn_wait_time = 1
   data_api_uri = var.data_api_uri
   data_lake_bucket = aws_s3_bucket.data_lake_test.id
+  numpy_lambda_layer_arn = aws_lambda_layer_version.numpy.arn
   rasterio_lambda_layer_arn = aws_lambda_layer_version.rasterio.arn
   shapely_lambda_layer_arn = aws_lambda_layer_version.shapely.arn
   glad_path = var.glad_path
