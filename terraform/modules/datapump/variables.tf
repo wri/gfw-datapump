@@ -88,6 +88,11 @@ variable "sfn_wait_time" {
   description = "Time to wait in between steps of step function"
 }
 
+variable "numpy_lambda_layer_arn" {
+  type        = string
+  description = "ARN of the numpy lambda layer"
+}
+
 variable "rasterio_lambda_layer_arn" {
   type        = string
   description = "ARN of the rasterio lambda layer"

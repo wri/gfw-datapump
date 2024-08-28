@@ -10,7 +10,7 @@ import shapefile
 from ..clients.aws import get_s3_client
 from ..globals import LOGGER
 
-ACTIVE_FIRE_ALERTS_48HR_CSV_URLS = {
+ACTIVE_FIRE_ALERTS_7D_SHAPEFILE_URLS = {
     "modis": "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/shapes/zips/MODIS_C6_1_Global_7d.zip",
     "viirs": "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/shapes/zips/SUOMI_VIIRS_C2_Global_7d.zip",
 }
@@ -31,18 +31,24 @@ TEMP_DIR = "/tmp"
 
 def process_active_fire_alerts(alert_type):
     LOGGER.info(f"Retrieving fire alerts for {alert_type}")
-    response = requests.get(ACTIVE_FIRE_ALERTS_48HR_CSV_URLS[alert_type])
+    response = requests.get(ACTIVE_FIRE_ALERTS_7D_SHAPEFILE_URLS[alert_type])
 
     if response.status_code != 200:
         raise Exception(
             f"Unable to get active {alert_type} fire alerts, FIRMS returned status code {response.status_code}"
         )
 
-    LOGGER.info("Successfully download alerts from NASA")
+    LOGGER.info("Successfully downloaded alerts from NASA")
 
     zip = zipfile.ZipFile(io.BytesIO(response.content))
     shp_dir = f"{TEMP_DIR}/fire_alerts_{alert_type}"
     zip.extractall(shp_dir)
+
+    if not os.path.isfile(f"{shp_dir}/{SHP_NAMES[alert_type]}"):
+        raise Exception(
+            f"{alert_type} fire alerts zip downloaded, but contains no .shp file!"
+        )
+
     sf = shapefile.Reader(f"{shp_dir}/{SHP_NAMES[alert_type]}")
 
     rows = []
