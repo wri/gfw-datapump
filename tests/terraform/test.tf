@@ -64,6 +64,13 @@ resource "aws_s3_bucket_object" "glad_status" {
   etag   = filemd5("../files/status")
 }
 
+resource "aws_s3_bucket_object" "numpy" {
+  bucket = aws_s3_bucket.pipelines_test.id
+  key    = "lambda_layers/numpy.zip"
+  source = "../files/numpy.zip"
+  etag   = filemd5("../files/numpy.zip")
+}
+
 resource "aws_s3_bucket_object" "rasterio" {
   bucket = aws_s3_bucket.pipelines_test.id
   key    = "lambda_layers/rasterio.zip"
@@ -76,6 +83,14 @@ resource "aws_s3_bucket_object" "shapely" {
   key    = "lambda_layers/shapely.zip"
   source = "../files/shapely.zip"
   etag   = filemd5("../files/shapely.zip")
+}
+
+resource "aws_lambda_layer_version" "numpy" {
+  layer_name          = substr("test-numpy", 0, 64)
+  s3_bucket           = aws_s3_bucket_object.numpy.bucket
+  s3_key              = aws_s3_bucket_object.numpy.key
+  compatible_runtimes = ["python3.10"]
+  source_code_hash    = filebase64sha256("../files/numpy.zip")
 }
 
 resource "aws_lambda_layer_version" "rasterio" {
@@ -100,7 +115,6 @@ module "api_token_secret" {
   name          = "gfw-api/token"
   secret_string = jsonencode({ "token" = "test_token", "email" = "gfw-sync@test.org" })
 }
-
 
 module "slack_secret" {
   source        = "git::https://github.com/wri/gfw-terraform-modules.git//terraform/modules/secrets?ref=master"
