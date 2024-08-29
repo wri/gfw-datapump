@@ -252,7 +252,8 @@ class IntegratedAlertsSync(Sync):
                     resampling="mode",
                     implementation="default",
                     blocksize=1024,
-                    export_to_gee=True,
+                    # Disable export to GEE until COG metadata is reduced to < 10Mbytes
+                    export_to_gee=False,
                 ),
                 # Created from the "intensity" asset
                 CogAssetParameters(
