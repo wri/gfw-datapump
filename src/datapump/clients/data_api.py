@@ -129,16 +129,26 @@ class DataApiClient:
     def create_version(
         self, dataset: str, version: str, payload: Dict[str, Any]
     ) -> Dict[str, Any]:
-
-        uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
-        return self._send_request(ValidMethods.put, uri, payload)["data"]
+        try:
+            uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
+            return self._send_request(ValidMethods.put, uri, payload)["data"]
+        except DataApiResponseError as e:
+            # Workaround for GTC-2986
+            # Getting a 500 response when creating version, but version is still created
+            # causing a 400 response on subsequent retries since we're trying to PUT
+            # an already existing version.
+            # For now, let's just return the version if it exists.
+            # Otherwise, propagate original exception.
+            try:
+                return self.get_version(dataset, version)
+            except DataApiResponseError:
+                raise e
 
     def create_aux_asset(
         self, dataset: str, version: str, payload: Dict[str, Any]
     ) -> Dict[str, Any]:
-
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}/assets"
-        return self._send_request(ValidMethods.post, uri, payload)["data"]
+        return self.get_version(ValidMethods.post, uri, payload)["data"]
 
     def append(
         self, dataset: str, version: str, source_uris: List[str]
