@@ -3,6 +3,7 @@ import json
 import os
 import traceback
 from contextlib import contextmanager
+from datetime import datetime, timedelta
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import requests
@@ -82,8 +83,10 @@ def get_pending_areas() -> List[Any]:
     LOGGER.info(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
-    # Area sync
-    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync"
+    # For some reason we are the only place calling this RW API to sync
+    # new subscriptions with areas. See GTC-2987 to fix this workflow.
+    yesterday = (datetime.now() - timedelta(1)).strftime("%Y-%m-%d")
+    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={yesterday}"
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
