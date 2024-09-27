@@ -242,7 +242,7 @@ class IntegratedAlertsSync(Sync):
                     data_type="uint8",
                     calc="(A > 0) * 255",
                     grid="10/100000",
-                    no_data=0,
+                    no_data=None,
                 )
             ]
             job.cog_asset_parameters = [
