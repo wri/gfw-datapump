@@ -71,6 +71,7 @@ flowchart LR
 ```
 
 There are three lambdas:
+
 **Dispatcher**: This lambda is the entrypoint and takes in the command. It creates the jobs to run based on the commands. For `sync` jobs, it will reach out to the different data providers (NASA, GCS, RW) and sync any required data to run the jobs.
 
 **Executor**: This lambda will execute each job. There are different classes in the `datapump` module that define how to reach each job. This is generally a multiple step process, like uploading data to the Data API, running EMR jobs or creating tile caches.
