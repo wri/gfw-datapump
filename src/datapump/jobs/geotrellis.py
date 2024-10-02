@@ -23,6 +23,8 @@ from ..jobs.jobs import (
     Partition,
     Partitions,
 )
+from botocore.exceptions import ClientError
+import time
 
 WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
 MASTER_INSTANCE_TYPE = "r5.2xlarge"
@@ -145,9 +147,22 @@ class GeotrellisJob(Job):
         client.terminate_job_flows(JobFlowIds=[self.emr_job_id])
 
     def check_analysis(self) -> JobStatus:
-        cluster_description = get_emr_client().describe_cluster(
-            ClusterId=self.emr_job_id
-        )
+        num_retries = 3
+        for i in range(num_retries):
+            try:
+                cluster_description = get_emr_client().describe_cluster(
+                    ClusterId=self.emr_job_id
+                )
+                break
+            except ClientError as e:
+                # Retry up to 3 times if we get a throttling exception
+                if i + 1 < num_retries and e.response['Error']['Code'] == 'ThrottlingException':
+                    print("Throttling exception occurred. Retrying in 30 seconds...")
+                    time.sleep(30)
+                    continue
+                else:
+                    raise
+
         status = cluster_description["Cluster"]["Status"]
 
         LOGGER.info(
