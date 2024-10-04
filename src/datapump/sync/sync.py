@@ -224,7 +224,11 @@ class IntegratedAlertsSync(Sync):
                     band_count=1,
                     union_bands=True,
                     compute_stats=False,
-                    timeout_sec=21600,
+                    # This timeout is about 5-6 hours for the date_conf and intensity
+                    # raster jobs (run in series), and then another 6-7 hours for the
+                    # default and intensity COG jobs (run in parallel). The
+                    # generation of the default COG takes the longest.
+                    timeout_sec=13 * 3600,
                 ),
                 tile_cache_parameters=RasterTileCacheParameters(
                     max_zoom=14,
@@ -242,7 +246,7 @@ class IntegratedAlertsSync(Sync):
                     data_type="uint8",
                     calc="(A > 0) * 255",
                     grid="10/100000",
-                    no_data=0,
+                    no_data=None,
                 )
             ]
             job.cog_asset_parameters = [
