@@ -244,7 +244,7 @@ class IntegratedAlertsSync(Sync):
                     source_uri=None,
                     pixel_meaning="intensity",
                     data_type="uint8",
-                    calc="(A > 0) * 255",
+                    calc="(A > 0) * 55",
                     grid="10/100000",
                     no_data=None,
                 )
