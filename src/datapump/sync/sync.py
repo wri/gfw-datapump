@@ -723,6 +723,67 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
         return latest_release, source_uri
 
 
+class DISTAlertsSync(DeforestationAlertsSync):
+    """
+    Defines jobs to create new DIST alerts assets once a new release is available.
+    """
+
+    dataset_name = "umd_land_distburbance_alerts"
+    source_bucket = "earthenginepartners-hansen"
+    source_prefix = "DIST-ALERT"
+    input_calc = """
+        np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255),
+            np.where(C<4, 20000 + B, 30000 + B),
+            0        
+        )
+    """
+    number_of_tiles = 60
+    grid = "10/40000"
+    data_type = "int16"
+    no_data = -1
+    max_zoom = 12
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest *complete* release in GCS
+        """
+
+        # Raw tiles are just updated in-place
+        source_uri = [
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-ANOM-MAX",
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-DIST-DATE",
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-DIST-COUNT",
+        ]
+
+        # This file is updated once tiles are updated
+        upload_date_text = get_gs_file_as_text(
+            self.source_bucket, f"{self.source_prefix}/uploadDate.txt"
+        )
+
+        # Example string: "Updated Fri Apr 15 14:27:01 2022 UTC"
+        upload_date = upload_date_text[12:-5]
+        LOGGER.info(f"Last DIST-Alert upload date: {upload_date}")
+        latest_release = datetime.strptime(upload_date, "%b %d %H:%M:%S %Y").strftime(
+            "v%Y%m%d"
+        )
+
+        return latest_release, source_uri
+    
+    def get_raster_job(
+        self, version: str, source_uris: List[str]
+    ) -> RasterVersionUpdateJob:
+        raster_job = super().get_raster_job(version, source_uris)
+
+        raster_job.tile_set_parameters.grid = self.grid
+        raster_job.tile_set_parameters.data_type = self.data_type
+        raster_job.tile_set_parameters.no_data = self.no_data
+        raster_job.tile_set_parameters.unify_projection = True  # Contingent on GTC-3029
+        raster_job.content_date_range = ContentDateRange(
+            start_date="2020-12-31", end_date=str(self.get_today())
+        )
+
+        return raster_job
+
 class RWAreasSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -765,6 +826,7 @@ class Syncer:
         SyncType.wur_radd_alerts: RADDAlertsSync,
         SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
         SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
+        SyncType.umd_land_distburbance_alerts: DISTAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
