@@ -53,3 +53,7 @@ class CogAssetParameters(StrictBaseModel):
     blocksize: int
     resampling: str = "mode"
     export_to_gee: bool = False
+
+class AuxTileSetParameters(RasterTileSetParameters):
+    source_uri: None = None
+    auxiliary_asset_pixel_meaning: str

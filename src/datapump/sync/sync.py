@@ -11,7 +11,7 @@ from datapump.clients.data_api import DataApiClient
 from ..clients.datapump_store import DatapumpConfig
 from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
 from ..commands.sync import SyncType
-from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters
+from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters, AuxTileSetParameters
 from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
@@ -790,30 +790,31 @@ class DISTAlertsSync(Sync):
                 union_bands=True,
                 unify_projection=True
             ),
-            tile_cache_parameters=RasterTileCacheParameters(
-                max_zoom=12,
-                resampling="med",
-                symbology={"type": "date_conf_intensity"}, # what is the correct symbology?
-            ),
             content_date_range=ContentDateRange(
                 start_date="2020-12-31", end_date=str(date.today())
             )
         )
-        job.aux_tile_set_parameters = [
-            # Aggregation TODO: Might need to adjust calc for date
-            RasterTileSetParameters(
-                source_uri=f"s3://gfw-data-lake/{self.dataset_name}/{latest_api_version}/raster/epsg-4326/10/40000/currentweek/geotiff",
-                pixel_meaning="date_conf"
-
+        job.aggregated_tile_set_parameters = [
+            # Aggregated tile set
+            AuxTileSetParameters(
+                pixel_meaning="default",
+                grid="10/40000",
+                data_type="int16",
+                no_data=-1,
+                calc="np.where(A > 0, A, B)",
+                auxiliary_asset_pixel_meaning = "default"
             ),
+        ]
+        job.aux_tile_set_parameters = [
             # Intensity tile set
             RasterTileSetParameters(
                 source_uri=None,
                 pixel_meaning="intensity",
                 data_type="uint8",
-                calc="(A > 0) * 55",
+                calc="(B > 0) * 55",
                 grid="10/40000",
                 no_data=None,
+                auxiliary_assets_pixel_meaning = "default"
             )
         ]
         job.cog_asset_parameters = [
@@ -823,14 +824,14 @@ class DISTAlertsSync(Sync):
                 resampling="mode",
                 implementation="default",
                 blocksize=1024,
-                export_to_gee=False, # are we exporting to GEE?
+                export_to_gee=False
             ),
             # Created from the "intensity" asset
             CogAssetParameters(
                 source_pixel_meaning="intensity",
                 resampling="bilinear",
                 implementation="intensity",
-                blocksize=1024,
+                blocksize=1024
             )
         ]
 
@@ -880,7 +881,7 @@ class Syncer:
         SyncType.wur_radd_alerts: RADDAlertsSync,
         SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
         SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
-        SyncType.umd_land_distburbance_alerts: DISTAlertsSync,
+        SyncType.umd_dist_alerts: DISTAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
