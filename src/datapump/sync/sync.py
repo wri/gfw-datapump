@@ -728,13 +728,13 @@ class DISTAlertsSync(Sync):
     Defines jobs to create new DIST alerts assets once a new release is available.
     """
 
-    dataset = "umd_dist_alerts"
+    dataset_name = "umd_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
     input_calc = """
         np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255),
             np.where(C<4, 20000 + B, 30000 + B),
-            0        
+            -1
         )
     """
 
@@ -743,7 +743,7 @@ class DISTAlertsSync(Sync):
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
-        Get the version of the latest *complete* release in GCS
+        Get the version of the latest release in GCS
         """
 
         # Raw tiles are just updated in-place
@@ -771,9 +771,14 @@ class DISTAlertsSync(Sync):
         latest_api_version = self.get_latest_api_version(self.dataset_name)
         latest_release, source_uris = self.get_latest_release()
 
+        # If the latest API version matches latest release from UMD, no need to update
+        if latest_api_version == latest_release:
+            return []
+        
         jobs: List[Job] = []
 
         job = RasterVersionUpdateJob(
+            # Current week alerts tile set
             id=str(uuid1()),
             status=JobStatus.starting,
             dataset=self.dataset,
@@ -795,7 +800,7 @@ class DISTAlertsSync(Sync):
             )
         )
         job.aggregated_tile_set_parameters = [
-            # Aggregated tile set
+            # Aggregated tile set (to include all alerts)
             AuxTileSetParameters(
                 pixel_meaning="default",
                 grid="10/40000",
@@ -807,18 +812,18 @@ class DISTAlertsSync(Sync):
         ]
         job.aux_tile_set_parameters = [
             # Intensity tile set
-            RasterTileSetParameters(
+            AuxTileSetParameters(
                 source_uri=None,
                 pixel_meaning="intensity",
                 data_type="uint8",
                 calc="(B > 0) * 55",
                 grid="10/40000",
                 no_data=None,
-                auxiliary_assets_pixel_meaning = "default"
+                auxiliary_asset_pixel_meaning = "default"
             )
         ]
         job.cog_asset_parameters = [
-            # Created from the "date_conf" asset
+            # Created from the "default" asset
             CogAssetParameters(
                 source_pixel_meaning="date_conf",
                 resampling="mode",

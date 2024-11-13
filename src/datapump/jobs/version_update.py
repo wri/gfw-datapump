@@ -21,11 +21,10 @@ class RasterVersionUpdateJobStep(str, Enum):
     starting = "starting"
     creating_tile_set = "creating_tile_set"
     creating_tile_cache = "creating_tile_cache"
-    creating_aggregated_tile_set = "creating_aggregated_tile_set"
+    creating_aggregated_tile_set = "creating_aggregated_tile_set" # DIST-Alerts aggregation must run before mark_latest
+    mark_latest = "mark_latest"
     creating_aux_assets = "creating_aux_assets"
     creating_cog_assets = "creating_cog_assets"
-    mark_latest = "mark_latest"
-
 
 class RasterVersionUpdateJob(Job):
     dataset: str
@@ -33,7 +32,7 @@ class RasterVersionUpdateJob(Job):
     content_date_range: ContentDateRange
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
-    aggregated_tile_set_parameters: AuxTileSetParameters = None
+    aggregated_tile_set_parameters: Optional[AuxTileSetParameters] = None
     aux_tile_set_parameters: List[AuxTileSetParameters] = []
     cog_asset_parameters: List[CogAssetParameters] = []
     timeout_sec = 24 * 60 * 60
@@ -66,7 +65,7 @@ class RasterVersionUpdateJob(Job):
                     self._create_tile_cache()
                 elif self.aggregated_tile_set_parameters:
                     self.step = RasterVersionUpdateJobStep.creating_aggregated_tile_set
-                    self._create_aggregated_tile_set()
+                    self._create_aux_tile_set(self.aggregated_tile_set_parameters)
                 else:
                     self.step = RasterVersionUpdateJobStep.mark_latest
                     self._mark_latest()
@@ -201,14 +200,14 @@ class RasterVersionUpdateJob(Job):
             },
         }
 
-        # Looks up asset ID of the raster tile set with auxiliary_asset_pixel_meaning
+        # Looks up asset ID of the latest version raster tile set with auxiliary_asset_pixel_meaning
         if co.auxiliary_asset_pixel_meaning:
             latest_version = client.get_latest_version(self.dataset)
             assets = client.get_assets(self.dataset, latest_version)
             for asset in assets:
                 if asset["asset_type"] == "Raster tile set":
                     creation_options = client.get_asset_creation_options(asset['asset_id'])
-                    if creation_options["pixel_meaning"] == co.auxiliary_assets_pixel_meaning:
+                    if creation_options["pixel_meaning"] == co.auxiliary_asset_pixel_meaning:
                         payload["creation_options"]["auxiliary_assets"] = [asset["asset_id"]]
 
         data = client.create_aux_asset(self.dataset, self.version, payload)
@@ -253,30 +252,6 @@ class RasterVersionUpdateJob(Job):
         data = client.create_aux_asset(self.dataset, self.version, payload)
 
         return data["asset_id"]
-    
-    def _create_aggregated_tile_set(self, aggregated_tile_set_parameters: AuxTileSetParameters):
-        """
-        Create aggregated tile set
-        """
-        client = DataApiClient()
-
-        co = aggregated_tile_set_parameters
-
-        assets = client.get_assets(self.dataset, self.version)
-
-        payload = {
-            "asset_type": "Aggregated tile set",
-            "creation_options": {
-                "calc": co.calc,
-                "grid": co.grid,
-                "data_type": co.data_type,
-                "no_data": co.no_data,
-                "pixel_meaning": co.pixel_meaning,
-                "auxiliary_assets": co.auxiliary_assets
-            },
-        }
-
-        _ = client.create_aux_asset(self.dataset, self.version)
 
     def _check_tile_set_status(self) -> JobStatus:
         client = DataApiClient()
