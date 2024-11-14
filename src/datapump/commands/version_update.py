@@ -26,6 +26,7 @@ class RasterTileSetParameters(StrictBaseModel):
     timeout_sec: int = 7200
     num_processes: Optional[int] = None
     resampling: str = "nearest"
+    unify_projection: bool = False
 
 
 class RasterTileCacheParameters(StrictBaseModel):

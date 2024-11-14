@@ -248,7 +248,7 @@ class IntegratedAlertsSync(Sync):
                 ),
             )
             job.aux_tile_set_parameters = [
-                RasterTileSetParameters(
+                AuxTileSetParameters(
                     source_uri=None,
                     pixel_meaning="intensity",
                     data_type="uint8",
@@ -565,7 +565,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     ) -> RasterVersionUpdateJob:
         raster_job = super().get_raster_job(version, source_uris)
         raster_job.aux_tile_set_parameters = [
-            RasterTileSetParameters(
+            AuxTileSetParameters(
                 grid="10/100000",
                 data_type="uint16",
                 pixel_meaning="date_conf",
@@ -728,7 +728,7 @@ class DISTAlertsSync(Sync):
     Defines jobs to create new DIST alerts assets once a new release is available.
     """
 
-    dataset_name = "umd_dist_alerts"
+    dataset_name = "umd__glad_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
     input_calc = """
@@ -799,17 +799,15 @@ class DISTAlertsSync(Sync):
                 start_date="2020-12-31", end_date=str(date.today())
             )
         )
-        job.aggregated_tile_set_parameters = [
+        job.aggregated_tile_set_parameters = AuxTileSetParameters(
             # Aggregated tile set (to include all alerts)
-            AuxTileSetParameters(
-                pixel_meaning="default",
-                grid="10/40000",
-                data_type="int16",
-                no_data=-1,
-                calc="np.where(A > 0, A, B)",
-                auxiliary_asset_pixel_meaning = "default"
-            ),
-        ]
+            pixel_meaning="default",
+            grid="10/40000",
+            data_type="int16",
+            no_data=-1,
+            calc="np.where(A > 0, A, B)",
+            auxiliary_asset_pixel_meaning = "default"
+        )
         job.aux_tile_set_parameters = [
             # Intensity tile set
             AuxTileSetParameters(
@@ -886,7 +884,7 @@ class Syncer:
         SyncType.wur_radd_alerts: RADDAlertsSync,
         SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
         SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
-        SyncType.umd_dist_alerts: DISTAlertsSync,
+        SyncType.umd_glad_dist_alerts: DISTAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):

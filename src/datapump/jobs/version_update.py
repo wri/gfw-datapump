@@ -161,6 +161,7 @@ class RasterVersionUpdateJob(Job):
                 "compute_histogram": co.compute_histogram,
                 "timeout_sec": co.timeout_sec,
                 "resampling": co.resampling,
+                "unify_projection": co.unify_projection
             },
             "metadata": {
                 "last_update": self.content_date_range.end_date,
@@ -197,6 +198,7 @@ class RasterVersionUpdateJob(Job):
                 "timeout_sec": co.timeout_sec,
                 "num_processes": co.num_processes,
                 "resampling": co.resampling,
+                "unify_projection": co.unify_projection
             },
         }
 
