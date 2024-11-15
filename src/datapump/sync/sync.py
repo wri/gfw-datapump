@@ -739,7 +739,7 @@ class DISTAlertsSync(Sync):
     """
 
     def __init__(self, sync_version: str):
-        super().__init__(sync_version)
+        self.sync_version = sync_version
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
@@ -758,12 +758,10 @@ class DISTAlertsSync(Sync):
             self.source_bucket, f"{self.source_prefix}/uploadDate.txt"
         )
 
-        # Example string: "Updated Fri Apr 15 14:27:01 2022 UTC"
-        upload_date = upload_date_text[12:-5]
+        # Example string: "Updated Sat Nov 9 13:43:05 2024-11-09 UTC"
+        upload_date = upload_date_text[-14:-4]
         LOGGER.info(f"Last DIST-Alert upload date: {upload_date}")
-        latest_release = datetime.strptime(upload_date, "%b %d %H:%M:%S %Y").strftime(
-            "v%Y%m%d"
-        )
+        latest_release = f"v{upload_date.replace("-", "")}"
 
         return latest_release, source_uris
     
@@ -823,7 +821,7 @@ class DISTAlertsSync(Sync):
         job.cog_asset_parameters = [
             # Created from the "default" asset
             CogAssetParameters(
-                source_pixel_meaning="date_conf",
+                source_pixel_meaning="default",
                 resampling="mode",
                 implementation="default",
                 blocksize=1024,

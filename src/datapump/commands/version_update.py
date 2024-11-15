@@ -57,4 +57,4 @@ class CogAssetParameters(StrictBaseModel):
 
 class AuxTileSetParameters(RasterTileSetParameters):
     source_uri: None = None
-    auxiliary_asset_pixel_meaning: str
+    auxiliary_asset_pixel_meaning: Optional[str]
