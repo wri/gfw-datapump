@@ -11,7 +11,7 @@ from datapump.clients.data_api import DataApiClient
 from ..clients.datapump_store import DatapumpConfig
 from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
 from ..commands.sync import SyncType
-from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters
+from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters, AuxTileSetParameters
 from ..globals import GLOBALS, LOGGER
 from ..jobs.geotrellis import FireAlertsGeotrellisJob, GeotrellisJob, Job
 from ..jobs.jobs import JobStatus
@@ -31,6 +31,14 @@ class Sync(ABC):
     @abstractmethod
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         ...
+
+    @staticmethod
+    def get_latest_api_version(dataset_name: str) -> str:
+        """
+        Get the version of the latest release in the Data API
+        """
+        client = DataApiClient()
+        return client.get_latest_version(dataset_name)
 
 
 class FireAlertsSync(Sync):
@@ -240,7 +248,7 @@ class IntegratedAlertsSync(Sync):
                 ),
             )
             job.aux_tile_set_parameters = [
-                RasterTileSetParameters(
+                AuxTileSetParameters(
                     source_uri=None,
                     pixel_meaning="intensity",
                     data_type="uint8",
@@ -429,14 +437,6 @@ class DeforestationAlertsSync(Sync):
         return datetime(year, month, day)
 
     @staticmethod
-    def get_latest_api_version(dataset_name: str) -> str:
-        """
-        Get the version of the latest release in the Data API
-        """
-        client = DataApiClient()
-        return client.get_latest_version(dataset_name)
-
-    @staticmethod
     def get_today():
         return date.today()
 
@@ -565,7 +565,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     ) -> RasterVersionUpdateJob:
         raster_job = super().get_raster_job(version, source_uris)
         raster_job.aux_tile_set_parameters = [
-            RasterTileSetParameters(
+            AuxTileSetParameters(
                 grid="10/100000",
                 data_type="uint16",
                 pixel_meaning="date_conf",
@@ -723,6 +723,123 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
         return latest_release, source_uri
 
 
+class DISTAlertsSync(Sync):
+    """
+    Defines jobs to create new DIST alerts assets once a new release is available.
+    """
+
+    dataset_name = "umd__glad_dist_alerts"
+    source_bucket = "earthenginepartners-hansen"
+    source_prefix = "DIST-ALERT"
+    input_calc = """
+        np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255),
+            np.where(C<4, 20000 + B, 30000 + B),
+            -1
+        )
+    """
+
+    def __init__(self, sync_version: str):
+        self.sync_version = sync_version
+
+    def get_latest_release(self) -> Tuple[str, List[str]]:
+        """
+        Get the version of the latest release in GCS
+        """
+
+        # Raw tiles are just updated in-place
+        source_uris = [
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-ANOM-MAX",
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-DIST-DATE",
+            f"gs://{self.source_bucket}/{self.source_prefix}/VEG-DIST-COUNT",
+        ]
+
+        # This file is updated once tiles are updated
+        upload_date_text = get_gs_file_as_text(
+            self.source_bucket, f"{self.source_prefix}/uploadDate.txt"
+        )
+
+        # Example string: "Updated Sat Nov 9 13:43:05 2024-11-09 UTC"
+        upload_date = upload_date_text[-15:-5]
+        LOGGER.info(f"Last DIST-Alert upload date: {upload_date}")
+        latest_release = f"v{upload_date.replace('-', '')}"
+
+        return latest_release, source_uris
+    
+    def build_jobs (self, config: DatapumpConfig) -> List[Job]:
+        latest_api_version = self.get_latest_api_version(self.dataset_name)
+        latest_release, source_uris = self.get_latest_release()
+
+        # If the latest API version matches latest release from UMD, no need to update
+        if latest_api_version == latest_release:
+            return []
+        
+        jobs: List[Job] = []
+
+        job = RasterVersionUpdateJob(
+            # Current week alerts tile set
+            id=str(uuid1()),
+            status=JobStatus.starting,
+            dataset=self.dataset,
+            version=latest_release,
+            tile_set_parameters=RasterTileSetParameters(
+                source_uri=source_uris,
+                calc=self.input_calc,
+                grid="10/40000",
+                data_type="int16",
+                no_data=-1,
+                pixel_meaning="currentweek",
+                band_count=1,
+                compute_stats=False,
+                union_bands=True,
+                unify_projection=True
+            ),
+            content_date_range=ContentDateRange(
+                start_date="2020-12-31", end_date=str(date.today())
+            )
+        )
+        job.aggregated_tile_set_parameters = AuxTileSetParameters(
+            # Aggregated tile set (to include all alerts)
+            pixel_meaning="default",
+            grid="10/40000",
+            data_type="int16",
+            no_data=-1,
+            calc="np.where(A > 0, A, B)",
+            auxiliary_asset_pixel_meaning = "default"
+        )
+        job.aux_tile_set_parameters = [
+            # Intensity tile set
+            AuxTileSetParameters(
+                source_uri=None,
+                pixel_meaning="intensity",
+                data_type="uint8",
+                calc="(B > 0) * 55",
+                grid="10/40000",
+                no_data=None,
+                auxiliary_asset_pixel_meaning = "default"
+            )
+        ]
+        job.cog_asset_parameters = [
+            # Created from the "default" asset
+            CogAssetParameters(
+                source_pixel_meaning="default",
+                resampling="mode",
+                implementation="default",
+                blocksize=1024,
+                export_to_gee=False
+            ),
+            # Created from the "intensity" asset
+            CogAssetParameters(
+                source_pixel_meaning="intensity",
+                resampling="bilinear",
+                implementation="intensity",
+                blocksize=1024
+            )
+        ]
+
+        jobs.append(job)
+
+        return jobs
+
 class RWAreasSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -765,6 +882,7 @@ class Syncer:
         SyncType.wur_radd_alerts: RADDAlertsSync,
         SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
         SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
+        SyncType.umd_glad_dist_alerts: DISTAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):

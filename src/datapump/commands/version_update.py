@@ -26,6 +26,7 @@ class RasterTileSetParameters(StrictBaseModel):
     timeout_sec: int = 7200
     num_processes: Optional[int] = None
     resampling: str = "nearest"
+    unify_projection: bool = False
 
 
 class RasterTileCacheParameters(StrictBaseModel):
@@ -53,3 +54,7 @@ class CogAssetParameters(StrictBaseModel):
     blocksize: int
     resampling: str = "mode"
     export_to_gee: bool = False
+
+class AuxTileSetParameters(RasterTileSetParameters):
+    source_uri: None = None
+    auxiliary_asset_pixel_meaning: Optional[str]
