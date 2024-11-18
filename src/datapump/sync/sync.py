@@ -759,9 +759,9 @@ class DISTAlertsSync(Sync):
         )
 
         # Example string: "Updated Sat Nov 9 13:43:05 2024-11-09 UTC"
-        upload_date = upload_date_text[-14:-4]
+        upload_date = upload_date_text[-15:-5]
         LOGGER.info(f"Last DIST-Alert upload date: {upload_date}")
-        latest_release = f"v{upload_date.replace("-", "")}"
+        latest_release = f"v{upload_date.replace('-', '')}"
 
         return latest_release, source_uris
     
