@@ -728,7 +728,7 @@ class DISTAlertsSync(Sync):
     Defines jobs to create new DIST alerts assets once a new release is available.
     """
 
-    dataset_name = "umd__glad_dist_alerts"
+    dataset_name = "umd_glad_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
     input_calc = """
