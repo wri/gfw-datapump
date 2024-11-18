@@ -779,7 +779,7 @@ class DISTAlertsSync(Sync):
             # Current week alerts tile set
             id=str(uuid1()),
             status=JobStatus.starting,
-            dataset=self.dataset,
+            dataset=self.dataset_name,
             version=latest_release,
             tile_set_parameters=RasterTileSetParameters(
                 source_uri=source_uris,
