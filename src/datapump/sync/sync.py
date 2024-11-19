@@ -731,12 +731,7 @@ class DISTAlertsSync(Sync):
     dataset_name = "umd_glad_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
-    input_calc = """
-        np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255),
-            np.where(C<4, 20000 + B, 30000 + B),
-            -1
-        )
-    """
+    input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), -1)"
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
