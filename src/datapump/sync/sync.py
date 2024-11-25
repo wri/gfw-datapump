@@ -21,6 +21,7 @@ from ..sync.rw_areas import create_1x1_tsv
 from ..util.gcs import get_gs_file_as_text, get_gs_files, get_gs_subfolders
 from ..util.models import ContentDateRange
 from ..util.util import log_and_notify_error
+from ..util.slack import slack_webhook
 
 
 class Sync(ABC):
@@ -768,6 +769,8 @@ class DISTAlertsSync(Sync):
             return []
         
         jobs: List[Job] = []
+
+        slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
 
         job = RasterVersionUpdateJob(
             # Current week alerts tile set
