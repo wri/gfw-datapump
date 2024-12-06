@@ -23,7 +23,7 @@ class Job(StrictBaseModel, ABC):
     step: str = JobStep.starting
     status: JobStatus = JobStatus.starting
     start_time: Optional[str] = None
-    timeout_sec: int = 28800
+    timeout_sec: int = 57600 # 16hr timeout
     retries: int = 0
     errors: List[str] = list()
 
