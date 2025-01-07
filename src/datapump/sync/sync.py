@@ -788,7 +788,9 @@ class DISTAlertsSync(Sync):
                 band_count=1,
                 compute_stats=False,
                 union_bands=True,
-                unify_projection=True
+                unify_projection=True,
+                # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
+                timeout_sec=3 * 3600
             ),
             content_date_range=ContentDateRange(
                 start_date="2020-12-31", end_date=str(date.today())
