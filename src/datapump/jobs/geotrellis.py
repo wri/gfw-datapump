@@ -821,8 +821,7 @@ class GeotrellisJob(Job):
                 {
                     "Name": "Install GDAL",
                     "ScriptBootstrapAction": {
-                        "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh",
-                        "Args": ["3.1.2"],
+                        "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal-3.8.3.sh"
                     },
                 },
             ],
@@ -833,6 +832,15 @@ class GeotrellisJob(Job):
             request["JobFlowRole"] = GLOBALS.emr_instance_profile
         if GLOBALS.emr_service_role:
             request["ServiceRole"] = GLOBALS.emr_service_role
+
+        # If using version 2.4.1 or earlier, use older GDAL version
+        if self.geotrellis_version < "2.4.1":
+            request["BootstrapActions"] = {
+                "Name": "Install GDAL",
+                "ScriptBootstrapAction": {
+                    "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh",
+                },
+            },
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
