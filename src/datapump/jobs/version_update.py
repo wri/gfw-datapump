@@ -93,7 +93,8 @@ class RasterVersionUpdateJob(Job):
                     for tile_set_params in self.aux_tile_set_parameters:
                         self._create_aux_tile_set(tile_set_params)
                 else:
-                    self.status = JobStatus.complete
+                    self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
