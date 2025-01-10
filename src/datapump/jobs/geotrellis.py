@@ -7,6 +7,7 @@ from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
+from packaging.version import Version
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
@@ -79,7 +80,7 @@ class GeotrellisJob(Job):
     features_1x1: str
     sync_version: Optional[str] = None
     feature_type: GeotrellisFeatureType = GeotrellisFeatureType.feature
-    geotrellis_version: str
+    geotrellis_version: Version
     sync: bool = False
     sync_type: Optional[SyncType] = None
     change_only: bool = False
@@ -483,7 +484,7 @@ class GeotrellisJob(Job):
             raise e
 
         # schema change in version 2.1.4
-        if self.geotrellis_version < "2.1.4":
+        if self.geotrellis_version < Version("2.1.4"):
             threshold_field = "umd_tree_cover_density__threshold"
             glad_conf_field = "is__confirmed_alert"
             glad_date_field = "alert__date"
@@ -736,7 +737,7 @@ class GeotrellisJob(Job):
             "cluster",
             "--class",
             "org.globalforestwatch.summarystats.SummaryMain",
-            f"{GLOBALS.geotrellis_jar_path}/treecoverloss-assembly-{self.geotrellis_version}.jar",
+            f"{GLOBALS.geotrellis_jar_path}/treecoverloss-assembly-{str(self.geotrellis_version)}.jar",
         ]
 
         # after 1.5, analysis is an argument instead of an option
@@ -805,8 +806,13 @@ class GeotrellisJob(Job):
 
         # Spark/Scala upgrade in version 2.0.0
         emr_version = (
-            GLOBALS.emr_version if self.geotrellis_version > "2.0.0" else "emr-6.1.0"
+            GLOBALS.emr_version if self.geotrellis_version > Version("2.0.0") else "emr-6.1.0"
         )
+
+        # If using version 2.4.1 or earlier, use older GDAL version
+        bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal-3.8.3.sh"
+        if self.geotrellis_version < Version("2.4.1"):
+            bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh"
 
         request = {
             "Name": name,
@@ -821,7 +827,7 @@ class GeotrellisJob(Job):
                 {
                     "Name": "Install GDAL",
                     "ScriptBootstrapAction": {
-                        "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal-3.8.3.sh"
+                        "Path": bootstrap_path
                     },
                 },
             ],
@@ -832,15 +838,6 @@ class GeotrellisJob(Job):
             request["JobFlowRole"] = GLOBALS.emr_instance_profile
         if GLOBALS.emr_service_role:
             request["ServiceRole"] = GLOBALS.emr_service_role
-
-        # If using version 2.4.1 or earlier, use older GDAL version
-        if self.geotrellis_version < "2.4.1":
-            request["BootstrapActions"] = {
-                "Name": "Install GDAL",
-                "ScriptBootstrapAction": {
-                    "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh",
-                },
-            },
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
@@ -977,7 +974,7 @@ class GeotrellisJob(Job):
             "spark.dynamicAllocation.enabled": "false",
         }
 
-        if self.geotrellis_version >= "2.0.0":
+        if self.geotrellis_version >= Version("2.0.0"):
             spark_defaults.update(
                 {
                     "spark.decommission.enabled": "true",
