@@ -690,7 +690,7 @@ class GeotrellisJob(Job):
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
             if GLOBALS.env == "production":
-                if self.table.analysis == Analysis.tcl:
+                if self.table.analysis == Analysis.tcl or self.table.analysis == Analysis.viirs:
                     return 200
                 else:
                     return 100
