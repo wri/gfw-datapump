@@ -15,5 +15,6 @@ setup(
         "pyshp~=2.3.1",
         "pydantic~=1.10.11",
         "retry~=0.9.2",
+        "packaging~=24.2"
     ],  # noqa: E231
 )
