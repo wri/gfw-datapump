@@ -75,28 +75,33 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_tile_cache:
             status = self._check_tile_cache_status()
             if status == JobStatus.complete:
-                self.step = RasterVersionUpdateJobStep.mark_latest
-                self._mark_latest()
+                if self.aux_tile_set_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_aux_assets
+                    for tile_set_params in self.aux_tile_set_parameters:
+                        self._create_aux_tile_set(tile_set_params)
+                else:
+                    self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
         elif self.step == RasterVersionUpdateJobStep.creating_aggregated_tile_set:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
-                self.step = RasterVersionUpdateJobStep.mark_latest
-                self._mark_latest()
+                if self.aux_tile_set_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_aux_assets
+                    for tile_set_params in self.aux_tile_set_parameters:
+                        self._create_aux_tile_set(tile_set_params)
+                else:
+                    self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
         elif self.step == RasterVersionUpdateJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
-                if self.aux_tile_set_parameters:
-                    self.step = RasterVersionUpdateJobStep.creating_aux_assets
-                    for tile_set_params in self.aux_tile_set_parameters:
-                        self._create_aux_tile_set(tile_set_params)
-                else:
-                    self.status = JobStatus.complete
+                self.status = JobStatus.complete
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
@@ -110,14 +115,16 @@ class RasterVersionUpdateJob(Job):
                             self.status = JobStatus.failed
                             break
                 else:
-                    self.status = JobStatus.complete
+                    self.step = RasterVersionUpdateJobStep.mark_latest
+                    self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
         elif self.step == RasterVersionUpdateJobStep.creating_cog_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
-                self.status = JobStatus.complete
+                self.step = RasterVersionUpdateJobStep.mark_latest
+                self._mark_latest()
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
