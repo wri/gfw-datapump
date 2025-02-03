@@ -543,19 +543,25 @@ class GeotrellisJob(Job):
         except KeyError:
             analysis_cols = []
 
-        if self.feature_type == "geostore":
+        cluster: Optional[Index] = Index(
+            index_type="btree", column_names=id_cols + analysis_cols
+        )
+
+        if self.feature_type == "geostore" and self.table.analysis == Analysis.integrated_alerts:
             # this often uses up all the memory on the DB and fails since there are so many
             # geostore IDs, so don't cluster for geostore, and use hash just on ID col
-            cluster = None
             hash_index = Index(
                 index_type="hash", column_names=id_cols
             )
             indices.append(hash_index)
-        else:
-            cluster: Optional[Index] = Index(
-                index_type="btree", column_names=id_cols + analysis_cols
-            )
+            cluster = None
+        elif self.feature_type == "geostore":
+            # for other geostore tables, use range index but still don't use cluster
             indices.append(cluster)
+            cluster = None
+        else:
+            indices.append(cluster)
+        
         
         if analysis_agg == "all":
             # TODO this clustering always fails because it goes beyond the
