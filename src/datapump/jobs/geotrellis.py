@@ -546,34 +546,29 @@ class GeotrellisJob(Job):
         cluster: Optional[Index] = Index(
             index_type="btree", column_names=id_cols + analysis_cols
         )
-        indices.append(cluster)
 
-        if self.feature_type == "geostore":
+        if self.feature_type == "geostore" and self.table.analysis == Analysis.integrated_alerts:
             # this often uses up all the memory on the DB and fails since there are so many
-            # geostore IDs, so don't cluster for geostore
+            # geostore IDs, so don't cluster for geostore, and use hash just on ID col
+            hash_index = Index(
+                index_type="hash", column_names=id_cols
+            )
+            indices.append(hash_index)
             cluster = None
-
+        elif self.feature_type == "geostore":
+            # for other geostore tables, use range index but still don't use cluster
+            indices.append(cluster)
+            cluster = None
+        else:
+            indices.append(cluster)
+        
+        
         if analysis_agg == "all":
             # TODO this clustering always fails because it goes beyond the
             # memory limits of our DB instance. Disable for now since after
             # a month the clustering won't even matter anymore.
             cluster = None  # Index(index_type="gist", column_names=["geom_wm"])
             indices.append(Index(index_type="gist", column_names=["geom"]))
-        elif (
-            self.table.analysis == Analysis.integrated_alerts
-            and analysis_agg == "daily_alerts"
-        ):
-            # this table is multi-use, so also create indices for individual alerts
-            glad_s2_cols = [
-                "umd_glad_sentinel2_alerts__confidence",
-                "umd_glad_sentinel2_alerts__date",
-            ]
-            wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
-
-            indices += [
-                Index(index_type="btree", column_names=id_cols + glad_s2_cols),
-                Index(index_type="btree", column_names=id_cols + wur_radd_cols),
-            ]
 
         return indices, cluster
 
