@@ -569,6 +569,22 @@ class GeotrellisJob(Job):
             # a month the clustering won't even matter anymore.
             cluster = None  # Index(index_type="gist", column_names=["geom_wm"])
             indices.append(Index(index_type="gist", column_names=["geom"]))
+        elif (
+            self.table.analysis == Analysis.integrated_alerts
+            and analysis_agg == "daily_alerts"
+            and self.feature_type != "geostore"
+        ):
+            # this table is multi-use, so also create indices for individual alerts
+            glad_s2_cols = [
+                "umd_glad_sentinel2_alerts__confidence",
+                "umd_glad_sentinel2_alerts__date",
+            ]
+            wur_radd_cols = ["wur_radd_alerts__confidence", "wur_radd_alerts__date"]
+
+            indices += [
+                Index(index_type="btree", column_names=id_cols + glad_s2_cols),
+                Index(index_type="btree", column_names=id_cols + wur_radd_cols),
+            ]
 
         return indices, cluster
 
