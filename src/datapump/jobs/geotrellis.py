@@ -549,11 +549,11 @@ class GeotrellisJob(Job):
 
         if self.feature_type == "geostore" and self.table.analysis == Analysis.integrated_alerts:
             # this often uses up all the memory on the DB and fails since there are so many
-            # geostore IDs, so don't cluster for geostore, and use hash just on ID col
-            hash_index = Index(
-                index_type="hash", column_names=id_cols
+            # geostore IDs, so don't cluster for geostore, and use a btree just on ID col
+            index = Index(
+                index_type="btree", column_names=id_cols
             )
-            indices.append(hash_index)
+            indices.append(index)
             cluster = None
         elif self.feature_type == "geostore":
             # for other geostore tables, use range index but still don't use cluster
