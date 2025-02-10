@@ -3,7 +3,7 @@ import json
 import os
 import traceback
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import requests
@@ -22,7 +22,7 @@ DIRNAME = os.path.dirname(__file__)
 GEOSTORE_PAGE_SIZE = 25
 
 
-def create_1x1_tsv(version: str) -> Optional[str]:
+def create_1x1_tsv(version: str, start_date=None, end_date=None) -> Optional[str]:
     tsv = get_virtual_1x1_tsv()
 
     if tsv:
@@ -39,7 +39,7 @@ def create_1x1_tsv(version: str) -> Optional[str]:
         return None
 
 
-def get_virtual_1x1_tsv() -> Optional[bytes]:
+def get_virtual_1x1_tsv(start_date=None, end_date=None) -> Optional[bytes]:
     """
     Main Lambda function
     """
@@ -47,7 +47,7 @@ def get_virtual_1x1_tsv() -> Optional[bytes]:
     LOGGER.info("Check for pending areas")
 
     try:
-        areas: List[Any] = get_pending_areas()
+        areas: List[Any] = get_pending_areas(start_date, end_date)
         geostore_ids: List[str] = get_geostore_ids(areas)
         if not geostore_ids:
             raise EmptyResponseException
@@ -74,7 +74,7 @@ def get_virtual_1x1_tsv() -> Optional[bytes]:
         return None
 
 
-def get_pending_areas() -> List[Any]:
+def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
     """
     Request to GFW API to get list of user areas which were recently submitted and need to be added to nightly updates
     """
@@ -85,8 +85,13 @@ def get_pending_areas() -> List[Any]:
 
     # For some reason we are the only place calling this RW API to sync
     # new subscriptions with areas. See GTC-2987 to fix this workflow.
-    yesterday = (datetime.now() - timedelta(1)).strftime("%Y-%m-%d")
-    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={yesterday}"
+    if start_date is None:
+        start_date = (datetime.now(UTC) - timedelta(1)).strftime('%Y-%m-%dT%H:%M:%SZ')
+    
+    if end_date is None:
+        end_date = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+    
+    sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={start_date}&endDate={end_date}"
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
