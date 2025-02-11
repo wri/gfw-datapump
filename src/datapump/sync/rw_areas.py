@@ -23,7 +23,7 @@ GEOSTORE_PAGE_SIZE = 25
 
 
 def create_1x1_tsv(version: str, start_date=None, end_date=None) -> Optional[str]:
-    tsv = get_virtual_1x1_tsv()
+    tsv = get_virtual_1x1_tsv(start_date, end_date)
 
     if tsv:
         LOGGER.info("Geostores processed, uploading and analyzing")
@@ -118,7 +118,7 @@ def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
         pending_areas += page_areas["data"]
         has_next_page = page_areas["links"]["self"] != page_areas["links"]["last"]
 
-    LOGGER.info("Got {len(pending_areas)} areas")
+    LOGGER.info(f"Got {len(pending_areas)} areas")
     return pending_areas
 
 
