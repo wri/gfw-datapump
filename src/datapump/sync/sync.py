@@ -885,7 +885,7 @@ class Syncer:
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None, **kwargs):
-    self.sync_version: str = (
+        self.sync_version: str = (
             sync_version if sync_version else self._get_latest_version()
         )
         self.syncers: Dict[SyncType, Sync] = {
