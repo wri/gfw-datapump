@@ -80,18 +80,18 @@ def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
     """
 
     LOGGER.info("Get pending Areas")
-    LOGGER.info(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
     # For some reason we are the only place calling this RW API to sync
     # new subscriptions with areas. See GTC-2987 to fix this workflow.
     if start_date is None:
         start_date = (datetime.now(UTC) - timedelta(1)).strftime('%Y-%m-%dT%H:%M:%SZ')
-    
+
     if end_date is None:
         end_date = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
-    
+
     sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={start_date}&endDate={end_date}"
+    LOGGER.info(f"Sending RW sync request: {sync_url}")
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
@@ -118,6 +118,7 @@ def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
         pending_areas += page_areas["data"]
         has_next_page = page_areas["links"]["self"] != page_areas["links"]["last"]
 
+    LOGGER.info("Got {len(pending_areas)} areas")
     return pending_areas
 
 
