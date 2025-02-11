@@ -3,7 +3,7 @@ import json
 import os
 import traceback
 from contextlib import contextmanager
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple
 
 import requests
@@ -85,10 +85,10 @@ def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
     # For some reason we are the only place calling this RW API to sync
     # new subscriptions with areas. See GTC-2987 to fix this workflow.
     if start_date is None:
-        start_date = (datetime.now(UTC) - timedelta(1)).strftime('%Y-%m-%dT%H:%M:%SZ')
+        start_date = (datetime.now(timezone.utc) - timedelta(1)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     if end_date is None:
-        end_date = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+        end_date = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={start_date}&endDate={end_date}"
     LOGGER.info(f"Sending RW sync request: {sync_url}")
