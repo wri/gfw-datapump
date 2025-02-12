@@ -238,6 +238,7 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
     remaining_geostores = [
         g for g in geostores["data"] if g["geostoreId"] in remaining_geostore_ids
     ]
+    LOGGER.info(f"Geostore REMAINING: {len(remaining_geostore_ids)}")
     return {"data": remaining_geostores}
 
 
