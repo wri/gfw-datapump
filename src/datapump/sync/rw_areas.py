@@ -105,7 +105,7 @@ def get_pending_areas(start_date=None, end_date=None) -> List[Any]:
     page_number = 1
 
     while has_next_page:
-        url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]={page_number}&page[size]={page_size}"
+        url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&sort=-createdAt&all=true&page[number]={page_number}&page[size]={page_size}"
         r: Response = requests.get(url, headers=headers)
 
         if r.status_code != 200:

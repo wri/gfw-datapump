@@ -111,3 +111,6 @@ def handler(event, context):
                 f"Exception while trying to update user area statuses: {traceback.format_exc()}"
             )
             raise Exception("One or more jobs failed. See logs for details.")
+    elif rw_area_jobs:
+        geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
+        LOGGER.info(f"Final number of geostoreids is {len(geostore_ids)}")
