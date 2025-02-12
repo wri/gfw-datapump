@@ -130,6 +130,9 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     LOGGER.info("Get Geostore IDs")
     geostore_ids: List[str] = list()
     error_ids = list()
+    valid = 0
+    skip = 0
+    error = 0
     for area in areas:
         if (
             "attributes" in area.keys()
@@ -141,20 +144,25 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
             )
             if len(area["attributes"]["geostore"]) != 32:
                 error_ids.append(area["attributes"]["geostore"])
+                error += 1
             else:
                 geostore_ids.append(area["attributes"]["geostore"])
+                valid += 1
         else:
-            LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip")
+            # LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip")
+            skip += 1
 
-    LOGGER.info(f"IDS: {geostore_ids}")
+    LOGGER.info(f"Geostore COUNTS: valid {valid}, skip {skip}, error {error}")
+    LOGGER.info(f"Geostore IDS: {geostore_ids}")
 
     if error_ids:
         LOGGER.info(f"Setting invalid geostore IDs to error: {error_ids}")
         update_area_statuses(error_ids, "error")
 
     # only return unique geostore ids
-    # Return max 2000 at a time, otherwise the lambda might time out
+    # Return max 1500 at a time, otherwise the lambda might time out
     remaining_ids: List[Any] = list(set(geostore_ids) - {None})[:1500]
+    LOGGER.info(f"Geostore UNIQUE: valid {len(remaining_ids)}")
     return remaining_ids
 
 
