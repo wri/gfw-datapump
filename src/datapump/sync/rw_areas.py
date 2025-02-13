@@ -140,7 +140,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
             and area["attributes"]["geostore"] is not None
         ):
             LOGGER.info(
-                f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
+                f"Found geostore {area['attributes']['geostore']} for area {area['id']}, created {area['attributes']['createdAt']}, updated {area['attributes']['updatedAt']}"
             )
             if len(area["attributes"]["geostore"]) != 32:
                 error_ids.append(area["attributes"]["geostore"])
