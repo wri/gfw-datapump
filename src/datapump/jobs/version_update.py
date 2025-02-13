@@ -211,8 +211,12 @@ class RasterVersionUpdateJob(Job):
 
         # Looks up asset ID of the latest version raster tile set with auxiliary_asset_pixel_meaning
         if co.auxiliary_asset_pixel_meaning:
-            latest_version = client.get_latest_version(self.dataset)
-            assets = client.get_assets(self.dataset, latest_version)
+            auxiliary_asset_version = (
+                co.auxiliary_asset_version
+                if co.auxiliary_asset_version
+                else client.get_latest_version(self.dataset)
+            )
+            assets = client.get_assets(self.dataset, auxiliary_asset_version)
             for asset in assets:
                 if asset["asset_type"] == "Raster tile set":
                     creation_options = client.get_asset_creation_options(asset['asset_id'])
