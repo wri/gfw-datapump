@@ -34,6 +34,7 @@ class SyncParameters(StrictBaseModel):
     types: List[SyncType]
     sync_version: Optional[str] = None
     tables: List[AnalysisTable] = []
+    additional_parameters = {}
 
 
 class SyncCommand(StrictBaseModel):
