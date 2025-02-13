@@ -98,12 +98,6 @@ def handler(event, context):
         for job in failed_jobs:
             msg += pformat(job.dict())
 
-        if rw_area_jobs:
-            # delete AOI tsv file to rollback from failed update
-            LOGGER.info(f"Rolling back AOI input file: {rw_area_jobs[0].features_1x1}")
-            bucket, key = get_s3_path_parts(rw_area_jobs[0].features_1x1)
-            get_s3_client().delete_object(Bucket=bucket, Key=key)
-
         log_and_notify_error(msg)
         raise Exception("One or more jobs failed. See logs for details.")
 
@@ -117,3 +111,6 @@ def handler(event, context):
                 f"Exception while trying to update user area statuses: {traceback.format_exc()}"
             )
             raise Exception("One or more jobs failed. See logs for details.")
+    elif rw_area_jobs:
+        geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
+        LOGGER.info(f"Final number of geostoreids is {len(geostore_ids)}")
