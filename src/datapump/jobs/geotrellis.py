@@ -7,6 +7,7 @@ from enum import Enum
 from itertools import groupby
 from pathlib import Path
 from pprint import pformat
+from packaging.version import Version
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
@@ -87,6 +88,8 @@ class GeotrellisJob(Job):
     version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
     content_end_date: Optional[str] = None
+
+
 
     def next_step(self):
         now = datetime.now()
@@ -483,7 +486,7 @@ class GeotrellisJob(Job):
             raise e
 
         # schema change in version 2.1.4
-        if self.geotrellis_version < "2.1.4":
+        if Version(self.geotrellis_version) < Version("2.1.4"):
             threshold_field = "umd_tree_cover_density__threshold"
             glad_conf_field = "is__confirmed_alert"
             glad_date_field = "alert__date"
@@ -543,13 +546,23 @@ class GeotrellisJob(Job):
         cluster: Optional[Index] = Index(
             index_type="btree", column_names=id_cols + analysis_cols
         )
-        indices.append(cluster)
 
-        if self.feature_type == "geostore":
+        if self.feature_type == "geostore" and self.table.analysis == Analysis.integrated_alerts:
             # this often uses up all the memory on the DB and fails since there are so many
-            # geostore IDs, so don't cluster for geostore
+            # geostore IDs, so don't cluster for geostore, and use a btree just on ID col
+            index = Index(
+                index_type="btree", column_names=id_cols
+            )
+            indices.append(index)
             cluster = None
-
+        elif self.feature_type == "geostore":
+            # for other geostore tables, use range index but still don't use cluster
+            indices.append(cluster)
+            cluster = None
+        else:
+            indices.append(cluster)
+        
+        
         if analysis_agg == "all":
             # TODO this clustering always fails because it goes beyond the
             # memory limits of our DB instance. Disable for now since after
@@ -559,6 +572,7 @@ class GeotrellisJob(Job):
         elif (
             self.table.analysis == Analysis.integrated_alerts
             and analysis_agg == "daily_alerts"
+            and self.feature_type != "geostore"
         ):
             # this table is multi-use, so also create indices for individual alerts
             glad_s2_cols = [
@@ -740,7 +754,7 @@ class GeotrellisJob(Job):
         ]
 
         # after 1.5, analysis is an argument instead of an option
-        if self.geotrellis_version < "1.5.0":
+        if Version(self.geotrellis_version) < Version("1.5.0"):
             step_args.append("--analysis")
 
         step_args += [
@@ -805,8 +819,13 @@ class GeotrellisJob(Job):
 
         # Spark/Scala upgrade in version 2.0.0
         emr_version = (
-            GLOBALS.emr_version if self.geotrellis_version > "2.0.0" else "emr-6.1.0"
+            GLOBALS.emr_version if Version(self.geotrellis_version) > Version("2.0.0") else "emr-6.1.0"
         )
+
+        # If using version 2.4.1 or earlier, use older GDAL version
+        bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal-3.8.3.sh"
+        if Version(self.geotrellis_version) < Version("2.4.1"):
+            bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh"
 
         request = {
             "Name": name,
@@ -821,8 +840,7 @@ class GeotrellisJob(Job):
                 {
                     "Name": "Install GDAL",
                     "ScriptBootstrapAction": {
-                        "Path": f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh",
-                        "Args": ["3.1.2"],
+                        "Path": bootstrap_path
                     },
                 },
             ],
@@ -969,7 +987,7 @@ class GeotrellisJob(Job):
             "spark.dynamicAllocation.enabled": "false",
         }
 
-        if self.geotrellis_version >= "2.0.0":
+        if Version(self.geotrellis_version) >= Version("2.0.0"):
             spark_defaults.update(
                 {
                     "spark.decommission.enabled": "true",

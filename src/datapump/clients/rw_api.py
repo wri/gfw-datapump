@@ -39,6 +39,7 @@ def update_area_statuses(geostore_ids, status):
     }
 
     errors = False
+    LOGGER.info(f"Updating {len(geostore_ids)} geostore_ids to {status}")
     for gid in geostore_ids:
         r = requests.post(
             url,
