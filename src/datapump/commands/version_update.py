@@ -55,6 +55,8 @@ class CogAssetParameters(StrictBaseModel):
     resampling: str = "mode"
     export_to_gee: bool = False
 
+
 class AuxTileSetParameters(RasterTileSetParameters):
     source_uri: None = None
     auxiliary_asset_pixel_meaning: Optional[str]
+    auxiliary_asset_version: str = None
