@@ -80,13 +80,13 @@ def get_pending_areas() -> List[Any]:
     """
 
     LOGGER.info("Get pending Areas")
-    LOGGER.info(f"Using token {token()} for {api_prefix()} API")
     headers: Dict[str, str] = {"Authorization": f"Bearer {token()}"}
 
     # For some reason we are the only place calling this RW API to sync
     # new subscriptions with areas. See GTC-2987 to fix this workflow.
     yesterday = (datetime.now() - timedelta(1)).strftime("%Y-%m-%d")
     sync_url: str = f"https://{api_prefix()}-api.globalforestwatch.org/v2/area/sync?startDate={yesterday}"
+    LOGGER.info(f"Sending RW sync request: {sync_url}")
     sync_resp = requests.post(sync_url, headers=headers)
 
     if sync_resp.status_code != 200:
@@ -100,7 +100,7 @@ def get_pending_areas() -> List[Any]:
     page_number = 1
 
     while has_next_page:
-        url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&all=true&page[number]={page_number}&page[size]={page_size}"
+        url: str = f"http://{api_prefix()}-api.globalforestwatch.org/v2/area?status=pending&sort=-createdAt&all=true&page[number]={page_number}&page[size]={page_size}"
         r: Response = requests.get(url, headers=headers)
 
         if r.status_code != 200:
@@ -113,6 +113,7 @@ def get_pending_areas() -> List[Any]:
         pending_areas += page_areas["data"]
         has_next_page = page_areas["links"]["self"] != page_areas["links"]["last"]
 
+    LOGGER.info(f"Got {len(pending_areas)} areas")
     return pending_areas
 
 
@@ -124,6 +125,9 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     LOGGER.info("Get Geostore IDs")
     geostore_ids: List[str] = list()
     error_ids = list()
+    valid = 0
+    skip = 0
+    error = 0
     for area in areas:
         if (
             "attributes" in area.keys()
@@ -131,24 +135,30 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
             and area["attributes"]["geostore"] is not None
         ):
             LOGGER.info(
-                f"Found geostore {area['attributes']['geostore']} for area {area['id']} "
+                f"Found geostore {area['attributes']['geostore']} for area {area['id']}, app {area['attributes']['application']}, created {area['attributes']['createdAt']}, updated {area['attributes']['updatedAt']}"
             )
             if len(area["attributes"]["geostore"]) != 32:
                 error_ids.append(area["attributes"]["geostore"])
+                error += 1
             else:
                 geostore_ids.append(area["attributes"]["geostore"])
+                valid += 1
         else:
-            LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip")
+            LOGGER.warning(f"Cannot find geostore ID for area {area['id']} - skip - app {area['attributes']['application']}, created {area['attributes']['createdAt']}, updated {area['attributes']['updatedAt']}")
+            skip += 1
 
-    LOGGER.info(f"IDS: {geostore_ids}")
+    LOGGER.info(f"Geostore COUNTS: valid {valid}, skip {skip}, error {error}")
+    LOGGER.info(f"Geostore IDS: {geostore_ids}")
 
     if error_ids:
         LOGGER.info(f"Setting invalid geostore IDs to error: {error_ids}")
         update_area_statuses(error_ids, "error")
 
     # only return unique geostore ids
-    # Return max 2000 at a time, otherwise the lambda might time out
-    remaining_ids: List[Any] = list(set(geostore_ids) - {None})[:1500]
+    remaining_ids: List[Any] = list(set(geostore_ids) - {None})
+    LOGGER.info(f"Geostore UNIQUE: valid {len(remaining_ids)}")
+    # Return max 1500 at a time, otherwise the lambda might time out
+    remaining_ids = remaining_ids[:1500]
     return remaining_ids
 
 
@@ -223,6 +233,7 @@ def filter_geostores(geostores: Dict[str, Any]) -> Dict[str, Any]:
     remaining_geostores = [
         g for g in geostores["data"] if g["geostoreId"] in remaining_geostore_ids
     ]
+    LOGGER.info(f"Geostore REMAINING: {len(remaining_geostore_ids)}")
     return {"data": remaining_geostores}
 
 

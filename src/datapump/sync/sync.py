@@ -759,15 +759,15 @@ class DISTAlertsSync(Sync):
         latest_release = f"v{upload_date.replace('-', '')}"
 
         return latest_release, source_uris
-    
-    def build_jobs (self, config: DatapumpConfig) -> List[Job]:
+
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         latest_api_version = self.get_latest_api_version(self.dataset_name)
         latest_release, source_uris = self.get_latest_release()
 
         # If the latest API version matches latest release from UMD, no need to update
         if latest_api_version == latest_release:
             return []
-        
+
         jobs: List[Job] = []
 
         slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
@@ -803,7 +803,7 @@ class DISTAlertsSync(Sync):
             data_type="int16",
             no_data=-1,
             calc="np.where(A > 0, A, B)",
-            auxiliary_asset_pixel_meaning = "default"
+            auxiliary_asset_pixel_meaning="default"
         )
         job.aux_tile_set_parameters = [
             # Intensity tile set
@@ -814,7 +814,7 @@ class DISTAlertsSync(Sync):
                 calc="(B > 0) * 55",
                 grid="10/40000",
                 no_data=None,
-                auxiliary_asset_pixel_meaning = "default"
+                auxiliary_asset_pixel_meaning="default"
             )
         ]
         job.cog_asset_parameters = [
@@ -838,6 +838,7 @@ class DISTAlertsSync(Sync):
         jobs.append(job)
 
         return jobs
+
 
 class RWAreasSync(Sync):
     def __init__(self, sync_version: str):
