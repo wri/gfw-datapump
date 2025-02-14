@@ -2,7 +2,6 @@ import traceback
 from pprint import pformat
 from typing import List, Union
 
-from datapump.clients.aws import get_s3_client, get_s3_path_parts
 from datapump.clients.datapump_store import DatapumpConfig, DatapumpStore
 from datapump.clients.rw_api import update_area_statuses
 from datapump.commands.analysis import Analysis
@@ -112,5 +111,7 @@ def handler(event, context):
             )
             raise Exception("One or more jobs failed. See logs for details.")
     elif rw_area_jobs:
+        # If not in production, don't update status, but do print out the final
+        # number of geostore ids.
         geostore_ids = get_aoi_geostore_ids(rw_area_jobs[0].features_1x1)
         LOGGER.info(f"Final number of geostoreids is {len(geostore_ids)}")
