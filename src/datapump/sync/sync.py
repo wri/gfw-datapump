@@ -26,7 +26,7 @@ from ..util.slack import slack_webhook
 
 class Sync(ABC):
     @abstractmethod
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         ...
 
     @abstractmethod
@@ -43,7 +43,7 @@ class Sync(ABC):
 
 
 class FireAlertsSync(Sync):
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version: str = sync_version
         self.fire_alerts_type: Optional[SyncType] = None
         self.fire_alerts_uri: Optional[str] = None
@@ -77,8 +77,8 @@ class FireAlertsSync(Sync):
 
 
 class ViirsSync(FireAlertsSync):
-    def __init__(self, sync_version: str, **kwargs):
-        super(ViirsSync, self).__init__(sync_version, **kwargs)
+    def __init__(self, sync_version: str):
+        super(ViirsSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.viirs
         self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
             self.fire_alerts_type.value
@@ -86,8 +86,8 @@ class ViirsSync(FireAlertsSync):
 
 
 class ModisSync(FireAlertsSync):
-    def __init__(self, sync_version: str, **kwargs):
-        super(ModisSync, self).__init__(sync_version, **kwargs)
+    def __init__(self, sync_version: str):
+        super(ModisSync, self).__init__(sync_version)
         self.fire_alerts_type = SyncType.modis
         self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
             self.fire_alerts_type.value
@@ -97,7 +97,7 @@ class ModisSync(FireAlertsSync):
 class GladSync(Sync):
     DATASET_NAME = "umd_glad_landsat_alerts"
 
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -191,7 +191,7 @@ class IntegratedAlertsSync(Sync):
     )"""
     INPUT_CALC = " ".join(_INPUT_CALC.split())
 
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -374,7 +374,7 @@ class DeforestationAlertsSync(Sync):
     def max_zoom(self):
         ...
 
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -460,7 +460,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     grid = "10/100000"
     max_zoom = 14
 
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         super().__init__(sync_version)
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -733,7 +733,7 @@ class DISTAlertsSync(Sync):
     source_prefix = "DIST-ALERT"
     input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), -1)"
 
-    def __init__(self, sync_version: str, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
@@ -841,9 +841,9 @@ class DISTAlertsSync(Sync):
 
 
 class RWAreasSync(Sync):
-    def __init__(self, sync_version, start_date=None, end_date=None, **kwargs):
+    def __init__(self, sync_version: str):
         self.sync_version = sync_version
-        self.features_1x1 = create_1x1_tsv(sync_version, start_date, end_date)
+        self.features_1x1 = create_1x1_tsv(sync_version)
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.features_1x1:
@@ -885,12 +885,12 @@ class Syncer:
         SyncType.umd_glad_dist_alerts: DISTAlertsSync,
     }
 
-    def __init__(self, sync_types: List[SyncType], sync_version: str = None, **kwargs):
+    def __init__(self, sync_types: List[SyncType], sync_version: str = None):
         self.sync_version: str = (
             sync_version if sync_version else self._get_latest_version()
         )
         self.syncers: Dict[SyncType, Sync] = {
-            sync_type: self.SYNCERS[sync_type](self.sync_version, **kwargs)
+            sync_type: self.SYNCERS[sync_type](self.sync_version)
             for sync_type in sync_types
         }
 

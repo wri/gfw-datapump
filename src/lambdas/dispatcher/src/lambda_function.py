@@ -120,7 +120,7 @@ def _raster_version_update(command: RasterVersionUpdateCommand):
 
 def _sync(command: SyncCommand):
     jobs = []
-    syncer = Syncer(command.parameters.types, command.parameters.sync_version, **command.parameters.additional_parameters)
+    syncer = Syncer(command.parameters.types, command.parameters.sync_version)
     config_client = DatapumpStore()
 
     for sync_type in command.parameters.types:
