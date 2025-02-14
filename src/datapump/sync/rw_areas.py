@@ -156,7 +156,7 @@ def get_geostore_ids(areas: List[Any]) -> List[str]:
     # Return max 1500 at a time, otherwise the lambda might time out
     remaining_ids: List[Any] = geostore_ids[:1500]
     # only return unique geostore ids
-    remaining_ids = list(set(geostore_ids) - {None})
+    remaining_ids = list(set(remaining_ids) - {None})
     LOGGER.info(f"Geostore UNIQUE: valid {len(remaining_ids)}")
     LOGGER.info(f"Geostore IDS: {remaining_ids}")
     return remaining_ids
