@@ -814,7 +814,8 @@ class DISTAlertsSync(Sync):
                 calc="(B > 0) * 55",
                 grid="10/40000",
                 no_data=None,
-                auxiliary_asset_pixel_meaning="default"
+                auxiliary_asset_pixel_meaning="default",
+                auxiliary_asset_version=latest_release
             )
         ]
         job.cog_asset_parameters = [
