@@ -697,19 +697,22 @@ class GeotrellisJob(Job):
             return 30
         elif self.table.analysis == Analysis.integrated_alerts:
             return 60
-        elif self.change_only and self.table.analysis == Analysis.glad:
-            return 10
 
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
             if GLOBALS.env == "production":
                 if self.table.analysis == Analysis.tcl or self.table.analysis == Analysis.viirs:
                     return 200
+                elif self.change_only and self.table.analysis == Analysis.glad:
+                    return 30
                 else:
                     return 100
             else:
                 return 50
 
+        if self.change_only and self.table.analysis == Analysis.glad:
+            return 10
+            
         byte_size = self._get_byte_size(limiting_src)
 
         analysis_weight = 1.0
