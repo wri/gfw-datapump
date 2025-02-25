@@ -698,7 +698,7 @@ class GeotrellisJob(Job):
         elif self.table.analysis == Analysis.integrated_alerts:
             return 60
         elif self.change_only and self.table.analysis == Analysis.glad:
-            return 10
+            return 30
 
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
