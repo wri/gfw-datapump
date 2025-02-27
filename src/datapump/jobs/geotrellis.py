@@ -695,8 +695,6 @@ class GeotrellisJob(Job):
         """
         if self.sync_type == SyncType.rw_areas:
             return 30
-        elif self.table.analysis == Analysis.integrated_alerts:
-            return 60
 
         # if using a wildcard for a folder, just use hardcoded value
         if "*" in limiting_src:
@@ -712,6 +710,8 @@ class GeotrellisJob(Job):
 
         if self.change_only and self.table.analysis == Analysis.glad:
             return 10
+        elif self.table.analysis == Analysis.integrated_alerts:
+            return 60
             
         byte_size = self._get_byte_size(limiting_src)
 
