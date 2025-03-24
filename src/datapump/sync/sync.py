@@ -140,6 +140,7 @@ class IntegratedAlertsSync(Sync):
         "umd_glad_sentinel2_alerts",
         "wur_radd_alerts",
     ]
+    content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
     # First filter for nodata by multiplying everything by
     # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
@@ -247,6 +248,7 @@ class IntegratedAlertsSync(Sync):
                 content_date_range=ContentDateRange(
                     start_date="2014-12-31", end_date=str(date.today())
                 ),
+                content_date_description=self.content_date_description
             )
             job.aux_tile_set_parameters = [
                 AuxTileSetParameters(
@@ -374,6 +376,11 @@ class DeforestationAlertsSync(Sync):
     def max_zoom(self):
         ...
 
+    @property
+    @abstractmethod
+    def content_date_description(self):
+        ...
+
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
 
@@ -418,6 +425,7 @@ class DeforestationAlertsSync(Sync):
             content_date_range=ContentDateRange(
                 start_date="2020-01-01", end_date=str(version_dt)
             ),
+            content_date_description=self.content_date_description
         )
 
     @abstractmethod
@@ -459,6 +467,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     number_of_tiles = [208, 209]  # Africa:54, Asia:70, CA: 16, SA:68
     grid = "10/100000"
     max_zoom = 14
+    content_date_description = "Africa: January 2019 – present \n\n South America, Central America, and Southeast Asia: January 2020 – present  (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
     def __init__(self, sync_version: str):
         super().__init__(sync_version)
@@ -530,6 +539,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     grid = "10/40000"
     start_year = 2021
     max_zoom = 12
+    content_date_description = "January 1, 2021 – present (GLAD-L alerts have been operating since 2015 for select countries in the Amazon and Congo Basins and insular Southeast Asia, but historical data are not available on GFW) (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain archive starting 2021)  "
 
     @property
     def input_calc(self):
@@ -696,6 +706,7 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
     number_of_tiles = 18
     grid = "10/100000"
     max_zoom = 14
+    content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
@@ -732,6 +743,7 @@ class DISTAlertsSync(Sync):
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
     input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), -1)"
+    content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -794,7 +806,8 @@ class DISTAlertsSync(Sync):
             ),
             content_date_range=ContentDateRange(
                 start_date="2020-12-31", end_date=str(date.today())
-            )
+            ),
+            content_date_description=self.content_date_description
         )
         job.aggregated_tile_set_parameters = AuxTileSetParameters(
             # Aggregated tile set (to include all alerts)
