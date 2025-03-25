@@ -30,6 +30,7 @@ class RasterVersionUpdateJob(Job):
     dataset: str
     version: str
     content_date_range: ContentDateRange
+    content_date_description: str
     tile_set_parameters: RasterTileSetParameters
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aggregated_tile_set_parameters: Optional[AuxTileSetParameters] = None
@@ -187,6 +188,7 @@ class RasterVersionUpdateJob(Job):
                     "start_date": self.content_date_range.start_date,
                     "end_date": self.content_date_range.end_date,
                 },
+                "content_date_description": self.content_date_description,
             },
         }
 
