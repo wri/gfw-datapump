@@ -240,11 +240,6 @@ class IntegratedAlertsSync(Sync):
                     # generation of the default COG takes the longest.
                     timeout_sec=13 * 3600,
                 ),
-                tile_cache_parameters=RasterTileCacheParameters(
-                    max_zoom=14,
-                    resampling="med",
-                    symbology={"type": "date_conf_intensity_multi_8"},
-                ),
                 content_date_range=ContentDateRange(
                     start_date="2014-12-31", end_date=str(date.today())
                 ),
