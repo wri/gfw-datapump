@@ -26,7 +26,7 @@ from ..util.slack import slack_webhook
 
 class Sync(ABC):
     @abstractmethod
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         ...
 
     @abstractmethod
@@ -43,7 +43,7 @@ class Sync(ABC):
 
 
 class FireAlertsSync(Sync):
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         self.sync_version: str = sync_version
         self.fire_alerts_type: Optional[SyncType] = None
         self.fire_alerts_uri: Optional[str] = None
@@ -77,8 +77,8 @@ class FireAlertsSync(Sync):
 
 
 class ViirsSync(FireAlertsSync):
-    def __init__(self, sync_version: str):
-        super(ViirsSync, self).__init__(sync_version)
+    def __init__(self, sync_version: str, **kwargs):
+        super(ViirsSync, self).__init__(sync_version, **kwargs)
         self.fire_alerts_type = SyncType.viirs
         self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
             self.fire_alerts_type.value
@@ -86,8 +86,8 @@ class ViirsSync(FireAlertsSync):
 
 
 class ModisSync(FireAlertsSync):
-    def __init__(self, sync_version: str):
-        super(ModisSync, self).__init__(sync_version)
+    def __init__(self, sync_version: str, **kwargs):
+        super(ModisSync, self).__init__(sync_version, **kwargs)
         self.fire_alerts_type = SyncType.modis
         self.fire_alerts_uri, self.content_end_date = process_active_fire_alerts(
             self.fire_alerts_type.value
@@ -97,7 +97,7 @@ class ModisSync(FireAlertsSync):
 class GladSync(Sync):
     DATASET_NAME = "umd_glad_landsat_alerts"
 
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -140,7 +140,6 @@ class IntegratedAlertsSync(Sync):
         "umd_glad_sentinel2_alerts",
         "wur_radd_alerts",
     ]
-    content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
     # First filter for nodata by multiplying everything by
     # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
@@ -192,7 +191,7 @@ class IntegratedAlertsSync(Sync):
     )"""
     INPUT_CALC = " ".join(_INPUT_CALC.split())
 
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -240,15 +239,9 @@ class IntegratedAlertsSync(Sync):
                     # generation of the default COG takes the longest.
                     timeout_sec=13 * 3600,
                 ),
-                tile_cache_parameters=RasterTileCacheParameters(
-                    max_zoom=14,
-                    resampling="med",
-                    symbology={"type": "date_conf_intensity_multi_8"},
-                ),
                 content_date_range=ContentDateRange(
                     start_date="2014-12-31", end_date=str(date.today())
                 ),
-                content_date_description=self.content_date_description
             )
             job.aux_tile_set_parameters = [
                 AuxTileSetParameters(
@@ -376,12 +369,7 @@ class DeforestationAlertsSync(Sync):
     def max_zoom(self):
         ...
 
-    @property
-    @abstractmethod
-    def content_date_description(self):
-        ...
-
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         self.sync_version = sync_version
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -425,7 +413,6 @@ class DeforestationAlertsSync(Sync):
             content_date_range=ContentDateRange(
                 start_date="2020-01-01", end_date=str(version_dt)
             ),
-            content_date_description=self.content_date_description
         )
 
     @abstractmethod
@@ -467,9 +454,8 @@ class RADDAlertsSync(DeforestationAlertsSync):
     number_of_tiles = [208, 209]  # Africa:54, Asia:70, CA: 16, SA:68
     grid = "10/100000"
     max_zoom = 14
-    content_date_description = "Africa: January 2019 – present \n\n South America, Central America, and Southeast Asia: January 2020 – present  (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         super().__init__(sync_version)
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
@@ -539,7 +525,6 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     grid = "10/40000"
     start_year = 2021
     max_zoom = 12
-    content_date_description = "January 1, 2021 – present (GLAD-L alerts have been operating since 2015 for select countries in the Amazon and Congo Basins and insular Southeast Asia, but historical data are not available on GFW) (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain archive starting 2021)  "
 
     @property
     def input_calc(self):
@@ -706,7 +691,6 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
     number_of_tiles = 18
     grid = "10/100000"
     max_zoom = 14
-    content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
         """
@@ -743,9 +727,8 @@ class DISTAlertsSync(Sync):
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
     input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), -1)"
-    content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
 
-    def __init__(self, sync_version: str):
+    def __init__(self, sync_version: str, **kwargs):
         self.sync_version = sync_version
 
     def get_latest_release(self) -> Tuple[str, List[str]]:
@@ -771,15 +754,15 @@ class DISTAlertsSync(Sync):
         latest_release = f"v{upload_date.replace('-', '')}"
 
         return latest_release, source_uris
-
-    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
+    
+    def build_jobs (self, config: DatapumpConfig) -> List[Job]:
         latest_api_version = self.get_latest_api_version(self.dataset_name)
         latest_release, source_uris = self.get_latest_release()
 
         # If the latest API version matches latest release from UMD, no need to update
         if latest_api_version == latest_release:
             return []
-
+        
         jobs: List[Job] = []
 
         slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
@@ -806,8 +789,7 @@ class DISTAlertsSync(Sync):
             ),
             content_date_range=ContentDateRange(
                 start_date="2020-12-31", end_date=str(date.today())
-            ),
-            content_date_description=self.content_date_description
+            )
         )
         job.aggregated_tile_set_parameters = AuxTileSetParameters(
             # Aggregated tile set (to include all alerts)
@@ -816,7 +798,7 @@ class DISTAlertsSync(Sync):
             data_type="int16",
             no_data=-1,
             calc="np.where(A > 0, A, B)",
-            auxiliary_asset_pixel_meaning="default"
+            auxiliary_asset_pixel_meaning = "default"
         )
         job.aux_tile_set_parameters = [
             # Intensity tile set
@@ -827,8 +809,7 @@ class DISTAlertsSync(Sync):
                 calc="(B > 0) * 55",
                 grid="10/40000",
                 no_data=None,
-                auxiliary_asset_pixel_meaning="default",
-                auxiliary_asset_version=latest_release
+                auxiliary_asset_pixel_meaning = "default"
             )
         ]
         job.cog_asset_parameters = [
@@ -853,11 +834,10 @@ class DISTAlertsSync(Sync):
 
         return jobs
 
-
 class RWAreasSync(Sync):
-    def __init__(self, sync_version: str):
+    def __init__(sync_version, start_date=None, end_date=None, **kwargs):
         self.sync_version = sync_version
-        self.features_1x1 = create_1x1_tsv(sync_version)
+        self.features_1x1 = create_1x1_tsv(sync_version, start_date, end_date)
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.features_1x1:
@@ -899,12 +879,12 @@ class Syncer:
         SyncType.umd_glad_dist_alerts: DISTAlertsSync,
     }
 
-    def __init__(self, sync_types: List[SyncType], sync_version: str = None):
+    def __init__(self, sync_types: List[SyncType], sync_version: str = None, **kwargs):
         self.sync_version: str = (
             sync_version if sync_version else self._get_latest_version()
         )
         self.syncers: Dict[SyncType, Sync] = {
-            sync_type: self.SYNCERS[sync_type](self.sync_version)
+            sync_type: self.SYNCERS[sync_type](self.sync_version, **kwargs)
             for sync_type in sync_types
         }
 
