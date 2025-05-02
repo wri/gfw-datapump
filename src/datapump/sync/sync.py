@@ -260,6 +260,27 @@ class IntegratedAlertsSync(Sync):
                     no_data=None,
                 )
             ]
+
+            # Don't do export_to_gee if one of the 5 previous versions did an
+            # export_to_gee. The export to GEE is not required daily. Also,
+            # each export can often take more than 24 hours (with retries), so
+            # successive exports can cause errors for each other if they pile up and
+            # run concurrently.
+            client = DataApiClient()
+            dataset = client.get_dataset(self.DATASET_NAME)
+            versions = sorted(dataset["versions"], reverse=True)[:5]
+            export_to_gee = True
+            for v in versions:
+                d = client.get_version(self.DATASET_NAME, v)
+                for a in d["assets"]:
+                    if a[0] == "COG" and "default.tif" in a[1]:
+                        co = client.get_asset_creation_options(a[2])
+                        if co["export_to_gee"] is True:
+                            export_to_gee = False
+                            break
+                if export_to_gee is False:
+                    break
+
             job.cog_asset_parameters = [
                 # Created from the "date_conf" asset
                 CogAssetParameters(
@@ -267,7 +288,7 @@ class IntegratedAlertsSync(Sync):
                     resampling="mode",
                     implementation="default",
                     blocksize=1024,
-                    export_to_gee=True,
+                    export_to_gee=export_to_gee,
                 ),
                 # Created from the "intensity" asset
                 CogAssetParameters(
