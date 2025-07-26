@@ -831,6 +831,9 @@ class DISTAlertsSync(Sync):
             grid="10/40000",
             data_type="int16",
             no_data=-1,
+            # Use union_bands, so we keep all the history, even if there are
+            # incomplete tiles from UMD this week.
+            union_bands=True,
             calc="np.where(A > 0, A, B)",
             auxiliary_asset_pixel_meaning="default"
         )
