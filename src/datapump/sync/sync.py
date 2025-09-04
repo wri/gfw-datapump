@@ -758,6 +758,8 @@ class DISTAlertsSync(Sync):
     dataset_name = "umd_glad_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
+    # 0 is now the no_data value, but it also means there are no alerts for the pixel.
+    # We are mixing the two concepts, because the end result is a better map display of dist alerts by titiler.
     input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), 0)"
     content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
 
