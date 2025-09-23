@@ -758,7 +758,9 @@ class DISTAlertsSync(Sync):
     dataset_name = "umd_glad_dist_alerts"
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "DIST-ALERT"
-    input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), -1)"
+    # 0 is now the no_data value, but it also means there are no alerts for the pixel.
+    # We are mixing the two concepts, because the end result is a better map display of dist alerts by titiler.
+    input_calc = "np.where((A>=30) & (A<255) & (B>0) & (C>=2) & (C<255), np.where(C<4, 20000 + B, 30000 + B), 0)"
     content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
 
     def __init__(self, sync_version: str):
@@ -811,7 +813,7 @@ class DISTAlertsSync(Sync):
                 calc=self.input_calc,
                 grid="10/40000",
                 data_type="int16",
-                no_data=-1,
+                no_data=0,
                 pixel_meaning="currentweek",
                 band_count=1,
                 compute_stats=False,
@@ -830,7 +832,7 @@ class DISTAlertsSync(Sync):
             pixel_meaning="default",
             grid="10/40000",
             data_type="int16",
-            no_data=-1,
+            no_data=0,
             # Use union_bands, so we keep all the history, even if there are
             # incomplete tiles from UMD this week.
             union_bands=True,
