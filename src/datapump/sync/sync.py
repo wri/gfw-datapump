@@ -24,6 +24,27 @@ from ..util.util import log_and_notify_error
 from ..util.slack import slack_webhook
 
 
+def delete_older_versions(client: DataApiClient, dataset: str, versions: List[str],
+                          cur_version: str, preservedays: int, save_versions: List[str]):
+    """Delete versions of dataset (listed in versions) that are older than
+    preservedays from the current version cur_version. save_versions is a list of
+    versions that should be preserved regardless.
+
+    """
+
+    cur_date = datetime.strptime(cur_version, 'v%Y%m%d')
+    oldest_preserved_version = f"v{(cur_date - timedelta(days=preservedays)).strftime('%Y%m%d')}"
+    # Sort oldest to newest
+    versions = sorted(versions)
+    for v in versions:
+        if v >= oldest_preserved_version:
+            break
+        if v in save_versions:
+            continue
+        print(f"Deleting {dataset}/{v}")
+        client.delete_version(dataset, v)
+
+
 class Sync(ABC):
     @abstractmethod
     def __init__(self, sync_version: str):
@@ -141,6 +162,15 @@ class IntegratedAlertsSync(Sync):
         "wur_radd_alerts",
     ]
     content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
+    preserve_days = 180
+    save_versions = [
+        "v20211002",
+        "v20220101", "v20220331", "v20220702", "v20221001",
+        "v20230101", "v20230401", "v20230704", "v20231001",
+        "v20240102", "v20240401", "v20240701", "v20241001",
+        "v20250101", "v20250401", "v20250701", "v20251001",
+    ]
+
 
     # First filter for nodata by multiplying everything by
     # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
@@ -216,6 +246,13 @@ class IntegratedAlertsSync(Sync):
         if not self._should_update(latest_versions):
             return []
 
+        client = DataApiClient()
+        dataset = client.get_dataset(self.DATASET_NAME)
+        # Delete any versions older than self.preserve_days, but not in self.save_versions.
+        delete_older_versions(client, self.DATASET_NAME, dataset["versions"],
+                              self.sync_version, self.preserve_days,
+                              self.save_versions)
+
         jobs: List[Job] = []
 
         if config.dataset == "gadm":
@@ -261,8 +298,6 @@ class IntegratedAlertsSync(Sync):
             # each export can often take more than 24 hours (with retries), so
             # successive exports can cause errors for each other if they pile up and
             # run concurrently.
-            client = DataApiClient()
-            dataset = client.get_dataset(self.DATASET_NAME)
             versions = sorted(dataset["versions"], reverse=True)[:5]
             export_to_gee = True
             for v in versions:
