@@ -171,7 +171,6 @@ class IntegratedAlertsSync(Sync):
         "v20250101", "v20250401", "v20250701", "v20251001",
     ]
 
-
     # First filter for nodata by multiplying everything by
     # (((A.data) > 0) | ((B.data) > 0) | ((C.data) > 0))
     # Now to establish the combined confidence. We take 10000 and add
@@ -311,7 +310,7 @@ class IntegratedAlertsSync(Sync):
                 if export_to_gee is False:
                     break
 
-            job.cog_asset_parameters = [
+            job.cox_or_aux_asset_parameters = [
                 # Created from the "date_conf" asset
                 CogAssetParameters(
                     source_pixel_meaning="date_conf",
@@ -875,7 +874,7 @@ class DISTAlertsSync(Sync):
             auxiliary_asset_pixel_meaning="default"
         )
         job.aux_tile_set_parameters = [
-            # Intensity tile set
+            # Create the "intensity" tile set used to make the "intensity" COG.
             AuxTileSetParameters(
                 source_uri=None,
                 pixel_meaning="intensity",
@@ -885,9 +884,22 @@ class DISTAlertsSync(Sync):
                 no_data=None,
                 auxiliary_asset_pixel_meaning="default",
                 auxiliary_asset_version=latest_release
+            ),
+            # Create date_conf raster with correct day basis (from 2014/12/31, rather
+            # than 2020/12/31), so that OTF queries via the data API can correctly
+            # use the __date and __confidence fields.
+            AuxTileSetParameters(
+                source_uri=None,
+                pixel_meaning="date_conf",
+                data_type="uint16",
+                calc="B+2192",
+                grid="10/40000",
+                no_data=0,
+                auxiliary_asset_pixel_meaning="default",
+                auxiliary_asset_version=latest_release
             )
         ]
-        job.cog_asset_parameters = [
+        job.cog_or_aux_asset_parameters = [
             # Created from the "default" asset
             CogAssetParameters(
                 source_pixel_meaning="default",
@@ -902,6 +914,18 @@ class DISTAlertsSync(Sync):
                 resampling="bilinear",
                 implementation="intensity",
                 blocksize=1024
+            ),
+            # Dist resample job here (takes 3:35, only a little bit longer than the
+            # COG job creating default.tif).
+            AuxTileSetParameters(
+                source_uri=None,
+                pixel_meaning="resample10m",
+                data_type="uint16",
+                calc="np.where(B > 0, B+2192, 0)",
+                grid="10/1000000",
+                no_data=0,
+                auxiliary_asset_pixel_meaning="default",
+                auxiliary_asset_version=latest_release,
             )
         ]
 

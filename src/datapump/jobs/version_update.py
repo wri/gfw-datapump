@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
@@ -17,14 +17,27 @@ from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
 
 
+# This class lists the stages for a RasterVersionUpdateJob. The stages run in
+# sequence in the order shown (any stage can be omitted), but creating_aux_assets and
+# creating_cog_or_aux_assets run their list of items in parallel.
 class RasterVersionUpdateJobStep(str, Enum):
     starting = "starting"
+    # Creating the base tile set of the version
     creating_tile_set = "creating_tile_set"
+    # Optionally creating a tile cache.
     creating_tile_cache = "creating_tile_cache"
-    creating_aggregated_tile_set = "creating_aggregated_tile_set" # DIST-Alerts aggregation must run before mark_latest
-    mark_latest = "mark_latest"
+    # creating_aggregated_tile_set is Dist-alerts-specific. It creates an aggregation
+    # of last week 'default' raster with the new 'currentweek' raster of this week.It
+    # must run before mark_latest, since it specific wants to be able to reference
+    # last week's version as 'latest'.
+    creating_aggregated_tile_set = "creating_aggregated_tile_set"
+    # Create any other auxiliary tile sets.
     creating_aux_assets = "creating_aux_assets"
-    creating_cog_assets = "creating_cog_assets"
+    # Mainly used for creating COG assets (which take a long time), but can also be
+    # used for creating a final auxiliary tile set which also takes a long time (so
+    # best to run in parallel with the COGs, rather than earlier).
+    creating_cog_or_aux_assets = "creating_cog_or_aux_assets"
+    mark_latest = "mark_latest"
 
 class RasterVersionUpdateJob(Job):
     dataset: str
@@ -35,7 +48,7 @@ class RasterVersionUpdateJob(Job):
     tile_cache_parameters: Optional[RasterTileCacheParameters] = None
     aggregated_tile_set_parameters: Optional[AuxTileSetParameters] = None
     aux_tile_set_parameters: List[AuxTileSetParameters] = []
-    cog_asset_parameters: List[CogAssetParameters] = []
+    cog_or_aux_asset_parameters: List[Union[CogAssetParameters, AuxTileSetParameters]] = []
     timeout_sec = 24 * 60 * 60
 
     def next_step(self):
@@ -71,10 +84,10 @@ class RasterVersionUpdateJob(Job):
                     self.step = RasterVersionUpdateJobStep.creating_aux_assets
                     for tile_set_params in self.aux_tile_set_parameters:
                         self._create_aux_tile_set(tile_set_params)
-                elif self.cog_asset_parameters:
-                    self.step = RasterVersionUpdateJobStep.creating_cog_assets
-                    for cog_asset_param in self.cog_asset_parameters:
-                        if self._create_cog_asset(cog_asset_param) == "":
+                elif self.cog_or_aux_asset_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_cog_or_aux_assets
+                    for cog_asset_param in self.cog_or_aux_asset_parameters:
+                        if self._create_cog_or_aux_asset(cog_asset_param) == "":
                             self.status = JobStatus.failed
                             break
                 else:
@@ -112,10 +125,10 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
-                if self.cog_asset_parameters:
-                    self.step = RasterVersionUpdateJobStep.creating_cog_assets
-                    for cog_asset_param in self.cog_asset_parameters:
-                        if self._create_cog_asset(cog_asset_param) == "":
+                if self.cog_or_aux_asset_parameters:
+                    self.step = RasterVersionUpdateJobStep.creating_cog_or_aux_assets
+                    for cog_asset_param in self.cog_or_aux_asset_parameters:
+                        if self._create_cog_or_aux_asset(cog_asset_param) == "":
                             self.status = JobStatus.failed
                             break
                 else:
@@ -124,7 +137,7 @@ class RasterVersionUpdateJob(Job):
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
 
-        elif self.step == RasterVersionUpdateJobStep.creating_cog_assets:
+        elif self.step == RasterVersionUpdateJobStep.creating_cog_or_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
                 self.step = RasterVersionUpdateJobStep.mark_latest
@@ -240,13 +253,15 @@ class RasterVersionUpdateJob(Job):
 
         return data["asset_id"]
 
-    def _create_cog_asset(self, cog_asset_parameters: CogAssetParameters) -> str:
+    def _create_cog_or_aux_asset(self, cog_or_aux_asset_parameters: Union[CogAssetParameters, AuxTileSetParameters]) -> str:
         """
-        Create cog asset and return asset ID, empty string if an error
+        Create cog asset or auxiliary asset and return asset ID, empty string if an error
         """
-        client = DataApiClient()
+        co = cog_or_aux_asset_parameters
+        if isinstance(co, AuxTileSetParameters):
+            return self._create_aux_tile_set(co)
 
-        co = cog_asset_parameters
+        client = DataApiClient()
 
         assets = client.get_assets(self.dataset, self.version)
         asset_id = ""
@@ -293,7 +308,9 @@ class RasterVersionUpdateJob(Job):
 
     def _check_aux_assets_status(self) -> JobStatus:
         """
-        These will run in parallel, just check all are set to saved
+        Check all assets of (dataset, version). Return JobStatus.failed if any asset
+        has failed status, JobStatus.pending if any asset still has pending status,
+        and JobStatus.complete if all assets are complete (saved)
         """
         client = DataApiClient()
 
