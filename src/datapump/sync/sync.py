@@ -892,7 +892,7 @@ class DISTAlertsSync(Sync):
                 source_uri=None,
                 pixel_meaning="date_conf",
                 data_type="uint16",
-                calc="B+2192",
+                calc="np.where(B > 0, B+2192, 0)",
                 grid="10/40000",
                 no_data=0,
                 auxiliary_asset_pixel_meaning="default",

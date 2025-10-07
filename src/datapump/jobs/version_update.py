@@ -127,8 +127,8 @@ class RasterVersionUpdateJob(Job):
             if status == JobStatus.complete:
                 if self.cog_or_aux_asset_parameters:
                     self.step = RasterVersionUpdateJobStep.creating_cog_or_aux_assets
-                    for cog_asset_param in self.cog_or_aux_asset_parameters:
-                        if self._create_cog_or_aux_asset(cog_asset_param) == "":
+                    for cog_or_aux_asset_param in self.cog_or_aux_asset_parameters:
+                        if self._create_cog_or_aux_asset(cog_or_aux_asset_param) == "":
                             self.status = JobStatus.failed
                             break
                 else:
