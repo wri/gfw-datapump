@@ -24,14 +24,15 @@ from ..util.util import log_and_notify_error
 from ..util.slack import slack_webhook
 
 
-def delete_older_versions(client: DataApiClient, dataset: str, versions: List[str],
-                          cur_version: str, preservedays: int, save_versions: List[str]):
-    """Delete versions of dataset (listed in versions) that are older than
-    preservedays from the current version cur_version. save_versions is a list of
-    versions that should be preserved regardless.
-
+def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
+                          save_versions: List[str]):
+    """Delete versions of dataset that are older than preservedays from the current
+    version cur_version. save_versions is a list of versions that should be preserved
+    regardless.
     """
 
+    client = DataApiClient()
+    versions = client.get_dataset(dataset)["versions"]
     cur_date = datetime.strptime(cur_version, 'v%Y%m%d')
     oldest_preserved_version = f"v{(cur_date - timedelta(days=preservedays)).strftime('%Y%m%d')}"
     # Sort oldest to newest
@@ -245,11 +246,8 @@ class IntegratedAlertsSync(Sync):
         if not self._should_update(latest_versions):
             return []
 
-        client = DataApiClient()
-        dataset = client.get_dataset(self.DATASET_NAME)
         # Delete any versions older than self.preserve_days, but not in self.save_versions.
-        delete_older_versions(client, self.DATASET_NAME, dataset["versions"],
-                              self.sync_version, self.preserve_days,
+        delete_older_versions(self.DATASET_NAME, self.sync_version, self.preserve_days,
                               self.save_versions)
 
         jobs: List[Job] = []
@@ -292,6 +290,8 @@ class IntegratedAlertsSync(Sync):
                 )
             ]
 
+            client = DataApiClient()
+            dataset = client.get_dataset(self.DATASET_NAME)
             # Don't do export_to_gee if one of the 5 previous versions did an
             # export_to_gee. The export to GEE is not required daily. Also,
             # each export can often take more than 24 hours (with retries), so
@@ -439,6 +439,10 @@ class DeforestationAlertsSync(Sync):
         Creates the deforestation raster layer and assets
         """
 
+        # Delete any versions older than self.preserve_days, but not in self.save_versions.
+        delete_older_versions(self.dataset_name, self.sync_version, self.preserve_days,
+                              self.save_versions)
+
         latest_api_version = self.get_latest_api_version(self.dataset_name)
         latest_release, source_uris = self.get_latest_release()
 
@@ -511,6 +515,15 @@ class RADDAlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "wur_radd_alerts"
+    preserve_days = 180
+    save_versions = [
+        "v20210704", "v20211017",
+        "v20220109", "v20220403", "v20220626", "v20221002",
+        "v20230101", "v20230402", "v20230702", "v20231001",
+        "v20240108", "v20240407", "v20240714", "v20241006",
+        "v20250105", "v20250330", "v20250706", "v20251005",
+    ]
+
     source_bucket = "gfw_gee_export"
     source_prefix = "wur_radd_alerts/"
     input_calc = "(A >= 20000) * (A < 40000) * A"
@@ -583,6 +596,16 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "umd_glad_landsat_alerts"
+    preserve_days = 180
+    save_versions = [
+        "v202005",
+        "v20210714", "v20211001",
+        "v20220101", "v20220601", "v20220711", "v20221002",
+        "v20230112", "v20230401", "v20230725", "v20231001",
+        "v20240101", "v20240401", "v20240701", "v20241001",
+        "v20250101", "v20250401", "v20250701", "v20250927",
+    ]
+
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "GLADalert/C2"
     number_of_tiles = 115
@@ -750,6 +773,15 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "umd_glad_sentinel2_alerts"
+    preserve_days = 180
+    save_versions = [
+        "v20210406", "v20210707", "v20211001",
+        "v20220110", "v20220412", "v20220701", "v20221001",
+        "v20230101", "v20230401", "v20230613", "v20231001",
+        "v20240102", "v20240401", "v20240701", "v20241001",
+        "v20250101", "v20250408", "v20250701", "v20251001"
+    ]
+
     source_bucket = "earthenginepartners-hansen"
     source_prefix = "S2alert"
     input_calc = "(A > 0) * (20000 + 10000 * (A > 1) + B + 1461)"
