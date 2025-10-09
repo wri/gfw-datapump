@@ -28,7 +28,9 @@ def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
                           save_versions: List[str]):
     """Delete versions of dataset that are older than preservedays from the current
     version cur_version. save_versions is a list of versions that should be preserved
-    regardless.
+    regardless. For the alerts datasets, it is roughly quarterly versions that
+    research folks have asked to preserve for historical/comparison sake.
+
     """
 
     client = DataApiClient()
@@ -170,6 +172,7 @@ class IntegratedAlertsSync(Sync):
         "v20230101", "v20230401", "v20230704", "v20231001",
         "v20240102", "v20240401", "v20240701", "v20241001",
         "v20250101", "v20250401", "v20250701", "v20251001",
+        "v20260101", "v20260401", "v20260701", "v20261001"
     ]
 
     # First filter for nodata by multiplying everything by
@@ -522,6 +525,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
         "v20230101", "v20230402", "v20230702", "v20231001",
         "v20240108", "v20240407", "v20240714", "v20241006",
         "v20250105", "v20250330", "v20250706", "v20251005",
+        "v20260101", "v20260401", "v20260701", "v20261001"
     ]
 
     source_bucket = "gfw_gee_export"
@@ -604,6 +608,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         "v20230112", "v20230401", "v20230725", "v20231001",
         "v20240101", "v20240401", "v20240701", "v20241001",
         "v20250101", "v20250401", "v20250701", "v20250927",
+        "v20260101", "v20260401", "v20260701", "v20261001"
     ]
 
     source_bucket = "earthenginepartners-hansen"
@@ -779,7 +784,8 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
         "v20220110", "v20220412", "v20220701", "v20221001",
         "v20230101", "v20230401", "v20230613", "v20231001",
         "v20240102", "v20240401", "v20240701", "v20241001",
-        "v20250101", "v20250408", "v20250701", "v20251001"
+        "v20250101", "v20250408", "v20250701", "v20251001",
+        "v20260101", "v20260401", "v20260701", "v20261001"
     ]
 
     source_bucket = "earthenginepartners-hansen"
