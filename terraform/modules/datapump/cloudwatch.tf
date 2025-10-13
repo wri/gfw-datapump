@@ -83,8 +83,10 @@ resource "aws_cloudwatch_event_target" "sync-modis" {
   count     = var.environment == "production" ? 1 : 0
 }
 
+# Run every day at 11pm PST. It should run after the deforestation alerts above are complete
+# (which always finish in 2.5 hours, so running 4 hours after is fine.)
 resource "aws_cloudwatch_event_target" "sync-integrated-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-3-am-est.name
+  rule      = aws_cloudwatch_event_rule.everyday-11-pm-est.name
   target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"integrated_alerts\"]}}"
