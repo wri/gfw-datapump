@@ -960,7 +960,7 @@ class DISTAlertsSync(Sync):
                 pixel_meaning="resample10m",
                 data_type="uint16",
                 calc="np.where(B > 0, B+2192, 0)",
-                grid="10/1000000",
+                grid="10/100000",
                 no_data=0,
                 auxiliary_asset_pixel_meaning="default",
                 auxiliary_asset_version=latest_release,
