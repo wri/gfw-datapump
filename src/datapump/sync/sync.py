@@ -313,7 +313,7 @@ class IntegratedAlertsSync(Sync):
                 if export_to_gee is False:
                     break
 
-            job.cox_or_aux_asset_parameters = [
+            job.cog_or_aux_asset_parameters = [
                 # Created from the "date_conf" asset
                 CogAssetParameters(
                     source_pixel_meaning="date_conf",
