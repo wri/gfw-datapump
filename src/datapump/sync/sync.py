@@ -57,6 +57,11 @@ class Sync(ABC):
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         ...
 
+    def _get_latest_versions(self) -> Dict[str, str]:
+        """ Get latest versions of each dataset in self.SOURCE_DATASETS"""
+        client = DataApiClient()
+        return {ds: client.get_latest_version(ds) for ds in self.SOURCE_DATASETS}
+
     @staticmethod
     def get_latest_api_version(dataset_name: str) -> str:
         """
@@ -352,10 +357,6 @@ class IntegratedAlertsSync(Sync):
         )
 
         return jobs
-
-    def _get_latest_versions(self) -> Dict[str, str]:
-        client = DataApiClient()
-        return {ds: client.get_latest_version(ds) for ds in self.SOURCE_DATASETS}
 
     def _should_update(self, latest_versions: Dict[str, str]) -> bool:
         """
@@ -967,6 +968,126 @@ class DISTAlertsSync(Sync):
                 # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
                 timeout_sec=3 * 3600
             )
+        ]
+
+        jobs.append(job)
+
+        return jobs
+
+
+class IntDistAlertsSync(Sync):
+    """
+    Defines jobs to create merged integrated-DIST alerts assets once integrated alerts raster is available.
+    """
+
+    DATASET_NAME = "gfw_integrated_dist_alerts"
+    SOURCE_DATASETS = [
+        # Integrated alerts must be first
+        "gfw_integrated_alerts",
+        "umd_glad_dist_alerts",
+    ]
+
+    # The calculation to merge A (integrated alerts) and B (dist alerts). If only one
+    # of A or B is non-zero, just take that alert (both date and confidence).
+    # Otherwise, if the alerts are more than 180 days apart, take the newer alert
+    # date and its confidence (because this is a brand new alert on same pixel).
+    # Otherwise, take the oldest alert date, but merge the confidences (since assumed
+    # to be the same alert if within 180 days).
+    _INPUT_CALC = """np.ma.array(
+        (((A.data) > 0) | ((B.data) > 0)) *
+          np.where(((B.data) == 0) | ((A.data)%10000 > ((B.data)%10000 + 180)),
+              (A.data),
+              np.where((B.data)%10000 > ((A.data)%10000 + 180),
+                  (B.data),
+                  (10000 + 10000*np.minimum((A.data)//10000 + (B.data)//10000 - 1, 3)) + (65535 - np.maximum(((A.data) > 0) * (65535 - ((A.data)%10000)), ((B.data) > 0) * (65535 - ((B.data)%10000))))
+             )
+        ),
+        mask=False
+    )"""
+    INPUT_CALC = " ".join(_INPUT_CALC.split())
+
+    content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
+
+    def __init__(self, sync_version: str):
+        self.sync_version = sync_version
+
+    def build_jobs(self, config: DatapumpConfig) -> List[Job]:
+        latest_versions = self._get_latest_versions()
+        latest_intdist_version = self.get_latest_api_version(self.DATASET_NAME)
+        latest_int_version = latest_versions["gfw_integrated_alerts"]
+
+        # If the latest int_dist version matches latest integrated_alerts version, no need
+        # to update.
+        if latest_intdist_version == latest_int_version:
+            return []
+
+        new_intdist_version = latest_int_version
+        source_uris = [
+            f"s3://{GLOBALS.s3_bucket_data_lake}/{dataset}/{version}/raster/epsg-4326/10/100000/date_conf/geotiff/tiles.geojson"
+            for dataset, version in latest_versions.items()
+        ]
+
+        jobs: List[Job] = []
+
+        slack_webhook("INFO", f"Starting int-dist-alerts jobs for {self.DATASET_NAME}/{new_intdist_version}")
+
+        job = RasterVersionUpdateJob(
+            # Current week alerts tile set
+            id=str(uuid1()),
+            status=JobStatus.starting,
+            dataset=self.DATASET_NAME,
+            version=new_intdist_version,
+            tile_set_parameters=RasterTileSetParameters(
+                source_uri=source_uris,
+                calc=self.input_calc,
+                grid="10/100000",
+                data_type="uint16",
+                no_data=0,
+                pixel_meaning="default",
+                band_count=1,
+                compute_stats=False,
+                union_bands=False,
+                unify_projection=False,
+                # Do the optimization where we copy the dist tiles unchanged
+                # whereever there is no int tile (even though union_bands is False).
+                copy_solo_tiles=True,
+                # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
+                timeout_sec=3 * 3600
+            ),
+            content_date_range=ContentDateRange(
+                start_date="2020-12-31", end_date=str(date.today())
+            ),
+            content_date_description=self.content_date_description
+        )
+        job.aux_tile_set_parameters = [
+            # Create the "intensity" tile set used to make the "intensity" COG.
+            AuxTileSetParameters(
+                source_uri=None,
+                pixel_meaning="intensity",
+                data_type="uint8",
+                calc="(B > 0) * 55",
+                grid="10/100000",
+                no_data=None,
+                auxiliary_asset_pixel_meaning="default",
+                auxiliary_asset_version=new_intdist_version
+            ),
+        ]
+        job.cog_or_aux_asset_parameters = [
+            # Created from the "default" asset
+            CogAssetParameters(
+                source_pixel_meaning="default",
+                resampling="mode",
+                implementation="default",
+                blocksize=1024,
+                export_to_gee=False
+            ),
+            # Created from the "intensity" asset
+            CogAssetParameters(
+                source_pixel_meaning="intensity",
+                resampling="bilinear",
+                implementation="intensity",
+                blocksize=1024
+            ),
         ]
 
         jobs.append(job)

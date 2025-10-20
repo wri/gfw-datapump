@@ -27,7 +27,7 @@ class RasterTileSetParameters(StrictBaseModel):
     num_processes: Optional[int] = None
     resampling: str = "nearest"
     unify_projection: bool = False
-
+    copy_solo_tiles: bool = False
 
 class RasterTileCacheParameters(StrictBaseModel):
     symbology: Optional[Dict[str, Any]]

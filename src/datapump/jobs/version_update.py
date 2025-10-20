@@ -235,7 +235,8 @@ class RasterVersionUpdateJob(Job):
         }
 
         # Looks up asset ID of the raster tile set with auxiliary_asset_pixel_meaning
-        # using the current version or `latest` when version is not passed
+        # using version 'auxiliary_asset_version' (which may be used to refer to the
+        # current version being created), or `latest` when version is not passed
         if co.auxiliary_asset_pixel_meaning:
             auxiliary_asset_version = (
                 co.auxiliary_asset_version
