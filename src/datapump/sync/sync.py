@@ -964,6 +964,8 @@ class DISTAlertsSync(Sync):
                 no_data=0,
                 auxiliary_asset_pixel_meaning="default",
                 auxiliary_asset_version=latest_release,
+                # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
+                timeout_sec=3 * 3600
             )
         ]
 
