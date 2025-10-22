@@ -1138,6 +1138,7 @@ class Syncer:
         SyncType.umd_glad_landsat_alerts: GLADLAlertsSync,
         SyncType.umd_glad_sentinel2_alerts: GLADS2AlertsSync,
         SyncType.umd_glad_dist_alerts: DISTAlertsSync,
+        SyncType.gfw_integrated_dist_alerts: IntDistAlertsSync,
     }
 
     def __init__(self, sync_types: List[SyncType], sync_version: str = None):
