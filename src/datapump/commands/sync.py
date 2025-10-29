@@ -15,6 +15,7 @@ class SyncType(str, Enum):
     umd_glad_landsat_alerts = "umd_glad_landsat_alerts"
     umd_glad_sentinel2_alerts = "umd_glad_sentinel2_alerts"
     umd_glad_dist_alerts = "umd_glad_dist_alerts"
+    gfw_integrated_dist_alerts = "gfw_integrated_dist_alerts"
 
     @staticmethod
     def get_sync_types(dataset: str, analysis: Analysis):
