@@ -982,7 +982,8 @@ class IntDistAlertsSync(Sync):
 
     DATASET_NAME = "gfw_integrated_dist_alerts"
     SOURCE_DATASETS = [
-        # Integrated alerts must be first
+        # Dist alerts must be last, since copy_solo_tiles requires that the tiles of
+        # the last source must cover the tiles of all the other sources.
         "gfw_integrated_alerts",
         "umd_glad_dist_alerts",
     ]
@@ -1048,8 +1049,9 @@ class IntDistAlertsSync(Sync):
                 compute_stats=False,
                 union_bands=False,
                 unify_projection=False,
-                # Do the optimization where we copy the dist tiles unchanged
-                # whereever there is no int tile (even though union_bands is False).
+                # Do the optimization where we copy the dist tiles (the last source)
+                # unchanged wherever there is no int tile (even though union_bands
+                # is False).
                 copy_solo_tiles=True,
                 # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
                 timeout_sec=3 * 3600
