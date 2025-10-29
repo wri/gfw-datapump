@@ -1040,7 +1040,7 @@ class IntDistAlertsSync(Sync):
             version=new_intdist_version,
             tile_set_parameters=RasterTileSetParameters(
                 source_uri=source_uris,
-                calc=self.input_calc,
+                calc=self.INPUT_CALC,
                 grid="10/100000",
                 data_type="uint16",
                 no_data=0,
