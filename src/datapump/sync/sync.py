@@ -1072,7 +1072,8 @@ class IntDistAlertsSync(Sync):
                 grid="10/100000",
                 no_data=None,
                 auxiliary_asset_pixel_meaning="default",
-                auxiliary_asset_version=new_intdist_version
+                auxiliary_asset_version=new_intdist_version,
+                timeout_sec=3 * 3600
             ),
         ]
         job.cog_or_aux_asset_parameters = [
