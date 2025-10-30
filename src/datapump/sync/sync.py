@@ -1022,10 +1022,11 @@ class IntDistAlertsSync(Sync):
         if latest_intdist_version == latest_int_version:
             return []
 
+        latest_dist_version = latest_versions["umd_glad_dist_alerts"]
         new_intdist_version = latest_int_version
         source_uris = [
-            f"s3://{GLOBALS.s3_bucket_data_lake}/{dataset}/{version}/raster/epsg-4326/10/100000/date_conf/geotiff/tiles.geojson"
-            for dataset, version in latest_versions.items()
+            f"s3://{GLOBALS.s3_bucket_data_lake}/gfw_integrated_alerts/{latest_int_version}/raster/epsg-4326/10/100000/date_conf/geotiff/tiles.geojson",
+            f"s3://{GLOBALS.s3_bucket_data_lake}/umd_glad_dist_alerts/{latest_dist_version}/raster/epsg-4326/10/100000/resample10m/geotiff/tiles.geojson"
         ]
 
         jobs: List[Job] = []
