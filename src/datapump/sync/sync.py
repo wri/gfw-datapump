@@ -1076,6 +1076,7 @@ class IntDistAlertsSync(Sync):
                 data_type="uint8",
                 calc="(B > 0) * 55",
                 grid="10/100000",
+                union_bands=True,
                 no_data=None,
                 auxiliary_asset_pixel_meaning="default",
                 auxiliary_asset_version=new_intdist_version,
