@@ -987,6 +987,7 @@ class IntDistAlertsSync(Sync):
         "gfw_integrated_alerts",
         "umd_glad_dist_alerts",
     ]
+    preserve_days = 14
 
     # The calculation to merge A (integrated alerts) and B (dist alerts). If only one
     # of A or B is non-zero, just take that alert (both date and confidence).
@@ -1028,6 +1029,11 @@ class IntDistAlertsSync(Sync):
             f"s3://{GLOBALS.s3_bucket_data_lake}/gfw_integrated_alerts/{latest_int_version}/raster/epsg-4326/10/100000/date_conf/geotiff/tiles.geojson",
             f"s3://{GLOBALS.s3_bucket_data_lake}/umd_glad_dist_alerts/{latest_dist_version}/raster/epsg-4326/10/100000/resample10m/geotiff/tiles.geojson"
         ]
+
+        # Delete any versions older than self.preserve_days. We don't keep many old
+        # versions, because assets of gfw_integrated_dist_alerts are very large,
+        # especially the COGs.
+        delete_older_versions(self.DATASET_NAME, new_intdist_version, self.preserve_days, [])
 
         jobs: List[Job] = []
 
