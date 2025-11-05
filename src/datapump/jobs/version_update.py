@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Optional, Union
+import requests
 
 from datapump.commands.version_update import (
     RasterTileCacheParameters,
@@ -50,6 +51,7 @@ class RasterVersionUpdateJob(Job):
     aux_tile_set_parameters: List[AuxTileSetParameters] = []
     cog_or_aux_asset_parameters: List[Union[CogAssetParameters, AuxTileSetParameters]] = []
     timeout_sec = 24 * 60 * 60
+    gnw_webhook_url: Optional[str] = None
 
     def next_step(self):
         now = datetime.now()
@@ -148,6 +150,14 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.mark_latest:
             status = self._check_latest_status()
             if status == JobStatus.complete:
+                if self.gnw_webhook_url:
+                    try:
+                        self._trigger_gnw_analysis()
+                    except Exception as e:
+                        LOGGER.error(
+                            f"Error notifying GNW of new version "
+                            f"{self.dataset}/{self.version}: {e}"
+                        )
                 self.status = JobStatus.complete
             elif status == JobStatus.failed:
                 self.status = JobStatus.failed
@@ -377,3 +387,12 @@ class RasterVersionUpdateJob(Job):
         else:
             self.errors.append("Setting is_latest status failed")
             return JobStatus.failed
+
+    def _trigger_gnw_analysis(self):
+        """Trigger GNW prefect pipeline with new version."""
+        resp = requests.post(self.gnw_webhook_url, json={"version": self.version})
+        if resp.status_code != 200:
+            raise Exception(
+                f"Failed to trigger GNW notification for {self.dataset}/{self.version}: "
+                f"{resp.status_code} {resp.text}"
+            )
