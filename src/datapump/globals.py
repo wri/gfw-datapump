@@ -64,9 +64,4 @@ class Globals(EnvSettings):
         "/tmp/.gcs/private_key.json", env="GOOGLE_APPLICATION_CREDENTIALS"
     )
 
-    dist_alerts_gnw_webhook: Optional[str] = Field(
-        "https://api.prefect.cloud/hooks/nORvWPe3Jb1g6MdIb4aoRQ",
-        env="DIST_ALERTS_GNW_WEBHOOK",
-    )
-
 GLOBALS = Globals()
