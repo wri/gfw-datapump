@@ -111,7 +111,7 @@ resource "aws_cloudwatch_event_target" "sync-integrated-dist-alerts" {
   rule      = aws_cloudwatch_event_rule.everyday-930-am-est.name
   target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
-  input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"integrated_dist_alerts\"]}}"
+  input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"gfw_integrated_dist_alerts\"]}}"
   role_arn  = aws_iam_role.datapump_states.arn
   count     = var.environment == "production" ? 1 : 0
 }
