@@ -898,7 +898,9 @@ class DISTAlertsSync(Sync):
             content_date_range=ContentDateRange(
                 start_date="2020-12-31", end_date=str(date.today())
             ),
-            content_date_description=self.content_date_description
+            content_date_description=self.content_date_description,
+            notify_gnw=True
+
         )
         job.aggregated_tile_set_parameters = AuxTileSetParameters(
             # Aggregated tile set (to include all alerts)
