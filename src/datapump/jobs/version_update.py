@@ -399,7 +399,9 @@ class RasterVersionUpdateJob(Job):
     def _trigger_gnw_analysis(self):
         """Trigger GNW prefect pipeline with new version."""
         gnw_webhook_url = self._get_slack_webhook(self.dataset)
-        resp = requests.post(gnw_webhook_url, json={"version": self.version})
+        resp = requests.post(
+            gnw_webhook_url, json={"dataset": self.dataset, "version": self.version}
+        )
         if resp.status_code != 200:
             raise Exception(
                 f"Failed to trigger GNW notification for {self.dataset}/{self.version}: "
