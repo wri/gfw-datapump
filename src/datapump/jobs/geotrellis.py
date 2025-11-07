@@ -27,8 +27,8 @@ from ..jobs.jobs import (
 from botocore.exceptions import ClientError
 import time
 
-WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]  # "r6g.2xlarge"
-MASTER_INSTANCE_TYPE = "r5.2xlarge"
+WORKER_INSTANCE_TYPES = ["r6i.2xlarge", "r4.2xlarge"]
+MASTER_INSTANCE_TYPE = "r6i.2xlarge"
 GEOTRELLIS_RETRIES = 3
 
 
