@@ -27,8 +27,9 @@ from ..jobs.jobs import (
 from botocore.exceptions import ClientError
 import time
 
-WORKER_INSTANCE_TYPES = ["r6i.2xlarge", "r4.2xlarge"]
-MASTER_INSTANCE_TYPE = "r6i.2xlarge"
+# r6i.2xlarge not supported on emr-6.3.1
+WORKER_INSTANCE_TYPES = ["r5.2xlarge", "r4.2xlarge"]
+MASTER_INSTANCE_TYPE = "r4.2xlarge"
 GEOTRELLIS_RETRIES = 3
 
 
