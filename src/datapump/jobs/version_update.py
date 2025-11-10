@@ -402,7 +402,7 @@ class RasterVersionUpdateJob(Job):
         resp = requests.post(
             gnw_webhook_url, json={"dataset": self.dataset, "version": self.version}
         )
-        if resp.status_code != 200:
+        if resp.status_code >= 400:
             raise Exception(
                 f"Failed to trigger GNW notification for {self.dataset}/{self.version}: "
                 f"{resp.status_code} {resp.text}"
