@@ -990,6 +990,7 @@ class IntDistAlertsSync(Sync):
         "umd_glad_dist_alerts",
     ]
     preserve_days = 14
+    save_versions = ["v20251101"]  # Preserve this single version for tests
 
     # The calculation to merge A (integrated alerts) and B (dist alerts). If only one
     # of A or B is non-zero, just take that alert (both date and confidence).
@@ -1035,7 +1036,7 @@ class IntDistAlertsSync(Sync):
         # Delete any versions older than self.preserve_days. We don't keep many old
         # versions, because assets of gfw_integrated_dist_alerts are very large,
         # especially the COGs.
-        delete_older_versions(self.DATASET_NAME, new_intdist_version, self.preserve_days, [])
+        delete_older_versions(self.DATASET_NAME, new_intdist_version, self.preserve_days, self.save_versions)
 
         jobs: List[Job] = []
 
