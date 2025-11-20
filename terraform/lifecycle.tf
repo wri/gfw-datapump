@@ -10,7 +10,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "expire_results" {
     }
 
     expiration {
-      days = 45
+      days = 15
     }
 
     status = "Enabled"
@@ -24,7 +24,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "expire_results" {
     }
 
     expiration {
-      days = 45
+      days = 15
     }
 
     status = "Enabled"
@@ -38,7 +38,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "expire_results" {
     }
 
     expiration {
-      days = 90
+      days = 30
     }
 
     status = "Enabled"
