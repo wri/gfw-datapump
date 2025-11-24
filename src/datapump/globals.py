@@ -55,7 +55,7 @@ class Globals(EnvSettings):
         else None
     )
 
-    max_versions: int = Field(4, env="MAX_VERSIONS")
+    max_versions: int = Field(2, env="MAX_VERSIONS")
     datapump_table_name: Optional[str] = Field(env="DATAPUMP_TABLE_NAME")
 
     gcs_key_secret_arn: Optional[str] = Field(None, env="GCS_KEY_SECRET_ARN")

@@ -352,7 +352,7 @@ class IntegratedAlertsSync(Sync):
                 ),
                 features_1x1=config.metadata["features_1x1"],
                 geotrellis_version=config.metadata["geotrellis_version"],
-                timeout_sec=6 * 3600,
+                timeout_sec=12 * 3600,
             )
         )
 
