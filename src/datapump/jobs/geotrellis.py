@@ -277,6 +277,12 @@ class GeotrellisJob(Job):
                 error_msg = f'Table {table.dataset}/{version} has status "failed".'
                 LOGGER.error(error_msg)
                 self.errors.append(error_msg)
+                # Only delete for jobs that created a new table/version!
+                if self.should_auto_delete():
+                    client.delete_version(table.dataset, version)
+                    LOGGER.info(
+                        f"Deleted failed table {table.dataset}/{version} to control DB cost."
+                    )
                 return JobStatus.failed
 
             all_saved &= status == "saved"
@@ -348,6 +354,13 @@ class GeotrellisJob(Job):
             f"{job_type} failed for {self.table.analysis} on {dataset} "
             f"with version {self.table.version} "
             f"due to the following error(s): {errors}"
+        )
+
+    def should_auto_delete(self):
+        # Only auto-delete failed versions for jobs that create new tables/versions
+        return (
+            self.table.analysis in [Analysis.glad, Analysis.integrated_alerts]
+            and self.sync_type != SyncType.rw_areas
         )
 
     def _get_emr_inputs(self):
