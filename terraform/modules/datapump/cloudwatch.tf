@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_rule" "everyday-7-pm-est" {
 resource "aws_cloudwatch_event_rule" "everyday-830-am-est" {
   name                = substr("everyday-830-am-est${local.name_suffix}", 0, 64)
   description         = "Run everyday at 830 am EST"
-  schedule_expression = "cron(30 17 ? * * *)"
+  schedule_expression = "cron(30 16 ? * * *)"
   tags                = local.tags
 }
 
