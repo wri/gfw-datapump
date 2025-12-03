@@ -53,7 +53,7 @@ class DataApiClient:
         elif dataset == "gadm" and version == "v3.6":
             return "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv"
         elif dataset == "gadm" and version == "v4.1":
-            return "s3://gfw-pipelines/geotrellis/features/gadm41_adm2_1x1.tsv"
+            return f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/features/gadm41_adm2_1x1.tsv"
 
         return self.get_asset(dataset, version, "1x1 grid")["asset_uri"]
 
