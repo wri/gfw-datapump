@@ -956,18 +956,21 @@ class DISTAlertsSync(Sync):
                 implementation="intensity",
                 blocksize=1024
             ),
-            # Dist resample job here (takes 3:35, only a little bit longer than the
-            # COG job creating default.tif).
+            # Dist resample job for use in computing int-dist alerts. Takes around
+            # 2:35, about the same as the COG job creating default.tif. We resample
+            # to 10m, adjust the date basis to 2014/12/31, and also drop all
+            # low-confidence dist alerts (until we think they've become more
+            # reliable).
             AuxTileSetParameters(
                 source_uri=None,
                 pixel_meaning="resample10m",
                 data_type="uint16",
-                calc="np.where(B > 0, B+2192, 0)",
+                calc="np.where(B >= 30000, B+2192, 0)",
                 grid="10/100000",
                 no_data=0,
                 auxiliary_asset_pixel_meaning="default",
                 auxiliary_asset_version=latest_release,
-                # Sometimes this job runs over 2 hours, so increase timeout to 3 hours.
+                # This job usually runs over 2 hours, so increase timeout to 3 hours.
                 timeout_sec=3 * 3600
             )
         ]
