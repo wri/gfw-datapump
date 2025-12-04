@@ -22,10 +22,10 @@ resource "aws_cloudwatch_event_rule" "everyday-5-pm-pst" {
   tags                = local.tags
 }
 
-resource "aws_cloudwatch_event_rule" "everyday-630-am-pst" {
-  name                = substr("everyday-630-am-pst${local.name_suffix}", 0, 64)
-  description         = "Run everyday at 630 am PST"
-  schedule_expression = "cron(30 14 ? * * *)"
+resource "aws_cloudwatch_event_rule" "everyday-530-am-pst" {
+  name                = substr("everyday-530-am-pst${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 530 am PST"
+  schedule_expression = "cron(30 13 ? * * *)"
   tags                = local.tags
 }
 
@@ -107,10 +107,10 @@ resource "aws_cloudwatch_event_target" "sync-dist-alerts" {
   count     = var.environment == "production" ? 1 : 0
 }
 
-# Run every day at 6:30am PST. It should run after the integrated alerts is complete
+# Run every day at 5:30am PST. It should run after the integrated alerts is complete
 # (which finishes in 7-8.5 hours.)
 resource "aws_cloudwatch_event_target" "sync-integrated-dist-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-630-am-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-530-am-pst.name
   target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"gfw_integrated_dist_alerts\"]}}"
