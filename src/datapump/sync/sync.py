@@ -170,7 +170,7 @@ class IntegratedAlertsSync(Sync):
         "wur_radd_alerts",
     ]
     content_date_description = "January 1st, 2019 – present (the GFW map displays the most recent 2 years of alert data, but the dashboard widgets contain whole archive) "
-    preserve_days = 180
+    preserve_days = 90
     save_versions = [
         "v20211002",
         "v20220101", "v20220331", "v20220702", "v20221001",
@@ -519,7 +519,7 @@ class RADDAlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "wur_radd_alerts"
-    preserve_days = 180
+    preserve_days = 90
     save_versions = [
         "v20210704", "v20211017",
         "v20220109", "v20220403", "v20220626", "v20221002",
@@ -601,7 +601,7 @@ class GLADLAlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "umd_glad_landsat_alerts"
-    preserve_days = 180
+    preserve_days = 90
     save_versions = [
         "v202005",
         "v20210714", "v20211001",
@@ -779,7 +779,7 @@ class GLADS2AlertsSync(DeforestationAlertsSync):
     """
 
     dataset_name = "umd_glad_sentinel2_alerts"
-    preserve_days = 180
+    preserve_days = 90
     save_versions = [
         "v20210406", "v20210707", "v20211001",
         "v20220110", "v20220412", "v20220701", "v20221001",
