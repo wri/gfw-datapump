@@ -89,8 +89,14 @@ class GeotrellisJob(Job):
     version_overrides: Dict[str, Any] = {}
     result_tables: List[AnalysisResultTable] = []
     content_end_date: Optional[str] = None
+    on_demand_instances_only: bool = False
 
-
+    def __init__(self, *args, **kwargs):
+        # Populate the fields using the normal Pydantic processing.
+        super().__init__(*args, **kwargs)
+        # Force on-demand instances only for integrated alerts analysis on user areas (geostore).
+        if self.table.analysis == "integrated_alerts" and "geostore" in self.table.dataset:
+            self.on_demand_instances_only = True
 
     def next_step(self):
         now = datetime.now()
@@ -370,7 +376,7 @@ class GeotrellisJob(Job):
         steps = [self._get_step()]
 
         worker_count: int = self._calculate_worker_count(self.features_1x1)
-        instances = self._instances(worker_count)
+        instances = self._instances(worker_count, self.on_demand_instances_only)
         applications = self._applications()
         configurations = self._configurations(worker_count)
 
@@ -575,8 +581,7 @@ class GeotrellisJob(Job):
             cluster = None
         else:
             indices.append(cluster)
-        
-        
+
         if analysis_agg == "all":
             # TODO this clustering always fails because it goes beyond the
             # memory limits of our DB instance. Disable for now since after
@@ -726,7 +731,7 @@ class GeotrellisJob(Job):
             return 10
         elif self.table.analysis == Analysis.integrated_alerts:
             return 60
-            
+
         byte_size = self._get_byte_size(limiting_src)
 
         analysis_weight = 1.0
@@ -876,7 +881,7 @@ class GeotrellisJob(Job):
         return response["JobFlowId"]
 
     @staticmethod
-    def _instances(worker_count: int) -> Dict[str, Any]:
+    def _instances(worker_count: int, on_demand_instances_only: bool) -> Dict[str, Any]:
         core_count = math.ceil(worker_count / 8)
         task_count = worker_count - core_count
 
@@ -930,7 +935,8 @@ class GeotrellisJob(Job):
                 {
                     "Name": "geotrellis-tasks",
                     "InstanceFleetType": "TASK",
-                    "TargetSpotCapacity": task_count,
+                    "TargetSpotCapacity": 0 if on_demand_instances_only else task_count,
+                    "TargetOnDemandCapacity": task_count if on_demand_instances_only else 0,
                     "InstanceTypeConfigs": [
                         {
                             "InstanceType": instance_type,
