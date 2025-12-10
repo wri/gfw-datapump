@@ -1,17 +1,10 @@
 # Time in the text are all PST (Pacific Standard Time).
 # The hours in the cron() expression are in UTC.
 
-resource "aws_cloudwatch_event_rule" "everyday-9-pm-pst" {
-  name                = substr("everyday-9-pm-pst${local.name_suffix}", 0, 64)
-  description         = "Run everyday at 9 pm PST"
-  schedule_expression = "cron(0 5 ? * * *)"
-  tags                = local.tags
-}
-
-resource "aws_cloudwatch_event_rule" "everyday-8-pm-pst" {
-  name                = substr("everyday-8-pm-pst${local.name_suffix}", 0, 64)
-  description         = "Run everyday at 8 pm PST"
-  schedule_expression = "cron(0 4 ? * * *)"
+resource "aws_cloudwatch_event_rule" "everyday-6-pm-pst" {
+  name                = substr("everyday-6-pm-pst${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 6 pm PST"
+  schedule_expression = "cron(0 2 ? * * *)"
   tags                = local.tags
 }
 
@@ -22,10 +15,17 @@ resource "aws_cloudwatch_event_rule" "everyday-5-pm-pst" {
   tags                = local.tags
 }
 
-resource "aws_cloudwatch_event_rule" "everyday-530-am-pst" {
-  name                = substr("everyday-530-am-pst${local.name_suffix}", 0, 64)
-  description         = "Run everyday at 530 am PST"
-  schedule_expression = "cron(30 13 ? * * *)"
+resource "aws_cloudwatch_event_rule" "everyday-2-pm-pst" {
+  name                = substr("everyday-2-pm-pst${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 2 pm PST"
+  schedule_expression = "cron(0 22 ? * * *)"
+  tags                = local.tags
+}
+
+resource "aws_cloudwatch_event_rule" "everyday-230-am-pst" {
+  name                = substr("everyday-230-am-pst${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 230 am PST"
+  schedule_expression = "cron(30 10 ? * * *)"
   tags                = local.tags
 }
 
@@ -39,9 +39,9 @@ resource "aws_cloudwatch_event_rule" "everyday-11-am-pst" {
 # The count condition in each of the resources below ensures that the CloudWatch
 # events only happen in production.
 
-# Nightly runs start at 5pm PST
+# Nightly runs start at 2pm PST
 resource "aws_cloudwatch_event_target" "sync-areas" {
-  rule      = aws_cloudwatch_event_rule.everyday-5-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-2-pm-pst.name
   target_id = substr("${local.project}-sync-areas${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"rw_areas\"]}}"
@@ -50,7 +50,7 @@ resource "aws_cloudwatch_event_target" "sync-areas" {
 }
 
 resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-5-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-2-pm-pst.name
   target_id = substr("${local.project}-sync-deforestation-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input     = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"wur_radd_alerts\", \"umd_glad_landsat_alerts\", \"umd_glad_sentinel2_alerts\"]}}"
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_event_target" "sync-deforestation-alerts" {
 }
 
 resource "aws_cloudwatch_event_target" "sync-glad" {
-  rule      = aws_cloudwatch_event_rule.everyday-8-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-5-pm-pst.name
   target_id = substr("${local.project}-sync-glad${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"glad\"]}}"
@@ -68,7 +68,7 @@ resource "aws_cloudwatch_event_target" "sync-glad" {
 }
 
 resource "aws_cloudwatch_event_target" "sync-viirs" {
-  rule      = aws_cloudwatch_event_rule.everyday-9-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-6-pm-pst.name
   target_id = substr("${local.project}-sync-viirs${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"viirs\"]}}"
@@ -77,7 +77,7 @@ resource "aws_cloudwatch_event_target" "sync-viirs" {
 }
 
 resource "aws_cloudwatch_event_target" "sync-modis" {
-  rule      = aws_cloudwatch_event_rule.everyday-9-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-6-pm-pst.name
   target_id = substr("${local.project}-sync-modis${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"modis\"]}}"
@@ -85,10 +85,10 @@ resource "aws_cloudwatch_event_target" "sync-modis" {
   count     = var.environment == "production" ? 1 : 0
 }
 
-# Run every day at 9pm PST. It should run after the deforestation alerts above are complete
+# Run every day at 6pm PST. It should run after the deforestation alerts above are complete
 # (which always finish in 2.5 hours, so running 4 hours after is fine.)
 resource "aws_cloudwatch_event_target" "sync-integrated-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-9-pm-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-6-pm-pst.name
   target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"integrated_alerts\"]}}"
@@ -107,10 +107,10 @@ resource "aws_cloudwatch_event_target" "sync-dist-alerts" {
   count     = var.environment == "production" ? 1 : 0
 }
 
-# Run every day at 5:30am PST. It should run after the integrated alerts is complete
+# Run every day at 2:30am PST. It should run after the integrated alerts is complete
 # (which finishes in 7-8.5 hours.)
 resource "aws_cloudwatch_event_target" "sync-integrated-dist-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-530-am-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-230-am-pst.name
   target_id = substr("${local.project}-sync-integrated-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"gfw_integrated_dist_alerts\"]}}"
