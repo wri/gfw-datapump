@@ -400,7 +400,7 @@ class RasterVersionUpdateJob(Job):
         """Trigger GNW prefect pipeline with new version."""
         gnw_webhook_url = self._get_slack_webhook(self.dataset)
         resp = requests.post(
-            gnw_webhook_url, json={"dataset": self.dataset, "version": self.version}
+            gnw_webhook_url, json={"dataset": self.dataset, "version": self.version, "is_latest": True}
         )
         if resp.status_code >= 400:
             raise Exception(
