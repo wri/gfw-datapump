@@ -877,7 +877,19 @@ class GeotrellisJob(Job):
 
         LOGGER.info(f"Sending EMR request:\n{pformat(request)}")
 
-        response = client.run_job_flow(**request)
+        num_retries = 3
+        for i in range(num_retries):
+            try:
+                response = client.run_job_flow(**request)
+                break
+            except ClientError as e:
+                # Retry up to 3 times if we get a throttling exception
+                if i + 1 < num_retries and e.response['Error']['Code'] == 'ThrottlingException':
+                    print("Throttling exception occurred. Retrying in 30 seconds...")
+                    time.sleep(30)
+                    continue
+                else:
+                    raise
 
         return response["JobFlowId"]
 
