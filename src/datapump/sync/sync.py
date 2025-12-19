@@ -1057,7 +1057,9 @@ class IntDistAlertsSync(Sync):
                 grid="10/100000",
                 data_type="uint16",
                 no_data=0,
-                pixel_meaning="default",
+                # Use date_conf name so a data API query on the int-dist raster
+                # correctly understands date/confidence fields.
+                pixel_meaning="date_conf",
                 band_count=1,
                 compute_stats=False,
                 union_bands=False,
@@ -1084,15 +1086,15 @@ class IntDistAlertsSync(Sync):
                 grid="10/100000",
                 union_bands=True,
                 no_data=None,
-                auxiliary_asset_pixel_meaning="default",
+                auxiliary_asset_pixel_meaning="date_conf",
                 auxiliary_asset_version=new_intdist_version,
                 timeout_sec=3 * 3600
             ),
         ]
         job.cog_or_aux_asset_parameters = [
-            # Created from the "default" asset
+            # Created from the "date_conf" asset
             CogAssetParameters(
-                source_pixel_meaning="default",
+                source_pixel_meaning="date_conf",
                 resampling="mode",
                 implementation="default",
                 blocksize=1024,
