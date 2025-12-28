@@ -300,12 +300,12 @@ class IntegratedAlertsSync(Sync):
 
             client = DataApiClient()
             dataset = client.get_dataset(self.DATASET_NAME)
-            # Don't do export_to_gee if one of the 5 previous versions did an
+            # Don't do export_to_gee if one of the 15 previous versions did an
             # export_to_gee. The export to GEE is not required daily. Also,
             # each export can often take more than 24 hours (with retries), so
             # successive exports can cause errors for each other if they pile up and
             # run concurrently.
-            versions = sorted(dataset["versions"], reverse=True)[:5]
+            versions = sorted(dataset["versions"], reverse=True)[:15]
             export_to_gee = True
             for v in versions:
                 d = client.get_version(self.DATASET_NAME, v)
