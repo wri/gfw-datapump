@@ -198,6 +198,16 @@ class DataApiClient:
         uri = f"{GLOBALS.data_api_uri}/dataset/{dataset}/{version}"
         self._send_request(ValidMethods.delete, uri)
 
+    def delete_asset(self, asset_id: str) -> None:
+        uri = f"{GLOBALS.data_api_uri}/asset/{asset_id}"
+        self._send_request(ValidMethods.delete, uri)
+
+    # Delete all assets (if any) with specified searchstr in their asset_uri.
+    def delete_uri_asset(self, assets: List[Dict[str, Any]], searchstr: str) -> None:
+        for asset in assets:
+            if searchstr in asset["asset_uri"]:
+                self.delete_asset(asset["asset_id"])
+
     def get_asset_creation_options(self, asset_id: str) -> Dict[str, Any]:
         uri = f"{GLOBALS.data_api_uri}/asset/{asset_id}/creation_options"
         return self._send_request(ValidMethods.get, uri)["data"]
