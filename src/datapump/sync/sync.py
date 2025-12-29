@@ -873,6 +873,23 @@ class DISTAlertsSync(Sync):
 
         jobs: List[Job] = []
 
+        # We are saving all old weekly dist alert rasters, but delete in the
+        # second-to-last version all the other assets that can be reproduced from the
+        # default raster, including the intensity raster, date_conf raster, COGs, and
+        # asset resampled to 10 meters, etc.
+        client = DataApiClient()
+        dataset = client.get_dataset(self.dataset_name)
+        second_last_version = sorted(dataset["versions"], reverse=True)[2]
+
+        # Skip deletion if the second-to-last version is still marked "latest".
+        if second_last_version != latest_api_version:
+            assets = client.get_assets(self.dataset_name, second_last_version)
+            client.delete_uri_asset(assets, "/cog/intensity.tif")
+            client.delete_uri_asset(assets, "/cog/default.tif")
+            client.delete_uri_asset(assets, "/raster/epsg-4326/10/40000/intensity/")
+            client.delete_uri_asset(assets, "/date_conf/")
+            client.delete_uri_asset(assets, "/resample10/")
+
         slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
 
         job = RasterVersionUpdateJob(
