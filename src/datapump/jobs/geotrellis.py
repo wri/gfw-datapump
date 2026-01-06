@@ -309,7 +309,7 @@ class GeotrellisJob(Job):
 
                     versions_to_delete = versions[: -GLOBALS.max_versions]
                     for version in versions_to_delete:
-                        if version != "v202512":
+                        if version != "v202512" and version != "v202601":
                             client.delete_version(table.dataset, version)
 
             if (
