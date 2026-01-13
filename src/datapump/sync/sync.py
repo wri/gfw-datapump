@@ -1031,7 +1031,7 @@ class IntDistAlertsSync(Sync):
     )"""
     INPUT_CALC = " ".join(_INPUT_CALC.split())
 
-    content_date_description = "1 January 2023 – present (GFW has data since 1 December 2023, and in future, will display only the most recent 2 years of alert data)"
+    content_date_description = "January 1st, 2019 – present (GFW displays the most recent 2 years of alert data)"
 
     def __init__(self, sync_version: str):
         self.sync_version = sync_version
@@ -1089,7 +1089,7 @@ class IntDistAlertsSync(Sync):
                 timeout_sec=3 * 3600
             ),
             content_date_range=ContentDateRange(
-                start_date="2020-12-31", end_date=str(date.today())
+                start_date="2014-12-31", end_date=str(date.today())
             ),
             content_date_description=self.content_date_description
         )
