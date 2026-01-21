@@ -12,10 +12,10 @@ ENV PATH $MAVEN_HOME/bin:$PATH
 RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz -O - | tar -zxvf - && \
   mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
-RUN apk add --no-cache --upgrade bash gcc libc-dev python3 python3-dev geos-dev musl-dev linux-headers g++ git
+RUN apk add --no-cache --upgrade bash gcc libc-dev python3 python3-dev geos-dev musl-dev linux-headers g++ git libffi-dev
 RUN ln -sf python3 /usr/bin/python && \
   python3 -m ensurepip && \
-  pip3 install --no-cache-dir --upgrade pip setuptools pytest pytest-cov boto3 shapely
+  pip3 install --no-cache-dir --upgrade pip setuptools pytest pytest-cov boto3 shapely==2.0.1
 
 RUN mkdir datapump
 COPY ./src src
