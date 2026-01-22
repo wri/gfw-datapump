@@ -8,5 +8,6 @@ dependencies = [
     "boto3>=1.42.32",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "shapely==2.0.1",
+    "numpy<2",
+    "shapely==1.8.5.post1",
 ]
