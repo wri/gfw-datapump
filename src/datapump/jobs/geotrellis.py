@@ -94,8 +94,12 @@ class GeotrellisJob(Job):
     def __init__(self, *args, **kwargs):
         # Populate the fields using the normal Pydantic processing.
         super().__init__(*args, **kwargs)
-        # Force on-demand instances only for integrated alerts analysis on user areas (geostore).
-        if self.table.analysis == "integrated_alerts" and "geostore" in self.table.dataset:
+        # Force on-demand instances only for viirs and integrated alerts
+        # analysis on user areas (geostore).
+        if (
+            self.table.analysis in ("integrated_alerts", "viirs")
+            and "geostore" in self.table.dataset
+        ):
             self.on_demand_instances_only = True
 
     def next_step(self):
