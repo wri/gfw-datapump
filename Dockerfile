@@ -37,7 +37,7 @@ RUN curl -LsSf https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/u
 
 ENV PATH=${VENV_DIR}/bin:${PATH}
 
-COPY ./src /app/src
+COPY ./src /src
 
 COPY pyproject.toml /_lock/
 COPY uv.lock /_lock/
@@ -45,4 +45,4 @@ COPY uv.lock /_lock/
 RUN cd /_lock && \
     source $VENV_DIR/bin/activate && \
     uv sync --locked && \
-    uv pip install /app/src
+    uv pip install /src
