@@ -844,7 +844,7 @@ class GeotrellisJob(Job):
             GLOBALS.emr_version if Version(self.geotrellis_version) > Version("2.0.0") else "emr-6.1.0"
         )
 
-        # If using version 2.4.1 or earlier, use older GDAL version
+        # If using version 2.4.0 or earlier, use older GDAL version
         bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal-3.8.3.sh"
         if Version(self.geotrellis_version) < Version("2.4.1"):
             bootstrap_path = f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/bootstrap/gdal.sh"
