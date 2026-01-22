@@ -1018,13 +1018,23 @@ class IntDistAlertsSync(Sync):
     # date and its confidence (because this is a brand new alert on same pixel).
     # Otherwise, take the oldest alert date, but merge the confidences (since assumed
     # to be the same alert if within 180 days).
+    #
+    # If the 2nd np.where() applies, then we know B is non-zero. The 'if' condition
+    # of the 2nd np.where() will apply if A is zero (since B's date is definitely
+    # more than 180) or if B is more than 180 later than a non-zero A. So, the else
+    # condition of the 2nd np.where() only applies if both A and B are non-zero. In
+    # that case, the alert is definitely highest confidence and we take the minimum
+    # of the two dates.
+    #
+    # The use of A.data and B.data everywhere is getting the underlying unmasked
+    # data, but the mask value and non-alert value are both zero.
     _INPUT_CALC = """np.ma.array(
         (((A.data) > 0) | ((B.data) > 0)) *
           np.where(((B.data) == 0) | ((A.data)%10000 > ((B.data)%10000 + 180)),
               (A.data),
               np.where((B.data)%10000 > ((A.data)%10000 + 180),
                   (B.data),
-                  (10000 + 10000*np.minimum((A.data)//10000 + (B.data)//10000 - 1, 3)) + (65535 - np.maximum(((A.data) > 0) * (65535 - ((A.data)%10000)), ((B.data) > 0) * (65535 - ((B.data)%10000))))
+                  (40000 + np.minimum((A.data)%10000, (B.data)%10000))
              )
         ),
         mask=False
