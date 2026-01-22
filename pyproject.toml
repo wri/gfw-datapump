@@ -1,0 +1,12 @@
+[project]
+name = "gfw-datapump"
+version = "0.2.1"
+description = "Data pipelines to ingest, analyze, and store new data."
+readme = "README.md"
+requires-python = "~=3.9.0"
+dependencies = [
+    "boto3>=1.42.32",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "shapely==2.0.1",
+]
