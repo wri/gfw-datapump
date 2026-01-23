@@ -13,7 +13,10 @@ fi
 mkdir -p /app/tests/logs
 
 cd /app/tests/terraform
-terraform init && terraform plan -var-file="/app/tests/terraform/terraform-test.tfvars" && terraform apply -auto-approve -var-file="/app/tests/terraform/terraform-test.tfvars"
-cd /app/tests
+terraform init && \
+  terraform plan -var-file="/app/tests/terraform/terraform-test.tfvars" && \
+  terraform apply -auto-approve -var-file="/app/tests/terraform/terraform-test.tfvars"
 
+cd /app/tests
+. /app/.venv/bin/activate
 pytest tests
