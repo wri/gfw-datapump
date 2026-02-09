@@ -25,7 +25,7 @@ RUN apt-get -qy update && \
       libffi-dev \
       lsb-release \
       make \
-      openjdk11 && \
+      openjdk-11-jdk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists && \
     rm -rf /var/cache/apt
