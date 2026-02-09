@@ -24,7 +24,8 @@ RUN apt-get -qy update && \
       libpq-dev \
       libffi-dev \
       lsb-release \
-      make && \
+      make \
+      openjdk11 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists && \
     rm -rf /var/cache/apt
