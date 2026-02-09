@@ -1,6 +1,6 @@
 FROM --platform=linux/amd64 ubuntu:noble
 
-ENV PYTHON_VERSION="3.9" \
+ENV PYTHON_VERSION="3.10" \
     USR_LOCAL_BIN=/usr/local/bin \
     UV_VERSION="0.9.26" \
     VENV_DIR=/app/.venv \
