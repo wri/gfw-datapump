@@ -29,6 +29,12 @@ RUN apt-get -qy update && \
     rm -rf /var/lib/apt/lists && \
     rm -rf /var/cache/apt
 
+ENV MAVEN_VERSION="3.5.4"
+ENV MAVEN_HOME="/usr/lib/mvn"
+RUN curl https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar -zxvf - && \
+    mv apache-maven-$MAVEN_VERSION ${MAVEN_HOME}
+ENV PATH=${MAVEN_HOME}/bin:${PATH}
+
 RUN echo "Install terraform" && \
     curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor > /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list && \
