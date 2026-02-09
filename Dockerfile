@@ -18,9 +18,6 @@ RUN apt-get -qy update && \
       docker.io \
       git \
       gnupg \
-      jq \
-      libc-dev \
-      libgeos-dev \
       libpq-dev \
       libffi-dev \
       lsb-release \
