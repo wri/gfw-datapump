@@ -146,7 +146,7 @@ def test_radd_sync_nothing_newer(monkeypatch):
         lambda bucket, prefix: ["v20220222"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 209))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 210))
     )
     monkeypatch.setattr(sync, "delete_older_versions", lambda a1, a2, a3, a4: None)
 
@@ -174,7 +174,7 @@ def test_radd_sync_newer_available_with_valid_number_tiles(monkeypatch):
         lambda bucket, prefix: ["v20220222", "v20220221"],
     )
     monkeypatch.setattr(
-        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 208))
+        sync, "get_gs_files", lambda bucket, prefix, **kwargs: list(range(0, 209))
     )
     monkeypatch.setattr(sync, "delete_older_versions", lambda a1, a2, a3, a4: None)
 
