@@ -22,7 +22,7 @@ from ..util.gcs import get_gs_file_as_text, get_gs_files, get_gs_subfolders
 from ..util.models import ContentDateRange
 from ..util.util import log_and_notify_error
 from ..util.slack import slack_webhook
-
+from ..clients.aws import get_s3_client, write_template
 
 def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
                           save_versions: List[str]):
@@ -1009,7 +1009,7 @@ class IntDistAlertsSync(Sync):
         "gfw_integrated_alerts",
         "umd_glad_dist_alerts",
     ]
-    preserve_days = 14
+    preserve_days = 21
     save_versions = ["v20251101"]  # Preserve this single version for tests
 
     # The calculation to merge A (integrated alerts) and B (dist alerts). If only one
@@ -1072,6 +1072,36 @@ class IntDistAlertsSync(Sync):
 
         slack_webhook("INFO", f"Starting int-dist-alerts jobs for {self.DATASET_NAME}/{new_intdist_version}")
 
+        # Check if we should create nonoverlap COGs during this run. We only create a
+        # non-overlap COG (typically once a week) on the first int-dist alerts that
+        # is created after a new dist alerts version.
+        client = DataApiClient()
+        dataset = client.get_dataset(self.DATASET_NAME)
+        versions = sorted(dataset["versions"], reverse=True)
+        nonoverlap_version = ""
+        found_nonoverlap = False
+        for v in versions:
+            if v < latest_dist_version:
+                break
+            assets = client.get_assets(self.DATASET_NAME, v)
+            for a in assets:
+                if "nonoverlap.tif" in a["asset_uri"]:
+                    found_nonoverlap = True
+                    nonoverlap_version = v
+                    break
+            if found_nonoverlap:
+                break
+
+        if not found_nonoverlap:
+            nonoverlap_version = new_intdist_version
+            slack_webhook("INFO", f"Creating new nonoverlap COG at {self.DATASET_NAME}/{nonoverlap_version}")
+            print(f"Creating new nonoverlap COG {nonoverlap_version}")
+
+        # Now create the indist.vrt and intdistintensity.vrt files from a template.
+        s3_client = get_s3_client()
+        write_template(s3_client, f"s3://{GLOBALS.s3_bucket_data_lake}/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/intdist.vrt", intdist_vrt_template, nonoverlap_version, new_intdist_version)
+        write_template(s3_client, f"s3://{GLOBALS.s3_bucket_data_lake}/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/intdistintensity.vrt", intdistintensity_vrt_template, nonoverlap_version, new_intdist_version)
+
         job = RasterVersionUpdateJob(
             # Current week alerts tile set
             id=str(uuid1()),
@@ -1119,6 +1149,7 @@ class IntDistAlertsSync(Sync):
             ),
         ]
         job.cog_or_aux_asset_parameters = [
+            # Create the global COGs - to be removed once dual COGs are working fine.
             # Created from the "date_conf" asset
             CogAssetParameters(
                 source_pixel_meaning="date_conf",
@@ -1134,7 +1165,39 @@ class IntDistAlertsSync(Sync):
                 implementation="intensity",
                 blocksize=1024
             ),
+
+            # Create the overlap COGs
+            CogAssetParameters(
+                source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/date_conf/geotiff/overlap.geojson",
+                resampling="mode",
+                implementation="overlap",
+                blocksize=1024,
+                export_to_gee=False
+            ),
+            CogAssetParameters(
+                source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/intensity/geotiff/overlap.geojson",
+                resampling="bilinear",
+                implementation="overlapintensity",
+                blocksize=1024
+            ),
         ]
+        if not found_nonoverlap:
+            job.cog_or_aux_asset_parameters += [
+                # Created the nonoverlap COGs
+                CogAssetParameters(
+                    source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/date_conf/geotiff/nonoverlap.geojson",
+                    resampling="mode",
+                    implementation="nonoverlap",
+                    blocksize=1024,
+                    export_to_gee=False
+                ),
+                CogAssetParameters(
+                    source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/intensity/geotiff/nonoverlap.geojson",
+                    resampling="bilinear",
+                    implementation="nonoverlapintensity",
+                    blocksize=1024
+                ),
+            ]
 
         jobs.append(job)
 
@@ -1219,3 +1282,55 @@ class Syncer:
             return []
 
         return jobs
+
+
+intdist_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000">
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
+  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
+  <VRTRasterBand dataType="UInt16" band="1">
+    <NoDataValue>0</NoDataValue>
+    <ColorInterp>Gray</ColorInterp>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlap.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3600000" RasterYSize="1500000" DataType="UInt16" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+      <NODATA>0</NODATA>
+    </ComplexSource>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlap.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3000000" RasterYSize="700000" DataType="UInt16" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3000000" ySize="700000" />
+      <DstRect xOff="600000" yOff="600000" xSize="3000000" ySize="700000" />
+      <NODATA>0</NODATA>
+    </ComplexSource>
+  </VRTRasterBand>
+  <OverviewList resampling="nearest">2 4 8 16 32 64 128 256 512 1024 2048</OverviewList>
+</VRTDataset>
+"""
+
+intdistintensity_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000">
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
+  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
+  <VRTRasterBand dataType="Byte" band="1">
+    <ColorInterp>Gray</ColorInterp>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlapintensity.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3600000" RasterYSize="1500000" DataType="Byte" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlapintensity.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3000000" RasterYSize="700000" DataType="Byte" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3000000" ySize="700000" />
+      <DstRect xOff="600000" yOff="600000" xSize="3000000" ySize="700000" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <OverviewList resampling="nearest">2 4 8 16 32 64 128 256 512 1024 2048</OverviewList>
+</VRTDataset>
+"""

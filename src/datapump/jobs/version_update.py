@@ -281,18 +281,24 @@ class RasterVersionUpdateJob(Job):
 
         assets = client.get_assets(self.dataset, self.version)
         asset_id = ""
-        for asset in assets:
-            if asset["asset_type"] == "Raster tile set":
-                creation_options = client.get_asset_creation_options(asset['asset_id'])
-                if creation_options["pixel_meaning"] == co.source_pixel_meaning:
-                    if asset_id != "":
-                        self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
-                        return ""
-                    asset_id = asset["asset_id"]
+        if co.source_tiles != "":
+            # If source_tiles is specified, it is a path to a geojson file that lists
+            # all the tile files making up the cog.
+            asset_id = co.source_tiles
+        else:
+            # Else look for the asset with the specified source_pixel_meaning.
+            for asset in assets:
+                if asset["asset_type"] == "Raster tile set":
+                    creation_options = client.get_asset_creation_options(asset['asset_id'])
+                    if creation_options["pixel_meaning"] == co.source_pixel_meaning:
+                        if asset_id != "":
+                            self.errors.append(f"Multiple assets with pixel meaning '{co.source_pixel_meaning}'")
+                            return ""
+                        asset_id = asset["asset_id"]
 
-        if asset_id == "":
-            self.errors.append(f"Could not find asset with pixel meaning  '{co.source_pixel_meaning}'")
-            return ""
+            if asset_id == "":
+                self.errors.append(f"Could not find asset with pixel meaning  '{co.source_pixel_meaning}'")
+                return ""
 
         payload = {
             "asset_type": "COG",
