@@ -50,8 +50,8 @@ class RasterVersionUpdateCommand(StrictBaseModel):
 
 class CogAssetParameters(StrictBaseModel):
     implementation: str
-    source_pixel_meaning: str  # Supply one of either source_pixel_meaning or source_tiles
-    source_tiles: str
+    source_pixel_meaning: str = ""  # Supply one of either source_pixel_meaning or source_tiles
+    source_tiles: str = ""
     blocksize: int
     resampling: str = "mode"
     export_to_gee: bool = False
