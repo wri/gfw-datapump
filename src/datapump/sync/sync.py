@@ -1284,18 +1284,18 @@ class Syncer:
         return jobs
 
 
-intdist_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000">
+intdist_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1300000">
   <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
-  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
+  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  7.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
   <VRTRasterBand dataType="UInt16" band="1">
     <NoDataValue>0</NoDataValue>
     <ColorInterp>Gray</ColorInterp>
     <ComplexSource>
       <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlap.tif</SourceFilename>
       <SourceBand>1</SourceBand>
-      <SourceProperties RasterXSize="3600000" RasterYSize="1500000" DataType="UInt16" BlockXSize="1024" BlockYSize="1024" />
-      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
-      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+      <SourceProperties RasterXSize="3600000" RasterYSize="1300000" DataType="UInt16" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1300000" />
+      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1300000" />
       <NODATA>0</NODATA>
     </ComplexSource>
     <ComplexSource>
@@ -1303,7 +1303,7 @@ intdist_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000
       <SourceBand>1</SourceBand>
       <SourceProperties RasterXSize="3000000" RasterYSize="700000" DataType="UInt16" BlockXSize="1024" BlockYSize="1024" />
       <SrcRect xOff="0" yOff="0" xSize="3000000" ySize="700000" />
-      <DstRect xOff="600000" yOff="600000" xSize="3000000" ySize="700000" />
+      <DstRect xOff="600000" yOff="400000" xSize="3000000" ySize="700000" />
       <NODATA>0</NODATA>
     </ComplexSource>
   </VRTRasterBand>
@@ -1311,24 +1311,24 @@ intdist_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000
 </VRTDataset>
 """
 
-intdistintensity_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1500000">
+intdistintensity_vrt_template = """<VRTDataset rasterXSize="3600000" rasterYSize="1300000">
   <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
-  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
+  <GeoTransform> -1.8000000000000000e+02,  1.0000000000000000e-04,  0.0000000000000000e+00,  7.0000000000000000e+01,  0.0000000000000000e+00, -1.0000000000000000e-04</GeoTransform>
   <VRTRasterBand dataType="Byte" band="1">
     <ColorInterp>Gray</ColorInterp>
     <SimpleSource>
       <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlapintensity.tif</SourceFilename>
       <SourceBand>1</SourceBand>
-      <SourceProperties RasterXSize="3600000" RasterYSize="1500000" DataType="Byte" BlockXSize="1024" BlockYSize="1024" />
-      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
-      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1500000" />
+      <SourceProperties RasterXSize="3600000" RasterYSize="1300000" DataType="Byte" BlockXSize="1024" BlockYSize="1024" />
+      <SrcRect xOff="0" yOff="0" xSize="3600000" ySize="1300000" />
+      <DstRect xOff="0" yOff="0" xSize="3600000" ySize="1300000" />
     </SimpleSource>
     <SimpleSource>
       <SourceFilename relativeToVRT="0">/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlapintensity.tif</SourceFilename>
       <SourceBand>1</SourceBand>
       <SourceProperties RasterXSize="3000000" RasterYSize="700000" DataType="Byte" BlockXSize="1024" BlockYSize="1024" />
       <SrcRect xOff="0" yOff="0" xSize="3000000" ySize="700000" />
-      <DstRect xOff="600000" yOff="600000" xSize="3000000" ySize="700000" />
+      <DstRect xOff="600000" yOff="400000" xSize="3000000" ySize="700000" />
     </SimpleSource>
   </VRTRasterBand>
   <OverviewList resampling="nearest">2 4 8 16 32 64 128 256 512 1024 2048</OverviewList>
