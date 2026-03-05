@@ -429,7 +429,7 @@ class RasterVersionUpdateJob(Job):
             cmd = f"gdalbuildvrt {v.name}"
             for s in v.src_uris:
                 cmd += f" {s}"
-            res = subprocess.run(cmd, capture_out=True, text=True)
+            res = subprocess.run(cmd, capture_output=True, text=True)
             if res.returncode != 0:
                 print(f"Error running {cmd}, returncode {res.returncode}")
                 print(f"Output: {res.stdout}")
