@@ -16,7 +16,6 @@ RUN apt-get -qy update && \
       ca-certificates \
       curl \
       docker.io \
-      gdal-bin \
       git \
       gnupg \
       libpq-dev \

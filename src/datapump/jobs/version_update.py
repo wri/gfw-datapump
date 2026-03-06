@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from enum import Enum
 import json
 from typing import List, Optional, Union
-import subprocess
 
 import boto3
 import requests
@@ -11,8 +10,7 @@ from datapump.commands.version_update import (
     RasterTileCacheParameters,
     RasterTileSetParameters,
     CogAssetParameters,
-    AuxTileSetParameters,
-    VrtParameters
+    AuxTileSetParameters
 )
 from datapump.util.models import ContentDateRange
 from datapump.util.slack import slack_webhook
@@ -21,7 +19,6 @@ from ..clients.data_api import DataApiClient
 from ..globals import LOGGER
 from ..jobs.jobs import Job, JobStatus
 from ..util.exceptions import DataApiResponseError
-from ..clients.aws import get_s3_client, get_s3_path_parts
 
 
 # This class lists the stages for a RasterVersionUpdateJob. The stages run in
@@ -44,9 +41,6 @@ class RasterVersionUpdateJobStep(str, Enum):
     # used for creating a final auxiliary tile set which also takes a long time (so
     # best to run in parallel with the COGs, rather than earlier).
     creating_cog_or_aux_assets = "creating_cog_or_aux_assets"
-    # Create VRTs on the COGs. Only makes sense if creating_cog_or_aux_assets is set
-    # and has some CogAssetParameters entries.
-    creating_vrts = "creating_vrts"
     mark_latest = "mark_latest"
 
 class RasterVersionUpdateJob(Job):
@@ -59,7 +53,6 @@ class RasterVersionUpdateJob(Job):
     aggregated_tile_set_parameters: Optional[AuxTileSetParameters] = None
     aux_tile_set_parameters: List[AuxTileSetParameters] = []
     cog_or_aux_asset_parameters: List[Union[CogAssetParameters, AuxTileSetParameters]] = []
-    vrt_parameters: List[VrtParameters] = []
     timeout_sec = 24 * 60 * 60
     notify_gnw: bool = False
 
@@ -152,8 +145,6 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_cog_or_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
-                if self.vrt_parameters:
-                    self._create_vrts()
                 self.step = RasterVersionUpdateJobStep.mark_latest
                 self._mark_latest()
             elif status == JobStatus.failed:
@@ -422,21 +413,3 @@ class RasterVersionUpdateJob(Job):
                 f"Failed to trigger GNW notification for {self.dataset}/{self.version}: "
                 f"{resp.status_code} {resp.text}"
             )
-
-    def _create_vrts(self):
-        s3_client = get_s3_client()
-        for v in self.vrt_parameters:
-            cmd = f"gdalbuildvrt {v.name}"
-            for s in v.src_uris:
-                cmd += f" {s}"
-            res = subprocess.run(cmd, capture_output=True, text=True)
-            if res.returncode != 0:
-                print(f"Error running {cmd}, returncode {res.returncode}")
-                print(f"Output: {res.stdout}")
-            else:
-                dest_path = f"{v.dest_folder}/{v.name}"
-                (bucket, key) = get_s3_path_parts(dest_path)
-                try:
-                    s3_client.upload_file(Filename=v.name, Bucket=bucket, Key=key)
-                except Exception as e:
-                    LOGGER.error(f"Error uploading VRT file {v.name} to {dest_path}: {e}")

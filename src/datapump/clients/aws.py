@@ -44,3 +44,27 @@ def get_s3_path_parts(path):
 
 def get_s3_path(bucket, key):
     return "s3://{}/{}".format(bucket, key)
+
+
+def write_template(s3_client, s3_path, template_string, nonoverlap_version, new_intdist_version):
+    """
+    Fills a template string with version variables and writes it to S3.
+    """
+    filled_content = template_string.format(
+        nonoverlap_version=nonoverlap_version,
+        new_intdist_version=new_intdist_version
+    )
+
+    (bucket, key) = get_s3_path_parts(s3_path)
+
+    try:
+        s3_client.put_object(
+            Bucket=bucket,
+            Key=key,
+            Body=filled_content,
+            ContentType='text/plain'
+        )
+        print(f"Successfully wrote template to {s3_path}")
+    except Exception as e:
+        print(f"Error writing to S3: {e}")
+        raise

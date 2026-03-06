@@ -61,8 +61,3 @@ class AuxTileSetParameters(RasterTileSetParameters):
     source_uri: None = None
     auxiliary_asset_pixel_meaning: Optional[str]
     auxiliary_asset_version: Optional[str] = None
-
-class VrtParameters(StrictBaseModel):
-    name: str
-    dest_folder: str
-    src_uris: List[str]
