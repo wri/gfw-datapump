@@ -15,6 +15,7 @@ setup(
         "pyshp~=2.3.1",
         "pydantic~=1.10.11",
         "retry~=0.9.2",
-        "packaging~=24.2"
+        "packaging~=24.2",
+        "tifffile~=2025.5.10"
     ],  # noqa: E231
 )
