@@ -151,6 +151,7 @@ class RasterVersionUpdateJob(Job):
         elif self.step == RasterVersionUpdateJobStep.creating_cog_or_aux_assets:
             status = self._check_aux_assets_status()
             if status == JobStatus.complete:
+                LOGGER.info(f"Finished COGS, vrt_parameters {self.vrt_parameters}")
                 if self.vrt_parameters:
                     self._create_vrts()
                 self.step = RasterVersionUpdateJobStep.mark_latest
