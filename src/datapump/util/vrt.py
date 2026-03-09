@@ -3,6 +3,7 @@ import tifffile
 import logging
 
 from ..clients.aws import get_s3_path_parts
+from ..globals import LOGGER
 
 logging.getLogger('tifffile').setLevel(logging.CRITICAL)
 
@@ -13,6 +14,7 @@ def write_vrt(s3_client, s3_dest, s3_url1, s3_url2):
     having to load the large GDAL library/executables into the lambda layer.
     """
 
+    LOGGER.info(f"write_vrt {s3_dest}, from {s3_url1}, {s3_url2}")
     m1 = get_cog_metadata(s3_client, s3_url1)
     m2 = get_cog_metadata(s3_client, s3_url2)
 
@@ -43,6 +45,7 @@ def write_vrt(s3_client, s3_dest, s3_url1, s3_url2):
 </VRTDataset>"""
 
     bucket, key = get_s3_path_parts(s3_dest)
+    LOGGER.info(f"write_vrt to {bucket}, {key}: {vrt_xml}")
     s3_client.put_object(
         Bucket=bucket,
         Key=key,
