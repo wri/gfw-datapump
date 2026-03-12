@@ -1197,12 +1197,12 @@ class IntDistAlertsSync(Sync):
         job.vrt_parameters = [
             VrtParameters(name="intdist.vrt",
                           dest_folder=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog",
-                          src_uris=[f"/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlap.tif",
-                                    f"/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlap.tif"]),
+                          src_uris=[f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlap.tif",
+                                    f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlap.tif"]),
             VrtParameters(name="intdistintensity.vrt",
                           dest_folder=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog",
-                          src_uris=[f"/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlapintensity.tif",
-                                    f"/vsis3/gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlapintensity.tif"])
+                          src_uris=[f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{nonoverlap_version}/raster/epsg-4326/cog/nonoverlapintensity.tif",
+                                    f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/cog/overlapintensity.tif"])
         ]
 
         jobs.append(job)
