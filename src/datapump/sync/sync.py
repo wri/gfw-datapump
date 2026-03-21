@@ -1150,23 +1150,6 @@ class IntDistAlertsSync(Sync):
             ),
         ]
         job.cog_or_aux_asset_parameters = [
-            # Create the global COGs - to be removed once dual COGs are working fine.
-            # Created from the "date_conf" asset
-            CogAssetParameters(
-                source_pixel_meaning="date_conf",
-                resampling="mode",
-                implementation="default",
-                blocksize=1024,
-                export_to_gee=False
-            ),
-            # Created from the "intensity" asset
-            CogAssetParameters(
-                source_pixel_meaning="intensity",
-                resampling="bilinear",
-                implementation="intensity",
-                blocksize=1024
-            ),
-
             # Create the overlap COGs
             CogAssetParameters(
                 source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/date_conf/geotiff/overlap.geojson",
