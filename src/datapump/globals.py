@@ -64,4 +64,5 @@ class Globals(EnvSettings):
         "/tmp/.gcs/private_key.json", env="GOOGLE_APPLICATION_CREDENTIALS"
     )
 
+
 GLOBALS = Globals()

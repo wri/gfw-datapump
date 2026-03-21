@@ -9,7 +9,7 @@ import dateutil.tz as tz
 from datapump.clients.data_api import DataApiClient
 
 from ..clients.datapump_store import DatapumpConfig
-from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable
+from ..commands.analysis import FIRES_ANALYSES, AnalysisInputTable, Analysis
 from ..commands.sync import SyncType
 from ..commands.version_update import RasterTileCacheParameters, RasterTileSetParameters, CogAssetParameters, AuxTileSetParameters, VrtParameters
 from ..globals import GLOBALS, LOGGER
@@ -57,6 +57,12 @@ class Sync(ABC):
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         ...
 
+    # Define these fields in the Sync superclass, so mypy doesn't complain about
+    # their use in the following methods.
+    SOURCE_DATASETS: List[str] = []
+    preserve_days: int = 0
+    save_versions: List[str] = []
+
     def _get_latest_versions(self) -> Dict[str, str]:
         """ Get latest versions of each dataset in self.SOURCE_DATASETS"""
         client = DataApiClient()
@@ -74,9 +80,9 @@ class Sync(ABC):
 class FireAlertsSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version: str = sync_version
-        self.fire_alerts_type: Optional[SyncType] = None
-        self.fire_alerts_uri: Optional[str] = None
-        self.content_end_date: Optional[str] = None
+        self.fire_alerts_type: SyncType
+        self.fire_alerts_uri: str
+        self.content_end_date: str
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.fire_alerts_type is None:
@@ -88,11 +94,11 @@ class FireAlertsSync(Sync):
                 status=JobStatus.starting,
                 analysis_version=config.analysis_version,
                 sync_version=self.sync_version,
-                sync_type=config.sync_type,
+                sync_type=SyncType(config.sync_type),
                 table=AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
-                    analysis=config.analysis,
+                    analysis=Analysis(config.analysis),
                 ),
                 features_1x1=config.metadata["features_1x1"],
                 geotrellis_version=config.metadata["geotrellis_version"],
@@ -141,7 +147,7 @@ class GladSync(Sync):
                     table=AnalysisInputTable(
                         dataset=config.dataset,
                         version=config.dataset_version,
-                        analysis=config.analysis,
+                        analysis=Analysis(config.analysis),
                     ),
                     features_1x1=config.metadata["features_1x1"],
                     geotrellis_version=config.metadata["geotrellis_version"],
@@ -348,7 +354,7 @@ class IntegratedAlertsSync(Sync):
                 table=AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
-                    analysis=config.analysis,
+                    analysis=Analysis(config.analysis),
                 ),
                 features_1x1=config.metadata["features_1x1"],
                 geotrellis_version=config.metadata["geotrellis_version"],
@@ -1208,7 +1214,7 @@ class RWAreasSync(Sync):
                 "table": AnalysisInputTable(
                     dataset=config.dataset,
                     version=config.dataset_version,
-                    analysis=config.analysis,
+                    analysis=Analysis(config.analysis),
                 ),
                 "features_1x1": self.features_1x1,
                 "geotrellis_version": config.metadata["geotrellis_version"],
@@ -1239,7 +1245,7 @@ class Syncer:
         SyncType.gfw_integrated_dist_alerts: IntDistAlertsSync,
     }
 
-    def __init__(self, sync_types: List[SyncType], sync_version: str = None):
+    def __init__(self, sync_types: List[SyncType], sync_version: Optional[str] = None):
         self.sync_version: str = (
             sync_version if sync_version else self._get_latest_version()
         )
