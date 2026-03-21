@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
 import json
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 
 import boto3
 import requests
@@ -238,7 +238,7 @@ class RasterVersionUpdateJob(Job):
 
         co = tile_set_parameters
 
-        payload = {
+        payload: Dict[str, Any] = {
             "asset_type": "Raster tile set",
             "creation_options": {
                 "data_type": co.data_type,

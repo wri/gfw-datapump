@@ -14,7 +14,7 @@ NoDataType = Union[StrictInt, NonNumericFloat]
 
 class RasterTileSetParameters(StrictBaseModel):
     source_uri: Optional[List[str]]
-    calc: Optional[str]
+    calc: Optional[str] = None
     grid: str
     data_type: str
     no_data: Optional[Union[List[NoDataType], NoDataType]]
@@ -59,7 +59,7 @@ class CogAssetParameters(StrictBaseModel):
 
 class AuxTileSetParameters(RasterTileSetParameters):
     source_uri: None = None
-    auxiliary_asset_pixel_meaning: Optional[str]
+    auxiliary_asset_pixel_meaning: Optional[str] = None
     auxiliary_asset_version: Optional[str] = None
 
 class VrtParameters(StrictBaseModel):

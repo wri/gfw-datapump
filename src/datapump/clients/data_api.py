@@ -227,7 +227,7 @@ class DataApiClient:
     @staticmethod
     @retry(DataApiResponseError, delay=10, backoff=2, tries=3)
     def _send_request(
-        method: ValidMethods, uri: str, payload: Dict[str, Any] = None
+        method: ValidMethods, uri: str, payload: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         LOGGER.info(
             f"Send Data API request:\n"

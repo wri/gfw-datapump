@@ -8,7 +8,7 @@ from itertools import groupby
 from pathlib import Path
 from pprint import pformat
 from packaging.version import Version
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from ..clients.aws import get_emr_client, get_s3_client, get_s3_path_parts
 from ..clients.data_api import DataApiClient
@@ -484,7 +484,7 @@ class GeotrellisJob(Job):
     def _get_indices_and_cluster(
         self, analysis_agg: str, feature_agg: Optional[str] = None
     ) -> Tuple[List[Optional[Index]], Optional[Index]]:
-        indices = []
+        indices: List[Optional[Index]] = []
 
         id_col_constructor: Dict[Tuple[str, Optional[str]], List[str]] = {
             ("gadm", "iso"): ["iso"],
@@ -581,10 +581,10 @@ class GeotrellisJob(Job):
             cluster = None
         elif self.feature_type == "geostore":
             # for other geostore tables, use range index but still don't use cluster
-            indices.append(cluster)
+            indices.append(cast(Index, cluster))
             cluster = None
         else:
-            indices.append(cluster)
+            indices.append(cast(Index, cluster))
 
         if analysis_agg == "all":
             # TODO this clustering always fails because it goes beyond the
