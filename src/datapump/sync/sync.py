@@ -305,7 +305,7 @@ class IntegratedAlertsSync(Sync):
             # each export can often take more than 24 hours (with retries), so
             # successive exports can cause errors for each other if they pile up and
             # run concurrently.
-            versions = sorted(dataset["versions"], reverse=True)[:15]
+            versions = sorted(dataset["versions"], reverse=True)[:10]
             export_to_gee = True
             for v in versions:
                 d = client.get_version(self.DATASET_NAME, v)
