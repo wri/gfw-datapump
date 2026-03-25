@@ -894,7 +894,7 @@ class DISTAlertsSync(Sync):
             client.delete_uri_asset(assets, "/cog/default.tif")
             client.delete_uri_asset(assets, "/raster/epsg-4326/10/40000/intensity/")
             client.delete_uri_asset(assets, "/date_conf/")
-            client.delete_uri_asset(assets, "/resample10/")
+            client.delete_uri_asset(assets, "/resample10m/")
 
         slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
 
