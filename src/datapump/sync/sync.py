@@ -311,7 +311,7 @@ class IntegratedAlertsSync(Sync):
             # each export can often take more than 24 hours (with retries), so
             # successive exports can cause errors for each other if they pile up and
             # run concurrently.
-            versions = sorted(dataset["versions"], reverse=True)[:10]
+            versions = sorted(dataset["versions"], reverse=True)[:15]
             export_to_gee = True
             for v in versions:
                 d = client.get_version(self.DATASET_NAME, v)
@@ -894,7 +894,7 @@ class DISTAlertsSync(Sync):
             client.delete_uri_asset(assets, "/cog/default.tif")
             client.delete_uri_asset(assets, "/raster/epsg-4326/10/40000/intensity/")
             client.delete_uri_asset(assets, "/date_conf/")
-            client.delete_uri_asset(assets, "/resample10/")
+            client.delete_uri_asset(assets, "/resample10m/")
 
         slack_webhook("INFO", f"Starting dist-alerts jobs for {self.dataset_name}/{latest_release}")
 
