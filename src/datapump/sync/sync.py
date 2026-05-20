@@ -304,25 +304,30 @@ class IntegratedAlertsSync(Sync):
                 )
             ]
 
-            client = DataApiClient()
-            dataset = client.get_dataset(self.DATASET_NAME)
-            # Don't do export_to_gee if one of the 15 previous versions did an
-            # export_to_gee. The export to GEE is not required daily. Also,
-            # each export can often take more than 24 hours (with retries), so
-            # successive exports can cause errors for each other if they pile up and
-            # run concurrently.
-            versions = sorted(dataset["versions"], reverse=True)[:15]
-            export_to_gee = True
-            for v in versions:
-                d = client.get_version(self.DATASET_NAME, v)
-                for a in d["assets"]:
-                    if a[0] == "COG" and "default.tif" in a[1]:
-                        co = client.get_asset_creation_options(a[2])
-                        if co["export_to_gee"] is True:
-                            export_to_gee = False
-                            break
-                if export_to_gee is False:
-                    break
+            if True:
+                # Disable periodic export of integrated alerts COG to GEE for now.
+                # We will soon replace with export of int-dist alerts COG.
+                export_to_gee = False
+            else:
+                client = DataApiClient()
+                dataset = client.get_dataset(self.DATASET_NAME)
+                # Don't do export_to_gee if one of the 15 previous versions did an
+                # export_to_gee. The export to GEE is not required daily. Also,
+                # each export can often take more than 24 hours (with retries), so
+                # successive exports can cause errors for each other if they pile up and
+                # run concurrently.
+                versions = sorted(dataset["versions"], reverse=True)[:15]
+                export_to_gee = True
+                for v in versions:
+                    d = client.get_version(self.DATASET_NAME, v)
+                    for a in d["assets"]:
+                        if a[0] == "COG" and "default.tif" in a[1]:
+                            co = client.get_asset_creation_options(a[2])
+                            if co["export_to_gee"] is True:
+                                export_to_gee = False
+                                break
+                    if export_to_gee is False:
+                        break
 
             job.cog_or_aux_asset_parameters = [
                 # Created from the "date_conf" asset
