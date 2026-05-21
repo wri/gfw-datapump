@@ -1108,6 +1108,20 @@ class IntDistAlertsSync(Sync):
             slack_webhook("INFO", f"Creating new nonoverlap COG at {self.DATASET_NAME}/{nonoverlap_version}")
             print(f"Creating new nonoverlap COG {nonoverlap_version}")
 
+        # If the new overlap version is a different month than the last successful
+        # version, then create an overlap COG with block size 2048 and export it to
+        # GCS (for use as a GEE asset).
+        preceding_version: Optional[str] = None
+        for v in versions:
+            status = client.get_version(self.DATASET_NAME, v)["status"]
+            if status == "saved":
+                preceding_version = v
+                break
+        export_to_gee = False
+        if preceding_version:
+            export_to_gee = (new_intdist_version[5:7] != preceding_version[5:7])
+            slack_webhook("INFO", f"Creating overlap COG with block size 2048 at {self.DATASET_NAME}/{new_intdist_version} for GEE asset")
+
         job = RasterVersionUpdateJob(
             # Current week alerts tile set
             id=str(uuid1()),
@@ -1170,6 +1184,16 @@ class IntDistAlertsSync(Sync):
                 blocksize=1024
             ),
         ]
+        if export_to_gee:
+            job.cog_or_aux_asset_parameters += [
+                CogAssetParameters(
+                    source_tiles=f"s3://gfw-data-lake/gfw_integrated_dist_alerts/{new_intdist_version}/raster/epsg-4326/10/100000/date_conf/geotiff/overlap.geojson",
+                    resampling="mode",
+                    implementation="intdist_tropics",
+                    blocksize=2048,
+                    export_to_gee=True
+                ),
+            ]
         if not found_nonoverlap:
             job.cog_or_aux_asset_parameters += [
                 # Created the nonoverlap COGs
