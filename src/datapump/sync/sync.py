@@ -48,6 +48,26 @@ def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
         client.delete_version(dataset, v)
 
 
+def is_first_sunday(vers: str) -> bool:
+    try:
+        dt = datetime.strptime(vers, '%Y%m%d')
+        # .weekday() returns 0 for Monday, 1 for Tuesday, ..., and 6 for Sunday.
+        # The first Sunday of any month must fall within the first 7 days of the month (1 <= day <= 7).
+        return dt.weekday() == 6 and 1 <= dt.day <= 7
+    except ValueError:
+        # Handle invalid date strings
+        return False
+
+
+def dec_version(vers: str) -> str:
+    try:
+        dt = datetime.strptime(vers, '%Y%m%d')
+        prev_dt = dt - timedelta(days=1)
+        return prev_dt.strftime('%Y%m%d')
+    except ValueError:
+        raise ValueError(f"Invalid version string format: '{vers}'. Must be 'yyyymmdd' representing a valid date.")
+
+
 class Sync(ABC):
     @abstractmethod
     def __init__(self, sync_version: str):
@@ -1108,18 +1128,24 @@ class IntDistAlertsSync(Sync):
             slack_webhook("INFO", f"Creating new nonoverlap COG at {self.DATASET_NAME}/{nonoverlap_version}")
             print(f"Creating new nonoverlap COG {nonoverlap_version}")
 
-        # If the new overlap version is a different month than the last successful
-        # version, then create an overlap COG with block size 2048 and export it to
-        # GCS (for use as a GEE asset).
-        preceding_version: Optional[str] = None
-        for v in versions:
-            status = client.get_version(self.DATASET_NAME, v)["status"]
-            if status == "saved":
-                preceding_version = v
-                break
+        # Create overlap COG with block size 2048 and export to GCS (for use as a GEE
+        # asset) on the first Sunday of the month (or the next version actually
+        # created after the first Sunday).
         export_to_gee = False
-        if preceding_version:
-            export_to_gee = (new_intdist_version[5:7] != preceding_version[5:7])
+        if is_first_sunday(new_intdist_version):
+            export_to_gee = True
+        else:
+            v = dec_version(new_intdist_version)
+            # Check if first Sunday occurred when there was no version created, in which case
+            # create now
+            for i in range(7):
+                if is_first_sunday(v):
+                    if v not in versions:
+                        export_to_gee = True
+                    break
+                v = dec_version(v)
+
+        if export_to_gee:
             slack_webhook("INFO", f"Creating overlap COG with block size 2048 at {self.DATASET_NAME}/{new_intdist_version} for GEE asset")
 
         job = RasterVersionUpdateJob(
