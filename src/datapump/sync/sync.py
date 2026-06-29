@@ -50,7 +50,7 @@ def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
 
 def is_first_sunday(vers: str) -> bool:
     try:
-        dt = datetime.strptime(vers, '%Y%m%d')
+        dt = datetime.strptime(vers, 'v%Y%m%d')
         # .weekday() returns 0 for Monday, 1 for Tuesday, ..., and 6 for Sunday.
         # The first Sunday of any month must fall within the first 7 days of the month (1 <= day <= 7).
         return dt.weekday() == 6 and 1 <= dt.day <= 7
@@ -61,9 +61,9 @@ def is_first_sunday(vers: str) -> bool:
 
 def dec_version(vers: str) -> str:
     try:
-        dt = datetime.strptime(vers, '%Y%m%d')
+        dt = datetime.strptime(vers, 'v%Y%m%d')
         prev_dt = dt - timedelta(days=1)
-        return prev_dt.strftime('%Y%m%d')
+        return prev_dt.strftime('v%Y%m%d')
     except ValueError:
         raise ValueError(f"Invalid version string format: '{vers}'. Must be 'yyyymmdd' representing a valid date.")
 
