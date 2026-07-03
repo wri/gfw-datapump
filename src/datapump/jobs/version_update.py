@@ -406,14 +406,15 @@ class RasterVersionUpdateJob(Job):
             self.errors.append("Setting is_latest status failed")
             return JobStatus.failed
 
-    def _get_slack_webhook(self, prefect_pipeline):
+    def get_prefect_webhook(self, dataset):
+        """Get prefect webhook URL for specified dataset from the secrets manager"""
         client = boto3.client("secretsmanager")
         response = client.get_secret_value(SecretId="prefect/webhook_urls")
-        return json.loads(response["SecretString"])[prefect_pipeline]
+        return json.loads(response["SecretString"])[dataset]
 
     def _trigger_gnw_analysis(self):
-        """Trigger GNW prefect pipeline with new version."""
-        gnw_webhook_url = self._get_slack_webhook(self.dataset)
+        """Trigger GNW prefect pipeline based on new version of self.dataset."""
+        gnw_webhook_url = self.get_prefect_webhook(self.dataset)
         resp = requests.post(
             gnw_webhook_url, json={"dataset": self.dataset, "version": self.version, "is_latest": True}
         )

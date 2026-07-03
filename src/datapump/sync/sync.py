@@ -48,12 +48,12 @@ def delete_older_versions(dataset: str, cur_version: str, preservedays: int,
         client.delete_version(dataset, v)
 
 
-def is_first_sunday(vers: str) -> bool:
+def is_sunday(vers: str, first_sunday_of_month: bool = False) -> bool:
     try:
         dt = datetime.strptime(vers, 'v%Y%m%d')
         # .weekday() returns 0 for Monday, 1 for Tuesday, ..., and 6 for Sunday.
         # The first Sunday of any month must fall within the first 7 days of the month (1 <= day <= 7).
-        return dt.weekday() == 6 and 1 <= dt.day <= 7
+        return dt.weekday() == 6 and (not first_sunday_of_month or (1 <= dt.day <= 7))
     except ValueError:
         # Handle invalid date strings
         return False
@@ -1132,7 +1132,7 @@ class IntDistAlertsSync(Sync):
         # asset) on the first Sunday of the month (or the next version actually
         # created after the first Sunday).
         export_to_gee = False
-        if is_first_sunday(new_intdist_version):
+        if is_sunday(new_intdist_version, first_sunday_of_month=True):
             export_to_gee = True
         else:
             v = dec_version(new_intdist_version)
@@ -1141,13 +1141,27 @@ class IntDistAlertsSync(Sync):
             for i in range(7):
                 if v in versions:
                     break
-                if is_first_sunday(v):
+                if is_sunday(v, first_sunday_of_month=True):
                     export_to_gee = True
                     break
                 v = dec_version(v)
 
         if export_to_gee:
             slack_webhook("INFO", f"Creating overlap COG with block size 2048 at {self.DATASET_NAME}/{new_intdist_version} for GEE asset")
+
+        notify_gnw = False
+        if is_sunday(new_intdist_version):
+            notify_gnw = True
+        else:
+            for i in range(7):
+                if v in versions:
+                    break
+                if is_sunday(v):
+                    notify_gnw = True
+                    break
+                v = dec_version(v)
+        if notify_gnw:
+            slack_webhook("INFO", f"Runnning GNW pipeline for {self.DATASET_NAME}/{new_intdist_version}")
 
         job = RasterVersionUpdateJob(
             # Current week alerts tile set
@@ -1178,7 +1192,8 @@ class IntDistAlertsSync(Sync):
             content_date_range=ContentDateRange(
                 start_date="2014-12-31", end_date=str(date.today())
             ),
-            content_date_description=self.content_date_description
+            content_date_description=self.content_date_description,
+            notify_gnw=notify_gnw
         )
         job.aux_tile_set_parameters = [
             # Create the "intensity" tile set used to make the "intensity" COG.
