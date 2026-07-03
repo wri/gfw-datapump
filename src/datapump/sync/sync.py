@@ -1136,12 +1136,13 @@ class IntDistAlertsSync(Sync):
             export_to_gee = True
         else:
             v = dec_version(new_intdist_version)
-            # Check if first Sunday occurred when there was no version created, in which case
-            # create now
+            # Check if no version has been created since first Sunday occurred, in
+            # which case create now.
             for i in range(7):
+                if v in versions:
+                    break
                 if is_first_sunday(v):
-                    if v not in versions:
-                        export_to_gee = True
+                    export_to_gee = True
                     break
                 v = dec_version(v)
 
