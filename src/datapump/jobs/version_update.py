@@ -406,7 +406,7 @@ class RasterVersionUpdateJob(Job):
             self.errors.append("Setting is_latest status failed")
             return JobStatus.failed
 
-    def get_prefect_webhook(self, dataset):
+    def _get_prefect_webhook(self, dataset):
         """Get prefect webhook URL for specified dataset from the secrets manager"""
         client = boto3.client("secretsmanager")
         response = client.get_secret_value(SecretId="prefect/webhook_urls")
@@ -414,7 +414,7 @@ class RasterVersionUpdateJob(Job):
 
     def _trigger_gnw_analysis(self):
         """Trigger GNW prefect pipeline based on new version of self.dataset."""
-        gnw_webhook_url = self.get_prefect_webhook(self.dataset)
+        gnw_webhook_url = self._get_prefect_webhook(self.dataset)
         resp = requests.post(
             gnw_webhook_url, json={"dataset": self.dataset, "version": self.version, "is_latest": True}
         )
@@ -423,6 +423,7 @@ class RasterVersionUpdateJob(Job):
                 f"Failed to trigger GNW notification for {self.dataset}/{self.version}: "
                 f"{resp.status_code} {resp.text}"
             )
+        slack_webhook("INFO", f"Running GNW pipeline for {self.dataset}/{self.version}")
 
     def _create_vrts(self):
         # Currently only creates VRTs with 2 components (2 elements in src_uris[])

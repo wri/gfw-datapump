@@ -1153,6 +1153,9 @@ class IntDistAlertsSync(Sync):
         if is_sunday(new_intdist_version):
             notify_gnw = True
         else:
+            v = dec_version(new_intdist_version)
+            # Check if no version has been created since a Sunday occurred, in
+            # which case notify now.
             for i in range(7):
                 if v in versions:
                     break
@@ -1160,8 +1163,6 @@ class IntDistAlertsSync(Sync):
                     notify_gnw = True
                     break
                 v = dec_version(v)
-        if notify_gnw:
-            slack_webhook("INFO", f"Runnning GNW pipeline for {self.DATASET_NAME}/{new_intdist_version}")
 
         job = RasterVersionUpdateJob(
             # Current week alerts tile set
