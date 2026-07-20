@@ -29,10 +29,10 @@ resource "aws_cloudwatch_event_rule" "everyday-230-am-pst" {
   tags                = local.tags
 }
 
-resource "aws_cloudwatch_event_rule" "everyday-11-am-pst" {
-  name                = substr("everyday-11-am-pst${local.name_suffix}", 0, 64)
-  description         = "Run everyday at 11 am PST"
-  schedule_expression = "cron(0 19 ? * * *)"
+resource "aws_cloudwatch_event_rule" "everyday-12-pm-pst" {
+  name                = substr("everyday-12-pm-pst${local.name_suffix}", 0, 64)
+  description         = "Run everyday at 12 pm PST"
+  schedule_expression = "cron(0 20 ? * * *)"
   tags                = local.tags
 }
 
@@ -96,10 +96,11 @@ resource "aws_cloudwatch_event_target" "sync-integrated-alerts" {
   count     = var.environment == "production" ? 1 : 0
 }
 
-# Run every day at 11am PST, but new data from UMD should only be available on Saturday morning,
-# so should only do a full run generating a new version once a week on Saturday/Sunday.
+# Run every day at 12pm (noon) PST, but new data from UMD should only be available on
+# Saturday morning, so should only do a full run generating a new version once a week
+# on Saturday/Sunday.
 resource "aws_cloudwatch_event_target" "sync-dist-alerts" {
-  rule      = aws_cloudwatch_event_rule.everyday-11-am-pst.name
+  rule      = aws_cloudwatch_event_rule.everyday-12-pm-pst.name
   target_id = substr("${local.project}-sync-umd-glad-dist-alerts${local.name_suffix}", 0, 64)
   arn       = aws_sfn_state_machine.datapump.id
   input    = "{\"command\": \"sync\", \"parameters\": {\"types\": [\"umd_glad_dist_alerts\"]}}"
