@@ -1,0 +1,18 @@
+name: gfw-datapump
+id: ari:cloud:compass:9e6ae18b-aaf1-4b81-b8dc-143cae66ae09:component/2466cdc0-d697-40cb-9612-93c0370df8ee/e63e3f6a-146c-4032-9868-9bedc017cc11
+description: Nightly batch process to generate summary statistics for user AOIs
+configVersion: 1
+typeId: DATA_PIPELINE
+ownerId: ari:cloud:identity::team/e1395033-4c36-4ef0-9865-d4a1a95986e4
+fields:
+  tier: 4
+links:
+  - name: null
+    type: REPOSITORY
+    url: https://github.com/wri/gfw-datapump
+relationships:
+  DEPENDS_ON: []
+labels:
+  - language:python
+  - source:github
+customFields: null
