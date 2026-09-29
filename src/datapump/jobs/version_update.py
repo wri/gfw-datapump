@@ -434,4 +434,5 @@ class RasterVersionUpdateJob(Job):
                 dest_path = f"{v.dest_folder}/{v.name}"
                 write_vrt(s3_client, dest_path, v.src_uris[0], v.src_uris[1])
             except Exception as e:
-                LOGGER.error(f"Error creating or uploading VRT file {dest_path}: {e}")
+                LOGGER.error(f"Error creating or uploading VRT file {dest_path} for {v.src_uris[0]}, {v.src_uris[1]}: {e}")
+                raise e
