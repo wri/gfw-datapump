@@ -155,6 +155,41 @@ def test_radd_sync_nothing_newer(monkeypatch):
     assert raster_jobs == []
 
 
+def _fake_gladl_bucket(monkeypatch, today: date, last_daily: date):
+    """GLAD-L source bucket where 2021-2024 are finalized, 2025 isn't, and 2026
+    has a complete but frozen "final" folder next to daily releases."""
+
+    def get_gs_files(bucket, prefix, **kwargs):
+        tiles = list(range(GLADLAlertsSync.number_of_tiles))
+        parts = prefix.split("/")
+        year = int(parts[2])
+        if parts[3] == "final":
+            return tiles if year != 2025 else []
+        month, day = map(int, parts[3].split("_"))
+        return (
+            tiles
+            if year == last_daily.year and date(year, month, day) <= last_daily
+            else []
+        )
+
+    monkeypatch.setattr(sync, "get_gs_files", get_gs_files)
+    monkeypatch.setattr(GLADLAlertsSync, "get_today", staticmethod(lambda: today))
+
+
+def test_gladl_latest_release_ignores_current_year_final(monkeypatch):
+    # UMD published a complete but frozen 2026/final on 2026-07-27, which must
+    # not take priority over the daily releases of the current year
+    _fake_gladl_bucket(monkeypatch, date(2026, 10, 5), date(2026, 10, 5))
+
+    version, source_uris = GLADLAlertsSync("v20220222").get_latest_release()
+
+    assert version == "v20261005"
+    assert any("2026/10_05/alertDate26" in uri for uri in source_uris)
+    assert not any("2026/final" in uri for uri in source_uris)
+    # finalized past years still use their final folders
+    assert any("2024/final/alertDate24" in uri for uri in source_uris)
+
+
 def test_radd_sync_newer_available_with_valid_number_tiles(monkeypatch):
     mock_dp_config = DatapumpConfig(
         analysis_version="v20220101",
