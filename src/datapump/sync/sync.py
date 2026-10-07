@@ -715,12 +715,19 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         # differentiate them (there are two bands/sets of tiles, named
         # like alert{two_digit_year} and alertDate{two_digit_year}).
         # So.
-        # For a given year's data, first see if it's already been finalized
-        # (i.e. there are tiles in year/final). If not, find the last day it
-        # was released as provisional data (which may be today or some time
-        # in the past: As of this writing they have stopped including the 2021
-        # data in daily updates but have not yet put anything in the "final"
-        # folder).
+        # For a given past year's data, first see if it's already been
+        # finalized (i.e. there are tiles in year/final). If not, find the
+        # last day it was released as provisional data (which may be today or
+        # some time in the past: As of this writing they have stopped
+        # including the 2021 data in daily updates but have not yet put
+        # anything in the "final" folder).
+        # The current year is different: always use its latest daily release.
+        # Historically "final" folders were only published for years that were
+        # already over (2021-2024 were each published 7+ months after year
+        # end), but on 2026-07-27 UMD published a complete 2026/final that was
+        # frozen at 2026-07-25 (day of year 206) while daily releases
+        # continued, with some differing confidence values from the daily
+        # data. We can't tell yet whether that's a one-off or a new scheme.
         today = self.get_today()
 
         source_uris: List[str] = []
@@ -729,10 +736,16 @@ class GLADLAlertsSync(DeforestationAlertsSync):
         for target_year in range(self.start_year, today.year + 1):
             two_digit_year = str(target_year)[-2:]
 
-            tiles: List[str] = get_gs_files(
-                self.source_bucket,
-                f"{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}",
-                extensions=[".tif"],
+            # No "final" lookup for the current year (see above); no tiles
+            # here means we fall through to the daily releases.
+            tiles: List[str] = (
+                []
+                if target_year == today.year
+                else get_gs_files(
+                    self.source_bucket,
+                    f"{self.source_prefix}/{target_year}/final/alertDate{two_digit_year}",
+                    extensions=[".tif"],
+                )
             )
 
             if len(tiles) > self.number_of_tiles:

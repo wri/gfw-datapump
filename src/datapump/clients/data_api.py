@@ -51,7 +51,7 @@ class DataApiClient:
                 f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/features/geostore/*.tsv"
             )
         elif dataset == "gadm" and version == "v3.6":
-            return "s3://gfw-files/2018_update/tsv/gadm36_adm2_1_1.csv"
+            return f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/features/gadm36_adm2_1_1.tsv"
         elif dataset == "gadm" and version == "v4.1":
             return f"s3://{GLOBALS.s3_bucket_pipeline}/geotrellis/features/gadm41_adm2_1x1.tsv"
 
