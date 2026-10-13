@@ -960,7 +960,10 @@ class DISTAlertsSync(Sync):
                 start_date="2020-12-31", end_date=str(date.today())
             ),
             content_date_description=self.content_date_description,
-            notify_gnw=True
+            # We no longer need to run the Prefect pipeline for dist alerts. Instead,
+            # we invoke the Prefect pipeline once a week only for int-dist alerts
+            # (search for notify_gnw below).
+            notify_gnw=False
 
         )
         job.aggregated_tile_set_parameters = AuxTileSetParameters(
