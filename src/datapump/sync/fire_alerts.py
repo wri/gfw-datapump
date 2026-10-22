@@ -2,7 +2,7 @@ import csv
 import glob
 import io
 import os
-import shutil
+import tempfile
 import zipfile
 
 import requests
@@ -50,31 +50,30 @@ def process_active_fire_alerts(alert_type):
 
     LOGGER.info("Successfully downloaded alerts from NASA")
 
-    zip = zipfile.ZipFile(io.BytesIO(response.content))
-    shp_dir = f"{TEMP_DIR}/fire_alerts_{alert_type}"
-    zip.extractall(shp_dir)
-
-    # Find the shapefile rather than hardcoding its name, since the name depends on
-    # the satellite (e.g. J1_VIIRS_C2_Global_7d.shp for NOAA-20).
-    shp_paths = glob.glob(f"{shp_dir}/*.shp")
-    if len(shp_paths) != 1:
-        raise Exception(
-            f"{alert_type} fire alerts zip downloaded, but contains {len(shp_paths)} .shp files, expected 1!"
-        )
-
-    sf = shapefile.Reader(shp_paths[0])
-
+    # Extract to a temporary directory that is always removed, since the raw shapefile
+    # can be big and hit max lambda storage size of 512 MB
     rows = []
-    for shape_record in sf.iterShapeRecords():
-        row = shape_record.record.as_dict()
-        row["LATITUDE"] = shape_record.shape.points[0][1]
-        row["LONGITUDE"] = shape_record.shape.points[0][0]
-        row["ACQ_DATE"] = row["ACQ_DATE"].strftime("%Y-%m-%d")
-        rows.append(row)
+    with tempfile.TemporaryDirectory(
+        prefix=f"fire_alerts_{alert_type}_", dir=TEMP_DIR
+    ) as shp_dir:
+        zip = zipfile.ZipFile(io.BytesIO(response.content))
+        zip.extractall(shp_dir)
 
-    sf.close()
-    # remove raw shapefile, since it can be big and hit max lambda storage size of 512 MB
-    shutil.rmtree(shp_dir)
+        # Find the shapefile rather than hardcoding its name, since the name depends on
+        # the satellite (e.g. J1_VIIRS_C2_Global_7d.shp for NOAA-20).
+        shp_paths = glob.glob(f"{shp_dir}/*.shp")
+        if len(shp_paths) != 1:
+            raise Exception(
+                f"{alert_type} fire alerts zip downloaded, but contains {len(shp_paths)} .shp files, expected 1!"
+            )
+
+        with shapefile.Reader(shp_paths[0]) as sf:
+            for shape_record in sf.iterShapeRecords():
+                row = shape_record.record.as_dict()
+                row["LATITUDE"] = shape_record.shape.points[0][1]
+                row["LONGITUDE"] = shape_record.shape.points[0][0]
+                row["ACQ_DATE"] = row["ACQ_DATE"].strftime("%Y-%m-%d")
+                rows.append(row)
 
     if not rows:
         LOGGER.warning(f"{alert_type} fire alerts file from {url} has no alerts, skipping sync")
