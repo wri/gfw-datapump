@@ -601,3 +601,159 @@ EXPECTED = {
         ],
     },
 }
+
+
+def _fake_firms_zip(shp_name: str, records: List[tuple]) -> bytes:
+    """Build an in-memory FIRMS-style VIIRS shapefile zip.
+    Each record is (lon, lat, acq_date, acq_time, confidence)."""
+    import io
+    import zipfile
+
+    import shapefile
+
+    shp, shx, dbf = io.BytesIO(), io.BytesIO(), io.BytesIO()
+    writer = shapefile.Writer(shp=shp, shx=shx, dbf=dbf, shapeType=shapefile.POINT)
+    writer.field("BRIGHT_TI4", "N", decimal=2)
+    writer.field("ACQ_DATE", "D")
+    writer.field("ACQ_TIME", "C", size=4)
+    writer.field("SATELLITE", "C", size=3)
+    writer.field("CONFIDENCE", "C", size=8)
+    writer.field("BRIGHT_TI5", "N", decimal=2)
+    writer.field("FRP", "N", decimal=2)
+    for lon, lat, acq_date, acq_time, confidence in records:
+        writer.point(lon, lat)
+        writer.record(311.1, acq_date, acq_time, "N20", confidence, 298.9, 1.8)
+    writer.close()
+
+    zip_bytes = io.BytesIO()
+    with zipfile.ZipFile(zip_bytes, "w") as zf:
+        for ext, buf in (("shp", shp), ("shx", shx), ("dbf", dbf)):
+            zf.writestr(f"{shp_name}.{ext}", buf.getvalue())
+    return zip_bytes.getvalue()
+
+
+class _FakeS3Client:
+    def __init__(self):
+        self.uploads = {}
+
+    def upload_fileobj(self, fileobj, Bucket, Key):
+        self.uploads[Key] = fileobj.read().decode()
+
+
+def _mock_firms(monkeypatch, zip_content: bytes, last_saved=("0000-00-00", "0000")):
+    import datapump.sync.fire_alerts as fire_alerts
+
+    class FakeResponse:
+        status_code = 200
+        content = zip_content
+
+    requested_urls = []
+
+    def fake_get(url):
+        requested_urls.append(url)
+        return FakeResponse()
+
+    s3_client = _FakeS3Client()
+    monkeypatch.setattr(fire_alerts.requests, "get", fake_get)
+    monkeypatch.setattr(fire_alerts, "get_s3_client", lambda: s3_client)
+    monkeypatch.setattr(
+        fire_alerts, "_get_last_saved_alert_time", lambda directory: last_saved
+    )
+    return requested_urls, s3_client
+
+
+def test_viirs_alerts_uses_noaa20_and_writes_new_alerts(monkeypatch):
+    from datapump.sync.fire_alerts import process_active_fire_alerts
+
+    monkeypatch.delenv("VIIRS_FIRE_ALERTS_URL", raising=False)
+    zip_content = _fake_firms_zip(
+        "J1_VIIRS_C2_Global_7d",
+        [
+            (10.0, 1.0, date(2026, 10, 20), "0100", "nominal"),
+            (20.0, 2.0, date(2026, 10, 21), "1200", "high"),
+            (30.0, 3.0, date(2026, 10, 20), "2300", "low"),
+        ],
+    )
+    requested_urls, s3_client = _mock_firms(
+        monkeypatch, zip_content, last_saved=("2026-10-20", "0100")
+    )
+
+    uri, end_date = process_active_fire_alerts("viirs")
+
+    assert requested_urls == [
+        "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/shapes/zips/J1_VIIRS_C2_Global_7d.zip"
+    ]
+    key = "nasa_viirs_fire_alerts/v1/vector/epsg-4326/tsv/near_real_time/2026-10-20-2300_2026-10-21-1200.tsv"
+    assert uri == f"s3a://gfw-data-lake-test/{key}"
+    assert end_date == "2026-10-21"
+
+    lines = s3_client.uploads[key].splitlines()
+    assert lines[0].split("\t") == [
+        "latitude", "longitude", "acq_date", "acq_time", "confidence",
+        "bright_ti4", "bright_ti5", "frp",
+    ]
+    # The 2026-10-20 0100 alert was already saved, so only the two newer ones are written
+    assert [line.split("\t")[2:5] for line in lines[1:]] == [
+        ["2026-10-20", "2300", "l"],
+        ["2026-10-21", "1200", "h"],
+    ]
+
+
+def test_viirs_alerts_url_override(monkeypatch):
+    from datapump.sync.fire_alerts import process_active_fire_alerts
+
+    override = "https://example.com/J2_VIIRS_C2_Global_7d.zip"
+    monkeypatch.setenv("VIIRS_FIRE_ALERTS_URL", override)
+    zip_content = _fake_firms_zip(
+        "J2_VIIRS_C2_Global_7d",
+        [(10.0, 1.0, date(2026, 10, 20), "0100", "nominal")],
+    )
+    requested_urls, _ = _mock_firms(monkeypatch, zip_content)
+
+    uri, _ = process_active_fire_alerts("viirs")
+
+    assert requested_urls == [override]
+    assert uri.endswith("2026-10-20-0100_2026-10-20-0100.tsv")
+
+
+def test_viirs_alerts_empty_file(monkeypatch):
+    from datapump.sync.fire_alerts import process_active_fire_alerts
+
+    _, s3_client = _mock_firms(
+        monkeypatch, _fake_firms_zip("J1_VIIRS_C2_Global_7d", [])
+    )
+
+    assert process_active_fire_alerts("viirs") == (None, None)
+    assert s3_client.uploads == {}
+
+
+def test_viirs_alerts_nothing_newer(monkeypatch):
+    from datapump.sync.fire_alerts import process_active_fire_alerts
+
+    zip_content = _fake_firms_zip(
+        "J1_VIIRS_C2_Global_7d",
+        [(10.0, 1.0, date(2026, 10, 20), "0100", "nominal")],
+    )
+    _, s3_client = _mock_firms(
+        monkeypatch, zip_content, last_saved=("2026-10-20", "0100")
+    )
+
+    assert process_active_fire_alerts("viirs") == (None, None)
+    assert s3_client.uploads == {}
+
+
+def test_viirs_sync_no_new_alerts_builds_no_jobs(monkeypatch):
+    monkeypatch.setattr(
+        sync, "process_active_fire_alerts", lambda alert_type: (None, None)
+    )
+    mock_dp_config = DatapumpConfig(
+        analysis_version="v20210122",
+        dataset="test_dataset",
+        dataset_version="vtestds",
+        analysis="viirs",
+        sync=True,
+        sync_type="viirs",
+        metadata={"features_1x1": "s3://test/features.tsv", "geotrellis_version": "1.0"},
+    )
+
+    assert sync.ViirsSync("v20261022").build_jobs(mock_dp_config) == []

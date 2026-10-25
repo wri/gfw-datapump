@@ -101,12 +101,16 @@ class FireAlertsSync(Sync):
     def __init__(self, sync_version: str):
         self.sync_version: str = sync_version
         self.fire_alerts_type: SyncType
-        self.fire_alerts_uri: str
-        self.content_end_date: str
+        self.fire_alerts_uri: Optional[str]
+        self.content_end_date: Optional[str]
 
     def build_jobs(self, config: DatapumpConfig) -> List[Job]:
         if self.fire_alerts_type is None:
             raise RuntimeError("No Alert type set")
+
+        # No new alerts were found, so there is nothing to sync
+        if self.fire_alerts_uri is None:
+            return []
 
         return [
             FireAlertsGeotrellisJob(
